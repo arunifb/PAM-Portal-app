@@ -1,0 +1,50 @@
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: linear-gradient(to right, #8e2de2, #4a00e0);
+}
+
+.login-container {
+    min-height: 100vh;
+}
+
+.login-card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+.login-header {
+    background: #dc3545;
+    padding: 20px;
+    text-align: center;
+    color: white;
+}
+
+.login-header h2 {
+    margin: 0;
+    font-weight: bold;
+}
+
+.login-body {
+    padding: 30px;
+    background: white;
+}
+
+.login-btn {
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.notice-box {
+    background: #fff3cd;
+    border-left: 5px solid orange;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.access-card {
+    border-radius: 12px;
+}
