@@ -1,0 +1,1460 @@
+/* =========================================================
+   DASHBOARD PAGE
+========================================================= */
+
+.dashboard-page {
+
+    min-height: 100vh;
+
+    width: 100%;
+
+    display: flex;
+
+    background: #f7f8fa;
+
+    color: #222222;
+}
+
+
+/* =========================================================
+   LEFT SIDEBAR - COMPACT
+========================================================= */
+
+.dashboard-sidebar {
+
+    width: 220px;
+
+    min-width: 220px;
+
+    background: #ffffff;
+
+    border-right: 1px solid #e5e5e5;
+
+    display: flex;
+
+    flex-direction: column;
+
+    position: relative;
+
+    transition:
+        width 0.25s ease,
+        min-width 0.25s ease;
+}
+
+
+/* =========================================================
+   COLLAPSED SIDEBAR
+========================================================= */
+
+.sidebar-collapsed .dashboard-sidebar {
+
+    width: 90px;
+
+    min-width: 90px;
+
+    border-right: none;
+}
+
+
+/* =========================================================
+   SIDEBAR TOGGLE
+========================================================= */
+
+.sidebar-toggle {
+
+    position: absolute;
+
+    top: 18px;
+
+    right: 8px;
+
+    width: 28px;
+
+    height: 28px;
+
+    padding: 0;
+
+    border: none;
+
+    border-radius: 5px;
+
+    background: transparent;
+
+    color: #555555;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    cursor: pointer;
+
+    z-index: 20;
+
+    font-size: 16px;
+
+    line-height: 1;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.sidebar-toggle:hover {
+
+    background: #f1f1f1;
+
+    color: #222222;
+}
+
+
+/* =========================================================
+   SIDEBAR LOGO - COMPACT
+========================================================= */
+
+.sidebar-logo {
+
+    padding: 14px 14px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    border-bottom: 1px solid #eeeeee;
+}
+
+.sidebar-logo img {
+
+    width: 36px;
+
+    height: 36px;
+
+    object-fit: contain;
+
+    flex-shrink: 0;
+}
+
+.sidebar-title {
+
+    font-size: 16px;
+
+    font-weight: 600;
+
+    color: #222222;
+
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   COLLAPSED SIDEBAR LOGO
+========================================================= */
+
+.sidebar-collapsed .sidebar-logo {
+
+    justify-content: flex-start;
+
+    padding: 14px 42px 14px 10px;
+
+    border-bottom: none;
+}
+
+.sidebar-collapsed .sidebar-logo img {
+
+    width: 36px;
+
+    height: 36px;
+}
+
+.sidebar-collapsed .sidebar-title {
+
+    display: none;
+}
+
+
+/* =========================================================
+   COLLAPSED SIDEBAR MENU
+========================================================= */
+
+.sidebar-collapsed .sidebar-menu {
+
+    display: none;
+}
+
+
+/* =========================================================
+   COLLAPSED SIDEBAR BOTTOM
+========================================================= */
+
+.sidebar-collapsed .sidebar-bottom {
+
+    display: none;
+}
+
+
+/* =========================================================
+   SIDEBAR MENU
+========================================================= */
+
+.sidebar-menu {
+
+    flex: 1;
+
+    padding: 12px 10px;
+
+    overflow-y: auto;
+}
+
+
+/* =========================================================
+   SIDEBAR MENU ITEM - COMPACT
+========================================================= */
+
+.sidebar-menu-item {
+
+    width: 100%;
+
+    min-height: 38px;
+
+    border: none;
+
+    background: transparent;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    padding: 7px 10px;
+
+    margin-bottom: 3px;
+
+    border-radius: 6px;
+
+    color: #444444;
+
+    font-size: 13px;
+
+    font-weight: 400;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.sidebar-menu-item:hover {
+
+    background: #f1f1f1;
+}
+
+.sidebar-menu-item.active {
+
+    background: #eeeeee;
+
+    color: #222222;
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   SIDEBAR ICON - COMPACT
+========================================================= */
+
+.menu-icon {
+
+    width: 21px;
+
+    min-width: 21px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 14px;
+
+    color: #555555;
+}
+
+
+/* =========================================================
+   SIDEBAR LOADING / ERROR MESSAGE
+========================================================= */
+
+.sidebar-menu-message {
+
+    padding: 12px 8px;
+
+    text-align: center;
+
+    color: #777777;
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   SIDEBAR BOTTOM
+========================================================= */
+
+.sidebar-bottom {
+
+    padding: 9px 10px;
+
+    border-top: 1px solid #eeeeee;
+}
+
+.logout-item {
+
+    margin-bottom: 0;
+}
+
+
+/* =========================================================
+   MAIN CONTENT AREA
+========================================================= */
+
+.dashboard-main {
+
+    --main-gap: 10px;
+
+    flex: 1;
+
+    min-width: 0;
+
+    padding: 0 var(--main-gap) 20px;
+
+    overflow-x: hidden;
+
+    background: #f7f8fa;
+}
+
+
+/* =========================================================
+   HEADER - FULL GRAY BACKGROUND
+========================================================= */
+
+.dashboard-header {
+
+    min-height: 64px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    background: #eeeeee;
+
+    border-bottom: 1px solid #d8d8d8;
+
+    margin-bottom: 14px;
+
+    /*
+       Extend gray background through
+       the left/right main-content gap
+    */
+    margin-left: calc(var(--main-gap) * -1);
+
+    margin-right: calc(var(--main-gap) * -1);
+
+    /*
+       Keep header content 10px
+       away from both edges
+    */
+    padding-left: var(--main-gap);
+
+    padding-right: var(--main-gap);
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   HEADER BREADCRUMB
+========================================================= */
+
+.dashboard-breadcrumb {
+
+    display: flex;
+
+    align-items: baseline;
+
+    flex-wrap: wrap;
+
+    gap: 7px;
+
+    line-height: 1;
+}
+
+
+/* =========================================================
+   CURRENT PAGE
+========================================================= */
+
+.dashboard-breadcrumb-current {
+
+    font-size: 28px;
+
+    font-weight: 700;
+
+    color: #242424;
+
+    letter-spacing: -0.4px;
+}
+
+
+/* =========================================================
+   BREADCRUMB SEPARATOR
+========================================================= */
+
+.dashboard-breadcrumb-separator {
+
+    font-size: 20px;
+
+    font-weight: 400;
+
+    color: #999999;
+}
+
+
+/* =========================================================
+   APPLICATION NAME
+========================================================= */
+
+.dashboard-breadcrumb-app {
+
+    font-size: 12px;
+
+    font-weight: 400;
+
+    color: #888888;
+
+    letter-spacing: 0.2px;
+}
+
+
+/* =========================================================
+   REPORT COUNT
+========================================================= */
+
+.dashboard-report-count {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    margin-left: 3px;
+
+    padding: 5px 9px;
+
+    background: #eeeeee;
+
+    border: 1px solid #dddddd;
+
+    border-radius: 6px;
+
+    color: #444444;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    line-height: 1;
+}
+
+.dashboard-report-count span {
+
+    font-size: 11px;
+
+    font-weight: 400;
+
+    color: #777777;
+}
+
+
+/* =========================================================
+   USER AREA
+========================================================= */
+
+.dashboard-user-area {
+
+    position: relative;
+
+    display: flex;
+
+    align-items: center;
+}
+
+
+/* =========================================================
+   USER PROFILE BUTTON
+========================================================= */
+
+.user-profile-button {
+
+    border: none;
+
+    background: transparent;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 7px 8px;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease;
+}
+
+.user-profile-button:hover {
+
+    background: #e5e5e5;
+}
+
+
+/* =========================================================
+   USER AVATAR
+========================================================= */
+
+.user-avatar {
+
+    width: 40px;
+
+    height: 40px;
+
+    border-radius: 50%;
+
+    background: #555555;
+
+    color: #ffffff;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 16px;
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   USER DETAILS
+========================================================= */
+
+.user-details {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    min-width: 80px;
+}
+
+.user-details strong {
+
+    font-size: 14px;
+
+    color: #222222;
+
+    font-weight: 600;
+}
+
+.user-details span {
+
+    margin-top: 2px;
+
+    font-size: 11px;
+
+    color: #888888;
+}
+
+
+/* =========================================================
+   USER ARROW
+========================================================= */
+
+.user-arrow {
+
+    margin-left: 4px;
+
+    color: #777777;
+
+    font-size: 10px;
+}
+
+
+/* =========================================================
+   USER DROPDOWN
+========================================================= */
+
+.user-dropdown {
+
+    position: absolute;
+
+    top: calc(100% + 8px);
+
+    right: 0;
+
+    width: 210px;
+
+    background: #ffffff;
+
+    border: 1px solid #e4e4e4;
+
+    border-radius: 10px;
+
+    padding: 14px;
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.10);
+
+    z-index: 100;
+}
+
+.dropdown-user-name {
+
+    font-size: 14px;
+
+    color: #222222;
+
+    font-weight: 600;
+}
+
+.dropdown-login-id {
+
+    margin-top: 3px;
+
+    font-size: 12px;
+
+    color: #888888;
+}
+
+.user-dropdown hr {
+
+    border: 0;
+
+    border-top: 1px solid #eeeeee;
+
+    margin: 12px 0;
+}
+
+.user-dropdown button {
+
+    width: 100%;
+
+    border: none;
+
+    background: transparent;
+
+    color: #444444;
+
+    padding: 8px;
+
+    text-align: left;
+
+    border-radius: 6px;
+
+    cursor: pointer;
+
+    font-size: 13px;
+}
+
+.user-dropdown button:hover {
+
+    background: #f1f1f1;
+}
+
+
+/* =========================================================
+   MAIN DASHBOARD MENU SECTION
+========================================================= */
+
+.dashboard-menu-section {
+
+    width: 100%;
+
+    padding-bottom: 10px;
+}
+
+
+/* =========================================================
+   DASHBOARD MENU GRID - COMPACT
+========================================================= */
+
+.dashboard-menu-grid {
+
+    width: 100%;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(160px, 1fr));
+
+    gap: 12px;
+
+    align-items: stretch;
+}
+
+
+/* =========================================================
+   COMPACT DASHBOARD MENU CARD
+========================================================= */
+
+.dashboard-menu-card {
+
+    width: 100%;
+
+    min-height: 108px;
+
+    box-sizing: border-box;
+
+    border: 1px solid #e5e6e8;
+
+    background: #ffffff;
+
+    border-radius: 10px;
+
+    padding: 12px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    text-align: center;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 2px 5px rgba(0, 0, 0, 0.03);
+
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease,
+        border-color 0.15s ease,
+        background 0.15s ease;
+}
+
+
+/* =========================================================
+   DASHBOARD CARD HOVER
+========================================================= */
+
+.dashboard-menu-card:hover {
+
+    background: #ffffff;
+
+    border-color: #d5d6d8;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 7px 16px rgba(0, 0, 0, 0.07);
+}
+
+
+/* =========================================================
+   DASHBOARD CARD ACTIVE
+========================================================= */
+
+.dashboard-menu-card:active {
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.06);
+}
+
+
+/* =========================================================
+   DASHBOARD CARD FOCUS
+========================================================= */
+
+.dashboard-menu-card:focus {
+
+    outline: 2px solid #999999;
+
+    outline-offset: 2px;
+}
+
+
+/* =========================================================
+   DASHBOARD MENU ICON CONTAINER
+========================================================= */
+
+.dashboard-menu-icon {
+
+    width: 46px;
+
+    height: 46px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    margin-bottom: 8px;
+
+    border-radius: 10px;
+
+    background: #f2f3f5;
+}
+
+
+/* =========================================================
+   FONT AWESOME STACK
+========================================================= */
+
+.dashboard-menu-icon .fa-stack {
+
+    font-size: 18px;
+}
+
+
+/* =========================================================
+   OUTER ICON CIRCLE
+========================================================= */
+
+.dashboard-menu-icon .fa-circle {
+
+    color: #555555;
+}
+
+
+/* =========================================================
+   INNER ICON
+========================================================= */
+
+.dashboard-menu-icon .fa-inverse {
+
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   MENU NAME
+========================================================= */
+
+.dashboard-menu-name {
+
+    width: 100%;
+
+    max-width: 190px;
+
+    font-size: 12px;
+
+    line-height: 1.25;
+
+    color: #242424;
+
+    font-weight: 600;
+
+    text-align: center;
+
+    word-break: normal;
+}
+
+
+/* =========================================================
+   DASHBOARD LOADING / ERROR MESSAGE
+========================================================= */
+
+.dashboard-menu-message {
+
+    width: 100%;
+
+    min-height: 120px;
+
+    box-sizing: border-box;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e6e8;
+
+    border-radius: 10px;
+
+    color: #777777;
+
+    font-size: 13px;
+
+    text-align: center;
+}
+
+.dashboard-menu-message.error {
+
+    color: #777777;
+}
+
+
+/* =========================================================
+   FOOTER - COMPACT
+========================================================= */
+
+.dashboard-footer {
+
+    margin-top: 10px;
+
+    padding: 10px 0;
+
+    border-top: 1px solid #e5e6e8;
+
+    color: #888888;
+
+    font-size: 11px;
+
+    text-align: center;
+}
+
+
+/* =========================================================
+   LARGE DESKTOP
+========================================================= */
+
+@media (min-width: 1400px) {
+
+    .dashboard-main {
+
+        --main-gap: 40px;
+
+        padding-left: var(--main-gap);
+
+        padding-right: var(--main-gap);
+    }
+
+    .dashboard-menu-grid {
+
+        grid-template-columns:
+            repeat(4, minmax(190px, 1fr));
+
+        gap: 14px;
+    }
+
+    .dashboard-menu-card {
+
+        min-height: 112px;
+
+        padding: 12px 14px;
+    }
+
+    .dashboard-menu-icon {
+
+        width: 48px;
+
+        height: 48px;
+
+        margin-bottom: 8px;
+    }
+}
+
+
+/* =========================================================
+   LAPTOP
+========================================================= */
+
+@media (max-width: 1200px) {
+
+    .dashboard-main {
+
+        --main-gap: 28px;
+
+        padding-left: var(--main-gap);
+
+        padding-right: var(--main-gap);
+    }
+
+    .dashboard-menu-grid {
+
+        grid-template-columns:
+            repeat(4, minmax(130px, 1fr));
+
+        gap: 10px;
+    }
+
+    .dashboard-menu-card {
+
+        min-height: 102px;
+
+        padding: 10px 8px;
+    }
+
+    .dashboard-menu-icon {
+
+        width: 44px;
+
+        height: 44px;
+
+        margin-bottom: 7px;
+    }
+
+    .dashboard-menu-icon .fa-stack {
+
+        font-size: 17px;
+    }
+
+    .dashboard-menu-name {
+
+        font-size: 12px;
+    }
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1000px) {
+
+    .dashboard-sidebar {
+
+        width: 210px;
+
+        min-width: 210px;
+    }
+
+    .sidebar-collapsed .dashboard-sidebar {
+
+        width: 90px;
+
+        min-width: 90px;
+
+        border-right: none;
+    }
+
+    .dashboard-menu-grid {
+
+        grid-template-columns:
+            repeat(3, minmax(120px, 1fr));
+
+        gap: 10px;
+    }
+
+    .dashboard-menu-card {
+
+        min-height: 98px;
+    }
+}
+
+
+/* =========================================================
+   SMALL TABLET
+========================================================= */
+
+@media (max-width: 800px) {
+
+    .dashboard-main {
+
+        --main-gap: 20px;
+
+        padding-left: var(--main-gap);
+
+        padding-right: var(--main-gap);
+    }
+
+    .dashboard-header {
+
+        min-height: 58px;
+
+        margin-bottom: 12px;
+    }
+
+    .dashboard-breadcrumb-current {
+
+        font-size: 26px;
+    }
+
+    .dashboard-breadcrumb-separator {
+
+        font-size: 18px;
+    }
+
+    .dashboard-breadcrumb-app {
+
+        font-size: 11px;
+    }
+
+    .dashboard-menu-grid {
+
+        grid-template-columns:
+            repeat(2, minmax(120px, 1fr));
+
+        gap: 10px;
+    }
+
+    .dashboard-menu-card {
+
+        min-height: 92px;
+
+        padding: 9px 8px;
+    }
+
+    .dashboard-menu-icon {
+
+        width: 42px;
+
+        height: 42px;
+
+        margin-bottom: 6px;
+    }
+
+    .dashboard-menu-icon .fa-stack {
+
+        font-size: 16px;
+    }
+
+    .dashboard-menu-name {
+
+        font-size: 11px;
+    }
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 650px) {
+
+    .dashboard-page {
+
+        flex-direction: column;
+    }
+
+
+    /* -----------------------------------------
+       SIDEBAR
+    ----------------------------------------- */
+
+    .dashboard-sidebar {
+
+        width: 100%;
+
+        min-width: 100%;
+
+        max-height: none;
+    }
+
+    .sidebar-collapsed .dashboard-sidebar {
+
+        width: 100%;
+
+        min-width: 100%;
+
+        border-right: none;
+    }
+
+
+    /* -----------------------------------------
+       MOBILE COLLAPSED SIDEBAR
+    ----------------------------------------- */
+
+    .sidebar-collapsed .sidebar-menu {
+
+        display: none;
+    }
+
+    .sidebar-collapsed .sidebar-bottom {
+
+        display: none;
+    }
+
+    .sidebar-collapsed .sidebar-logo {
+
+        justify-content: flex-start;
+
+        padding: 14px 48px 14px 14px;
+
+        border-bottom: none;
+    }
+
+
+    /* -----------------------------------------
+       SIDEBAR WHEN OPEN
+    ----------------------------------------- */
+
+    .sidebar-menu {
+
+        max-height: 300px;
+    }
+
+
+    /* -----------------------------------------
+       MAIN
+    ----------------------------------------- */
+
+    .dashboard-main {
+
+        width: 100%;
+
+        --main-gap: 15px;
+
+        padding-left: var(--main-gap);
+
+        padding-right: var(--main-gap);
+    }
+
+
+    /* -----------------------------------------
+       HEADER
+    ----------------------------------------- */
+
+    .dashboard-header {
+
+        min-height: 54px;
+
+        margin-bottom: 10px;
+    }
+
+    .dashboard-breadcrumb {
+
+        gap: 5px;
+    }
+
+    .dashboard-breadcrumb-current {
+
+        font-size: 23px;
+    }
+
+    .dashboard-breadcrumb-separator {
+
+        font-size: 16px;
+    }
+
+    .dashboard-breadcrumb-app {
+
+        font-size: 10px;
+    }
+
+    .dashboard-report-count {
+
+        padding: 4px 7px;
+
+        font-size: 11px;
+    }
+
+    .dashboard-report-count span {
+
+        font-size: 10px;
+    }
+
+
+    /* -----------------------------------------
+       USER DETAILS
+    ----------------------------------------- */
+
+    .user-details {
+
+        display: none;
+    }
+
+    .user-arrow {
+
+        display: none;
+    }
+
+
+    /* -----------------------------------------
+       MENU GRID
+    ----------------------------------------- */
+
+    .dashboard-menu-grid {
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 8px;
+    }
+
+
+    /* -----------------------------------------
+       MENU CARD
+    ----------------------------------------- */
+
+    .dashboard-menu-card {
+
+        min-height: 82px;
+
+        padding: 8px 6px;
+
+        border-radius: 9px;
+    }
+
+    .dashboard-menu-icon {
+
+        width: 38px;
+
+        height: 38px;
+
+        margin-bottom: 5px;
+
+        border-radius: 9px;
+    }
+
+    .dashboard-menu-icon .fa-stack {
+
+        font-size: 14px;
+    }
+
+    .dashboard-menu-name {
+
+        font-size: 11px;
+
+        line-height: 1.2;
+    }
+
+    .dashboard-menu-section {
+
+        padding-bottom: 8px;
+    }
+
+    .dashboard-footer {
+
+        margin-top: 8px;
+
+        padding: 10px 0;
+    }
+}
+
+
+/* =========================================================
+   VERY SMALL MOBILE
+========================================================= */
+
+@media (max-width: 420px) {
+
+    .dashboard-main {
+
+        --main-gap: 12px;
+
+        padding-left: var(--main-gap);
+
+        padding-right: var(--main-gap);
+    }
+
+    .dashboard-header {
+
+        min-height: 50px;
+
+        margin-bottom: 8px;
+    }
+
+    .dashboard-breadcrumb {
+
+        gap: 4px;
+    }
+
+    .dashboard-breadcrumb-current {
+
+        font-size: 21px;
+    }
+
+    .dashboard-breadcrumb-separator {
+
+        font-size: 15px;
+    }
+
+    .dashboard-breadcrumb-app {
+
+        font-size: 9px;
+    }
+
+    .dashboard-menu-grid {
+
+        gap: 7px;
+    }
+
+    .dashboard-menu-card {
+
+        min-height: 76px;
+
+        padding: 6px 5px;
+
+        border-radius: 8px;
+    }
+
+    .dashboard-menu-icon {
+
+        width: 34px;
+
+        height: 34px;
+
+        margin-bottom: 4px;
+
+        border-radius: 8px;
+    }
+
+    .dashboard-menu-icon .fa-stack {
+
+        font-size: 13px;
+    }
+
+    .dashboard-menu-name {
+
+        font-size: 10px;
+    }
+
+    .dashboard-footer {
+
+        margin-top: 6px;
+
+        padding: 8px 0;
+    }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .dashboard-sidebar,
+
+    .sidebar-toggle,
+
+    .sidebar-menu-item,
+
+    .user-profile-button,
+
+    .dashboard-menu-card {
+
+        transition: none;
+    }
+}

@@ -1,0 +1,1741 @@
+/* =========================================
+   REPORT PARAMETER PAGE
+========================================= */
+
+.report-parameter-section {
+    width: 100%;
+    padding: 8px 10px 16px;
+}
+
+
+/* =========================================
+   TOP HEADER
+========================================= */
+
+.report-top-header {
+    width: 100%;
+    height: 64px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 20px;
+
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+
+    box-sizing: border-box;
+}
+
+.report-top-header-spacer {
+    flex: 1;
+}
+
+.dashboard-user-area {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+}
+
+.user-profile-button {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 5px 8px;
+
+    border: none;
+    background: transparent;
+
+    color: #1f2937;
+
+    cursor: pointer;
+
+    border-radius: 6px;
+
+    transition: background-color 0.15s ease;
+}
+
+.user-profile-button:hover {
+    background: #f3f4f6;
+}
+
+.user-avatar {
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background: #2563eb;
+
+    color: #ffffff;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.user-details strong {
+    font-size: 12px;
+    font-weight: 600;
+
+    color: #1f2937;
+
+    line-height: 16px;
+}
+
+.user-details span {
+    margin-top: 1px;
+
+    font-size: 10px;
+
+    color: #6b7280;
+
+    line-height: 13px;
+}
+
+.user-arrow {
+    margin-left: 2px;
+
+    font-size: 9px;
+
+    color: #6b7280;
+}
+
+.user-dropdown {
+    position: absolute;
+
+    top: calc(100% + 6px);
+    right: 0;
+
+    width: 180px;
+
+    padding: 10px 0;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.08);
+
+    z-index: 1000;
+}
+
+.dropdown-user-name {
+    padding: 2px 14px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    color: #1f2937;
+}
+
+.dropdown-login-id {
+    padding: 2px 14px;
+
+    font-size: 10px;
+
+    color: #6b7280;
+}
+
+.user-dropdown hr {
+    margin: 8px 0;
+
+    border: 0;
+
+    border-top: 1px solid #e5e7eb;
+}
+
+.user-dropdown button {
+    width: 100%;
+
+    padding: 8px 14px;
+
+    border: none;
+
+    background: transparent;
+
+    color: #374151;
+
+    text-align: left;
+
+    font-size: 12px;
+
+    cursor: pointer;
+}
+
+.user-dropdown button:hover {
+    background: #f3f4f6;
+
+    color: #111827;
+}
+
+
+/* =========================================
+   REPORT HEADER
+========================================= */
+
+.report-parameter-header {
+    width: calc(100% + 20px);
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin: -8px -10px 12px -10px;
+
+    padding: 8px 10px;
+
+    box-sizing: border-box;
+
+    background-color: #eeeeee;
+}
+
+.report-title-row {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 8px;
+
+    min-width: 0;
+}
+
+.report-back-button {
+    width: 30px;
+    height: 30px;
+
+    margin-top: 1px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    padding: 0;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 4px;
+
+    background: #ffffff;
+
+    color: #374151;
+
+    font-size: 13px;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        color 0.15s ease;
+}
+
+.report-back-button:hover {
+    background: #f3f4f6;
+
+    border-color: #9ca3af;
+
+    color: #1f2937;
+}
+
+.report-back-button i {
+    font-size: 12px;
+}
+
+.report-parameter-header h2 {
+    margin: 0;
+
+    font-size: 20px;
+
+    font-weight: 600;
+
+    color: #1f2937;
+}
+
+.report-parameter-header p {
+    margin: 3px 0 0;
+
+    font-size: 12px;
+
+    color: #6b7280;
+}
+
+.report-parameter-header .dashboard-user-area {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    flex-shrink: 0;
+}
+
+
+/* =========================================
+   CARD
+========================================= */
+
+.report-parameter-card {
+    width: 100%;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 7px;
+
+    padding: 14px;
+
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+
+/* =========================================
+   FILTER GRID
+========================================= */
+
+.report-filter-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            6,
+            minmax(120px, 1fr)
+        );
+
+    gap: 10px;
+
+    align-items: end;
+}
+
+
+/* =========================================
+   FILTER FIELD
+========================================= */
+
+.report-filter-field {
+    min-width: 0;
+}
+
+.report-filter-field label {
+    display: block;
+
+    margin-bottom: 4px;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    color: #374151;
+}
+
+.report-filter-field .required {
+    margin-left: 2px;
+
+    color: #dc2626;
+}
+
+
+/* =========================================
+   NORMAL INPUT / SELECT
+========================================= */
+
+.report-filter-control {
+    width: 100%;
+    height: 34px;
+
+    padding: 5px 8px;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 4px;
+
+    background: #ffffff;
+
+    color: #374151;
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    line-height: normal;
+
+    outline: none;
+
+    box-sizing: border-box;
+
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.report-filter-control:focus {
+    border-color: #2563eb;
+
+    box-shadow:
+        0 0 0 2px
+        rgba(37, 99, 235, 0.08);
+}
+
+.report-filter-control:disabled {
+    background: #f3f4f6;
+
+    color: #6b7280;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================================
+   MULTI SELECT DROPDOWN
+========================================= */
+
+.multi-select-dropdown {
+    position: relative;
+
+    width: 100%;
+}
+
+
+/* =========================================
+   MULTI SELECT BUTTON
+========================================= */
+
+.multi-select-button {
+    width: 100%;
+    height: 34px;
+    min-height: 34px;
+
+    padding: 5px 8px;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 4px;
+
+    background: #ffffff;
+
+    color: #374151;
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    font-weight: 400;
+
+    line-height: normal;
+
+    outline: none;
+
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    text-align: left;
+
+    box-sizing: border-box;
+
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.multi-select-button:hover {
+    border-color: #9ca3af;
+}
+
+.multi-select-button:focus {
+    border-color: #2563eb;
+
+    box-shadow:
+        0 0 0 2px
+        rgba(37, 99, 235, 0.08);
+}
+
+.multi-select-button:disabled {
+    background: #f3f4f6;
+
+    color: #6b7280;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================================
+   MULTI SELECT BUTTON TEXT
+========================================= */
+
+.multi-select-button > span {
+    min-width: 0;
+
+    color: #374151;
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    font-weight: 400;
+
+    line-height: 18px;
+
+    overflow: hidden;
+
+    white-space: nowrap;
+
+    text-overflow: ellipsis;
+}
+
+
+/* =========================================
+   MULTI SELECT ARROW
+========================================= */
+
+.multi-select-button i {
+    margin-left: 8px;
+
+    flex-shrink: 0;
+
+    font-size: 9px;
+
+    color: #6b7280;
+
+    transition:
+        transform 0.2s ease;
+}
+
+.multi-select-button i.open {
+    transform: rotate(180deg);
+}
+
+
+/* =========================================
+   MULTI SELECT MENU
+========================================= */
+
+.multi-select-menu {
+    position: absolute;
+
+    top: calc(100% + 3px);
+
+    left: 0;
+    right: 0;
+
+    z-index: 1000;
+
+    width: 100%;
+
+    padding: 3px 0;
+
+    background: #ffffff;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 5px;
+
+    max-height: 240px;
+
+    overflow-y: auto;
+
+    box-shadow:
+        0 3px 6px rgba(0, 0, 0, 0.06),
+        0 8px 18px rgba(0, 0, 0, 0.08);
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================
+   MULTI SELECT OPTION
+========================================= */
+
+.multi-select-option {
+    width: 100%;
+
+    min-height: 31px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 5px 9px;
+
+    margin: 0;
+
+    background: #ffffff;
+
+    color: #374151;
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    font-weight: 400;
+
+    line-height: 18px;
+
+    cursor: pointer;
+
+    box-sizing: border-box;
+
+    transition:
+        background-color 0.12s ease;
+}
+
+.multi-select-option:hover {
+    background: #f5f7fa;
+}
+
+
+/* =========================================
+   SMALL CHECKBOX
+========================================= */
+
+.multi-select-option input[type="checkbox"] {
+    appearance: none;
+
+    -webkit-appearance: none;
+
+    width: 12px;
+    height: 12px;
+
+    flex: 0 0 12px;
+
+    margin: 0;
+    padding: 0;
+
+    border: 1px solid #b8c0cc;
+
+    border-radius: 2px;
+
+    background: #ffffff;
+
+    cursor: pointer;
+
+    position: relative;
+
+    box-sizing: border-box;
+
+    transition:
+        background-color 0.12s ease,
+        border-color 0.12s ease;
+}
+
+
+/* =========================================
+   CHECKED CHECKBOX
+========================================= */
+
+.multi-select-option
+input[type="checkbox"]:checked {
+    background: #2563eb;
+
+    border-color: #2563eb;
+}
+
+
+/* =========================================
+   CHECK MARK
+========================================= */
+
+.multi-select-option
+input[type="checkbox"]:checked::after {
+
+    content: "";
+
+    position: absolute;
+
+    left: 3px;
+
+    top: 1px;
+
+    width: 4px;
+
+    height: 7px;
+
+    border: solid #ffffff;
+
+    border-width: 0 1.5px 1.5px 0;
+
+    transform: rotate(45deg);
+}
+
+
+/* =========================================
+   MULTI SELECT OPTION TEXT
+========================================= */
+
+.multi-select-option span {
+    flex: 1;
+
+    min-width: 0;
+
+    color: #374151;
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    font-weight: 400;
+
+    line-height: 18px;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    cursor: pointer;
+}
+
+
+/* =========================================
+   ALL OPTION
+========================================= */
+
+.multi-select-option:first-child {
+    margin-bottom: 2px;
+
+    padding-bottom: 7px;
+
+    border-bottom: 1px solid #eef0f3;
+}
+
+.multi-select-option:first-child span {
+    color: #1f2937;
+
+    font-size: 12px;
+
+    font-weight: 600;
+}
+
+
+/* =========================================
+   MULTI SELECT SCROLLBAR
+========================================= */
+
+.multi-select-menu::-webkit-scrollbar {
+    width: 5px;
+}
+
+.multi-select-menu::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.multi-select-menu::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+
+    border-radius: 10px;
+}
+
+.multi-select-menu::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+
+/* =========================================
+   ACTIONS
+========================================= */
+
+.report-filter-actions {
+    display: flex;
+
+    justify-content: flex-start;
+    align-items: center;
+
+    margin-top: 6px;
+
+    padding-top: 5px;
+
+    border-top: 1px solid #f1f5f9;
+}
+
+.run-query-button {
+    height: 28px;
+
+    min-width: 82px;
+
+    padding: 0 9px;
+
+    border: none;
+
+    border-radius: 3px;
+
+    background: #2563eb;
+
+    color: #ffffff;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.run-query-button:hover {
+    background: #1d4ed8;
+
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.10);
+}
+
+.run-query-button:disabled {
+    background: #93c5fd;
+
+    cursor: not-allowed;
+
+    box-shadow: none;
+}
+
+.run-query-button i {
+    margin-right: 4px;
+}
+
+.download-button {
+    height: 28px;
+
+    min-width: 82px;
+
+    padding: 0 9px;
+
+    margin-left: 6px;
+
+    border: none;
+
+    border-radius: 3px;
+
+    background: #198754;
+
+    color: #ffffff;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.download-button:hover {
+    background: #157347;
+
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.10);
+}
+
+.download-button:disabled {
+    background: #adb5bd;
+
+    cursor: not-allowed;
+
+    box-shadow: none;
+}
+
+.download-button i {
+    margin-right: 4px;
+}
+
+
+/* =========================================
+   QUERY MESSAGES
+========================================= */
+
+.report-query-message {
+    margin-top: 10px;
+
+    padding: 8px 12px;
+
+    border-radius: 4px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+
+    font-size: 12px;
+}
+
+.report-query-error {
+    color: #b42318;
+
+    background: #fef3f2;
+
+    border: 1px solid #fecdca;
+}
+
+.report-no-data {
+    color: #475467;
+
+    background: #f8fafc;
+
+    border: 1px solid #e2e8f0;
+}
+
+
+/* =========================================
+   RESULT SECTION
+========================================= */
+
+.report-result-section {
+    margin-top: 16px;
+
+    padding-top: 12px;
+
+    border-top: 1px solid #e5e7eb;
+}
+
+
+/* =========================================
+   RESULT HEADER ROW
+========================================= */
+
+.report-result-header-row {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    margin-bottom: 8px;
+}
+
+.report-result-header-row h3 {
+    margin: 0;
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    color: #1f2937;
+}
+
+
+/* =========================================
+   CLEAR TABLE FILTERS BUTTON
+========================================= */
+
+.clear-table-filters-button {
+    height: 27px;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 5px;
+
+    padding: 0 9px;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 4px;
+
+    background: #ffffff;
+
+    color: #374151;
+
+    font-family: inherit;
+
+    font-size: 11px;
+
+    font-weight: 500;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        color 0.15s ease;
+}
+
+.clear-table-filters-button:hover {
+    background: #f3f4f6;
+
+    border-color: #9ca3af;
+
+    color: #111827;
+}
+
+.clear-table-filters-button i {
+    font-size: 9px;
+}
+
+
+/* =========================================
+   RESULT TABLE WRAPPER
+========================================= */
+
+.report-result-table-wrapper {
+    width: 100%;
+
+    max-height: 440px;
+
+    overflow: auto;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 5px;
+}
+
+
+/* =========================================
+   RESULT TABLE
+========================================= */
+
+.report-result-table {
+    width: 100%;
+
+    border-collapse: separate;
+
+    border-spacing: 0;
+
+    font-size: 11px;
+
+    color: #374151;
+}
+
+
+/* =========================================
+   TABLE HEADER
+========================================= */
+
+.report-result-table th {
+    position: sticky;
+
+    top: 0;
+
+    z-index: 10;
+
+    padding: 7px 8px;
+
+    background: #f3f4f6;
+
+    color: #374151;
+
+    border-bottom: 1px solid #d1d5db;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    text-align: left;
+
+    white-space: nowrap;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================
+   TABLE HEADER CONTENT
+========================================= */
+
+.table-header-content {
+    min-width: 90px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 6px;
+}
+
+.table-header-text {
+    min-width: 0;
+
+    flex: 1;
+
+    overflow: hidden;
+
+    white-space: nowrap;
+
+    text-overflow: ellipsis;
+}
+
+
+/* =========================================
+   COLUMN FILTER
+========================================= */
+
+.column-filter {
+    position: relative;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    flex-shrink: 0;
+}
+
+
+/* =========================================
+   COLUMN FILTER BUTTON
+========================================= */
+
+.column-filter-button {
+    width: 20px;
+    height: 20px;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    padding: 0;
+
+    border: 1px solid transparent;
+
+    border-radius: 3px;
+
+    background: transparent;
+
+    color: #6b7280;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        color 0.15s ease;
+}
+
+.column-filter-button:hover {
+    background: #e5e7eb;
+
+    border-color: #d1d5db;
+
+    color: #374151;
+}
+
+.column-filter-button.active {
+    background: #dbeafe;
+
+    border-color: #93c5fd;
+
+    color: #2563eb;
+}
+
+.column-filter-button i {
+    font-size: 9px;
+}
+
+
+/* =========================================
+   COLUMN FILTER MENU
+========================================= */
+
+.column-filter-menu {
+    position: absolute;
+
+    top: calc(100% + 5px);
+
+    right: 0;
+
+    z-index: 2000;
+
+    width: 220px;
+
+    background: #ffffff;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 5px;
+
+    box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.08),
+        0 10px 24px rgba(0, 0, 0, 0.10);
+
+    overflow: hidden;
+
+    text-align: left;
+
+    box-sizing: border-box;
+}
+
+
+/* =========================================
+   FIRST COLUMN FILTER FIX
+========================================= */
+
+/*
+   The first column does not have enough
+   space on its left side.
+
+   Open its filter menu toward the RIGHT
+   instead of positioning it from the right.
+*/
+
+.report-result-table th:first-child
+.column-filter-menu {
+    left: 0;
+
+    right: auto;
+}
+
+
+/*
+   Keep the first column filter above
+   the remaining table content.
+*/
+
+.report-result-table th:first-child {
+    position: sticky;
+
+    z-index: 30;
+}
+
+
+/* =========================================
+   LAST COLUMN FILTER
+========================================= */
+
+/*
+   Keep the last column menu opening
+   toward the left so it does not go
+   outside the right edge.
+*/
+
+.report-result-table th:last-child
+.column-filter-menu {
+    right: 0;
+
+    left: auto;
+}
+
+
+/* =========================================
+   COLUMN FILTER TITLE
+========================================= */
+
+.column-filter-title {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 8px;
+
+    min-height: 32px;
+
+    padding: 7px 10px;
+
+    background: #f8fafc;
+
+    border-bottom: 1px solid #e5e7eb;
+
+    color: #374151;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    box-sizing: border-box;
+}
+
+.column-filter-clear {
+    flex-shrink: 0;
+
+    padding: 2px 5px;
+
+    border: none;
+
+    background: transparent;
+
+    color: #2563eb;
+
+    font-family: inherit;
+
+    font-size: 10px;
+
+    cursor: pointer;
+}
+
+.column-filter-clear:hover {
+    text-decoration: underline;
+}
+
+
+/* =========================================
+   COLUMN FILTER SEARCH
+========================================= */
+
+.column-filter-search {
+    height: 30px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    margin: 8px;
+
+    padding: 0 7px;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 4px;
+
+    background: #ffffff;
+
+    box-sizing: border-box;
+}
+
+.column-filter-search:focus-within {
+    border-color: #2563eb;
+
+    box-shadow:
+        0 0 0 2px
+        rgba(37, 99, 235, 0.08);
+}
+
+.column-filter-search i {
+    flex-shrink: 0;
+
+    color: #9ca3af;
+
+    font-size: 10px;
+}
+
+.column-filter-search input {
+    width: 100%;
+
+    min-width: 0;
+
+    height: 100%;
+
+    padding: 0;
+
+    border: none;
+
+    outline: none;
+
+    background: transparent;
+
+    color: #374151;
+
+    font-family: inherit;
+
+    font-size: 11px;
+}
+
+.column-filter-search input::placeholder {
+    color: #9ca3af;
+}
+
+
+/* =========================================
+   COLUMN FILTER OPTIONS
+========================================= */
+
+.column-filter-options {
+    max-height: 220px;
+
+    overflow-y: auto;
+
+    padding: 2px 0 6px;
+}
+
+.column-filter-options::-webkit-scrollbar {
+    width: 5px;
+}
+
+.column-filter-options::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.column-filter-options::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+
+    border-radius: 10px;
+}
+
+.column-filter-options::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+
+/* =========================================
+   COLUMN FILTER OPTION
+========================================= */
+
+.column-filter-option {
+    width: 100%;
+
+    min-height: 30px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 5px 10px;
+
+    margin: 0;
+
+    box-sizing: border-box;
+
+    cursor: pointer;
+
+    background: #ffffff;
+
+    color: #374151;
+
+    font-family: inherit;
+
+    font-size: 11px;
+
+    font-weight: 400;
+
+    line-height: 18px;
+
+    transition:
+        background-color 0.12s ease;
+}
+
+.column-filter-option:hover {
+    background: #f5f7fa;
+}
+
+
+/* =========================================
+   COLUMN FILTER CHECKBOX
+========================================= */
+
+.column-filter-option input[type="checkbox"] {
+    appearance: none;
+
+    -webkit-appearance: none;
+
+    width: 12px;
+    height: 12px;
+
+    flex: 0 0 12px;
+
+    margin: 0;
+    padding: 0;
+
+    border: 1px solid #b8c0cc;
+
+    border-radius: 2px;
+
+    background: #ffffff;
+
+    cursor: pointer;
+
+    position: relative;
+
+    box-sizing: border-box;
+
+    transition:
+        background-color 0.12s ease,
+        border-color 0.12s ease;
+}
+
+
+/* =========================================
+   COLUMN FILTER CHECKED
+========================================= */
+
+.column-filter-option
+input[type="checkbox"]:checked {
+    background: #2563eb;
+
+    border-color: #2563eb;
+}
+
+
+/* =========================================
+   COLUMN FILTER CHECK MARK
+========================================= */
+
+.column-filter-option
+input[type="checkbox"]:checked::after {
+    content: "";
+
+    position: absolute;
+
+    left: 3px;
+
+    top: 1px;
+
+    width: 4px;
+
+    height: 7px;
+
+    border: solid #ffffff;
+
+    border-width: 0 1.5px 1.5px 0;
+
+    transform: rotate(45deg);
+}
+
+
+/* =========================================
+   COLUMN FILTER OPTION TEXT
+========================================= */
+
+.column-filter-option span {
+    min-width: 0;
+
+    flex: 1;
+
+    overflow: hidden;
+
+    white-space: nowrap;
+
+    text-overflow: ellipsis;
+
+    color: #374151;
+
+    font-family: inherit;
+
+    font-size: 11px;
+
+    font-weight: 400;
+
+    line-height: 18px;
+
+    cursor: pointer;
+}
+
+
+/* =========================================
+   COLUMN FILTER NO VALUES
+========================================= */
+
+.column-filter-no-values {
+    padding: 10px;
+
+    text-align: center;
+
+    color: #6b7280;
+
+    font-size: 11px;
+}
+
+
+/* =========================================
+   RESULT TABLE BODY
+========================================= */
+
+.report-result-table td {
+    padding: 6px 8px;
+
+    border-bottom: 1px solid #eef0f2;
+
+    font-size: 11px;
+
+    white-space: nowrap;
+
+    vertical-align: middle;
+}
+
+.report-result-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.report-result-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+/* =========================================
+   NO FILTER RESULTS
+========================================= */
+
+.report-table-no-results {
+    padding: 25px 12px !important;
+
+    text-align: center !important;
+
+    color: #6b7280 !important;
+
+    background: #ffffff;
+
+    font-size: 12px !important;
+}
+
+.report-table-no-results i {
+    margin-right: 6px;
+
+    color: #9ca3af;
+}
+
+
+/* =========================================
+   EMPTY STATE
+========================================= */
+
+.report-parameter-empty {
+    width: 100%;
+
+    min-height: 200px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+    text-align: center;
+}
+
+.report-parameter-empty i {
+    font-size: 26px;
+
+    margin-bottom: 8px;
+
+    color: #6b7280;
+}
+
+.report-parameter-empty h3 {
+    margin: 0 0 4px;
+
+    font-size: 16px;
+
+    color: #374151;
+}
+
+.report-parameter-empty p {
+    margin: 0;
+
+    font-size: 12px;
+
+    color: #6b7280;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 1200px) {
+
+    .report-filter-grid {
+        grid-template-columns:
+            repeat(
+                3,
+                minmax(150px, 1fr)
+            );
+    }
+}
+
+
+@media (max-width: 700px) {
+
+    .report-top-header {
+        height: 58px;
+
+        padding: 0 12px;
+    }
+
+    .report-parameter-section {
+        padding: 8px 10px 16px;
+    }
+
+    .report-parameter-card {
+        padding: 12px;
+    }
+
+    .report-parameter-header {
+        align-items: flex-start;
+
+        gap: 10px;
+
+        margin: -8px -10px 12px -10px;
+
+        padding: 8px 10px;
+    }
+
+    .report-title-row {
+        min-width: 0;
+    }
+
+    .report-parameter-header
+        .dashboard-user-area {
+
+        flex-shrink: 0;
+    }
+
+    .report-filter-grid {
+        grid-template-columns: 1fr;
+
+        gap: 10px;
+    }
+
+    .report-filter-actions {
+        justify-content: stretch;
+    }
+
+    .run-query-button {
+        width: 100%;
+    }
+
+    .report-result-header-row {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 6px;
+    }
+
+    .clear-table-filters-button {
+        align-self: flex-start;
+    }
+
+    /*
+       Keep filter dropdown usable on
+       smaller screens.
+    */
+
+    .column-filter-menu {
+        position: fixed;
+
+        top: auto;
+
+        right: 10px;
+        left: 10px;
+
+        width: auto;
+
+        max-width: none;
+    }
+}

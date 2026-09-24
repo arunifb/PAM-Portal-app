@@ -1,0 +1,266 @@
+.two-factor-page {
+    min-height: 100vh;
+    background: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 50px 20px;
+}
+
+.two-factor-container {
+    width: 100%;
+    max-width: 500px;
+}
+
+/* ============================= */
+/* HEADER */
+/* ============================= */
+
+.two-factor-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.two-factor-logo {
+    width: 145px;
+    height: auto;
+    display: block;
+    margin: 0 auto 20px;
+}
+
+.two-factor-header h1 {
+    margin: 0;
+    color: #212529;
+    font-size: 26px;
+    font-weight: 700;
+}
+
+/* ============================= */
+/* AUTHENTICATION CARD */
+/* ============================= */
+
+.two-factor-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+    margin-bottom: 18px;
+}
+
+.two-factor-card-body {
+    padding: 30px;
+    text-align: center;
+}
+
+/* ============================= */
+/* ICON */
+/* ============================= */
+
+.authentication-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 15px;
+    border-radius: 50%;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 23px;
+}
+
+.two-factor-card-body h2 {
+    margin: 0 0 22px;
+    color: #212529;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+/* ============================= */
+/* MESSAGE */
+/* ============================= */
+
+.two-factor-message {
+    margin-bottom: 20px;
+    padding: 11px 14px;
+    border-radius: 6px;
+    font-size: 14px;
+    line-height: 1.5;
+    text-align: left;
+}
+
+.two-factor-message.error {
+    background: #f8d7da;
+    border: 1px solid #f5c2c7;
+    color: #842029;
+}
+
+.two-factor-message.success {
+    background: #d1e7dd;
+    border: 1px solid #badbcc;
+    color: #0f5132;
+}
+
+/* ============================= */
+/* FORM */
+/* ============================= */
+
+.form-group {
+    margin-bottom: 18px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #212529;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.two-factor-input {
+    width: 100%;
+    height: 46px;
+    padding: 10px 13px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #212529;
+    font-size: 18px;
+    letter-spacing: 4px;
+    text-align: center;
+    outline: none;
+    box-sizing: border-box;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.two-factor-input::placeholder {
+    color: #adb5bd;
+    letter-spacing: 4px;
+}
+
+.two-factor-input:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+/* ============================= */
+/* VERIFY BUTTON */
+/* ============================= */
+
+.verify-button {
+    width: 100%;
+    height: 46px;
+    border: none;
+    border-radius: 6px;
+    background: #dc3545;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        transform 0.1s ease;
+}
+
+.verify-button:hover {
+    background: #c82333;
+}
+
+.verify-button:active {
+    transform: translateY(1px);
+}
+
+/* ============================= */
+/* DESCRIPTION */
+/* ============================= */
+
+.two-factor-description {
+    margin: 20px 0 0;
+    color: #6c757d;
+    font-size: 13px;
+    line-height: 1.6;
+    text-align: left;
+}
+
+/* ============================= */
+/* HELP CARD */
+/* ============================= */
+
+.two-factor-help-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.04);
+}
+
+.two-factor-help-body {
+    padding: 22px 25px;
+}
+
+.two-factor-help-body h3 {
+    margin: 0 0 12px;
+    color: #212529;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.two-factor-help-body ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.two-factor-help-body li {
+    margin-bottom: 8px;
+    color: #6c757d;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.two-factor-help-body li:last-child {
+    margin-bottom: 0;
+}
+
+.two-factor-help-body a {
+    color: #dc3545;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.two-factor-help-body a:hover {
+    text-decoration: underline;
+}
+
+/* ============================= */
+/* RESPONSIVE */
+/* ============================= */
+
+@media (max-width: 600px) {
+
+    .two-factor-page {
+        padding: 30px 15px;
+    }
+
+    .two-factor-card-body {
+        padding: 23px;
+    }
+
+    .two-factor-logo {
+        width: 130px;
+        margin-bottom: 16px;
+    }
+
+    .two-factor-header h1 {
+        font-size: 23px;
+    }
+
+    .two-factor-card-body h2 {
+        font-size: 20px;
+    }
+
+    .two-factor-help-body {
+        padding: 20px;
+    }
+}
