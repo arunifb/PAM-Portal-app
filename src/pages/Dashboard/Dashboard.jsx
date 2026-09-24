@@ -255,9 +255,7 @@ function Dashboard() {
                         alt="IFB Industries"
                     />
 
-                    <div className="sidebar-title">
-                        e-Training
-                    </div>
+                   
 
                 </div>
 
