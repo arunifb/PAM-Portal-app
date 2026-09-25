@@ -1,0 +1,204 @@
+/* =========================================================
+   DASHBOARD HEADER
+========================================================= */
+
+.dashboard-header {
+    min-height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    background: #eeeeee;
+    border-bottom: 1px solid #d8d8d8;
+    box-sizing: border-box;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-bottom: 14px;
+}
+
+/* =========================================================
+   HEADER LEFT
+========================================================= */
+
+.dashboard-header-left {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    min-width: 0;
+}
+
+/* =========================================================
+   COLLAPSED HEADER BRAND
+========================================================= */
+
+.collapsed-header-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+/* =========================================================
+   IFB LOGO
+========================================================= */
+
+.collapsed-header-logo {
+    width: 70px;
+    height: 42px;
+    object-fit: contain;
+    display: block;
+}
+
+/* =========================================================
+   SIDEBAR TOGGLE
+========================================================= */
+
+.collapsed-sidebar-toggle {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: none;
+    border-radius: 5px;
+    background: #ffffff;
+    color: #555555;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.08);
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.collapsed-sidebar-toggle:hover {
+    background: #f1f1f1;
+    color: #222222;
+    box-shadow:
+        0 2px 5px rgba(0, 0, 0, 0.12);
+}
+
+/* =========================================================
+   PAGE TITLE
+========================================================= */
+
+.dashboard-breadcrumb {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 7px;
+    line-height: 1;
+}
+
+.dashboard-breadcrumb-current {
+    font-size: 28px;
+    font-weight: 700;
+    color: #242424;
+    letter-spacing: -0.4px;
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 800px) {
+
+    .dashboard-header {
+        min-height: 58px;
+        margin-bottom: 12px;
+    }
+
+    .dashboard-header-left {
+        gap: 12px;
+    }
+
+    .dashboard-breadcrumb-current {
+        font-size: 26px;
+    }
+
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 650px) {
+
+    .dashboard-header {
+        min-height: 54px;
+        margin-bottom: 10px;
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+    .dashboard-header-left {
+        gap: 10px;
+    }
+
+    .collapsed-header-brand {
+        gap: 5px;
+    }
+
+    .collapsed-header-logo {
+        width: 60px;
+        height: 38px;
+    }
+
+    .collapsed-sidebar-toggle {
+        width: 28px;
+        height: 28px;
+        font-size: 15px;
+    }
+
+    .dashboard-breadcrumb-current {
+        font-size: 23px;
+    }
+
+}
+
+/* =========================================================
+   VERY SMALL MOBILE
+========================================================= */
+
+@media (max-width: 420px) {
+
+    .dashboard-header {
+        min-height: 50px;
+        margin-bottom: 8px;
+    }
+
+    .dashboard-header-left {
+        gap: 7px;
+    }
+
+    .collapsed-header-logo {
+        width: 55px;
+        height: 35px;
+    }
+
+    .collapsed-sidebar-toggle {
+        width: 27px;
+        height: 27px;
+        font-size: 14px;
+    }
+
+    .dashboard-breadcrumb-current {
+        font-size: 21px;
+    }
+
+}
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .collapsed-sidebar-toggle {
+        transition: none;
+    }
+}

@@ -174,8 +174,11 @@ function Dashboard() {
             return
         }
 
-        // Report Data should open
-        // inside the right section
+
+        // =========================================
+        // REPORT DATA
+        // =========================================
+
         if (item.name === 'Report Data') {
 
             setActiveSection('report-data')
@@ -183,8 +186,11 @@ function Dashboard() {
             return
         }
 
-        // Dashboard should show
-        // the normal dashboard menu
+
+        // =========================================
+        // DASHBOARD
+        // =========================================
+
         if (item.name === 'Dashboard') {
 
             setActiveSection('dashboard')
@@ -192,7 +198,43 @@ function Dashboard() {
             return
         }
 
-        // Existing menu behavior
+
+        // =========================================
+        // CLICK 2 CALL
+        // =========================================
+        //
+        // Old WebForms URL:
+        //
+        // /Region/click2call.aspx
+        //
+        // New React URL:
+        //
+        // /click2call
+        //
+        // We keep the backend menu unchanged
+        // and handle the old URL here.
+        // =========================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('click 2 call')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('click2call.aspx')
+        ) {
+
+            navigate('/click2call')
+
+            return
+        }
+
+
+        // =========================================
+        // OTHER MENU ITEMS
+        // =========================================
+
         if (!item.url) {
             return
         }
@@ -236,11 +278,7 @@ function Dashboard() {
                             !sidebarCollapsed
                         )
                     }
-                    aria-label={
-                        sidebarCollapsed
-                            ? 'Open sidebar'
-                            : 'Close sidebar'
-                    }
+                    aria-label="Close sidebar"
                 >
                     ☰
                 </button>
@@ -254,8 +292,6 @@ function Dashboard() {
                         src={ifbLogo}
                         alt="IFB Industries"
                     />
-
-                   
 
                 </div>
 
@@ -358,48 +394,74 @@ function Dashboard() {
 
                 <header className="dashboard-header">
 
-                    <div className="dashboard-breadcrumb">
+                    {/* HEADER LEFT */}
 
-                        <span className="dashboard-breadcrumb-current">
+                    <div className="dashboard-header-left">
 
-                            {activeSection === 'report-data'
-                                ? 'Report Data'
-                                : 'Dashboard'}
+                        {/* COLLAPSED HEADER BRAND */}
 
-                        </span>
+                        {sidebarCollapsed && (
 
-                        {/* <span className="dashboard-breadcrumb-separator">
-                            /
-                        </span> */}
+                            <div className="collapsed-header-brand">
 
-                        {/* <span className="dashboard-breadcrumb-app">
-                            eTraining Application
-                        </span> */}
+                                <img
+                                    src={ifbLogo}
+                                    alt="IFB Industries"
+                                    className="collapsed-header-logo"
+                                />
 
-                        {activeSection === 'report-data' && (
+                                <button
+                                    type="button"
+                                    className="collapsed-sidebar-toggle"
+                                    onClick={() =>
+                                        setSidebarCollapsed(false)
+                                    }
+                                    aria-label="Open sidebar"
+                                >
+                                    ☰
+                                </button>
 
-                            <span className="dashboard-report-count">
+                            </div>
 
-                                {reportCount}
+                        )}
 
-                                <span>
-                                    {reportCount === 1
-                                        ? 'Report'
-                                        : 'Reports'}
-                                </span>
+
+                        {/* PAGE TITLE */}
+
+                        <div className="dashboard-breadcrumb">
+
+                            <span className="dashboard-breadcrumb-current">
+
+                                {activeSection === 'report-data'
+                                    ? 'Report Data'
+                                    : 'Dashboard'}
 
                             </span>
 
-                        )}
+                            {activeSection === 'report-data' && (
+
+                                <span className="dashboard-report-count">
+
+                                    {reportCount}
+
+                                    <span>
+                                        {reportCount === 1
+                                            ? 'Report'
+                                            : 'Reports'}
+                                    </span>
+
+                                </span>
+
+                            )}
+
+                        </div>
 
                     </div>
 
 
                     {/* USER PROFILE */}
 
-                    <UserProfile
-                        
-                    />
+                    <UserProfile />
 
                 </header>
 

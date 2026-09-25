@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import * as XLSX from 'xlsx'
 
 import {
@@ -15,7 +15,8 @@ import {
 } from '../../api/reportsApi'
 
 import './ReportParameter.css'
-import UserProfile from '../../components/UserProfile'
+import DashboardLayout from '../../components/DashboardLayout/DashboardLayout'
+
 
 
 // =================================================
@@ -468,7 +469,7 @@ function ColumnFilter({
 
 function ReportParameter() {
     const location = useLocation()
-    const navigate = useNavigate()
+    
 
     const report = location.state?.report
 
@@ -2214,144 +2215,78 @@ function ReportParameter() {
     // BACK
     // =================================================
 
-    const handleBack = () => {
-
-        navigate(
-            '/dashboard',
-            {
-                state: {
-                    activeSection:
-                        'report-data'
-                }
-            }
-        )
-    }
+    
 
     // =================================================
     // NO REPORT
     // =================================================
 
     if (!report) {
-        return (
-            <>
-                <header
-                    className="report-top-header"
-                >
-                    <div
-                        className="report-top-header-spacer"
+    return (
+        <DashboardLayout title="Report">
+            <section className="report-parameter-section">
+                <div className="report-parameter-empty">
+                    <i
+                        className="fa fa-exclamation-triangle"
+                        aria-hidden="true"
                     />
-
-                    <UserProfile />
-                </header>
-
-                <section
-                    className="report-parameter-section"
-                >
-                    <div
-                        className="report-parameter-empty"
-                    >
-                        <i
-                            className="fa fa-exclamation-circle"
-                            aria-hidden="true"
-                        />
-
-                        <h3>
-                            No report selected
-                        </h3>
-
-                        <p>
-                            Please select a report from Report Data.
-                        </p>
-                    </div>
-                </section>
-            </>
-        )
-    }
+                    <h3>No report selected</h3>
+                    <p>
+                        Please select a report from the Report Data section.
+                    </p>
+                </div>
+            </section>
+        </DashboardLayout>
+    )
+}
 
     // =================================================
     // LOADING
     // =================================================
 
     if (loading) {
-        return (
-            <>
-                <header
-                    className="report-top-header"
-                >
-                    <div
-                        className="report-top-header-spacer"
+    return (
+        <DashboardLayout title="Report">
+            <section className="report-parameter-section">
+                <div className="report-parameter-empty">
+                    <i
+                        className="fa fa-spinner fa-spin"
+                        aria-hidden="true"
                     />
-
-                    <UserProfile />
-                </header>
-
-                <section
-                    className="report-parameter-section"
-                >
-                    <div
-                        className="report-parameter-empty"
-                    >
-                        <i
-                            className="fa fa-spinner fa-spin"
-                            aria-hidden="true"
-                        />
-
-                        <h3>
-                            Loading report parameters...
-                        </h3>
-                    </div>
-                </section>
-            </>
-        )
-    }
+                    <h3>Loading report parameters...</h3>
+                </div>
+            </section>
+        </DashboardLayout>
+    )
+}
 
     // =================================================
     // ERROR
     // =================================================
 
     if (error) {
-        return (
-            <>
-                <header
-                    className="report-top-header"
-                >
-                    <div
-                        className="report-top-header-spacer"
+    return (
+        <DashboardLayout title="Report">
+            <section className="report-parameter-section">
+                <div className="report-parameter-empty">
+                    <i
+                        className="fa fa-exclamation-triangle"
+                        aria-hidden="true"
                     />
-
-                    <UserProfile />
-                </header>
-
-                <section
-                    className="report-parameter-section"
-                >
-                    <div
-                        className="report-parameter-empty"
-                    >
-                        <i
-                            className="fa fa-exclamation-triangle"
-                            aria-hidden="true"
-                        />
-
-                        <h3>
-                            Unable to load report parameters
-                        </h3>
-
-                        <p>
-                            {error}
-                        </p>
-                    </div>
-                </section>
-            </>
-        )
-    }
+                    <h3>Unable to load report parameters</h3>
+                    <p>{error}</p>
+                </div>
+            </section>
+        </DashboardLayout>
+    )
+}
 
     // =================================================
     // MAIN PAGE
     // =================================================
 
     return (
-        <>
+    <DashboardLayout title={report?.reportType || 'Report'}>
             <section
                 className="report-parameter-section"
             >
@@ -2360,42 +2295,7 @@ function ReportParameter() {
                     HEADER
                 ===================================== */}
 
-                <div
-                    className="report-parameter-header"
-                >
-
-                    <div
-                        className="report-title-row"
-                    >
-
-                        <button
-                            type="button"
-                            className="report-back-button"
-                            onClick={
-                                handleBack
-                            }
-                            aria-label="Back to Report Data"
-                            title="Back to Report Data"
-                        >
-                            <i
-                                className="fa fa-arrow-left"
-                                aria-hidden="true"
-                            />
-                        </button>
-
-                        <div>
-                            <h2>
-                                {
-                                    report.reportType
-                                }
-                            </h2>
-                        </div>
-
-                    </div>
-
-                    <UserProfile />
-
-                </div>
+                
 
                 {/* =====================================
                     FILTER CARD
@@ -3294,7 +3194,7 @@ function ReportParameter() {
                 </div>
 
             </section>
-        </>
+        </DashboardLayout>
     )
 }
 
