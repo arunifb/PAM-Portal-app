@@ -4,9 +4,7 @@ import {
     useRef,
     useState
 } from 'react'
-
 import { useLocation } from 'react-router-dom'
-
 import * as XLSX from 'xlsx'
 
 import {
@@ -23,6 +21,7 @@ import {
 
 import './ReportParameter.css'
 import DashboardLayout from '../../components/DashboardLayout/DashboardLayout'
+
 
 
 // =================================================
@@ -158,7 +157,6 @@ function MultiSelectDropdown({
             className="multi-select-dropdown"
             ref={dropdownRef}
         >
-
             {/* =========================================
                 INPUT / BUTTON
             ========================================= */}
@@ -380,10 +378,7 @@ function ColumnFilter({
     onChange
 }) {
     const [open, setOpen] = useState(false)
-
-    const [searchText, setSearchText] =
-        useState('')
-
+    const [searchText, setSearchText] = useState('')
     const filterRef = useRef(null)
 
     useEffect(() => {
@@ -475,7 +470,6 @@ function ColumnFilter({
 
     const handleClear = () => {
         onChange([])
-
         setSearchText('')
     }
 
@@ -484,7 +478,6 @@ function ColumnFilter({
             className="column-filter"
             ref={filterRef}
         >
-
             <button
                 type="button"
                 className={`column-filter-button ${
@@ -498,28 +491,21 @@ function ColumnFilter({
                 aria-label={`Filter ${column}`}
                 title={`Filter ${column}`}
             >
-
                 <i
                     className="fa fa-filter"
                     aria-hidden="true"
                 />
-
             </button>
 
-
             {open && (
-
                 <div className="column-filter-menu">
 
                     <div className="column-filter-title">
-
                         <span>
                             Filter: {column}
                         </span>
 
-
                         {hasFilter && (
-
                             <button
                                 type="button"
                                 className="column-filter-clear"
@@ -529,14 +515,10 @@ function ColumnFilter({
                             >
                                 Clear
                             </button>
-
                         )}
-
                     </div>
 
-
                     <div className="column-filter-search">
-
                         <i
                             className="fa fa-search"
                             aria-hidden="true"
@@ -554,14 +536,11 @@ function ColumnFilter({
                             }
                             placeholder="Search..."
                         />
-
                     </div>
-
 
                     <div className="column-filter-options">
 
                         <label className="column-filter-option">
-
                             <input
                                 type="checkbox"
                                 checked={
@@ -575,15 +554,10 @@ function ColumnFilter({
                             <span>
                                 All
                             </span>
-
                         </label>
 
-
                         {filteredValues.map(
-                            (
-                                value,
-                                index
-                            ) => {
+                            (value, index) => {
 
                                 const checked =
                                     selectedValues.includes(
@@ -591,12 +565,10 @@ function ColumnFilter({
                                     )
 
                                 return (
-
                                     <label
                                         className="column-filter-option"
                                         key={`${value}-${index}`}
                                     >
-
                                         <input
                                             type="checkbox"
                                             checked={
@@ -614,40 +586,27 @@ function ColumnFilter({
                                                 value
                                             }
                                         >
-
                                             {
                                                 value ===
                                                 ''
                                                     ? '(Blank)'
                                                     : value
                                             }
-
                                         </span>
-
                                     </label>
-
                                 )
                             }
                         )}
 
-
                         {filteredValues.length ===
                             0 && (
-
                             <div className="column-filter-no-values">
-
                                 No values found
-
                             </div>
-
                         )}
-
                     </div>
-
                 </div>
-
             )}
-
         </div>
     )
 }
@@ -658,120 +617,76 @@ function ColumnFilter({
 // =================================================
 
 function ReportParameter() {
-
     const location = useLocation()
 
-    const report =
-        location.state?.report
 
+    const report = location.state?.report
 
-    const [parameters, setParameters] =
-        useState([])
+    const [parameters, setParameters] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState('')
 
-    const [loading, setLoading] =
-        useState(true)
-
-    const [error, setError] =
-        useState('')
-
-
-    const [regions, setRegions] =
-        useState([])
-
+    const [regions, setRegions] = useState([])
     const [selectedRegion, setSelectedRegion] =
         useState('')
-
     const [regionLoading, setRegionLoading] =
         useState(true)
-
     const [regionError, setRegionError] =
         useState('')
 
-
-    const [branches, setBranches] =
-        useState([])
-
+    const [branches, setBranches] = useState([])
     const [selectedBranch, setSelectedBranch] =
         useState('All')
-
     const [branchLoading, setBranchLoading] =
         useState(false)
-
     const [branchError, setBranchError] =
         useState('')
 
-
     const [franchises, setFranchises] =
         useState([])
-
     const [selectedFranchise, setSelectedFranchise] =
         useState('All')
-
     const [franchiseLoading, setFranchiseLoading] =
         useState(false)
-
     const [franchiseError, setFranchiseError] =
         useState('')
 
-
-    const [products, setProducts] =
-        useState([])
-
+    const [products, setProducts] = useState([])
     const [selectedProduct, setSelectedProduct] =
         useState('All')
-
     const [productLoading, setProductLoading] =
         useState(true)
-
     const [productError, setProductError] =
         useState('')
 
-
-    const [callBookDt, setCallBookDt] =
-        useState([])
-
+    const [callBookDt, setCallBookDt] = useState([])
     const [selectedCallBookDt, setSelectedCallBookDt] =
         useState('')
-
     const [callBookDtLoading, setCallBookDtLoading] =
         useState(true)
-
     const [callBookDtError, setCallBookDtError] =
         useState('')
 
-
-    const [callTypes, setCallTypes] =
-        useState([])
-
+    const [callTypes, setCallTypes] = useState([])
     const [selectedCallTypes, setSelectedCallTypes] =
         useState([])
-
     const [callTypeLoading, setCallTypeLoading] =
         useState(true)
-
     const [callTypeError, setCallTypeError] =
         useState('')
 
-
-    const [statuses, setStatuses] =
-        useState([])
-
+    const [statuses, setStatuses] = useState([])
     const [selectedStatuses, setSelectedStatuses] =
         useState([])
-
     const [statusLoading, setStatusLoading] =
         useState(true)
-
     const [statusError, setStatusError] =
         useState('')
 
-
     const [selectedFromDate, setSelectedFromDate] =
         useState('')
-
     const [selectedToDate, setSelectedToDate] =
         useState('')
-
 
     // =================================================
     // DYNAMIC / UNKNOWN PARAMETER STATE
@@ -782,23 +697,22 @@ function ReportParameter() {
         setDynamicParameterValues
     ] = useState({})
 
-
-    // =================================================
-    // REPORT DATA
-    // =================================================
-
-    const [reportData, setReportData] =
-        useState([])
-
+    const [reportData, setReportData] = useState([])
     const [reportLoading, setReportLoading] =
         useState(false)
-
     const [reportError, setReportError] =
         useState('')
-
     const [showNoData, setShowNoData] =
         useState(false)
 
+    // =================================================
+    // PAGINATION — always on; backend handles paged vs full automatically
+    // =================================================
+
+    const pageSize = 5
+    const [currentPage, setCurrentPage] = useState(1)
+    const [totalRecords, setTotalRecords] = useState(0)
+    const [downloadLoading, setDownloadLoading] = useState(false)
 
     // =================================================
     // TABLE FILTER STATE
@@ -806,7 +720,6 @@ function ReportParameter() {
 
     const [columnFilters, setColumnFilters] =
         useState({})
-
 
     // =================================================
     // LOGGED-IN USER DETAILS
@@ -824,63 +737,50 @@ function ReportParameter() {
     const loggedInBpCode =
         sessionStorage.getItem('bpCode') || ''
 
-
     // =================================================
     // ROLE IDs
     // =================================================
 
     const REGION_ROLE_ID = '1'
-
     const FRANCHISE_ROLE_ID = '5'
-
     const BRANCH_ROLE_ID = '6'
 
-
     const isRegionUser =
-        String(loggedInRoleId) ===
-        REGION_ROLE_ID
+        String(loggedInRoleId) === REGION_ROLE_ID
 
     const isBranchUser =
-        String(loggedInRoleId) ===
-        BRANCH_ROLE_ID
+        String(loggedInRoleId) === BRANCH_ROLE_ID
 
     const isFranchiseUser =
-        String(loggedInRoleId) ===
-        FRANCHISE_ROLE_ID
-
+        String(loggedInRoleId) === FRANCHISE_ROLE_ID
 
     // =================================================
     // DATE CALENDAR LIMITS
     // =================================================
 
     const formatDateForInput = (date) => {
+        const year = date.getFullYear()
 
-        const year =
-            date.getFullYear()
+        const month = String(
+            date.getMonth() + 1
+        ).padStart(2, '0')
 
-        const month =
-            String(
-                date.getMonth() + 1
-            ).padStart(2, '0')
-
-        const day =
-            String(
-                date.getDate()
-            ).padStart(2, '0')
+        const day = String(
+            date.getDate()
+        ).padStart(2, '0')
 
         return `${year}-${month}-${day}`
     }
 
-
     const today = new Date()
 
-    const sixMonthsAgo =
-        new Date(today)
+    const sixMonthsAgo = new Date(
+        today
+    )
 
     sixMonthsAgo.setMonth(
         sixMonthsAgo.getMonth() - 6
     )
-
 
     const calendarMinDate =
         formatDateForInput(
@@ -892,661 +792,506 @@ function ReportParameter() {
             today
         )
 
-
     // =================================================
     // LOAD REPORT PARAMETERS
     // =================================================
 
     useEffect(() => {
-
-        const loadReportParameters =
-            async () => {
-
-                if (!report?.reportID) {
-
-                    setParameters([])
-
-                    setLoading(false)
-
-                    return
-                }
-
-                try {
-
-                    setLoading(true)
-
-                    setError('')
-
-                    const data =
-                        await getReportParameters(
-                            report.reportID
-                        )
-
-                    if (!Array.isArray(data)) {
-
-                        throw new Error(
-                            'Invalid report parameter response.'
-                        )
-                    }
-
-                    setParameters(data)
-
-                    setDynamicParameterValues({})
-
-                    console.log(
-                        'REPORT:',
-                        report
-                    )
-
-                    console.log(
-                        'REPORT PARAMETERS:',
-                        data
-                    )
-
-                } catch (error) {
-
-                    console.error(
-                        'Load report parameters error:',
-                        error
-                    )
-
-                    setError(
-                        error.message ||
-                        'Unable to load report parameters.'
-                    )
-
-                    setParameters([])
-
-                } finally {
-
-                    setLoading(false)
-                }
+        const loadReportParameters = async () => {
+            if (!report?.reportID) {
+                setParameters([])
+                setLoading(false)
+                return
             }
 
+            try {
+                setLoading(true)
+                setError('')
+
+                const data =
+                    await getReportParameters(
+                        report.reportID
+                    )
+
+                if (!Array.isArray(data)) {
+                    throw new Error(
+                        'Invalid report parameter response.'
+                    )
+                }
+
+                setParameters(data)
+
+                setDynamicParameterValues({})
+
+                console.log(
+                    'REPORT:',
+                    report
+                )
+
+                console.log(
+                    'REPORT PARAMETERS:',
+                    data
+                )
+            } catch (error) {
+                console.error(
+                    'Load report parameters error:',
+                    error
+                )
+
+                setError(
+                    error.message ||
+                    'Unable to load report parameters.'
+                )
+
+                setParameters([])
+            } finally {
+                setLoading(false)
+            }
+        }
+
         loadReportParameters()
-
     }, [report])
-
 
     // =================================================
     // LOAD USER REGION
     // =================================================
 
     useEffect(() => {
+        const loadUserRegion = async () => {
+            if (!loggedInRegionCode) {
+                setRegionError(
+                    'Unable to determine logged-in region.'
+                )
 
-        const loadUserRegion =
-            async () => {
+                setRegionLoading(false)
+                return
+            }
 
-                if (!loggedInRegionCode) {
+            try {
+                setRegionLoading(true)
+                setRegionError('')
 
-                    setRegionError(
-                        'Unable to determine logged-in region.'
-                    )
-
-                    setRegionLoading(false)
-
-                    return
-                }
-
-                try {
-
-                    setRegionLoading(true)
-
-                    setRegionError('')
-
-                    const data =
-                        await getRegions(
-                            loggedInRegionCode
-                        )
-
-                    const regionData =
-                        Array.isArray(data)
-                            ? data
-                            : []
-
-                    setRegions(
-                        regionData
-                    )
-
-                    setSelectedRegion(
+                const data =
+                    await getRegions(
                         loggedInRegionCode
                     )
 
-                } catch (error) {
+                const regionData =
+                    Array.isArray(data)
+                        ? data
+                        : []
 
-                    console.error(
-                        'Load region error:',
-                        error
-                    )
+                setRegions(regionData)
 
-                    setRegions([])
+                // Region always comes from the
+                // logged-in user's session.
+                setSelectedRegion(
+                    loggedInRegionCode
+                )
+            } catch (error) {
+                console.error(
+                    'Load region error:',
+                    error
+                )
 
-                    setSelectedRegion('')
+                setRegions([])
+                setSelectedRegion('')
 
-                    setRegionError(
-                        error.message ||
-                        'Unable to load region.'
-                    )
-
-                } finally {
-
-                    setRegionLoading(false)
-                }
+                setRegionError(
+                    error.message ||
+                    'Unable to load region.'
+                )
+            } finally {
+                setRegionLoading(false)
             }
+        }
 
         loadUserRegion()
-
     }, [loggedInRegionCode])
-
 
     // =================================================
     // LOAD PRODUCTS
     // =================================================
 
     useEffect(() => {
+        const loadProducts = async () => {
+            try {
+                setProductLoading(true)
+                setProductError('')
 
-        const loadProducts =
-            async () => {
+                const data =
+                    await getProducts()
 
-                try {
+                setProducts(
+                    Array.isArray(data)
+                        ? data
+                        : []
+                )
 
-                    setProductLoading(true)
+                setSelectedProduct('All')
+            } catch (error) {
+                console.error(
+                    'Load products error:',
+                    error
+                )
 
-                    setProductError('')
+                setProducts([])
+                setSelectedProduct('All')
 
-                    const data =
-                        await getProducts()
-
-                    setProducts(
-                        Array.isArray(data)
-                            ? data
-                            : []
-                    )
-
-                    setSelectedProduct(
-                        'All'
-                    )
-
-                } catch (error) {
-
-                    console.error(
-                        'Load products error:',
-                        error
-                    )
-
-                    setProducts([])
-
-                    setSelectedProduct(
-                        'All'
-                    )
-
-                    setProductError(
-                        error.message ||
-                        'Unable to load products.'
-                    )
-
-                } finally {
-
-                    setProductLoading(false)
-                }
+                setProductError(
+                    error.message ||
+                    'Unable to load products.'
+                )
+            } finally {
+                setProductLoading(false)
             }
+        }
 
         loadProducts()
-
     }, [])
-
 
     // =================================================
     // LOAD CALL BOOK DATE
     // =================================================
 
     useEffect(() => {
+        const loadCallBookDt = async () => {
+            try {
+                setCallBookDtLoading(true)
+                setCallBookDtError('')
 
-        const loadCallBookDt =
-            async () => {
+                const data =
+                    await getCallBookDt()
 
-                try {
+                console.log(
+                    'CALL BOOK DT RESPONSE:',
+                    data
+                )
 
-                    setCallBookDtLoading(
-                        true
-                    )
-
-                    setCallBookDtError('')
-
-                    const data =
-                        await getCallBookDt()
-
-                    console.log(
-                        'CALL BOOK DT RESPONSE:',
-                        data
-                    )
-
-                    if (!Array.isArray(data)) {
-
-                        throw new Error(
-                            'Invalid Date Filter response.'
-                        )
-                    }
-
-                    const filteredData =
-                        data.filter(
-                            (item) =>
-                                item &&
-                                String(
-                                    item.code ?? ''
-                                ).trim() !== '' &&
-                                item.description !==
-                                    null &&
-                                item.description !==
-                                    undefined
-                        )
-
-                    setCallBookDt(
-                        filteredData
-                    )
-
-                } catch (error) {
-
-                    console.error(
-                        'Load Call Book DT error:',
-                        error
-                    )
-
-                    setCallBookDt([])
-
-                    setCallBookDtError(
-                        error.message ||
-                        'Unable to load Date Filter.'
-                    )
-
-                } finally {
-
-                    setCallBookDtLoading(
-                        false
+                if (!Array.isArray(data)) {
+                    throw new Error(
+                        'Invalid Date Filter response.'
                     )
                 }
+
+                const filteredData =
+                    data.filter(
+                        (item) =>
+                            item &&
+                            String(
+                                item.code ?? ''
+                            ).trim() !== '' &&
+                            item.description !==
+                                null &&
+                            item.description !==
+                                undefined
+                    )
+
+                setCallBookDt(
+                    filteredData
+                )
+            } catch (error) {
+                console.error(
+                    'Load Call Book DT error:',
+                    error
+                )
+
+                setCallBookDt([])
+
+                setCallBookDtError(
+                    error.message ||
+                    'Unable to load Date Filter.'
+                )
+            } finally {
+                setCallBookDtLoading(false)
             }
+        }
 
         loadCallBookDt()
-
     }, [])
-
 
     // =================================================
     // LOAD CALL TYPES
     // =================================================
 
     useEffect(() => {
+        const loadCallTypes = async () => {
+            try {
+                setCallTypeLoading(true)
+                setCallTypeError('')
 
-        const loadCallTypes =
-            async () => {
+                const data =
+                    await getCallTypes()
 
-                try {
-
-                    setCallTypeLoading(
-                        true
-                    )
-
-                    setCallTypeError('')
-
-                    const data =
-                        await getCallTypes()
-
-                    const normalizedOptions =
-                        Array.isArray(data)
-                            ? data
-                                .map(
-                                    (item) => {
-
-                                        if (
-                                            typeof item ===
-                                                'string' ||
-                                            typeof item ===
-                                                'number'
-                                        ) {
-
-                                            return {
-                                                value:
-                                                    String(
-                                                        item
-                                                    ),
-
-                                                label:
-                                                    String(
-                                                        item
-                                                    )
-                                            }
-                                        }
-
-                                        const callTypeName =
-                                            item?.callTypeName ??
-                                            item?.CallTypeName ??
-                                            item?.callType ??
-                                            item?.CallType ??
-                                            item?.name ??
-                                            item?.Name ??
-                                            item?.description ??
-                                            item?.Description ??
-                                            ''
-
-                                        const sapCode =
-                                            item?.saP_Code ??
-                                            item?.sap_Code ??
-                                            item?.SAP_Code ??
-                                            item?.Sap_Code ??
-                                            ''
-
+                const normalizedOptions =
+                    Array.isArray(data)
+                        ? data
+                            .map(
+                                (item) => {
+                                    if (
+                                        typeof item ===
+                                            'string' ||
+                                        typeof item ===
+                                            'number'
+                                    ) {
                                         return {
-
-                                            value:
-                                                String(
-                                                    callTypeName
-                                                ),
-
-                                            label:
-                                                String(
-                                                    callTypeName
-                                                ),
-
-                                            sapCode:
-                                                String(
-                                                    sapCode
-                                                )
+                                            value: String(
+                                                item
+                                            ),
+                                            label: String(
+                                                item
+                                            )
                                         }
                                     }
-                                )
-                                .filter(
-                                    (item) =>
+
+                                    const callTypeName =
+                                        item?.callTypeName ??
+                                        item?.CallTypeName ??
+                                        item?.callType ??
+                                        item?.CallType ??
+                                        item?.name ??
+                                        item?.Name ??
+                                        item?.description ??
+                                        item?.Description ??
+                                        ''
+
+                                    const sapCode =
+                                        item?.saP_Code ??
+                                        item?.sap_Code ??
+                                        item?.SAP_Code ??
+                                        item?.Sap_Code ??
+                                        ''
+
+                                    return {
+                                        value:
+                                            String(
+                                                callTypeName
+                                            ),
+                                        label:
+                                            String(
+                                                callTypeName
+                                            ),
+                                        sapCode:
+                                            String(
+                                                sapCode
+                                            )
+                                    }
+                                }
+                            )
+                            .filter(
+                                (item) =>
+                                    item.value
+                                        .trim() !== ''
+                            )
+                        : []
+
+                const uniqueOptions =
+                    Array.from(
+                        new Map(
+                            normalizedOptions.map(
+                                (item) => [
+                                    String(
                                         item.value
-                                            .trim() !== ''
-                                )
-                            : []
-
-                    const uniqueOptions =
-                        Array.from(
-                            new Map(
-                                normalizedOptions.map(
-                                    (item) => [
-                                        String(
-                                            item.value
-                                        ).toLowerCase(),
-
-                                        item
-                                    ]
-                                )
-                            ).values()
-                        )
-
-                    setCallTypes(
-                        uniqueOptions
+                                    ).toLowerCase(),
+                                    item
+                                ]
+                            )
+                        ).values()
                     )
 
-                    // Call Type starts empty.
-                    setSelectedCallTypes([])
+                setCallTypes(
+                    uniqueOptions
+                )
 
-                } catch (error) {
+                setSelectedCallTypes([])
+            } catch (error) {
+                console.error(
+                    'Load call types error:',
+                    error
+                )
 
-                    console.error(
-                        'Load call types error:',
-                        error
-                    )
+                setCallTypes([])
+                setSelectedCallTypes([])
 
-                    setCallTypes([])
-
-                    setSelectedCallTypes([])
-
-                    setCallTypeError(
-                        error.message ||
-                        'Unable to load call types.'
-                    )
-
-                } finally {
-
-                    setCallTypeLoading(
-                        false
-                    )
-                }
+                setCallTypeError(
+                    error.message ||
+                    'Unable to load call types.'
+                )
+            } finally {
+                setCallTypeLoading(false)
             }
+        }
 
         loadCallTypes()
-
     }, [])
-
 
     // =================================================
     // LOAD STATUSES
     // =================================================
 
     useEffect(() => {
+        const loadStatuses = async () => {
+            try {
+                setStatusLoading(true)
+                setStatusError('')
 
-        const loadStatuses =
-            async () => {
+                const data =
+                    await getStatuses()
 
-                try {
-
-                    setStatusLoading(
-                        true
-                    )
-
-                    setStatusError('')
-
-                    const data =
-                        await getStatuses()
-
-                    const normalizedOptions =
-                        Array.isArray(data)
-                            ? data
-                                .map(
-                                    (item) => {
-
-                                        if (
-                                            typeof item ===
-                                                'string' ||
-                                            typeof item ===
-                                                'number'
-                                        ) {
-
-                                            return {
-                                                value:
-                                                    String(
-                                                        item
-                                                    ),
-
-                                                label:
-                                                    String(
-                                                        item
-                                                    )
-                                            }
-                                        }
-
-                                        const statusName =
-                                            item?.statusName ??
-                                            item?.StatusName ??
-                                            item?.status ??
-                                            item?.Status ??
-                                            item?.name ??
-                                            item?.Name ??
-                                            item?.description ??
-                                            item?.Description ??
-                                            item?.value ??
-                                            item?.Value ??
-                                            ''
-
+                const normalizedOptions =
+                    Array.isArray(data)
+                        ? data
+                            .map(
+                                (item) => {
+                                    if (
+                                        typeof item ===
+                                            'string' ||
+                                        typeof item ===
+                                            'number'
+                                    ) {
                                         return {
-
-                                            value:
-                                                String(
-                                                    statusName
-                                                ),
-
-                                            label:
-                                                String(
-                                                    statusName
-                                                )
+                                            value: String(
+                                                item
+                                            ),
+                                            label: String(
+                                                item
+                                            )
                                         }
                                     }
-                                )
-                                .filter(
-                                    (item) =>
+
+                                    const statusName =
+                                        item?.statusName ??
+                                        item?.StatusName ??
+                                        item?.status ??
+                                        item?.Status ??
+                                        item?.name ??
+                                        item?.Name ??
+                                        item?.description ??
+                                        item?.Description ??
+                                        item?.value ??
+                                        item?.Value ??
+                                        ''
+
+                                    return {
+                                        value:
+                                            String(
+                                                statusName
+                                            ),
+                                        label:
+                                            String(
+                                                statusName
+                                            )
+                                    }
+                                }
+                            )
+                            .filter(
+                                (item) =>
+                                    item.value
+                                        .trim() !== ''
+                            )
+                        : []
+
+                const uniqueOptions =
+                    Array.from(
+                        new Map(
+                            normalizedOptions.map(
+                                (item) => [
+                                    String(
                                         item.value
-                                            .trim() !== ''
-                                )
-                            : []
-
-                    const uniqueOptions =
-                        Array.from(
-                            new Map(
-                                normalizedOptions.map(
-                                    (item) => [
-                                        String(
-                                            item.value
-                                        ).toLowerCase(),
-
-                                        item
-                                    ]
-                                )
-                            ).values()
-                        )
-
-                    setStatuses(
-                        uniqueOptions
+                                    ).toLowerCase(),
+                                    item
+                                ]
+                            )
+                        ).values()
                     )
 
-                    // Status starts empty.
-                    setSelectedStatuses([])
+                setStatuses(
+                    uniqueOptions
+                )
 
-                } catch (error) {
+                setSelectedStatuses([])
+            } catch (error) {
+                console.error(
+                    'Load statuses error:',
+                    error
+                )
 
-                    console.error(
-                        'Load statuses error:',
-                        error
-                    )
+                setStatuses([])
+                setSelectedStatuses([])
 
-                    setStatuses([])
-
-                    setSelectedStatuses([])
-
-                    setStatusError(
-                        error.message ||
-                        'Unable to load statuses.'
-                    )
-
-                } finally {
-
-                    setStatusLoading(
-                        false
-                    )
-                }
+                setStatusError(
+                    error.message ||
+                    'Unable to load statuses.'
+                )
+            } finally {
+                setStatusLoading(false)
             }
+        }
 
         loadStatuses()
-
     }, [])
-
 
     // =================================================
     // LOAD USER BRANCHES
     // =================================================
 
     useEffect(() => {
+        const loadUserBranch = async () => {
 
-        const loadUserBranch =
-            async () => {
+            if (!selectedRegion) {
+                setBranches([])
 
-                if (!selectedRegion) {
+                setSelectedBranch(
+                    isRegionUser
+                        ? 'All'
+                        : ''
+                )
 
-                    setBranches([])
+                return
+            }
 
-                    setSelectedBranch(
-                        isRegionUser
-                            ? 'All'
-                            : ''
-                    )
+            if (!loggedInRoleId) {
+                setBranches([])
+                setSelectedBranch('All')
 
-                    return
-                }
+                setBranchError(
+                    'Unable to determine logged-in role.'
+                )
 
-                if (!loggedInRoleId) {
+                return
+            }
 
-                    setBranches([])
+            // Branch and Franchise users must have
+            // their logged-in BPCode.
+            if (
+                (isBranchUser ||
+                    isFranchiseUser) &&
+                !loggedInBpCode
+            ) {
+                setBranches([])
+                setSelectedBranch('')
 
-                    setSelectedBranch(
-                        'All'
-                    )
+                setBranchError(
+                    'Unable to determine logged-in branch.'
+                )
 
-                    setBranchError(
-                        'Unable to determine logged-in role.'
-                    )
+                return
+            }
 
-                    return
-                }
+            try {
+                setBranchLoading(true)
+                setBranchError('')
 
-                if (
-                    (
-                        isBranchUser ||
-                        isFranchiseUser
-                    ) &&
-                    !loggedInBpCode
-                ) {
+                // =========================================
+                // REGION USER - ROLE 1
+                // =========================================
 
-                    setBranches([])
-
-                    setSelectedBranch('')
-
-                    setBranchError(
-                        'Unable to determine logged-in branch.'
-                    )
-
-                    return
-                }
-
-                try {
-
-                    setBranchLoading(true)
-
-                    setBranchError('')
-
-
-                    // =========================================
-                    // REGION USER - ROLE 1
-                    // =========================================
-
-                    if (isRegionUser) {
-
-                        const data =
-                            await getBranches(
-                                loggedInRoleId,
-                                selectedRegion,
-                                ''
-                            )
-
-                        const branchData =
-                            Array.isArray(data)
-                                ? data
-                                : []
-
-                        setBranches(
-                            branchData
-                        )
-
-                        setSelectedBranch(
-                            'All'
-                        )
-
-                        return
-                    }
-
-
-                    // =========================================
-                    // BRANCH / FRANCHISE USER
-                    // ROLE 6 / ROLE 5
-                    // =========================================
-
+                if (isRegionUser) {
                     const data =
                         await getBranches(
                             loggedInRoleId,
                             selectedRegion,
-                            loggedInBpCode
+                            ''
                         )
 
                     const branchData =
@@ -1558,38 +1303,63 @@ function ReportParameter() {
                         branchData
                     )
 
-                    setSelectedBranch(
+                    // Region user can select All.
+                    setSelectedBranch('All')
+
+                    return
+                }
+
+                // =========================================
+                // BRANCH / FRANCHISE USER
+                // ROLE 6 / ROLE 5
+                // =========================================
+
+                const data =
+                    await getBranches(
+                        loggedInRoleId,
+                        selectedRegion,
                         loggedInBpCode
                     )
 
-                } catch (error) {
+                const branchData =
+                    Array.isArray(data)
+                        ? data
+                        : []
 
-                    console.error(
-                        'Load branches error:',
-                        error
-                    )
+                setBranches(
+                    branchData
+                )
 
-                    setBranches([])
+                // Branch and Franchise users
+                // must use their logged-in branch.
+                setSelectedBranch(
+                    loggedInBpCode
+                )
 
-                    setSelectedBranch(
-                        isRegionUser
-                            ? 'All'
-                            : ''
-                    )
+            } catch (error) {
+                console.error(
+                    'Load branches error:',
+                    error
+                )
 
-                    setBranchError(
-                        error.message ||
-                        'Unable to load branches.'
-                    )
+                setBranches([])
 
-                } finally {
+                setSelectedBranch(
+                    isRegionUser
+                        ? 'All'
+                        : ''
+                )
 
-                    setBranchLoading(false)
-                }
+                setBranchError(
+                    error.message ||
+                    'Unable to load branches.'
+                )
+            } finally {
+                setBranchLoading(false)
             }
+        }
 
         loadUserBranch()
-
     }, [
         selectedRegion,
         loggedInRoleId,
@@ -1599,235 +1369,196 @@ function ReportParameter() {
         isFranchiseUser
     ])
 
-
     // =================================================
     // LOAD FRANCHISES
     // =================================================
 
     useEffect(() => {
+        const loadFranchises = async () => {
 
-        const loadFranchises =
-            async () => {
+            // =========================================
+            // REGION USER + ALL BRANCH
+            // =========================================
+            // No single branch is selected yet.
+            // Keep franchise as All.
+            // =========================================
 
-                if (
-                    isRegionUser &&
-                    (
-                        !selectedBranch ||
-                        selectedBranch === 'All'
-                    )
-                ) {
+            if (
+                isRegionUser &&
+                (!selectedBranch ||
+                    selectedBranch === 'All')
+            ) {
+                setFranchises([])
+                setSelectedFranchise('All')
+                setFranchiseError('')
+                setFranchiseLoading(false)
 
-                    setFranchises([])
-
-                    setSelectedFranchise(
-                        'All'
-                    )
-
-                    setFranchiseError('')
-
-                    setFranchiseLoading(
-                        false
-                    )
-
-                    return
-                }
-
-                if (!selectedBranch) {
-
-                    setFranchises([])
-
-                    setSelectedFranchise(
-                        isFranchiseUser
-                            ? ''
-                            : 'All'
-                    )
-
-                    setFranchiseError('')
-
-                    setFranchiseLoading(
-                        false
-                    )
-
-                    return
-                }
-
-                if (!loggedInRoleId) {
-
-                    setFranchises([])
-
-                    setSelectedFranchise(
-                        'All'
-                    )
-
-                    setFranchiseError(
-                        'Unable to determine logged-in role.'
-                    )
-
-                    setFranchiseLoading(
-                        false
-                    )
-
-                    return
-                }
-
-                if (!loggedInLoginId) {
-
-                    setFranchises([])
-
-                    setSelectedFranchise(
-                        'All'
-                    )
-
-                    setFranchiseError(
-                        'Unable to determine logged-in Login ID.'
-                    )
-
-                    setFranchiseLoading(
-                        false
-                    )
-
-                    return
-                }
-
-                try {
-
-                    setFranchiseLoading(true)
-
-                    setFranchiseError('')
-
-
-                    const branchCode =
-                        isRegionUser
-                            ? selectedBranch
-                            : loggedInBpCode
-
-
-                    const data =
-                        await getFranchises(
-                            loggedInRoleId,
-                            branchCode,
-                            loggedInLoginId
-                        )
-
-
-                    const franchiseData =
-                        Array.isArray(data)
-                            ? [...data]
-                            : []
-
-
-                    franchiseData.sort(
-                        (a, b) => {
-
-                            const nameA =
-                                String(
-                                    a.frName ??
-                                    a.FrName ??
-                                    a.franchiseName ??
-                                    a.FranchiseName ??
-                                    a.name ??
-                                    a.Name ??
-                                    ''
-                                )
-
-                            const nameB =
-                                String(
-                                    b.frName ??
-                                    b.FrName ??
-                                    b.franchiseName ??
-                                    b.FranchiseName ??
-                                    b.name ??
-                                    b.Name ??
-                                    ''
-                                )
-
-                            return nameA.localeCompare(
-                                nameB
-                            )
-                        }
-                    )
-
-
-                    setFranchises(
-                        franchiseData
-                    )
-
-
-                    // =========================================
-                    // FRANCHISE USER - ROLE 5
-                    // =========================================
-
-                    if (isFranchiseUser) {
-
-                        if (
-                            franchiseData.length > 0
-                        ) {
-
-                            const loggedInFranchise =
-                                franchiseData[0]
-
-                            const franchiseCode =
-                                loggedInFranchise.frCode ??
-                                loggedInFranchise.FrCode ??
-                                loggedInFranchise.franchiseCode ??
-                                loggedInFranchise.FranchiseCode ??
-                                ''
-
-                            setSelectedFranchise(
-                                String(
-                                    franchiseCode
-                                )
-                            )
-
-                        } else {
-
-                            setSelectedFranchise(
-                                ''
-                            )
-                        }
-
-                        return
-                    }
-
-
-                    // =========================================
-                    // REGION / BRANCH USER
-                    // =========================================
-
-                    setSelectedFranchise(
-                        'All'
-                    )
-
-                } catch (error) {
-
-                    console.error(
-                        'Load franchises error:',
-                        error
-                    )
-
-                    setFranchises([])
-
-                    setSelectedFranchise(
-                        isFranchiseUser
-                            ? ''
-                            : 'All'
-                    )
-
-                    setFranchiseError(
-                        error.message ||
-                        'Unable to load franchises.'
-                    )
-
-                } finally {
-
-                    setFranchiseLoading(
-                        false
-                    )
-                }
+                return
             }
 
-        loadFranchises()
+            if (!selectedBranch) {
+                setFranchises([])
 
+                setSelectedFranchise(
+                    isFranchiseUser
+                        ? ''
+                        : 'All'
+                )
+
+                setFranchiseError('')
+                setFranchiseLoading(false)
+
+                return
+            }
+
+            if (!loggedInRoleId) {
+                setFranchises([])
+                setSelectedFranchise('All')
+
+                setFranchiseError(
+                    'Unable to determine logged-in role.'
+                )
+
+                setFranchiseLoading(false)
+
+                return
+            }
+
+            if (!loggedInLoginId) {
+                setFranchises([])
+                setSelectedFranchise('All')
+
+                setFranchiseError(
+                    'Unable to determine logged-in Login ID.'
+                )
+
+                setFranchiseLoading(false)
+
+                return
+            }
+
+            try {
+                setFranchiseLoading(true)
+                setFranchiseError('')
+
+                const branchCode =
+                    isRegionUser
+                        ? selectedBranch
+                        : loggedInBpCode
+
+                const data =
+                    await getFranchises(
+                        loggedInRoleId,
+                        branchCode,
+                        loggedInLoginId
+                    )
+
+                const franchiseData =
+                    Array.isArray(data)
+                        ? [...data]
+                        : []
+
+                franchiseData.sort(
+                    (a, b) => {
+                        const nameA =
+                            String(
+                                a.frName ??
+                                a.FrName ??
+                                a.franchiseName ??
+                                a.FranchiseName ??
+                                a.name ??
+                                a.Name ??
+                                ''
+                            )
+
+                        const nameB =
+                            String(
+                                b.frName ??
+                                b.FrName ??
+                                b.franchiseName ??
+                                b.FranchiseName ??
+                                b.name ??
+                                b.Name ??
+                                ''
+                            )
+
+                        return nameA.localeCompare(
+                            nameB
+                        )
+                    }
+                )
+
+                setFranchises(
+                    franchiseData
+                )
+
+                // =========================================
+                // FRANCHISE USER - ROLE 5
+                // =========================================
+                // The API is called with LoginID.
+                // The returned franchise is selected
+                // and the dropdown is frozen.
+                // =========================================
+
+                if (isFranchiseUser) {
+
+                    if (
+                        franchiseData.length > 0
+                    ) {
+                        const loggedInFranchise =
+                            franchiseData[0]
+
+                        const franchiseCode =
+                            loggedInFranchise.frCode ??
+                            loggedInFranchise.FrCode ??
+                            loggedInFranchise.franchiseCode ??
+                            loggedInFranchise.FranchiseCode ??
+                            ''
+
+                        setSelectedFranchise(
+                            String(
+                                franchiseCode
+                            )
+                        )
+                    } else {
+                        setSelectedFranchise('')
+                    }
+
+                    return
+                }
+
+                // =========================================
+                // REGION / BRANCH USER
+                // =========================================
+
+                setSelectedFranchise(
+                    'All'
+                )
+
+            } catch (error) {
+                console.error(
+                    'Load franchises error:',
+                    error
+                )
+
+                setFranchises([])
+
+                setSelectedFranchise(
+                    isFranchiseUser
+                        ? ''
+                        : 'All'
+                )
+
+                setFranchiseError(
+                    error.message ||
+                    'Unable to load franchises.'
+                )
+            } finally {
+                setFranchiseLoading(false)
+            }
+        }
+
+        loadFranchises()
     }, [
         selectedBranch,
         loggedInRoleId,
@@ -1837,7 +1568,6 @@ function ReportParameter() {
         isFranchiseUser
     ])
 
-
     // =================================================
     // GET MULTI SELECT VALUE
     // =================================================
@@ -1846,7 +1576,6 @@ function ReportParameter() {
         selectedValues,
         options
     ) => {
-
         if (
             !selectedValues ||
             selectedValues.length === 0
@@ -1859,8 +1588,7 @@ function ReportParameter() {
                 (option) =>
                     String(
                         option.value
-                    ).toLowerCase() !==
-                    'all'
+                    ).toLowerCase() !== 'all'
             )
 
         const allSelected =
@@ -1879,7 +1607,6 @@ function ReportParameter() {
         return selectedValues.join(',')
     }
 
-
     // =================================================
     // GET PARAMETER VALUE
     // =================================================
@@ -1888,7 +1615,6 @@ function ReportParameter() {
         paramName,
         question = ''
     ) => {
-
         const normalizedName =
             String(
                 paramName || ''
@@ -1903,24 +1629,18 @@ function ReportParameter() {
                 .trim()
                 .toLowerCase()
 
-
         if (
-            normalizedName ===
-            'region'
+            normalizedName === 'region'
         ) {
             return selectedRegion || null
         }
 
-
         if (
-            normalizedName ===
-                'branch' ||
-            normalizedName ===
-                'branchcode'
+            normalizedName === 'branch' ||
+            normalizedName === 'branchcode'
         ) {
             return selectedBranch || null
         }
-
 
         if (
             normalizedName ===
@@ -1931,7 +1651,6 @@ function ReportParameter() {
             return selectedFranchise || 'All'
         }
 
-
         if (
             normalizedName ===
                 'product' ||
@@ -1940,7 +1659,6 @@ function ReportParameter() {
         ) {
             return selectedProduct || 'All'
         }
-
 
         if (
             normalizedName ===
@@ -1960,16 +1678,9 @@ function ReportParameter() {
             )
         }
 
-
-        // =================================================
-        // CALL TYPE
-        // =================================================
-
         if (
             normalizedName ===
-                'calltype' ||
-            normalizedQuestion ===
-                'call type'
+                'calltype'
         ) {
             return getMultiSelectValue(
                 selectedCallTypes,
@@ -1977,15 +1688,8 @@ function ReportParameter() {
             )
         }
 
-
-        // =================================================
-        // STATUS
-        // =================================================
-
         if (
             normalizedName ===
-                'status' ||
-            normalizedQuestion ===
                 'status'
         ) {
             return getMultiSelectValue(
@@ -1994,10 +1698,9 @@ function ReportParameter() {
             )
         }
 
-
         if (
             normalizedName ===
-            'fromdate'
+                'fromdate'
         ) {
             return (
                 selectedFromDate ||
@@ -2005,17 +1708,15 @@ function ReportParameter() {
             )
         }
 
-
         if (
             normalizedName ===
-            'todate'
+                'todate'
         ) {
             return (
                 selectedToDate ||
                 null
             )
         }
-
 
         // =================================================
         // DYNAMIC PARAMETER
@@ -2027,7 +1728,6 @@ function ReportParameter() {
         )
     }
 
-
     // =================================================
     // GET REQUEST PARAMETER NAME
     // =================================================
@@ -2036,7 +1736,6 @@ function ReportParameter() {
         paramName,
         question = ''
     ) => {
-
         const normalizedName =
             String(
                 paramName || ''
@@ -2051,14 +1750,12 @@ function ReportParameter() {
                 .trim()
                 .toLowerCase()
 
-
         if (
             normalizedName ===
-            'region'
+                'region'
         ) {
             return 'Region'
         }
-
 
         if (
             normalizedName ===
@@ -2069,7 +1766,6 @@ function ReportParameter() {
             return 'BranchCode'
         }
 
-
         if (
             normalizedName ===
                 'franchise' ||
@@ -2078,7 +1774,6 @@ function ReportParameter() {
         ) {
             return 'FranchiseCode'
         }
-
 
         if (
             normalizedName ===
@@ -2089,7 +1784,6 @@ function ReportParameter() {
             return 'ProductCode'
         }
 
-
         if (
             normalizedName ===
                 'calltype' ||
@@ -2099,7 +1793,6 @@ function ReportParameter() {
             return 'CallType'
         }
 
-
         if (
             normalizedName ===
                 'status' ||
@@ -2108,13 +1801,6 @@ function ReportParameter() {
         ) {
             return 'Status'
         }
-
-
-        // =================================================
-        // IMPORTANT:
-        // Backend stored procedure expects @DateFilter.
-        // UI label remains "Date Filter".
-        // =================================================
 
         if (
             normalizedName ===
@@ -2131,26 +1817,22 @@ function ReportParameter() {
             return 'DateFilter'
         }
 
-
         if (
             normalizedName ===
-            'fromdate'
+                'fromdate'
         ) {
             return 'FromDate'
         }
 
-
         if (
             normalizedName ===
-            'todate'
+                'todate'
         ) {
             return 'ToDate'
         }
 
-
         return paramName
     }
-
 
     // =================================================
     // MANDATORY USER PARAMETER
@@ -2160,7 +1842,6 @@ function ReportParameter() {
         paramName,
         question = ''
     ) => {
-
         const normalizedName =
             String(
                 paramName || ''
@@ -2175,67 +1856,101 @@ function ReportParameter() {
                 .trim()
                 .toLowerCase()
 
-
         return (
             normalizedName ===
                 'region' ||
-
             normalizedName ===
                 'branch' ||
-
             normalizedName ===
                 'branchcode' ||
-
             normalizedName ===
                 'franchise' ||
-
             normalizedName ===
                 'franchisecode' ||
-
             normalizedName ===
                 'callbookdt' ||
-
             normalizedName ===
                 'datefilter' ||
-
             normalizedName ===
                 'datefiltercode' ||
-
             normalizedQuestion ===
                 'call book dt' ||
-
             normalizedQuestion ===
                 'date filter' ||
-
             normalizedName ===
                 'fromdate' ||
-
             normalizedName ===
                 'todate'
         )
     }
 
+    // =================================================
+    // BUILD BASE PARAMETERS (no paging)
+    // =================================================
+
+    const buildReportParameters = () => {
+        const reportParameters = {}
+        parameters.forEach((parameter) => {
+            const paramName = String(parameter.paramName || '').trim()
+            if (!paramName) return
+            const question = String(parameter.question || '').trim()
+            const requestParamName = getRequestParameterName(paramName, question)
+            const value = getParameterValue(paramName, question)
+            reportParameters[requestParamName] = value === undefined ? null : value
+        })
+        return reportParameters
+    }
+
+    // =================================================
+    // FETCH ONE PAGE (backend returns TotalRecords on each row)
+    // =================================================
+
+    const fetchReportPage = async (pageNumber) => {
+        const reportParameters = buildReportParameters()
+        reportParameters.PageNumber = pageNumber
+        reportParameters.PageSize = pageSize
+
+        try {
+            setReportLoading(true)
+            setReportError('')
+
+            const data = await runReport(report.reportID, reportParameters)
+
+            if (!Array.isArray(data) || data.length === 0) {
+                setReportData([])
+                setTotalRecords(0)
+                setShowNoData(true)
+                return
+            }
+
+            setTotalRecords(Number(data[0].TotalRecords) || data.length)
+            setReportData(data)
+            setCurrentPage(pageNumber)
+            setShowNoData(false)
+        } catch (error) {
+            console.error('Run report error:', error)
+            setReportError(error.message || 'Unable to run report.')
+            setReportData([])
+            setTotalRecords(0)
+            setShowNoData(false)
+        } finally {
+            setReportLoading(false)
+        }
+    }
 
     // =================================================
     // RUN QUERY
     // =================================================
 
     const handleRunQuery = async () => {
-
         setShowNoData(false)
-
         setReportError('')
 
+        // Clear table filters whenever
+        // a completely new report is executed.
         setColumnFilters({})
 
-
         let missingParameter = ''
-
-
-        // =================================================
-        // REGION VALIDATION
-        // EXISTING VALIDATION - UNCHANGED
-        // =================================================
 
         if (
             !missingParameter &&
@@ -2255,21 +1970,13 @@ function ReportParameter() {
             ) &&
             !selectedRegion
         ) {
-            missingParameter =
-                'Region'
+            missingParameter = 'Region'
         }
-
-
-        // =================================================
-        // BRANCH VALIDATION
-        // EXISTING VALIDATION - UNCHANGED
-        // =================================================
 
         if (
             !missingParameter &&
             parameters.some(
                 (parameter) => {
-
                     const name =
                         String(
                             parameter.paramName ||
@@ -2294,21 +2001,13 @@ function ReportParameter() {
             ) &&
             !selectedBranch
         ) {
-            missingParameter =
-                'Branch'
+            missingParameter = 'Branch'
         }
-
-
-        // =================================================
-        // FRANCHISE VALIDATION
-        // EXISTING VALIDATION - UNCHANGED
-        // =================================================
 
         if (
             !missingParameter &&
             parameters.some(
                 (parameter) => {
-
                     const name =
                         String(
                             parameter.paramName ||
@@ -2337,17 +2036,10 @@ function ReportParameter() {
                 'Franchise'
         }
 
-
-        // =================================================
-        // DATE FILTER VALIDATION
-        // EXISTING VALIDATION - UNCHANGED
-        // =================================================
-
         if (
             !missingParameter &&
             parameters.some(
                 (parameter) => {
-
                     const name =
                         String(
                             parameter.paramName ||
@@ -2390,12 +2082,6 @@ function ReportParameter() {
                 'Date Filter'
         }
 
-
-        // =================================================
-        // FROM DATE VALIDATION
-        // EXISTING VALIDATION - UNCHANGED
-        // =================================================
-
         if (
             !missingParameter &&
             parameters.some(
@@ -2413,12 +2099,6 @@ function ReportParameter() {
             missingParameter =
                 'From Date'
         }
-
-
-        // =================================================
-        // TO DATE VALIDATION
-        // EXISTING VALIDATION - UNCHANGED
-        // =================================================
 
         if (
             !missingParameter &&
@@ -2438,26 +2118,12 @@ function ReportParameter() {
                 'To Date'
         }
 
-
-        // =================================================
-        // EXISTING VALIDATION MESSAGE
-        // DO NOT CHANGE
-        // =================================================
-
         if (missingParameter) {
-
             setReportError(
                 `Please select ${missingParameter}.`
             )
-
             return
         }
-
-
-        // =================================================
-        // DATE ORDER VALIDATION
-        // EXISTING VALIDATION - UNCHANGED
-        // =================================================
 
         if (
             selectedFromDate &&
@@ -2465,11 +2131,9 @@ function ReportParameter() {
             selectedFromDate >
                 selectedToDate
         ) {
-
             setReportError(
                 'From Date cannot be greater than To Date.'
             )
-
             return
         }
 
@@ -2580,274 +2244,76 @@ function ReportParameter() {
         }
 
 
-        // =================================================
-        // BUILD PARAMETERS
-        // =================================================
-
-        const reportParameters = {}
-
-
-        parameters.forEach(
-            (parameter) => {
-
-                const paramName =
-                    String(
-                        parameter.paramName ||
-                        ''
-                    ).trim()
-
-
-                if (!paramName) {
-                    return
-                }
-
-
-                const question =
-                    String(
-                        parameter.question ||
-                        ''
-                    ).trim()
-
-
-                const requestParamName =
-                    getRequestParameterName(
-                        paramName,
-                        question
-                    )
-
-
-                const value =
-                    getParameterValue(
-                        paramName,
-                        question
-                    )
-
-
-                reportParameters[
-                    requestParamName
-                ] =
-                    value === undefined
-                        ? null
-                        : value
-            }
-        )
-
-
-        // =================================================
-        // FINAL PAYLOAD DEBUG
-        // =================================================
-
-        console.log(
-            '========================================'
-        )
-
-        console.log(
-            'FINAL PARAMETERS SENT TO API'
-        )
-
-        console.log(
-            reportParameters
-        )
-
-        console.log(
-            'FINAL JSON'
-        )
-
-        console.log(
-            JSON.stringify(
-                reportParameters,
-                null,
-                2
-            )
-        )
-
-        console.log(
-            '========================================'
-        )
-
-
-        // =================================================
-        // RUN REPORT
-        // =================================================
-
-        try {
-
-            setReportLoading(true)
-
-            setReportError('')
-
-
-            const data =
-                await runReport(
-                    report.reportID,
-                    reportParameters
-                )
-
-
-            console.log(
-                'REPORT API RESPONSE:',
-                data
-            )
-
-
-            if (
-                !Array.isArray(data) ||
-                data.length === 0
-            ) {
-
-                setReportData([])
-
-                setShowNoData(true)
-
-                return
-            }
-
-
-            // Keep ALL records in reportData.
-            // Only the table displays latest 10 records.
-
-            setReportData(data)
-
-            setShowNoData(false)
-
-        } catch (error) {
-
-            console.error(
-                'Run report error:',
-                error
-            )
-
-            setReportError(
-                error.message ||
-                'Unable to run report.'
-            )
-
-            setReportData([])
-
-            setShowNoData(false)
-
-        } finally {
-
-            setReportLoading(false)
-        }
+        // Validation passed -> load the first page.
+        setCurrentPage(1)
+        await fetchReportPage(1)
     }
 
-
     // =================================================
-    // TABLE COLUMNS
+    // TABLE COLUMNS  (TotalRecords is a paging helper, not a real column)
     // =================================================
 
-    const reportColumns =
-        useMemo(() => {
-
-            if (
-                !Array.isArray(reportData) ||
-                reportData.length === 0
-            ) {
-                return []
-            }
-
-            return Object.keys(
+    const reportColumns = useMemo(() => {
+        return reportData.length > 0
+            ? Object.keys(
                 reportData[0]
+            ).filter((c) => c !== 'TotalRecords')
+            : []
+    }, [reportData])
+
+    // =================================================
+    // FILTERED REPORT DATA (applies to the current page only)
+    // =================================================
+
+    const filteredReportData = useMemo(() => {
+
+        const hasActiveFilters =
+            Object.keys(columnFilters).length > 0 &&
+            Object.values(columnFilters).some(
+                (values) =>
+                    values && values.length > 0
             )
 
-        }, [reportData])
+        if (!hasActiveFilters) {
+            return reportData
+        }
 
+        return reportData.filter(
+            (row) => {
+                return reportColumns.every(
+                    (column) => {
+                        const selectedValues =
+                            columnFilters[
+                                column
+                            ]
 
-    // =================================================
-    // FILTERED REPORT DATA
-    // =================================================
-
-    const filteredReportData =
-        useMemo(() => {
-
-            if (
-                !Array.isArray(reportData) ||
-                reportData.length === 0
-            ) {
-                return []
-            }
-
-
-            const hasActiveFilters =
-                Object.keys(
-                    columnFilters
-                ).some(
-                    (column) =>
-                        Array.isArray(
-                            columnFilters[column]
-                        ) &&
-                        columnFilters[column]
-                            .length > 0
-                )
-
-
-            if (!hasActiveFilters) {
-                return reportData
-            }
-
-
-            return reportData.filter(
-                (row) => {
-
-                    return reportColumns.every(
-                        (column) => {
-
-                            const selectedValues =
-                                columnFilters[
-                                    column
-                                ]
-
-
-                            if (
-                                !selectedValues ||
-                                selectedValues.length ===
-                                    0
-                            ) {
-                                return true
-                            }
-
-
-                            const rowValue =
-                                row[column] ===
-                                    null ||
-                                row[column] ===
-                                    undefined
-                                    ? ''
-                                    : String(
-                                        row[column]
-                                    )
-
-
-                            return selectedValues.includes(
-                                rowValue
-                            )
+                        // No filter applied.
+                        if (
+                            !selectedValues ||
+                            selectedValues.length ===
+                                0
+                        ) {
+                            return true
                         }
-                    )
-                }
-            )
 
-        }, [
-            reportData,
-            reportColumns,
-            columnFilters
-        ])
+                        const rowValue =
+                            row[column] ===
+                                null ||
+                            row[column] ===
+                                undefined
+                                ? ''
+                                : String(
+                                    row[column]
+                                )
 
-
-    // =================================================
-    // DISPLAY DATA
-    // =================================================
-
-    const displayedReportData =
-        useMemo(() => {
-
-            return filteredReportData.slice(
-                0,
-                10
-            )
-
-        }, [filteredReportData])
-
+                        return selectedValues.includes(
+                            rowValue
+                        )
+                    }
+                )
+            }
+        )
+    }, [reportData, reportColumns, columnFilters])
 
     // =================================================
     // COLUMN FILTER CHANGE
@@ -2865,219 +2331,177 @@ function ReportParameter() {
                     ...previousFilters
                 }
 
-
                 if (
                     !selectedValues ||
                     selectedValues.length ===
                         0
                 ) {
-
                     delete updatedFilters[
                         column
                     ]
-
                 } else {
-
                     updatedFilters[
                         column
                     ] = selectedValues
                 }
-
 
                 return updatedFilters
             }
         )
     }
 
-
     // =================================================
     // CLEAR ALL COLUMN FILTERS
     // =================================================
 
     const handleClearAllColumnFilters = () => {
-
         setColumnFilters({})
     }
-
 
     const hasColumnFilters =
         Object.keys(
             columnFilters
         ).length > 0
 
-
     // =================================================
-    // DOWNLOAD EXCEL
+    // DOWNLOAD EXCEL  (separate FULL fetch — no paging params)
     // =================================================
 
-    const handleDownload = () => {
+    const handleDownload = async () => {
+        try {
+            setDownloadLoading(true)
 
-        if (
-            !Array.isArray(reportData) ||
-            reportData.length === 0
-        ) {
-            return
+            const reportParameters = buildReportParameters()
+            // NO PageNumber / PageSize => backend returns ALL rows
+            const data = await runReport(report.reportID, reportParameters)
+
+            if (!Array.isArray(data) || data.length === 0) {
+                return
+            }
+
+            // remove the paging helper column if present
+            const cleaned = data.map(({ TotalRecords, ...rest }) => rest)
+
+            const worksheet =
+                XLSX.utils.json_to_sheet(cleaned)
+
+            const workbook =
+                XLSX.utils.book_new()
+
+            XLSX.utils.book_append_sheet(
+                workbook,
+                worksheet,
+                'Report Data'
+            )
+
+            const reportName =
+                report?.reportType ||
+                'Report'
+
+            const safeReportName =
+                String(
+                    reportName
+                ).replace(
+                    /[\\/:*?"<>|]/g,
+                    '_'
+                )
+
+            XLSX.writeFile(
+                workbook,
+                `${safeReportName}_Data.xlsx`
+            )
+        } catch (error) {
+            console.error('Download error:', error)
+        } finally {
+            setDownloadLoading(false)
         }
-
-
-        const worksheet =
-            XLSX.utils.json_to_sheet(
-                reportData
-            )
-
-
-        const workbook =
-            XLSX.utils.book_new()
-
-
-        XLSX.utils.book_append_sheet(
-            workbook,
-            worksheet,
-            'Report Data'
-        )
-
-
-        const reportName =
-            report?.reportType ||
-            'Report'
-
-
-        const safeReportName =
-            String(
-                reportName
-            ).replace(
-                /[\\/:*?"<>|]/g,
-                '_'
-            )
-
-
-        XLSX.writeFile(
-            workbook,
-            `${safeReportName}_Data.xlsx`
-        )
     }
 
+    // =================================================
+    // PAGER
+    // =================================================
+
+    const totalPages = Math.ceil(totalRecords / pageSize)
 
     // =================================================
     // NO REPORT
     // =================================================
 
     if (!report) {
-
-        return (
-
-            <DashboardLayout title="Report">
-
-                <section className="report-parameter-section">
-
-                    <div className="report-parameter-empty">
-
-                        <i
-                            className="fa fa-exclamation-triangle"
-                            aria-hidden="true"
-                        />
-
-                        <h3>
-                            No report selected
-                        </h3>
-
-                        <p>
-                            Please select a report from the Report Data section.
-                        </p>
-
-                    </div>
-
-                </section>
-
-            </DashboardLayout>
-        )
-    }
-
+    return (
+        <DashboardLayout title="Report">
+            <section className="report-parameter-section">
+                <div className="report-parameter-empty">
+                    <i
+                        className="fa fa-exclamation-triangle"
+                        aria-hidden="true"
+                    />
+                    <h3>No report selected</h3>
+                    <p>
+                        Please select a report from the Report Data section.
+                    </p>
+                </div>
+            </section>
+        </DashboardLayout>
+    )
+}
 
     // =================================================
     // LOADING
     // =================================================
 
     if (loading) {
-
-        return (
-
-            <DashboardLayout title="Report">
-
-                <section className="report-parameter-section">
-
-                    <div className="report-parameter-empty">
-
-                        <i
-                            className="fa fa-spinner fa-spin"
-                            aria-hidden="true"
-                        />
-
-                        <h3>
-                            Loading report parameters...
-                        </h3>
-
-                    </div>
-
-                </section>
-
-            </DashboardLayout>
-        )
-    }
-
+    return (
+        <DashboardLayout title="Report">
+            <section className="report-parameter-section">
+                <div className="report-parameter-empty">
+                    <i
+                        className="fa fa-spinner fa-spin"
+                        aria-hidden="true"
+                    />
+                    <h3>Loading report parameters...</h3>
+                </div>
+            </section>
+        </DashboardLayout>
+    )
+}
 
     // =================================================
     // ERROR
     // =================================================
 
     if (error) {
-
-        return (
-
-            <DashboardLayout title="Report">
-
-                <section className="report-parameter-section">
-
-                    <div className="report-parameter-empty">
-
-                        <i
-                            className="fa fa-exclamation-triangle"
-                            aria-hidden="true"
-                        />
-
-                        <h3>
-                            Unable to load report parameters
-                        </h3>
-
-                        <p>
-                            {error}
-                        </p>
-
-                    </div>
-
-                </section>
-
-            </DashboardLayout>
-        )
-    }
-
+    return (
+        <DashboardLayout title="Report">
+            <section className="report-parameter-section">
+                <div className="report-parameter-empty">
+                    <i
+                        className="fa fa-exclamation-triangle"
+                        aria-hidden="true"
+                    />
+                    <h3>Unable to load report parameters</h3>
+                    <p>{error}</p>
+                </div>
+            </section>
+        </DashboardLayout>
+    )
+}
 
     // =================================================
     // MAIN PAGE
     // =================================================
 
     return (
-
-        <DashboardLayout
-            title={
-                report?.reportType ||
-                'Report'
-            }
-        >
-
+    <DashboardLayout title={report?.reportType || 'Report'}>
             <section
                 className="report-parameter-section"
             >
+
+                {/* =====================================
+                    HEADER
+                ===================================== */}
+
+
 
                 {/* =====================================
                     FILTER CARD
@@ -3100,26 +2524,21 @@ function ReportParameter() {
                                         ''
                                     ).trim()
 
-
                                 const question =
                                     String(
                                         parameter.question ||
                                         ''
                                     ).trim()
 
-
                                 const normalizedName =
                                     paramName.toLowerCase()
-
 
                                 const normalizedQuestion =
                                     question.toLowerCase()
 
-
                                 const isRegion =
                                     normalizedName ===
                                     'region'
-
 
                                 const isBranch =
                                     normalizedName ===
@@ -3127,20 +2546,17 @@ function ReportParameter() {
                                     normalizedName ===
                                         'branchcode'
 
-
                                 const isFranchise =
                                     normalizedName ===
                                         'franchise' ||
                                     normalizedName ===
                                         'franchisecode'
 
-
                                 const isProduct =
                                     normalizedName ===
                                         'product' ||
                                     normalizedName ===
                                         'productcode'
-
 
                                 const isCallBookDt =
                                     normalizedName ===
@@ -3154,13 +2570,11 @@ function ReportParameter() {
                                     normalizedQuestion ===
                                         'date filter'
 
-
                                 const isCallType =
                                     normalizedName ===
                                         'calltype' ||
                                     normalizedQuestion ===
                                         'call type'
-
 
                                 const isStatus =
                                     normalizedName ===
@@ -3168,16 +2582,13 @@ function ReportParameter() {
                                     normalizedQuestion ===
                                         'status'
 
-
                                 const isFromDate =
                                     normalizedName ===
                                     'fromdate'
 
-
                                 const isToDate =
                                     normalizedName ===
                                     'todate'
-
 
                                 const isDynamicParameter =
                                     !isRegion &&
@@ -3189,7 +2600,6 @@ function ReportParameter() {
                                     !isStatus &&
                                     !isFromDate &&
                                     !isToDate
-
 
                                 // Call Type and Status
                                 // are mandatory too.
@@ -3204,9 +2614,7 @@ function ReportParameter() {
                                     isFromDate ||
                                     isToDate
 
-
                                 return (
-
                                     <div
                                         key={
                                             parameter.id ??
@@ -3216,29 +2624,23 @@ function ReportParameter() {
                                     >
 
                                         <label>
-
                                             {
                                                 question ||
                                                 paramName
                                             }
 
                                             {mandatory && (
-
                                                 <span
                                                     className="required"
                                                 >
                                                     *
                                                 </span>
-
                                             )}
-
                                         </label>
-
 
                                         {/* REGION */}
 
                                         {isRegion && (
-
                                             <select
                                                 className="report-filter-control"
                                                 value={
@@ -3250,15 +2652,12 @@ function ReportParameter() {
                                             >
 
                                                 <option value="">
-
                                                     {regionLoading
                                                         ? 'Loading region...'
                                                         : regionError
                                                             ? 'Unable to load region'
                                                             : 'Select Region'}
-
                                                 </option>
-
 
                                                 {!regionLoading &&
                                                     !regionError &&
@@ -3279,7 +2678,6 @@ function ReportParameter() {
                                                                 code
 
                                                             return (
-
                                                                 <option
                                                                     key={
                                                                         code ||
@@ -3289,26 +2687,20 @@ function ReportParameter() {
                                                                         code
                                                                     }
                                                                 >
-
                                                                     {
                                                                         name
                                                                     }
-
                                                                 </option>
-
                                                             )
                                                         }
                                                     )}
 
                                             </select>
-
                                         )}
-
 
                                         {/* BRANCH */}
 
                                         {isBranch && (
-
                                             <select
                                                 className="report-filter-control"
                                                 value={
@@ -3329,14 +2721,14 @@ function ReportParameter() {
                                                 }
                                             >
 
-                                                {isRegionUser && (
+                                                {/* "All" is available
+                                                    ONLY for Region users */}
 
+                                                {isRegionUser && (
                                                     <option value="All">
                                                         All
                                                     </option>
-
                                                 )}
-
 
                                                 {!branchLoading &&
                                                     !branchError &&
@@ -3361,7 +2753,6 @@ function ReportParameter() {
                                                                 code
 
                                                             return (
-
                                                                 <option
                                                                     key={
                                                                         code ||
@@ -3371,26 +2762,20 @@ function ReportParameter() {
                                                                         code
                                                                     }
                                                                 >
-
                                                                     {
                                                                         name
                                                                     }
-
                                                                 </option>
-
                                                             )
                                                         }
                                                     )}
 
                                             </select>
-
                                         )}
-
 
                                         {/* FRANCHISE */}
 
                                         {isFranchise && (
-
                                             <select
                                                 className="report-filter-control"
                                                 value={
@@ -3410,14 +2795,18 @@ function ReportParameter() {
                                                 }
                                             >
 
-                                                {!isFranchiseUser && (
+                                                {/* "All" is available
+                                                    for Region and
+                                                    Branch users.
+                                                    Franchise users
+                                                    only see their
+                                                    own franchise. */}
 
+                                                {!isFranchiseUser && (
                                                     <option value="All">
                                                         All
                                                     </option>
-
                                                 )}
-
 
                                                 {!franchiseLoading &&
                                                     !franchiseError &&
@@ -3444,7 +2833,6 @@ function ReportParameter() {
                                                                 code
 
                                                             return (
-
                                                                 <option
                                                                     key={
                                                                         code ||
@@ -3454,26 +2842,20 @@ function ReportParameter() {
                                                                         code
                                                                     }
                                                                 >
-
                                                                     {
                                                                         name
                                                                     }
-
                                                                 </option>
-
                                                             )
                                                         }
                                                     )}
 
                                             </select>
-
                                         )}
-
 
                                         {/* PRODUCT */}
 
                                         {isProduct && (
-
                                             <select
                                                 className="report-filter-control"
                                                 value={
@@ -3494,7 +2876,6 @@ function ReportParameter() {
                                                 <option value="All">
                                                     All
                                                 </option>
-
 
                                                 {!productLoading &&
                                                     !productError &&
@@ -3519,7 +2900,6 @@ function ReportParameter() {
                                                                 code
 
                                                             return (
-
                                                                 <option
                                                                     key={
                                                                         code ||
@@ -3529,26 +2909,20 @@ function ReportParameter() {
                                                                         code
                                                                     }
                                                                 >
-
                                                                     {
                                                                         name
                                                                     }
-
                                                                 </option>
-
                                                             )
                                                         }
                                                     )}
 
                                             </select>
-
                                         )}
-
 
                                         {/* DATE FILTER */}
 
                                         {isCallBookDt && (
-
                                             <select
                                                 className="report-filter-control"
                                                 value={
@@ -3567,15 +2941,12 @@ function ReportParameter() {
                                             >
 
                                                 <option value="">
-
                                                     {callBookDtLoading
                                                         ? 'Loading Date Filter...'
                                                         : callBookDtError
                                                             ? 'Unable to load Date Filter'
                                                             : 'Select Date Filter'}
-
                                                 </option>
-
 
                                                 {!callBookDtLoading &&
                                                     !callBookDtError &&
@@ -3584,7 +2955,6 @@ function ReportParameter() {
                                                             item,
                                                             index
                                                         ) => (
-
                                                             <option
                                                                 key={
                                                                     item.id ??
@@ -3594,25 +2964,19 @@ function ReportParameter() {
                                                                     item.code
                                                                 }
                                                             >
-
                                                                 {
                                                                     item.description
                                                                 }
-
                                                             </option>
-
                                                         )
                                                     )}
 
                                             </select>
-
                                         )}
-
 
                                         {/* CALL TYPE */}
 
                                         {isCallType && (
-
                                             <MultiSelectDropdown
                                                 options={
                                                     callTypes
@@ -3632,14 +2996,11 @@ function ReportParameter() {
                                                 }
                                                 maxSelections={5}
                                             />
-
                                         )}
-
 
                                         {/* STATUS */}
 
                                         {isStatus && (
-
                                             <MultiSelectDropdown
                                                 options={
                                                     statuses
@@ -3659,14 +3020,11 @@ function ReportParameter() {
                                                 }
                                                 maxSelections={5}
                                             />
-
                                         )}
-
 
                                         {/* FROM DATE */}
 
                                         {isFromDate && (
-
                                             <input
                                                 type="date"
                                                 className="report-filter-control"
@@ -3687,14 +3045,11 @@ function ReportParameter() {
                                                     )
                                                 }
                                             />
-
                                         )}
-
 
                                         {/* TO DATE */}
 
                                         {isToDate && (
-
                                             <input
                                                 type="date"
                                                 className="report-filter-control"
@@ -3715,14 +3070,11 @@ function ReportParameter() {
                                                     )
                                                 }
                                             />
-
                                         )}
-
 
                                         {/* UNKNOWN / DYNAMIC PARAMETER */}
 
                                         {isDynamicParameter && (
-
                                             <input
                                                 type="text"
                                                 className="report-filter-control"
@@ -3751,7 +3103,6 @@ function ReportParameter() {
                                                     )
                                                 }
                                             />
-
                                         )}
 
                                     </div>
@@ -3761,15 +3112,12 @@ function ReportParameter() {
 
                     </div>
 
-
                     {/* REPORT ERROR */}
 
                     {reportError && (
-
                         <div
                             className="report-query-message report-query-error"
                         >
-
                             <i
                                 className="fa fa-exclamation-circle"
                                 aria-hidden="true"
@@ -3778,11 +3126,8 @@ function ReportParameter() {
                             <span>
                                 {reportError}
                             </span>
-
                         </div>
-
                     )}
-
 
                     {/* ACTION BUTTONS */}
 
@@ -3800,37 +3145,26 @@ function ReportParameter() {
                                 reportLoading
                             }
                         >
-
                             {reportLoading ? (
-
                                 <>
-
                                     <i
                                         className="fa fa-spinner fa-spin"
                                         aria-hidden="true"
                                     />
 
                                     Running...
-
                                 </>
-
                             ) : (
-
                                 <>
-
                                     <i
                                         className="fa fa-search"
                                         aria-hidden="true"
                                     />
 
                                     Run Query
-
                                 </>
-
                             )}
-
                         </button>
-
 
                         <button
                             type="button"
@@ -3839,32 +3173,41 @@ function ReportParameter() {
                                 handleDownload
                             }
                             disabled={
+                                downloadLoading ||
                                 reportLoading ||
                                 reportData.length ===
                                     0
                             }
                         >
+                            {downloadLoading ? (
+                                <>
+                                    <i
+                                        className="fa fa-spinner fa-spin"
+                                        aria-hidden="true"
+                                    />
 
-                            <i
-                                className="fa fa-download"
-                                aria-hidden="true"
-                            />
+                                    Preparing...
+                                </>
+                            ) : (
+                                <>
+                                    <i
+                                        className="fa fa-download"
+                                        aria-hidden="true"
+                                    />
 
-                            Download
-
+                                    Download
+                                </>
+                            )}
                         </button>
 
                     </div>
 
-
                     {/* NO DATA */}
 
                     {showNoData && (
-
                         <div
                             className="report-query-message report-no-data"
                         >
-
                             <i
                                 className="fa fa-info-circle"
                                 aria-hidden="true"
@@ -3873,61 +3216,28 @@ function ReportParameter() {
                             <span>
                                 No data available
                             </span>
-
                         </div>
-
                     )}
-
 
                     {/* =====================================
                         REPORT RESULT
                     ===================================== */}
 
                     {reportData.length > 0 && (
-
                         <div
                             className="report-result-section"
                         >
 
-                            {/* =================================
-                                RESULT HEADER
-                            ================================= */}
-
                             <div className="report-result-header-row">
 
-                                <h3>
-
-                                    Showing{' '}
-
-                                    {
-                                        displayedReportData.length
-                                    }
-
-                                    {' '}of{' '}
-
-                                    {
-                                        filteredReportData.length
-                                    }
-
-                                    {' '}
-
-                                    {
-                                        filteredReportData.length ===
-                                        1
-                                            ? 'record'
-                                            : 'records'
-                                    }
-
-                                    {hasColumnFilters &&
-                                        filteredReportData.length !==
-                                            reportData.length &&
-                                        ` (filtered from ${reportData.length})`}
-
-                                </h3>
-
+<h3 className="report-result-title">
+  Showing {filteredReportData.length} of {totalRecords} records
+  <span style={{ fontSize: '13px', fontWeight: '500', color: '#0e0c0c', marginLeft: '10px' }}>
+    (Click Download to get all {totalRecords} records)
+  </span>
+</h3>
 
                                 {hasColumnFilters && (
-
                                     <button
                                         type="button"
                                         className="clear-table-filters-button"
@@ -3935,24 +3245,16 @@ function ReportParameter() {
                                             handleClearAllColumnFilters
                                         }
                                     >
-
                                         <i
                                             className="fa fa-times"
                                             aria-hidden="true"
                                         />
 
                                         Clear Filters
-
                                     </button>
-
                                 )}
 
                             </div>
-
-
-                            {/* =================================
-                                TABLE
-                            ================================= */}
 
                             <div
                                 className="report-result-table-wrapper"
@@ -3963,7 +3265,6 @@ function ReportParameter() {
                                 >
 
                                     <thead>
-
                                         <tr>
 
                                             {reportColumns.map(
@@ -3982,7 +3283,6 @@ function ReportParameter() {
                                                         )
 
                                                     return (
-
                                                         <th
                                                             key={
                                                                 column
@@ -4001,7 +3301,6 @@ function ReportParameter() {
                                                                         column
                                                                     }
                                                                 </span>
-
 
                                                                 <ColumnFilter
                                                                     column={
@@ -4029,24 +3328,20 @@ function ReportParameter() {
                                                             </div>
 
                                                         </th>
-
                                                     )
                                                 }
                                             )}
 
                                         </tr>
-
                                     </thead>
-
 
                                     <tbody>
 
-                                        {displayedReportData.map(
+                                        {filteredReportData.map(
                                             (
                                                 row,
                                                 rowIndex
                                             ) => (
-
                                                 <tr
                                                     key={
                                                         rowIndex
@@ -4057,13 +3352,11 @@ function ReportParameter() {
                                                         (
                                                             column
                                                         ) => (
-
                                                             <td
                                                                 key={
                                                                     column
                                                                 }
                                                             >
-
                                                                 {
                                                                     row[
                                                                         column
@@ -4080,21 +3373,16 @@ function ReportParameter() {
                                                                             ]
                                                                         )
                                                                 }
-
                                                             </td>
-
                                                         )
                                                     )}
 
                                                 </tr>
-
                                             )
                                         )}
 
-
-                                        {displayedReportData.length ===
+                                        {filteredReportData.length ===
                                             0 && (
-
                                             <tr>
 
                                                 <td
@@ -4103,18 +3391,15 @@ function ReportParameter() {
                                                     }
                                                     className="report-table-no-results"
                                                 >
-
                                                     <i
                                                         className="fa fa-filter"
                                                         aria-hidden="true"
                                                     />
 
                                                     No records match the selected filters.
-
                                                 </td>
 
                                             </tr>
-
                                         )}
 
                                     </tbody>
@@ -4123,38 +3408,12 @@ function ReportParameter() {
 
                             </div>
 
-
-                            {/* =================================
-                                SHOWING INFORMATION
-                            ================================= */}
-
-                            {filteredReportData.length > 10 && (
-
-                                <div
-                                    className="report-result-footer"
-                                >
-
-                                    Showing the latest 10 records.
-                                    Use Download to get all{' '}
-
-                                    {
-                                        filteredReportData.length
-                                    }
-
-                                    {' '}records.
-
-                                </div>
-
-                            )}
-
                         </div>
-
                     )}
 
                 </div>
 
             </section>
-
         </DashboardLayout>
     )
 }
