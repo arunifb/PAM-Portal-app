@@ -88,6 +88,8 @@ function Click2Call() {
 
     const [showResults, setShowResults] = useState(false)
 
+    const [isTicketSearch, setIsTicketSearch] = useState(false)
+
 
     // =========================================
     // LOAD BRANCHES
@@ -441,6 +443,14 @@ function Click2Call() {
 
 
         // =====================================
+        // DETERMINE SEARCH TYPE
+        // =====================================
+
+        const isTicket = !!ticketNumber.trim()
+        setIsTicketSearch(isTicket)
+
+
+        // =====================================
         // VALIDATION
         // =====================================
 
@@ -590,6 +600,8 @@ function Click2Call() {
 
         setShowResults(false)
 
+        setIsTicketSearch(false)
+
 
         // =====================================
         // ROLE 1
@@ -676,6 +688,20 @@ function Click2Call() {
             }
         )
     }
+
+
+    // =========================================
+    // DISPLAY RESULTS
+    // =========================================
+    //
+    // Ticket search: show ALL records.
+    // Date search:   show only first 10.
+    // =========================================
+
+    const displayResults =
+        isTicketSearch
+            ? results
+            : results.slice(0, 10)
 
 
     // =========================================
@@ -821,7 +847,7 @@ function Click2Call() {
                         <div className="click2call-field">
 
                             <label>
-                                🎫 Ticket Number
+                                Ticket Number
                             </label>
 
                             <input
@@ -982,6 +1008,42 @@ function Click2Call() {
 
                     <div className="click2call-box">
 
+                        {/* =============================
+                            RESULT HEADER
+                        ============================= */}
+
+                        {results.length > 0 && (
+
+                            <h3 style={{
+                                margin: '10px',
+                                fontSize: '15px',
+                                color: '#333'
+                            }}>
+
+                                {isTicketSearch
+                                    ? `${results.length} record${results.length !== 1 ? 's' : ''} found`
+                                    : (
+                                        <>
+                                            Showing {displayResults.length} of {results.length} records
+                                            {results.length > 10 && (
+                                                <span style={{
+                                                    fontSize: '13px',
+                                                    fontWeight: '500',
+                                                    color: '#666',
+                                                    marginLeft: '10px'
+                                                }}>
+                                                    — Use Ticket Number to search specific records
+                                                </span>
+                                            )}
+                                        </>
+                                    )
+                                }
+
+                            </h3>
+
+                        )}
+
+
                         <div className="click2call-table-wrapper">
 
                             <table className="click2call-table">
@@ -1041,9 +1103,9 @@ function Click2Call() {
 
                                 <tbody>
 
-                                    {results.length > 0 ? (
+                                    {displayResults.length > 0 ? (
 
-                                        results.map(
+                                        displayResults.map(
                                             (item, index) => (
 
                                                 <tr
@@ -1185,7 +1247,7 @@ function Click2Call() {
                                             )
                                         )
 
-                                    ) : (
+                                    ) : !loading ? (
 
                                         <tr>
 
@@ -1198,7 +1260,7 @@ function Click2Call() {
 
                                         </tr>
 
-                                    )}
+                                    ) : null}
 
                                 </tbody>
 
