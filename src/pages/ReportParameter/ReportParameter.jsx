@@ -2616,12 +2616,18 @@ function ReportParameter() {
 
                                 return (
                                     <div
-                                        key={
-                                            parameter.id ??
-                                            `${paramName}-${parameter.serial}`
-                                        }
-                                        className="report-filter-field"
-                                    >
+                                            key={
+                                                parameter.id ??
+                                                `${paramName}-${parameter.serial}`
+                                            }
+                                            className="report-filter-field"
+                                            style={{
+                                                gridColumn:
+                                                    isCallType || isStatus
+                                                        ? 'span 2'
+                                                        : 'span 1'
+                                            }}
+                                        >
 
                                         <label>
                                             {
