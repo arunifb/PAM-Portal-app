@@ -231,6 +231,27 @@ function Dashboard() {
         }
 
 
+
+        // =========================================
+        // CALL SUMMARY
+        // =========================================
+
+        if (
+    item.name
+        ?.toLowerCase()
+        .includes('call summary')
+    ||
+    item.url
+        ?.toLowerCase()
+        .includes('callsummary')
+) {
+
+    navigate('/call-summary')
+
+    return
+}
+
+
         // =========================================
         // OTHER MENU ITEMS
         // =========================================

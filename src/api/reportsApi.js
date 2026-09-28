@@ -276,3 +276,30 @@ export async function runReport(
 
     return data
 }
+
+
+
+// =========================================
+// GET CALL SUMMARY
+// =========================================
+
+export async function getCallSummary(
+    branchCode
+) {
+
+    const response = await fetch(
+        `${API_BASE_URL}/api/Reports/call-summary?branchCode=${encodeURIComponent(branchCode)}`
+    )
+
+    const data = await response.json()
+
+    if (!response.ok) {
+
+        throw new Error(
+            data.message ||
+            'Unable to load call summary.'
+        )
+    }
+
+    return data
+}

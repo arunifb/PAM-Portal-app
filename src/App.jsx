@@ -6,6 +6,7 @@ import TwoFactorAuth from './pages/TwoFactorAuth/TwoFactorAuth'
 import Dashboard from './pages/Dashboard/Dashboard'
 import ReportParameter from './pages/ReportParameter/ReportParameter'
 import Click2Call from './pages/Click2Call/Click2Call'
+import CallSummary from './pages/CallSummary/CallSummary'
 import ProtectedRoute from './components/ProtectedRoute'
 
 
@@ -83,6 +84,11 @@ function App() {
                     <Route
                         path="/click2call"
                         element={<Click2Call />}
+                    />
+
+                     <Route
+                        path="/call-summary"
+                        element={<CallSummary />}
                     />
 
 

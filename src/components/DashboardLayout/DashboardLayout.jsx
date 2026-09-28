@@ -237,6 +237,28 @@ function DashboardLayout({
 
 
         // =====================================
+        // CALL SUMMARY
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('call summary')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('callsummary.aspx')
+        ) {
+
+            navigate(
+                '/call-summary'
+            )
+
+            return
+        }
+
+
+        // =====================================
         // OTHER MENU ITEMS
         // =====================================
 
@@ -314,6 +336,27 @@ function DashboardLayout({
             return (
                 currentPath ===
                 '/click2call'
+            )
+        }
+
+
+        // =====================================
+        // CALL SUMMARY
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('call summary')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('callsummary.aspx')
+        ) {
+
+            return (
+                currentPath ===
+                '/call-summary'
             )
         }
 
