@@ -1,4 +1,4 @@
-import API_BASE_URL from './api'
+import API_BASE_URL, { authFetch } from './api'
 
 
 // =============================================
@@ -12,6 +12,7 @@ export async function getClick2CallBranches(
 ) {
 
     const params = new URLSearchParams({
+
         roleId:
             roleId?.toString() || '',
 
@@ -20,15 +21,18 @@ export async function getClick2CallBranches(
 
         bpCode:
             bpCode || ''
+
     })
 
 
-    const response = await fetch(
-        `${API_BASE_URL}/api/Reports/branches?${params.toString()}`
-    )
+    const response =
+        await authFetch(
+            `${API_BASE_URL}/api/Reports/branches?${params.toString()}`
+        )
 
 
-    const text = await response.text()
+    const text =
+        await response.text()
 
 
     let data = null
@@ -38,14 +42,18 @@ export async function getClick2CallBranches(
 
         try {
 
-            data = JSON.parse(text)
+            data =
+                JSON.parse(text)
 
-        } catch {
+        }
+        catch {
 
             throw new Error(
                 'Invalid response received while loading branches.'
             )
+
         }
+
     }
 
 
@@ -55,10 +63,12 @@ export async function getClick2CallBranches(
             data?.message ||
             'Unable to load branches.'
         )
+
     }
 
 
     return data || []
+
 }
 
 
@@ -73,6 +83,7 @@ export async function getClick2CallFranchises(
 ) {
 
     const params = new URLSearchParams({
+
         roleId:
             roleId?.toString() || '',
 
@@ -81,15 +92,18 @@ export async function getClick2CallFranchises(
 
         loginId:
             loginId || ''
+
     })
 
 
-    const response = await fetch(
-        `${API_BASE_URL}/api/Reports/franchises?${params.toString()}`
-    )
+    const response =
+        await authFetch(
+            `${API_BASE_URL}/api/Reports/franchises?${params.toString()}`
+        )
 
 
-    const text = await response.text()
+    const text =
+        await response.text()
 
 
     let data = null
@@ -99,14 +113,18 @@ export async function getClick2CallFranchises(
 
         try {
 
-            data = JSON.parse(text)
+            data =
+                JSON.parse(text)
 
-        } catch {
+        }
+        catch {
 
             throw new Error(
                 'Invalid response received while loading franchises.'
             )
+
         }
+
     }
 
 
@@ -116,10 +134,12 @@ export async function getClick2CallFranchises(
             data?.message ||
             'Unable to load franchises.'
         )
+
     }
 
 
     return data || []
+
 }
 
 
@@ -131,21 +151,23 @@ export async function searchClick2Call(
     request
 ) {
 
-    const response = await fetch(
-        `${API_BASE_URL}/api/Click2Call/search`,
-        {
-            method: 'POST',
+    const response =
+        await authFetch(
+            `${API_BASE_URL}/api/Click2Call/search`,
+            {
+                method: 'POST',
 
-            headers: {
-                'Content-Type': 'application/json'
-            },
+                headers: {
+                    'Content-Type': 'application/json'
+                },
 
-            body: JSON.stringify(request)
-        }
-    )
+                body: JSON.stringify(request)
+            }
+        )
 
 
-    const text = await response.text()
+    const text =
+        await response.text()
 
 
     let data = null
@@ -155,14 +177,18 @@ export async function searchClick2Call(
 
         try {
 
-            data = JSON.parse(text)
+            data =
+                JSON.parse(text)
 
-        } catch {
+        }
+        catch {
 
             throw new Error(
                 'Invalid response received from Click 2 Call search.'
             )
+
         }
+
     }
 
 
@@ -172,8 +198,10 @@ export async function searchClick2Call(
             data?.message ||
             'Unable to search Click 2 Call.'
         )
+
     }
 
 
     return data || []
+
 }

@@ -1012,7 +1012,7 @@ function Click2Call() {
                             RESULT HEADER
                         ============================= */}
 
-                        {results.length > 0 && (
+                        {results.length > 0 && !loading && (
 
                             <h3 style={{
                                 margin: '10px',
@@ -1103,7 +1103,44 @@ function Click2Call() {
 
                                 <tbody>
 
-                                    {displayResults.length > 0 ? (
+                                    {/* =================================
+                                        LOADING
+                                    ================================= */}
+
+                                    {loading ? (
+
+                                        <tr>
+
+                                            <td
+                                                colSpan="11"
+                                                className="click2call-loading-cell"
+                                            >
+
+                                                <div className="click2call-loading">
+
+                                                    <div className="click2call-loading-dots">
+
+                                                        <span></span>
+                                                        <span></span>
+                                                        <span></span>
+
+                                                    </div>
+
+                                                    <span className="click2call-loading-text">
+                                                        Loading...
+                                                    </span>
+
+                                                </div>
+
+                                            </td>
+
+                                        </tr>
+
+                                    ) : displayResults.length > 0 ? (
+
+                                        /* =================================
+                                           RESULTS
+                                        ================================= */
 
                                         displayResults.map(
                                             (item, index) => (
@@ -1247,7 +1284,11 @@ function Click2Call() {
                                             )
                                         )
 
-                                    ) : !loading ? (
+                                    ) : (
+
+                                        /* =================================
+                                           NO RECORDS
+                                        ================================= */
 
                                         <tr>
 
@@ -1260,7 +1301,7 @@ function Click2Call() {
 
                                         </tr>
 
-                                    ) : null}
+                                    )}
 
                                 </tbody>
 

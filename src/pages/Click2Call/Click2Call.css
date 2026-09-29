@@ -250,12 +250,118 @@
 }
 
 
+/* =========================================
+   NO RECORDS
+========================================= */
+
 .click2call-no-record {
     padding: 20px !important;
 
     color: #777;
 
     text-align: center;
+}
+
+
+/* =========================================
+   TABLE LOADING
+========================================= */
+
+.click2call-loading-cell {
+    text-align: center;
+
+    padding: 35px 20px !important;
+}
+
+
+.click2call-loading {
+    width: 100%;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 10px;
+}
+
+
+.click2call-loading-dots {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 6px;
+}
+
+
+.click2call-loading-dots span {
+    width: 8px;
+
+    height: 8px;
+
+    background: #555;
+
+    border-radius: 50%;
+
+    display: inline-block;
+
+    animation:
+        click2call-dot-loading
+        1.4s
+        infinite
+        ease-in-out;
+}
+
+
+.click2call-loading-dots span:nth-child(1) {
+    animation-delay: 0s;
+}
+
+
+.click2call-loading-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+
+.click2call-loading-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+
+.click2call-loading-text {
+    font-size: 13px;
+
+    color: #666;
+
+    text-align: center;
+}
+
+
+/* =========================================
+   LOADING ANIMATION
+========================================= */
+
+@keyframes click2call-dot-loading {
+
+    0%,
+    60%,
+    100% {
+        transform: translateY(0);
+
+        opacity: 0.35;
+    }
+
+    30% {
+        transform: translateY(-5px);
+
+        opacity: 1;
+    }
 }
 
 
@@ -284,5 +390,66 @@
 
     .click2call-button-area {
         justify-content: flex-start;
+    }
+
+
+    /* =====================================
+       MOBILE TABLE LOADING
+    ===================================== */
+
+    .click2call-loading-cell {
+        padding: 30px 10px !important;
+
+        text-align: center !important;
+
+        width: 100vw !important;
+
+        min-width: 100vw !important;
+
+        max-width: 100vw !important;
+
+        box-sizing: border-box !important;
+    }
+
+
+    .click2call-loading {
+        width: 100%;
+
+        display: flex;
+
+        flex-direction: column;
+
+        align-items: center;
+
+        justify-content: center;
+
+        gap: 10px;
+    }
+
+
+    .click2call-loading-dots {
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        gap: 6px;
+    }
+
+
+    .click2call-loading-dots span {
+        width: 8px;
+
+        height: 8px;
+
+        display: inline-block;
+    }
+
+
+    .click2call-loading-text {
+        font-size: 13px;
+
+        text-align: center;
     }
 }

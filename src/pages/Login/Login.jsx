@@ -115,12 +115,20 @@ function Login() {
 
 
             console.log(
-                'reCAPTCHA token generated'
+            'Login: reCAPTCHA token received:',
+            !!recaptchaToken
             )
 
 
             // =========================================
             // LOGIN API
+            //
+            // authApi.js automatically:
+            //
+            // 1. Gets OAuth access token
+            // 2. Adds Bearer token
+            // 3. Calls /api/Auth/login
+            //
             // =========================================
 
             console.time('API Login')
@@ -154,56 +162,46 @@ function Login() {
                 )
 
 
-                /*
-                 * The backend has NOT completed
-                 * the login yet.
-                 *
-                 * Therefore we temporarily store
-                 * the user information.
-                 */
+                // =========================================
+                // TEMPORARY 2FA USER DATA
+                // =========================================
 
                 sessionStorage.setItem(
                     'twoFactorUserId',
-                    data.userId
+                    String(data.userId)
                 )
 
                 sessionStorage.setItem(
                     'twoFactorLoginId',
-                    data.loginid
+                    data.loginid || ''
                 )
 
                 sessionStorage.setItem(
                     'twoFactorUsername',
-                    data.username
+                    data.username || ''
                 )
 
                 sessionStorage.setItem(
                     'twoFactorRoleId',
-                    data.roleID
+                    String(data.roleID ?? '')
                 )
 
                 sessionStorage.setItem(
                     'twoFactorBpCode',
-                    data.bpCode
+                    data.bpCode || ''
                 )
 
                 sessionStorage.setItem(
                     'twoFactorRegionCode',
-                    data.regionCode
+                    data.regionCode || ''
                 )
 
 
-                /*
-                 * Do NOT store the values as the
-                 * normal logged-in session yet.
-                 *
-                 * First the user must verify
-                 * the 6-digit code.
-                 */
+                // =========================================
+                // GO TO 2FA
+                // =========================================
 
-                navigate(
-                    '/2fa'
-                )
+                navigate('/2fa')
 
 
                 return
@@ -217,32 +215,32 @@ function Login() {
 
             sessionStorage.setItem(
                 'userId',
-                data.userId
+                String(data.userId)
             )
 
             sessionStorage.setItem(
                 'loginId',
-                data.loginid
+                data.loginid || ''
             )
 
             sessionStorage.setItem(
                 'username',
-                data.username
+                data.username || ''
             )
 
             sessionStorage.setItem(
                 'roleId',
-                data.roleID
+                String(data.roleID ?? '')
             )
 
             sessionStorage.setItem(
                 'bpCode',
-                data.bpCode
+                data.bpCode || ''
             )
 
             sessionStorage.setItem(
                 'regionCode',
-                data.regionCode
+                data.regionCode || ''
             )
 
 
@@ -250,9 +248,7 @@ function Login() {
             // GO TO DASHBOARD
             // =========================================
 
-            navigate(
-                '/dashboard'
-            )
+            navigate('/dashboard')
 
         }
         catch (error) {
@@ -264,7 +260,7 @@ function Login() {
 
 
             setMessage(
-                error.message ||
+                error?.message ||
                 'Login failed.'
             )
 

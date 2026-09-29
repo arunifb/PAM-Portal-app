@@ -1,4 +1,37 @@
-import API_BASE_URL from './api'
+import API_BASE_URL, { authFetch } from './api'
+
+
+// =========================================
+// READ API RESPONSE SAFELY
+// =========================================
+
+async function readResponse(response) {
+
+    const responseText =
+        await response.text()
+
+    let data = {}
+
+    if (responseText) {
+
+        try {
+
+            data =
+                JSON.parse(responseText)
+
+        }
+        catch {
+
+            throw new Error(
+                'Server returned an invalid response.'
+            )
+
+        }
+
+    }
+
+    return data
+}
 
 
 // =========================================
@@ -10,11 +43,15 @@ export async function getReportList(
     reportCategory
 ) {
 
-    const response = await fetch(
-        `${API_BASE_URL}/api/Reports/list?roleId=${encodeURIComponent(roleId)}&reportCategory=${encodeURIComponent(reportCategory)}`
-    )
+    const response =
+        await authFetch(
+            `${API_BASE_URL}/api/Reports/list?roleId=${encodeURIComponent(roleId)}&reportCategory=${encodeURIComponent(reportCategory)}`
+        )
 
-    const data = await response.json()
+
+    const data =
+        await readResponse(response)
+
 
     if (!response.ok) {
 
@@ -22,7 +59,9 @@ export async function getReportList(
             data.message ||
             'Unable to load report list.'
         )
+
     }
+
 
     return data
 }
@@ -36,11 +75,15 @@ export async function getReportParameters(
     reportId
 ) {
 
-    const response = await fetch(
-        `${API_BASE_URL}/api/Reports/${encodeURIComponent(reportId)}/parameters`
-    )
+    const response =
+        await authFetch(
+            `${API_BASE_URL}/api/Reports/${encodeURIComponent(reportId)}/parameters`
+        )
 
-    const data = await response.json()
+
+    const data =
+        await readResponse(response)
+
 
     if (!response.ok) {
 
@@ -48,7 +91,9 @@ export async function getReportParameters(
             data.message ||
             'Unable to load report parameters.'
         )
+
     }
+
 
     return data
 }
@@ -66,9 +111,14 @@ export async function getRegions(
         ? `${API_BASE_URL}/api/Reports/regions?regionCode=${encodeURIComponent(regionCode)}`
         : `${API_BASE_URL}/api/Reports/regions`
 
-    const response = await fetch(url)
 
-    const data = await response.json()
+    const response =
+        await authFetch(url)
+
+
+    const data =
+        await readResponse(response)
+
 
     if (!response.ok) {
 
@@ -76,7 +126,9 @@ export async function getRegions(
             data.message ||
             'Unable to load regions.'
         )
+
     }
+
 
     return data
 }
@@ -98,9 +150,14 @@ export async function getBranches(
         `&regionCode=${encodeURIComponent(regionCode)}` +
         `&bpCode=${encodeURIComponent(bpCode)}`
 
-    const response = await fetch(url)
 
-    const data = await response.json()
+    const response =
+        await authFetch(url)
+
+
+    const data =
+        await readResponse(response)
+
 
     if (!response.ok) {
 
@@ -108,7 +165,9 @@ export async function getBranches(
             data.message ||
             'Unable to load branches.'
         )
+
     }
+
 
     return data
 }
@@ -130,9 +189,14 @@ export async function getFranchises(
         `&bpCode=${encodeURIComponent(bpCode)}` +
         `&loginId=${encodeURIComponent(loginId)}`
 
-    const response = await fetch(url)
 
-    const data = await response.json()
+    const response =
+        await authFetch(url)
+
+
+    const data =
+        await readResponse(response)
+
 
     if (!response.ok) {
 
@@ -140,7 +204,9 @@ export async function getFranchises(
             data.message ||
             'Unable to load franchises.'
         )
+
     }
+
 
     return data
 }
@@ -152,11 +218,15 @@ export async function getFranchises(
 
 export async function getProducts() {
 
-    const response = await fetch(
-        `${API_BASE_URL}/api/Reports/products`
-    )
+    const response =
+        await authFetch(
+            `${API_BASE_URL}/api/Reports/products`
+        )
 
-    const data = await response.json()
+
+    const data =
+        await readResponse(response)
+
 
     if (!response.ok) {
 
@@ -164,7 +234,9 @@ export async function getProducts() {
             data.message ||
             'Unable to load products.'
         )
+
     }
+
 
     return data
 }
@@ -176,11 +248,15 @@ export async function getProducts() {
 
 export async function getCallBookDt() {
 
-    const response = await fetch(
-        `${API_BASE_URL}/api/Reports/date-filters`
-    )
+    const response =
+        await authFetch(
+            `${API_BASE_URL}/api/Reports/date-filters`
+        )
 
-    const data = await response.json()
+
+    const data =
+        await readResponse(response)
+
 
     if (!response.ok) {
 
@@ -188,7 +264,9 @@ export async function getCallBookDt() {
             data.message ||
             'Unable to load Call Book DT options.'
         )
+
     }
+
 
     return data
 }
@@ -200,11 +278,15 @@ export async function getCallBookDt() {
 
 export async function getCallTypes() {
 
-    const response = await fetch(
-        `${API_BASE_URL}/api/Reports/call-types`
-    )
+    const response =
+        await authFetch(
+            `${API_BASE_URL}/api/Reports/call-types`
+        )
 
-    const data = await response.json()
+
+    const data =
+        await readResponse(response)
+
 
     if (!response.ok) {
 
@@ -212,7 +294,9 @@ export async function getCallTypes() {
             data.message ||
             'Unable to load call types.'
         )
+
     }
+
 
     return data
 }
@@ -224,11 +308,15 @@ export async function getCallTypes() {
 
 export async function getStatuses() {
 
-    const response = await fetch(
-        `${API_BASE_URL}/api/Reports/status`
-    )
+    const response =
+        await authFetch(
+            `${API_BASE_URL}/api/Reports/status`
+        )
 
-    const data = await response.json()
+
+    const data =
+        await readResponse(response)
+
 
     if (!response.ok) {
 
@@ -236,7 +324,9 @@ export async function getStatuses() {
             data.message ||
             'Unable to load Status options.'
         )
+
     }
+
 
     return data
 }
@@ -251,20 +341,26 @@ export async function runReport(
     parameters
 ) {
 
-    const response = await fetch(
-        `${API_BASE_URL}/api/Reports/${encodeURIComponent(reportId)}/run`,
-        {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                parameters: parameters
-            })
-        }
-    )
+    const response =
+        await authFetch(
+            `${API_BASE_URL}/api/Reports/${encodeURIComponent(reportId)}/run`,
+            {
+                method: 'POST',
 
-    const data = await response.json()
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+
+                body: JSON.stringify({
+                    parameters: parameters
+                })
+            }
+        )
+
+
+    const data =
+        await readResponse(response)
+
 
     if (!response.ok) {
 
@@ -272,11 +368,12 @@ export async function runReport(
             data.message ||
             'Unable to run report.'
         )
+
     }
+
 
     return data
 }
-
 
 
 // =========================================
@@ -287,11 +384,15 @@ export async function getCallSummary(
     branchCode
 ) {
 
-    const response = await fetch(
-        `${API_BASE_URL}/api/Reports/call-summary?branchCode=${encodeURIComponent(branchCode)}`
-    )
+    const response =
+        await authFetch(
+            `${API_BASE_URL}/api/Reports/call-summary?branchCode=${encodeURIComponent(branchCode)}`
+        )
 
-    const data = await response.json()
+
+    const data =
+        await readResponse(response)
+
 
     if (!response.ok) {
 
@@ -299,7 +400,9 @@ export async function getCallSummary(
             data.message ||
             'Unable to load call summary.'
         )
+
     }
+
 
     return data
 }
