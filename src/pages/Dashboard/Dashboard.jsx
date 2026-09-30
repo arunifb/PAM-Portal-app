@@ -1,27 +1,59 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+
 import './Dashboard.css'
+
 import ifbLogo from '../../assets/ifb-logo.png'
+
 import { logout } from '../../api/authApi'
 import { getDashboardMenu } from '../../api/dashboardApi'
+
 import ReportData from '../ReportData/ReportData'
 import UserProfile from '../../components/UserProfile'
+
 
 function Dashboard() {
 
     const location = useLocation()
     const navigate = useNavigate()
 
-    // Sidebar starts collapsed after login
-    const [sidebarCollapsed, setSidebarCollapsed] = useState(true)
 
-    const [menuItems, setMenuItems] = useState([])
+    // =========================================
+    // SIDEBAR
+    // =========================================
 
-    const [menuLoading, setMenuLoading] = useState(true)
+    const [sidebarCollapsed, setSidebarCollapsed] =
+        useState(true)
 
-    const [menuError, setMenuError] = useState('')
 
-    const [activeSection, setActiveSection] = useState('dashboard')
+    // =========================================
+    // DASHBOARD MENU
+    // =========================================
+
+    const [menuItems, setMenuItems] =
+        useState([])
+
+    const [menuLoading, setMenuLoading] =
+        useState(true)
+
+    const [menuError, setMenuError] =
+        useState('')
+
+
+    // =========================================
+    // ACTIVE SECTION
+    // =========================================
+
+    const [activeSection, setActiveSection] =
+        useState('dashboard')
+
+
+    // =========================================
+    // REPORT COUNT
+    // =========================================
+
+    const [reportCount, setReportCount] =
+        useState(0)
 
 
     // =========================================
@@ -36,24 +68,19 @@ function Dashboard() {
                 location.state.activeSection
             )
 
-            // Clear navigation state after reading it
-            navigate(location.pathname, {
-                replace: true,
-                state: {}
-            })
+            navigate(
+                location.pathname,
+                {
+                    replace: true,
+                    state: {}
+                }
+            )
         }
 
     }, [
         location,
         navigate
     ])
-
-
-    // =========================================
-    // REPORT COUNT
-    // =========================================
-
-    const [reportCount, setReportCount] = useState(0)
 
 
     // =========================================
@@ -67,6 +94,7 @@ function Dashboard() {
             const roleId =
                 sessionStorage.getItem('roleId')
 
+
             if (!roleId) {
 
                 setMenuError(
@@ -78,10 +106,12 @@ function Dashboard() {
                 return
             }
 
+
             try {
 
                 const data =
                     await getDashboardMenu(roleId)
+
 
                 if (!Array.isArray(data)) {
 
@@ -90,21 +120,31 @@ function Dashboard() {
                     )
                 }
 
-                const formattedMenu = data.map(
-                    (item, index) => ({
 
-                        id: index + 1,
+                const formattedMenu =
+                    data.map(
+                        (item, index) => ({
 
-                        name: item.menuName,
+                            id:
+                                index + 1,
 
-                        url: item.menuURL,
+                            name:
+                                item.menuName,
 
-                        icon: item.menuImage
+                            url:
+                                item.menuURL,
 
-                    })
+                            icon:
+                                item.menuImage
+
+                        })
+                    )
+
+
+                setMenuItems(
+                    formattedMenu
                 )
 
-                setMenuItems(formattedMenu)
 
             } catch (error) {
 
@@ -113,10 +153,12 @@ function Dashboard() {
                     error
                 )
 
+
                 setMenuError(
                     error.message ||
                     'Unable to load dashboard menu.'
                 )
+
 
             } finally {
 
@@ -124,6 +166,7 @@ function Dashboard() {
 
             }
         }
+
 
         loadDashboardMenu()
 
@@ -138,6 +181,7 @@ function Dashboard() {
 
         const userId =
             sessionStorage.getItem('userId')
+
 
         try {
 
@@ -159,7 +203,6 @@ function Dashboard() {
             sessionStorage.clear()
 
             navigate('/')
-
         }
     }
 
@@ -175,13 +218,29 @@ function Dashboard() {
         }
 
 
+        const menuName =
+            item.name
+                ?.toLowerCase()
+                .trim() || ''
+
+
+        const menuUrl =
+            item.url
+                ?.toLowerCase()
+                .trim() || ''
+
+
         // =========================================
         // REPORT DATA
         // =========================================
 
-        if (item.name === 'Report Data') {
+        if (
+            menuName === 'report data'
+        ) {
 
-            setActiveSection('report-data')
+            setActiveSection(
+                'report-data'
+            )
 
             return
         }
@@ -191,9 +250,13 @@ function Dashboard() {
         // DASHBOARD
         // =========================================
 
-        if (item.name === 'Dashboard') {
+        if (
+            menuName === 'dashboard'
+        ) {
 
-            setActiveSection('dashboard')
+            setActiveSection(
+                'dashboard'
+            )
 
             return
         }
@@ -202,34 +265,18 @@ function Dashboard() {
         // =========================================
         // CLICK 2 CALL
         // =========================================
-        //
-        // Old WebForms URL:
-        //
-        // /Region/click2call.aspx
-        //
-        // New React URL:
-        //
-        // /click2call
-        //
-        // We keep the backend menu unchanged
-        // and handle the old URL here.
-        // =========================================
 
         if (
-            item.name
-                ?.toLowerCase()
-                .includes('click 2 call')
-            ||
-            item.url
-                ?.toLowerCase()
-                .includes('click2call.aspx')
+            menuName.includes('click 2 call') ||
+            menuUrl.includes('click2call.aspx')
         ) {
 
-            navigate('/click2call')
+            navigate(
+                '/click2call'
+            )
 
             return
         }
-
 
 
         // =========================================
@@ -237,19 +284,103 @@ function Dashboard() {
         // =========================================
 
         if (
-    item.name
-        ?.toLowerCase()
-        .includes('call summary')
-    ||
-    item.url
-        ?.toLowerCase()
-        .includes('callsummary')
-) {
+            menuName.includes('call summary') ||
+            menuUrl.includes('callsummary')
+        ) {
 
-    navigate('/call-summary')
+            navigate(
+                '/call-summary'
+            )
 
-    return
-}
+            return
+        }
+
+
+        // =========================================
+        // FRANCHISE VIEW
+        // =========================================
+
+        if (
+            menuName.includes('franchise') ||
+            menuUrl.includes('franchiseview.aspx')
+        ) {
+
+            navigate(
+                '/franchise-view'
+            )
+
+            return
+        }
+
+
+        // =========================================
+        // ONE SEARCH
+        // =========================================
+
+        if (
+            menuName.includes('one search') ||
+            menuUrl.includes('onesearch.aspx')
+        ) {
+
+            navigate(
+                '/one-search'
+            )
+
+            return
+        }
+
+
+        // =========================================
+        // DIGITAL CONTRACT
+        // =========================================
+
+        if (
+            menuName.includes('digital contract') ||
+            menuUrl.includes('digitalcontract.aspx')
+        ) {
+
+            navigate(
+                '/digital-contract'
+            )
+
+            return
+        }
+
+
+        // =========================================
+        // INVENTORY
+        // =========================================
+
+        if (
+            menuName.includes('inventory') ||
+            menuUrl.includes('franchiseeinventory.aspx')
+        ) {
+
+            navigate(
+                '/inventory'
+            )
+
+            return
+        }
+
+
+        // =========================================
+        // SUB-DEALER EDIT VIEW
+        // =========================================
+
+        if (
+            menuName.includes('sub-dealer') ||
+    menuName.includes('subdealer') ||
+    menuUrl.includes('editview.aspx') ||
+    menuUrl.includes('subdealer.aspx')
+        ) {
+
+            navigate(
+                '/subdealer/editview'
+            )
+
+            return
+        }
 
 
         // =========================================
@@ -260,7 +391,9 @@ function Dashboard() {
             return
         }
 
-        window.location.href = item.url
+
+        window.location.href =
+            item.url
     }
 
 
@@ -268,12 +401,186 @@ function Dashboard() {
     // REPORT COUNT CHANGE
     // =========================================
 
-    const handleReportCountChange = (count) => {
+    const handleReportCountChange = (
+        count
+    ) => {
 
-        setReportCount(count)
-
+        setReportCount(
+            count
+        )
     }
 
+
+    // =========================================
+    // MENU ACTIVE STATE
+    // =========================================
+
+    const isMenuActive = (item) => {
+
+        if (!item) {
+            return false
+        }
+
+
+        const menuName =
+            item.name
+                ?.toLowerCase()
+                .trim() || ''
+
+
+        const menuUrl =
+            item.url
+                ?.toLowerCase()
+                .trim() || ''
+
+
+        const currentPath =
+            location.pathname
+
+
+        // =========================================
+        // DASHBOARD
+        // =========================================
+
+        if (
+            menuName === 'dashboard'
+        ) {
+
+            return (
+                currentPath === '/dashboard' &&
+                activeSection === 'dashboard'
+            )
+        }
+
+
+        // =========================================
+        // REPORT DATA
+        // =========================================
+
+        if (
+            menuName === 'report data'
+        ) {
+
+            return (
+                currentPath === '/dashboard' &&
+                activeSection === 'report-data'
+            )
+        }
+
+
+        // =========================================
+        // CLICK 2 CALL
+        // =========================================
+
+        if (
+            menuName.includes('click 2 call') ||
+            menuUrl.includes('click2call.aspx')
+        ) {
+
+            return (
+                currentPath === '/click2call'
+            )
+        }
+
+
+        // =========================================
+        // CALL SUMMARY
+        // =========================================
+
+        if (
+            menuName.includes('call summary') ||
+            menuUrl.includes('callsummary')
+        ) {
+
+            return (
+                currentPath === '/call-summary'
+            )
+        }
+
+
+        // =========================================
+        // FRANCHISE VIEW
+        // =========================================
+
+        if (
+            menuName.includes('franchise') ||
+            menuUrl.includes('franchiseview.aspx')
+        ) {
+
+            return (
+                currentPath === '/franchise-view'
+            )
+        }
+
+
+        // =========================================
+        // ONE SEARCH
+        // =========================================
+
+        if (
+            menuName.includes('one search') ||
+            menuUrl.includes('onesearch.aspx')
+        ) {
+
+            return (
+                currentPath === '/one-search'
+            )
+        }
+
+
+        // =========================================
+        // DIGITAL CONTRACT
+        // =========================================
+
+        if (
+            menuName.includes('digital contract') ||
+            menuUrl.includes('digitalcontract.aspx')
+        ) {
+
+            return (
+                currentPath === '/digital-contract'
+            )
+        }
+
+
+        // =========================================
+        // INVENTORY
+        // =========================================
+
+        if (
+            menuName.includes('inventory') ||
+            menuUrl.includes('franchiseeinventory.aspx')
+        ) {
+
+            return (
+                currentPath === '/inventory'
+            )
+        }
+
+
+        // =========================================
+        // SUB-DEALER EDIT VIEW
+        // =========================================
+
+        if (
+            menuName.includes('sub-dealer') ||
+            menuName.includes('subdealer') ||
+            menuUrl.includes('editview.aspx')
+        ) {
+
+            return (
+                currentPath === '/subdealer/editview'
+            )
+        }
+
+
+        return false
+    }
+
+
+    // =========================================
+    // UI
+    // =========================================
 
     return (
 
@@ -285,9 +592,12 @@ function Dashboard() {
             }
         >
 
-            {/* SIDEBAR */}
+            {/* =================================
+                SIDEBAR
+            ================================= */}
 
             <aside className="dashboard-sidebar">
+
 
                 {/* SIDEBAR TOGGLE */}
 
@@ -299,7 +609,11 @@ function Dashboard() {
                             !sidebarCollapsed
                         )
                     }
-                    aria-label="Close sidebar"
+                    aria-label={
+                        sidebarCollapsed
+                            ? 'Open sidebar'
+                            : 'Close sidebar'
+                    }
                 >
                     ☰
                 </button>
@@ -329,7 +643,9 @@ function Dashboard() {
 
                     )}
 
-                    {!menuLoading && menuError && (
+
+                    {!menuLoading &&
+                        menuError && (
 
                         <div className="sidebar-menu-message">
                             {menuError}
@@ -337,47 +653,47 @@ function Dashboard() {
 
                     )}
 
+
                     {!menuLoading &&
                         !menuError &&
-                        menuItems.map((item) => (
+                        menuItems.map(
+                            (item) => (
 
-                            <button
-                                key={item.id}
-                                type="button"
-                                className={
-                                    (
-                                        item.name === 'Dashboard' &&
-                                        activeSection === 'dashboard'
-                                    ) ||
-                                    (
-                                        item.name === 'Report Data' &&
-                                        activeSection === 'report-data'
-                                    )
-                                        ? 'sidebar-menu-item active'
-                                        : 'sidebar-menu-item'
-                                }
-                                onClick={() =>
-                                    handleMenuClick(item)
-                                }
-                            >
+                                <button
+                                    key={item.id}
+                                    type="button"
+                                    className={
+                                        isMenuActive(item)
+                                            ? 'sidebar-menu-item active'
+                                            : 'sidebar-menu-item'
+                                    }
+                                    onClick={() =>
+                                        handleMenuClick(
+                                            item
+                                        )
+                                    }
+                                >
 
-                                <span className="menu-icon">
+                                    <span className="menu-icon">
 
-                                    <i
-                                        className={item.icon}
-                                        aria-hidden="true"
-                                    />
+                                        <i
+                                            className={
+                                                item.icon
+                                            }
+                                            aria-hidden="true"
+                                        />
 
-                                </span>
+                                    </span>
 
-                                <span>
-                                    {item.name}
-                                </span>
 
-                            </button>
+                                    <span>
+                                        {item.name}
+                                    </span>
 
-                        ))
-                    }
+                                </button>
+
+                            )
+                        )}
 
                 </nav>
 
@@ -389,7 +705,9 @@ function Dashboard() {
                     <button
                         type="button"
                         className="sidebar-menu-item logout-item"
-                        onClick={handleLogout}
+                        onClick={
+                            handleLogout
+                        }
                     >
 
                         <span className="menu-icon">
@@ -407,17 +725,22 @@ function Dashboard() {
             </aside>
 
 
-            {/* MAIN CONTENT */}
+            {/* =================================
+                MAIN CONTENT
+            ================================= */}
 
             <main className="dashboard-main">
+
 
                 {/* HEADER */}
 
                 <header className="dashboard-header">
 
+
                     {/* HEADER LEFT */}
 
                     <div className="dashboard-header-left">
+
 
                         {/* COLLAPSED HEADER BRAND */}
 
@@ -435,7 +758,9 @@ function Dashboard() {
                                     type="button"
                                     className="collapsed-sidebar-toggle"
                                     onClick={() =>
-                                        setSidebarCollapsed(false)
+                                        setSidebarCollapsed(
+                                            false
+                                        )
                                     }
                                     aria-label="Open sidebar"
                                 >
@@ -453,22 +778,27 @@ function Dashboard() {
 
                             <span className="dashboard-breadcrumb-current">
 
-                                {activeSection === 'report-data'
+                                {activeSection ===
+                                'report-data'
                                     ? 'Report Data'
                                     : 'Dashboard'}
 
                             </span>
 
-                            {activeSection === 'report-data' && (
+
+                            {activeSection ===
+                                'report-data' && (
 
                                 <span className="dashboard-report-count">
 
                                     {reportCount}
 
                                     <span>
+
                                         {reportCount === 1
                                             ? 'Report'
                                             : 'Reports'}
+
                                     </span>
 
                                 </span>
@@ -487,9 +817,12 @@ function Dashboard() {
                 </header>
 
 
-                {/* DASHBOARD */}
+                {/* =================================
+                    DASHBOARD
+                ================================= */}
 
-                {activeSection === 'dashboard' && (
+                {activeSection ===
+                    'dashboard' && (
 
                     <section className="dashboard-menu-section">
 
@@ -501,7 +834,9 @@ function Dashboard() {
 
                         )}
 
-                        {!menuLoading && menuError && (
+
+                        {!menuLoading &&
+                            menuError && (
 
                             <div className="dashboard-menu-message error">
                                 {menuError}
@@ -509,30 +844,35 @@ function Dashboard() {
 
                         )}
 
+
                         {!menuLoading &&
                             !menuError &&
                             menuItems.length === 0 && (
 
-                                <div className="dashboard-menu-message">
-                                    No dashboard menu items are available.
-                                </div>
+                            <div className="dashboard-menu-message">
+                                No dashboard menu items are available.
+                            </div>
 
-                            )}
+                        )}
+
 
                         {!menuLoading &&
                             !menuError &&
                             menuItems.length > 0 && (
 
-                                <div className="dashboard-menu-grid">
+                            <div className="dashboard-menu-grid">
 
-                                    {menuItems.map((item) => (
+                                {menuItems.map(
+                                    (item) => (
 
                                         <button
                                             key={item.id}
                                             type="button"
                                             className="dashboard-menu-card"
                                             onClick={() =>
-                                                handleMenuClick(item)
+                                                handleMenuClick(
+                                                    item
+                                                )
                                             }
                                         >
 
@@ -547,7 +887,9 @@ function Dashboard() {
 
                                                     <i
                                                         className={`${item.icon} fa-inverse fa-stack-1x`}
-                                                        title={item.name}
+                                                        title={
+                                                            item.name
+                                                        }
                                                         aria-hidden="true"
                                                     />
 
@@ -555,26 +897,33 @@ function Dashboard() {
 
                                             </span>
 
+
                                             <span className="dashboard-menu-name">
+
                                                 {item.name}
+
                                             </span>
 
                                         </button>
 
-                                    ))}
+                                    )
+                                )}
 
-                                </div>
+                            </div>
 
-                            )}
+                        )}
 
                     </section>
 
                 )}
 
 
-                {/* REPORT DATA */}
+                {/* =================================
+                    REPORT DATA
+                ================================= */}
 
-                {activeSection === 'report-data' && (
+                {activeSection ===
+                    'report-data' && (
 
                     <ReportData
                         onReportCountChange={
@@ -585,11 +934,14 @@ function Dashboard() {
                 )}
 
 
-                {/* FOOTER */}
+                {/* =================================
+                    FOOTER
+                ================================= */}
 
                 <footer className="dashboard-footer">
 
-                    © IFB Industries Ltd. &nbsp;|&nbsp;
+                    © IFB Industries Ltd.
+                    &nbsp;|&nbsp;
                     e-Training Application
 
                 </footer>
@@ -597,7 +949,9 @@ function Dashboard() {
             </main>
 
         </div>
+
     )
 }
+
 
 export default Dashboard

@@ -24,7 +24,6 @@ function DashboardLayout({
     // SIDEBAR
     // =========================================
 
-    // Same behavior as existing Dashboard
     const [sidebarCollapsed, setSidebarCollapsed] =
         useState(true)
 
@@ -85,7 +84,8 @@ function DashboardLayout({
                     data.map(
                         (item, index) => ({
 
-                            id: index + 1,
+                            id:
+                                index + 1,
 
                             name:
                                 item.menuName,
@@ -259,6 +259,124 @@ function DashboardLayout({
 
 
         // =====================================
+        // FRANCHISE VIEW
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('franchise view')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('franchiseview.aspx')
+        ) {
+
+            navigate(
+                '/franchise-view'
+            )
+
+            return
+        }
+
+
+        // =====================================
+        // INVENTORY
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('inventory')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('franchiseeinventory.aspx')
+        ) {
+
+            navigate(
+                '/inventory'
+            )
+
+            return
+        }
+
+
+        // =====================================
+        // ONE SEARCH
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('one search')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('onesearch.aspx')
+        ) {
+
+            navigate(
+                '/one-search'
+            )
+
+            return
+        }
+
+
+        // =====================================
+        // DIGITAL CONTRACT
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('digital contract')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('digitalcontract.aspx')
+        ) {
+
+            navigate(
+                '/digital-contract'
+            )
+
+            return
+        }
+
+
+        // =====================================
+        // SUB-DEALER
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('sub-dealer')
+            ||
+            item.name
+                ?.toLowerCase()
+                .includes('subdealer')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('editview.aspx')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('subdealer.aspx')
+        ) {
+
+            navigate(
+                '/subdealer/editview'
+            )
+
+            return
+        }
+
+
+        // =====================================
         // OTHER MENU ITEMS
         // =====================================
 
@@ -357,6 +475,119 @@ function DashboardLayout({
             return (
                 currentPath ===
                 '/call-summary'
+            )
+        }
+
+
+        // =====================================
+        // FRANCHISE VIEW
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('franchise view')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('franchiseview.aspx')
+        ) {
+
+            return (
+                currentPath ===
+                '/franchise-view'
+            )
+        }
+
+
+        // =====================================
+        // INVENTORY
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('inventory')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('franchiseeinventory.aspx')
+        ) {
+
+            return (
+                currentPath ===
+                '/inventory'
+            )
+        }
+
+
+        // =====================================
+        // ONE SEARCH
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('one search')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('onesearch.aspx')
+        ) {
+
+            return (
+                currentPath ===
+                '/one-search'
+            )
+        }
+
+
+        // =====================================
+        // DIGITAL CONTRACT
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('digital contract')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('digitalcontract.aspx')
+        ) {
+
+            return (
+                currentPath ===
+                '/digital-contract'
+            )
+        }
+
+
+        // =====================================
+        // SUB-DEALER
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('sub-dealer')
+            ||
+            item.name
+                ?.toLowerCase()
+                .includes('subdealer')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('editview.aspx')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('subdealer.aspx')
+        ) {
+
+            return (
+                currentPath ===
+                '/subdealer/editview'
             )
         }
 

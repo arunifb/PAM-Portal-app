@@ -1,0 +1,478 @@
+/* =========================================
+   DIGITAL CONTRACT PAGE
+========================================= */
+
+.digital-contract-page {
+    width: 100%;
+    padding: 2px 12px 12px;
+    box-sizing: border-box;
+}
+
+/* =========================================
+   COMMON BOX
+========================================= */
+
+.digital-contract-box {
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
+
+/* =========================================
+   SEARCH SECTION
+========================================= */
+
+.digital-contract-search-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px;
+    align-items: end;
+}
+
+.digital-contract-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.digital-contract-field label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #374151;
+    white-space: nowrap;
+}
+
+.digital-contract-field .required {
+    color: #dc2626;
+    margin-left: 3px;
+}
+
+.digital-contract-field input,
+.digital-contract-field select {
+    width: 100%;
+    height: 34px;
+    min-height: 34px;
+    padding: 5px 9px;
+    border: 1px solid #d1d5db;
+    border-radius: 5px;
+    background: #ffffff;
+    color: #111827;
+    font-size: 13px;
+    outline: none;
+    box-sizing: border-box;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.digital-contract-field input::placeholder {
+    color: #9ca3af;
+}
+
+.digital-contract-field input:focus,
+.digital-contract-field select:focus {
+    border-color: #2563eb;
+    box-shadow:
+        0 0 0 2px
+        rgba(37, 99, 235, 0.10);
+}
+
+.digital-contract-field input:disabled,
+.digital-contract-field select:disabled {
+    background: #f3f4f6;
+    color: #6b7280;
+    cursor: not-allowed;
+}
+
+/* =========================================
+   SEARCH / DOWNLOAD BUTTONS
+========================================= */
+
+.digital-contract-search-actions {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.digital-contract-search-button,
+.digital-contract-download-button {
+    height: 34px;
+    min-height: 34px;
+    padding: 5px 14px;
+    border-radius: 5px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        opacity 0.2s ease;
+    white-space: nowrap;
+}
+
+.digital-contract-search-button {
+    flex: 1;
+    border: none;
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.digital-contract-search-button:hover {
+    background: #1d4ed8;
+}
+
+.digital-contract-search-button:disabled {
+    background: #93c5fd;
+    cursor: not-allowed;
+}
+
+.digital-contract-download-button {
+    flex: 1;
+    border: 1px solid #16a34a;
+    background: #ffffff;
+    color: #16a34a;
+}
+
+.digital-contract-download-button:hover {
+    background: #f0fdf4;
+}
+
+.digital-contract-download-button:disabled {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+    color: #9ca3af;
+    cursor: not-allowed;
+}
+
+/* =========================================
+   MESSAGE
+========================================= */
+
+.digital-contract-message {
+    width: 100%;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 13px;
+}
+
+.digital-contract-success-message {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #15803d;
+}
+
+.digital-contract-error-message {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+}
+
+/* =========================================
+   SUMMARY
+========================================= */
+
+.digital-contract-summary-box {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.digital-contract-summary-item {
+    min-height: 62px;
+    padding: 9px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 7px;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+}
+
+.digital-contract-summary-item span {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.digital-contract-summary-item strong {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.digital-contract-summary-item.success {
+    border-left: 4px solid #16a34a;
+}
+
+.digital-contract-summary-item.success span,
+.digital-contract-summary-item.success strong {
+    color: #15803d;
+}
+
+.digital-contract-summary-item.processing {
+    border-left: 4px solid #2563eb;
+}
+
+.digital-contract-summary-item.processing span,
+.digital-contract-summary-item.processing strong {
+    color: #1d4ed8;
+}
+
+.digital-contract-summary-item.alert {
+    border-left: 4px solid #f59e0b;
+}
+
+.digital-contract-summary-item.alert span,
+.digital-contract-summary-item.alert strong {
+    color: #b45309;
+}
+
+.digital-contract-summary-item.error {
+    border-left: 4px solid #dc2626;
+}
+
+.digital-contract-summary-item.error span,
+.digital-contract-summary-item.error strong {
+    color: #b91c1c;
+}
+
+.digital-contract-summary-item.total {
+    border-left: 4px solid #6b7280;
+}
+
+.digital-contract-summary-item.total span,
+.digital-contract-summary-item.total strong {
+    color: #374151;
+}
+
+/* =========================================
+   RESULT SECTION TITLE
+========================================= */
+
+.digital-contract-section-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* =========================================
+   TABLE
+========================================= */
+
+.digital-contract-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.digital-contract-table {
+    width: 100%;
+    min-width: 1150px;
+    border-collapse: collapse;
+    font-size: 13px;
+}
+
+.digital-contract-table thead th {
+    background: #f8fafc;
+    color: #374151;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: left;
+    padding: 9px 8px;
+    border-bottom: 1px solid #d1d5db;
+    white-space: nowrap;
+}
+
+.digital-contract-table tbody td {
+    padding: 8px;
+    border-bottom: 1px solid #e5e7eb;
+    color: #374151;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.digital-contract-table tbody tr:hover {
+    background: #f9fafb;
+}
+
+/* =========================================
+   REF ID
+========================================= */
+
+.digital-contract-table tbody td:first-child {
+    color: #1d4ed8;
+    font-weight: 600;
+}
+
+/* =========================================
+   REMARKS
+========================================= */
+
+.digital-contract-remarks {
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap !important;
+}
+
+/* =========================================
+   STATUS
+========================================= */
+
+.digital-contract-status-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.digital-contract-status {
+    min-width: 26px;
+    height: 24px;
+    padding: 2px 7px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+
+.digital-contract-status.success {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.digital-contract-status.alert {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.digital-contract-status.error {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+/* =========================================
+   ACTION BUTTONS
+========================================= */
+
+.digital-contract-action-button {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    border-radius: 5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.digital-contract-action-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.digital-contract-action-button.receipt {
+    background: #ffffff;
+    border: 1px solid #16a34a;
+    color: #16a34a;
+}
+
+.digital-contract-action-button.receipt:hover {
+    background: #f0fdf4;
+}
+
+.digital-contract-action-button.resend {
+    background: #ffffff;
+    border: 1px solid #2563eb;
+    color: #2563eb;
+}
+
+.digital-contract-action-button.resend:hover {
+    background: #eff6ff;
+}
+
+/* =========================================
+   LOADING / EMPTY
+========================================= */
+
+.digital-contract-loading,
+.digital-contract-empty {
+    text-align: center !important;
+    padding: 25px !important;
+    color: #6b7280 !important;
+    font-size: 13px;
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 1250px) {
+
+    .digital-contract-search-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .digital-contract-summary-box {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 950px) {
+
+    .digital-contract-search-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .digital-contract-summary-box {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 650px) {
+
+    .digital-contract-page {
+        padding: 4px 8px 8px;
+    }
+
+    .digital-contract-box {
+        padding: 10px;
+    }
+
+    .digital-contract-search-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .digital-contract-search-actions {
+        width: 100%;
+    }
+
+    .digital-contract-summary-box {
+        grid-template-columns: 1fr;
+    }
+
+    .digital-contract-search-button,
+    .digital-contract-download-button {
+        width: 100%;
+    }
+}
