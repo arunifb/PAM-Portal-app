@@ -3,7 +3,7 @@
 ========================================= */
 
 .inventory-page {
-    padding: 8px 14px;
+    padding: 4px 10px;
     min-height: 100%;
     background: #f6f8fb;
 }
@@ -17,7 +17,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
 }
 
 .inventory-header h1 {
@@ -35,20 +35,15 @@
 
 
 /* =========================================
-   SEARCH CARD - COMPACT
+   SEARCH CARD
 ========================================= */
 
 .inventory-card {
     background: #ffffff;
-
     border: 1px solid #e5e7eb;
-
     border-radius: 8px;
-
-    padding: 9px 11px;
-
-    box-shadow:
-        0 1px 4px rgba(15, 23, 42, 0.04);
+    padding: 5px 8px;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
 }
 
 
@@ -58,11 +53,8 @@
 
 .inventory-form-grid {
     display: grid;
-
-    grid-template-columns:
-        repeat(4, minmax(0, 1fr));
-
-    gap: 7px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 5px;
 }
 
 .inventory-field {
@@ -71,38 +63,24 @@
 
 .inventory-field label {
     display: block;
-
     margin-bottom: 3px;
-
     font-size: 11px;
-
     font-weight: 600;
-
     color: #374151;
 }
 
 .inventory-field select,
 .inventory-field input {
     width: 100%;
-
     height: 31px;
-
     padding: 0 8px;
-
     border: 1px solid #d1d5db;
-
     border-radius: 5px;
-
     background: #ffffff;
-
     color: #1f2937;
-
     font-size: 12px;
-
     outline: none;
-
     box-sizing: border-box;
-
     transition:
         border-color 0.2s ease,
         box-shadow 0.2s ease;
@@ -111,16 +89,12 @@
 .inventory-field select:focus,
 .inventory-field input:focus {
     border-color: #2563eb;
-
-    box-shadow:
-        0 0 0 2px rgba(37, 99, 235, 0.08);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08);
 }
 
 .inventory-field select:disabled {
     background: #f3f4f6;
-
     color: #6b7280;
-
     cursor: not-allowed;
 }
 
@@ -135,37 +109,23 @@
 
 .franchise-dropdown {
     position: relative;
-
     width: 100%;
 }
 
 .franchise-select-box {
     width: 100%;
-
     height: 31px;
-
     padding: 0 8px;
-
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
-
     border: 1px solid #d1d5db;
-
     border-radius: 5px;
-
     background: #ffffff;
-
     color: #374151;
-
     font-size: 12px;
-
     cursor: pointer;
-
     box-sizing: border-box;
-
     text-align: left;
 }
 
@@ -184,11 +144,8 @@
 
 .franchise-arrow {
     font-size: 13px;
-
     line-height: 1;
-
-    transition:
-        transform 0.2s ease;
+    transition: transform 0.2s ease;
 }
 
 .franchise-arrow.open {
@@ -202,28 +159,16 @@
 
 .franchise-options {
     position: absolute;
-
     top: calc(100% + 2px);
-
     left: 0;
-
     right: 0;
-
     max-height: 220px;
-
     overflow-y: auto;
-
     background: #ffffff;
-
     border: 1px solid #d1d5db;
-
     border-radius: 5px;
-
-    box-shadow:
-        0 6px 15px rgba(15, 23, 42, 0.12);
-
+    box-shadow: 0 6px 15px rgba(15, 23, 42, 0.12);
     z-index: 1000;
-
     padding: 2px 0;
 }
 
@@ -234,47 +179,48 @@
 
 .franchise-option {
     display: flex;
-
     align-items: center;
-
-    gap: 6px;
-
-    padding: 5px 8px;
-
+    column-gap: 10px;
+    padding: 6px 10px;
     margin: 0;
-
     cursor: pointer;
-
     font-size: 12px;
-
     color: #374151;
-
-    transition:
-        background 0.15s ease;
+    transition: background 0.15s ease;
+    line-height: 1.3;
 }
 
 .franchise-option:hover {
     background: #f3f4f6;
 }
 
-.franchise-option input {
+
+/* =========================================
+   FRANCHISE CHECKBOX
+========================================= */
+
+.franchise-option input[type="checkbox"] {
+    flex: 0 0 auto;
     width: 14px;
-
     height: 14px;
-
-    margin: 0;
-
+    margin: 0 4px 0 0;
+    padding: 0;
     cursor: pointer;
-
     accent-color: #2563eb;
 }
 
+
+/* =========================================
+   FRANCHISE TEXT
+========================================= */
+
 .franchise-option span {
+    display: inline-block;
+    margin-left: 2px;
     overflow: hidden;
-
     text-overflow: ellipsis;
-
     white-space: nowrap;
+    line-height: 1.3;
 }
 
 
@@ -284,18 +230,11 @@
 
 .select-all-option {
     font-weight: 600;
-
-    border-bottom:
-        1px solid #e5e7eb;
-
+    border-bottom: 1px solid #e5e7eb;
     margin-bottom: 2px;
-
     position: sticky;
-
     top: 0;
-
     background: #ffffff;
-
     z-index: 2;
 }
 
@@ -307,11 +246,8 @@
 .franchise-loading,
 .franchise-empty {
     padding: 8px;
-
     color: #6b7280;
-
     font-size: 11px;
-
     text-align: center;
 }
 
@@ -322,31 +258,20 @@
 
 .inventory-actions {
     display: flex;
-
     justify-content: flex-end;
-
     gap: 6px;
-
-    margin-top: 7px;
+    margin-top: 5px;
 }
 
 .inventory-actions button {
     min-width: 82px;
-
     height: 29px;
-
     border: none;
-
     border-radius: 5px;
-
     padding: 0 11px;
-
     font-size: 12px;
-
     font-weight: 600;
-
     cursor: pointer;
-
     transition:
         transform 0.15s ease,
         opacity 0.15s ease,
@@ -359,7 +284,6 @@
 
 .inventory-actions button:disabled {
     opacity: 0.55;
-
     cursor: not-allowed;
 }
 
@@ -370,11 +294,8 @@
 
 .inventory-search-button {
     background: #2563eb;
-
     color: #ffffff;
-
-    box-shadow:
-        0 1px 4px rgba(37, 99, 235, 0.18);
+    box-shadow: 0 1px 4px rgba(37, 99, 235, 0.18);
 }
 
 .inventory-search-button:hover:not(:disabled) {
@@ -388,11 +309,8 @@
 
 .inventory-download-button {
     background: #059669;
-
     color: #ffffff;
-
-    box-shadow:
-        0 1px 4px rgba(5, 150, 105, 0.18);
+    box-shadow: 0 1px 4px rgba(5, 150, 105, 0.18);
 }
 
 .inventory-download-button:hover:not(:disabled) {
@@ -405,30 +323,22 @@
 ========================================= */
 
 .inventory-message {
-    margin-top: 12px;
-
-    padding: 9px 12px;
-
+    margin-top: 7px;
+    padding: 7px 10px;
     border-radius: 6px;
-
     font-size: 12px;
-
     font-weight: 500;
 }
 
 .inventory-message.success {
     background: #ecfdf5;
-
     border: 1px solid #a7f3d0;
-
     color: #047857;
 }
 
 .inventory-message.error {
     background: #fef2f2;
-
     border: 1px solid #fecaca;
-
     color: #b91c1c;
 }
 
@@ -438,17 +348,11 @@
 ========================================= */
 
 .inventory-results-card {
-    margin-top: 14px;
-
+    margin-top: 8px;
     background: #ffffff;
-
     border: 1px solid #e5e7eb;
-
     border-radius: 8px;
-
-    box-shadow:
-        0 1px 5px rgba(15, 23, 42, 0.04);
-
+    box-shadow: 0 1px 5px rgba(15, 23, 42, 0.04);
     overflow: hidden;
 }
 
@@ -459,65 +363,24 @@
 
 .inventory-results-header {
     display: flex;
-
     justify-content: space-between;
-
     align-items: center;
-
-    padding: 13px 15px;
-
-    border-bottom:
-        1px solid #e5e7eb;
+    padding: 9px 12px;
+    border-bottom: 1px solid #e5e7eb;
 }
 
 .inventory-results-header h2 {
     margin: 0;
-
     font-size: 16px;
-
     font-weight: 700;
-
     color: #1f2937;
 }
 
 .inventory-results-header span {
     display: block;
-
     margin-top: 2px;
-
     font-size: 11px;
-
     color: #6b7280;
-}
-
-.inventory-results-download {
-    height: 32px;
-
-    padding: 0 12px;
-
-    border: none;
-
-    border-radius: 5px;
-
-    background: #059669;
-
-    color: #ffffff;
-
-    font-size: 12px;
-
-    font-weight: 600;
-
-    cursor: pointer;
-}
-
-.inventory-results-download:hover:not(:disabled) {
-    background: #047857;
-}
-
-.inventory-results-download:disabled {
-    opacity: 0.55;
-
-    cursor: not-allowed;
 }
 
 
@@ -527,51 +390,33 @@
 
 .inventory-table-wrapper {
     width: 100%;
-
     overflow-x: auto;
 }
 
 .inventory-table {
     width: 100%;
-
     border-collapse: collapse;
-
     min-width: 900px;
-
     font-size: 12px;
 }
 
 .inventory-table th {
     position: sticky;
-
     top: 0;
-
     background: #f8fafc;
-
     color: #374151;
-
     font-weight: 700;
-
     text-align: left;
-
     padding: 9px 10px;
-
-    border-bottom:
-        1px solid #d1d5db;
-
+    border-bottom: 1px solid #d1d5db;
     white-space: nowrap;
-
     z-index: 1;
 }
 
 .inventory-table td {
     padding: 8px 10px;
-
     color: #4b5563;
-
-    border-bottom:
-        1px solid #f1f5f9;
-
+    border-bottom: 1px solid #f1f5f9;
     white-space: nowrap;
 }
 
@@ -582,7 +427,6 @@
 .inventory-table th:first-child,
 .inventory-table td:first-child {
     text-align: center;
-
     width: 50px;
 }
 
@@ -594,7 +438,6 @@
 .franchise-options::-webkit-scrollbar,
 .inventory-table-wrapper::-webkit-scrollbar {
     width: 6px;
-
     height: 6px;
 }
 
@@ -606,7 +449,6 @@
 .franchise-options::-webkit-scrollbar-thumb,
 .inventory-table-wrapper::-webkit-scrollbar-thumb {
     background: #cbd5e1;
-
     border-radius: 10px;
 }
 
@@ -623,8 +465,7 @@
 @media (max-width: 1100px) {
 
     .inventory-form-grid {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
 }
@@ -633,7 +474,7 @@
 @media (max-width: 650px) {
 
     .inventory-page {
-        padding: 10px;
+        padding: 6px;
     }
 
     .inventory-form-grid {
@@ -642,7 +483,6 @@
 
     .inventory-actions {
         justify-content: stretch;
-
         flex-direction: column;
     }
 
@@ -652,14 +492,8 @@
 
     .inventory-results-header {
         align-items: flex-start;
-
         gap: 10px;
-
         flex-direction: column;
-    }
-
-    .inventory-results-download {
-        width: 100%;
     }
 
 }

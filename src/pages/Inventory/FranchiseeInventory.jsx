@@ -421,6 +421,29 @@ function FranchiseeInventory() {
 
 
     // =========================================
+    // FORMAT SELECTED FRANCHISE CODES
+    // =========================================
+    //
+    // NEW API STORED PROCEDURE EXPECTS:
+    //
+    // 3013481
+    //
+    // OR:
+    //
+    // 3013481,3013482,3013483
+    //
+    // DO NOT ADD SINGLE QUOTES HERE.
+    //
+    // =========================================
+
+    function getFormattedFranchiseCodes() {
+
+        return selectedFranchises.join(',')
+
+    }
+
+
+    // =========================================
     // SEARCH
     // =========================================
 
@@ -450,7 +473,7 @@ function FranchiseeInventory() {
 
 
             const franchiseCodes =
-                selectedFranchises.join(',')
+                getFormattedFranchiseCodes()
 
 
             const request = {
@@ -468,6 +491,12 @@ function FranchiseeInventory() {
                     fgDescription
 
             }
+
+
+            console.log(
+                'Inventory search request:',
+                request
+            )
 
 
             const data =
@@ -566,7 +595,7 @@ function FranchiseeInventory() {
 
 
             const franchiseCodes =
-                selectedFranchises.join(',')
+                getFormattedFranchiseCodes()
 
 
             const request = {
@@ -584,6 +613,12 @@ function FranchiseeInventory() {
                     fgDescription
 
             }
+
+
+            console.log(
+                'Inventory export request:',
+                request
+            )
 
 
             const blob =
@@ -759,12 +794,40 @@ function FranchiseeInventory() {
                                     Select FG Category
                                 </option>
 
-                                <option value="FG">
-                                    FG
+                                <option value="WM">
+                                    Washing Machine
                                 </option>
 
-                                <option value="COMPONENT">
-                                    COMPONENT
+                                <option value="DW">
+                                    Dish Washer
+                                </option>
+
+                                <option value="AC">
+                                    Air Conditioner
+                                </option>
+
+                                <option value="MW">
+                                    Micro Wave
+                                </option>
+
+                                <option value="CD">
+                                    Cloth Dryer
+                                </option>
+
+                                <option value="KA">
+                                    Kitchen Appliances
+                                </option>
+
+                                <option value="ACC">
+                                    Accessories
+                                </option>
+
+                                <option value="ADD">
+                                    Additive
+                                </option>
+
+                                <option value="WP">
+                                    Water Purifier
                                 </option>
 
                             </select>
@@ -1009,21 +1072,6 @@ function FranchiseeInventory() {
                                 </span>
 
                             </div>
-
-
-                            <button
-                                type="button"
-                                className="inventory-results-download"
-                                disabled={exportLoading}
-                                onClick={handleExport}
-                            >
-
-                                {exportLoading
-                                    ? 'Downloading...'
-                                    : 'Download Excel'
-                                }
-
-                            </button>
 
                         </div>
 
