@@ -257,6 +257,35 @@ function DashboardLayout({
             return
         }
 
+        // =====================================
+        // SKILL SET VIEW
+        // =====================================
+
+        if (
+            item.url
+                ?.toLowerCase()
+                .includes('techskillmasterreport.aspx')
+        ) {
+           console.log('Menu clicked:', item.name, item.url)
+            navigate('/skill-set-view')
+           
+            return
+        }
+
+
+        // =====================================
+        // BOM EXPLODED VIEW
+        // =====================================
+
+        if (
+            item.url
+                ?.toLowerCase()
+                .includes('bom_exploded_view.aspx')
+        ) {
+            navigate('/bom-exploded-view')
+            return
+        }
+
 
         // =====================================
         // FRANCHISE VIEW
@@ -478,6 +507,33 @@ function DashboardLayout({
             )
         }
 
+        // =====================================
+        // SKILL SET VIEW
+        // =====================================
+
+        if (
+            item.url
+                ?.toLowerCase()
+                .includes('techskillmasterreport.aspx')
+        ) {
+
+            return (
+                currentPath === '/skill-set-view'
+            )
+        }
+
+
+        // BOM Exploded View
+        if (
+            item.url
+                ?.toLowerCase()
+                .includes('bom_exploded_view.aspx')
+        ) {
+            return (
+                currentPath ===
+                '/bom-exploded-view'
+            )
+        }
 
         // =====================================
         // FRANCHISE VIEW

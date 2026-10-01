@@ -382,6 +382,32 @@ function Dashboard() {
             return
         }
 
+// =====================================
+// SKILL SET VIEW
+// =====================================
+
+if (
+    item.url
+        ?.toLowerCase()
+        .includes('techskillmasterreport.aspx')
+) {
+    navigate('/skill-set-view')
+    return
+}
+
+
+        // =========================================
+        // BOM EXPLODED VIEW
+        // =========================================
+
+        if (
+            item.url
+                ?.toLowerCase()
+                .includes('bom_exploded_view.aspx')
+        ) {
+            navigate('/bom-exploded-view')
+            return
+        }
 
         // =========================================
         // OTHER MENU ITEMS

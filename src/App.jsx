@@ -7,13 +7,9 @@ import Dashboard from './pages/Dashboard/Dashboard'
 import ReportParameter from './pages/ReportParameter/ReportParameter'
 import Click2Call from './pages/Click2Call/Click2Call'
 import CallSummary from './pages/CallSummary/CallSummary'
-import FranchiseView from './pages/FranchiseView/FranchiseView'
-import OneSearch from './pages/OneSearch/OneSearch'
-import DigitalContract from './pages/DigitalContract/DigitalContract'
-import Inventory from './pages/Inventory/FranchiseeInventory'
-import EditView from './pages/SubDealer/EditView'
 import ProtectedRoute from './components/ProtectedRoute'
-
+import SkillSetView from './pages/SkillSetView/SkillSetView'
+import BomExplodedView from './pages/BomExplodedView/BomExplodedView'
 
 function App() {
 
@@ -95,35 +91,24 @@ function App() {
                         path="/call-summary"
                         element={<CallSummary />}
                     />
+                    {/* =========================================
+                        SKILL SET VIEW
+                    ========================================= */}
 
                     <Route
-                        path="/franchise-view"
-                        element={<FranchiseView />}
+                        path="/skill-set-view"
+                        element={<SkillSetView />}
                     />
+                    {/* =========================================
+                        BOM EXPLODED VIEW
+                    ========================================= */}
 
                     <Route
-                        path="/one-search"
-                        element={<OneSearch />}
+                        path="/bom-exploded-view"
+                        element={<BomExplodedView />}
                     />
-
-                    <Route
-                        path="/digital-contract"
-                        element={<DigitalContract />}
-                    />
-
-                    <Route
-                        path="/inventory"
-                        element={<Inventory />}
-                    />
-
-                    <Route
-                        path="/subdealer/editview"
-                        element={<EditView />}
-                    />
-
 
                 </Route>
-
 
             </Routes>
 
