@@ -16,6 +16,7 @@ import SkillSetView from './pages/SkillSetView/SkillSetView'
 import BomExplodedView from './pages/BomExplodedView/BomExplodedView'
 import DDRRegion from './pages/DDRRegion/DDRRegion'
 import DigitalICR from './pages/DigitalICR/DigitalICR'
+import SparesStock from './pages/SparesStock/SparesStock'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -127,6 +128,12 @@ function App() {
                     <Route
                         path="/digital-icr"
                         element={<DigitalICR />}
+                    />
+
+
+                    <Route
+                        path="/spares-stock"
+                        element={<SparesStock />}
                     />
 
                     <Route

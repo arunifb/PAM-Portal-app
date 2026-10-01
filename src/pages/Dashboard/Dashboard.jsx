@@ -443,6 +443,26 @@ if (
         }
 
         // =========================================
+        // SPARES STOCK
+        // =========================================
+
+        if (
+            menuName.includes('spares stock') ||
+            menuName.includes('spare stock') ||
+            menuUrl.includes('sparesstock.aspx')
+        ) {
+
+            navigate(
+                '/spares-stock'
+            )
+
+            return
+        }
+
+
+        
+
+        // =========================================
         // OTHER MENU ITEMS
         // =========================================
 
@@ -644,6 +664,23 @@ if (
 
             return (
                 currentPath === '/digital-icr'
+            )
+        }
+
+
+
+        // =========================================
+        // SPARES STOCK
+        // =========================================
+
+        if (
+            menuName.includes('spares stock') ||
+            menuName.includes('spare stock') ||
+            menuUrl.includes('sparesstock.aspx')
+        ) {
+
+            return (
+                currentPath === '/spares-stock'
             )
         }
 
