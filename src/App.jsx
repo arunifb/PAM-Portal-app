@@ -14,6 +14,7 @@ import Inventory from './pages/Inventory/FranchiseeInventory'
 import EditView from './pages/SubDealer/EditView'
 import SkillSetView from './pages/SkillSetView/SkillSetView'
 import BomExplodedView from './pages/BomExplodedView/BomExplodedView'
+import DDRRegion from './pages/DDRRegion/DDRRegion'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -115,6 +116,11 @@ function App() {
                     <Route
                         path="/inventory"
                         element={<Inventory />}
+                    />
+
+                    <Route
+                        path="/ddr-region"
+                        element={<DDRRegion />}
                     />
 
                     <Route

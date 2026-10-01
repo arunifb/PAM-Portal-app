@@ -257,6 +257,7 @@ function DashboardLayout({
             return
         }
 
+
         // =====================================
         // SKILL SET VIEW
         // =====================================
@@ -266,9 +267,17 @@ function DashboardLayout({
                 ?.toLowerCase()
                 .includes('techskillmasterreport.aspx')
         ) {
-           console.log('Menu clicked:', item.name, item.url)
-            navigate('/skill-set-view')
-           
+
+            console.log(
+                'Menu clicked:',
+                item.name,
+                item.url
+            )
+
+            navigate(
+                '/skill-set-view'
+            )
+
             return
         }
 
@@ -282,7 +291,11 @@ function DashboardLayout({
                 ?.toLowerCase()
                 .includes('bom_exploded_view.aspx')
         ) {
-            navigate('/bom-exploded-view')
+
+            navigate(
+                '/bom-exploded-view'
+            )
+
             return
         }
 
@@ -325,6 +338,32 @@ function DashboardLayout({
 
             navigate(
                 '/inventory'
+            )
+
+            return
+        }
+
+
+        // =====================================
+        // DDR REGION MONITORING
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('ddr region')
+            ||
+            item.name
+                ?.toLowerCase()
+                .includes('ddr monitoring')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('ddrrequest.aspx')
+        ) {
+
+            navigate(
+                '/ddr-region'
             )
 
             return
@@ -507,6 +546,7 @@ function DashboardLayout({
             )
         }
 
+
         // =====================================
         // SKILL SET VIEW
         // =====================================
@@ -518,22 +558,28 @@ function DashboardLayout({
         ) {
 
             return (
-                currentPath === '/skill-set-view'
+                currentPath ===
+                '/skill-set-view'
             )
         }
 
 
-        // BOM Exploded View
+        // =====================================
+        // BOM EXPLODED VIEW
+        // =====================================
+
         if (
             item.url
                 ?.toLowerCase()
                 .includes('bom_exploded_view.aspx')
         ) {
+
             return (
                 currentPath ===
                 '/bom-exploded-view'
             )
         }
+
 
         // =====================================
         // FRANCHISE VIEW
@@ -573,6 +619,31 @@ function DashboardLayout({
             return (
                 currentPath ===
                 '/inventory'
+            )
+        }
+
+
+        // =====================================
+        // DDR REGION MONITORING
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('ddr region')
+            ||
+            item.name
+                ?.toLowerCase()
+                .includes('ddr monitoring')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('ddrrequest.aspx')
+        ) {
+
+            return (
+                currentPath ===
+                '/ddr-region'
             )
         }
 
@@ -671,6 +742,7 @@ function DashboardLayout({
             ================================= */}
 
             <aside className="dashboard-sidebar">
+
 
                 {/* SIDEBAR TOGGLE */}
 
@@ -799,6 +871,7 @@ function DashboardLayout({
             ================================= */}
 
             <main className="dashboard-main">
+
 
                 {/* COMMON HEADER */}
 

@@ -410,6 +410,23 @@ if (
         }
 
         // =========================================
+        // DDR REGION MONITORING
+        // =========================================
+
+        if (
+            menuName.includes('ddr region') ||
+            menuName.includes('ddr monitoring') ||
+            menuUrl.includes('ddrrequest.aspx')
+        ) {
+
+            navigate(
+                '/ddr-region'
+            )
+
+            return
+        }
+
+        // =========================================
         // OTHER MENU ITEMS
         // =========================================
 
@@ -580,6 +597,22 @@ if (
 
             return (
                 currentPath === '/inventory'
+            )
+        }
+
+
+        // =========================================
+        // DDR REGION MONITORING
+        // =========================================
+
+        if (
+            menuName.includes('ddr region') ||
+            menuName.includes('ddr monitoring') ||
+            menuUrl.includes('ddrrequest.aspx')
+        ) {
+
+            return (
+                currentPath === '/ddr-region'
             )
         }
 

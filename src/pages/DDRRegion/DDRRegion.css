@@ -1,0 +1,499 @@
+.ddr-region-page {
+    width: 100%;
+    padding: 8px 20px 20px;
+    background: #f7f7f7;
+    min-height: 100vh;
+}
+
+
+/* =========================================================
+   PAGE HEADER
+========================================================= */
+
+.ddr-page-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.ddr-title-icon {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    background: #f1f1f1;
+    font-size: 22px;
+}
+
+.ddr-page-title h1 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.ddr-page-title p {
+    margin: 3px 0 0;
+    color: #777;
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   ALERTS
+========================================================= */
+
+.ddr-alert {
+    border: 1px solid transparent;
+    border-radius: 4px;
+    padding: 10px 12px;
+    margin-bottom: 15px;
+    font-size: 13px;
+}
+
+.ddr-alert-error {
+    color: #842029;
+    background: #f8d7da;
+    border-color: #f5c2c7;
+}
+
+.ddr-alert-success {
+    color: #0f5132;
+    background: #d1e7dd;
+    border-color: #badbcc;
+}
+
+
+/* =========================================================
+   FILTER BOX
+========================================================= */
+
+.ddr-filter-box {
+    display: flex;
+    align-items: flex-end;
+    gap: 15px;
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.ddr-filter-item {
+    flex: 1;
+}
+
+.ddr-filter-item label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.ddr-filter-item input,
+.ddr-filter-item select {
+    width: 100%;
+    height: 38px;
+    padding: 6px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    background: #ffffff;
+    font-size: 13px;
+}
+
+.ddr-filter-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.ddr-search-button,
+.ddr-download-button {
+    height: 38px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 4px;
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.ddr-search-button {
+    background: #dc3545;
+}
+
+.ddr-download-button {
+    background: #198754;
+}
+
+.ddr-search-button:disabled,
+.ddr-download-button:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   SUMMARY
+========================================================= */
+
+.ddr-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.ddr-summary-card {
+    min-height: 90px;
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ddr-summary-card span {
+    display: block;
+    margin-bottom: 5px;
+    color: #777;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.ddr-summary-card strong {
+    display: block;
+    font-size: 26px;
+    font-weight: 600;
+}
+
+.ddr-summary-icon {
+    font-size: 26px;
+    color: #777;
+}
+
+
+/* =========================================================
+   REPORT SECTION
+========================================================= */
+
+.ddr-report-section {
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.ddr-section-header {
+    padding: 12px 15px;
+    border-bottom: 1px solid #ddd;
+    background: #ffffff;
+}
+
+.ddr-section-header > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ddr-section-header h2 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.ddr-section-header span {
+    color: #777;
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.ddr-table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.ddr-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px;
+}
+
+.ddr-table th {
+    padding: 10px 8px 12px;
+    border-bottom: 1px solid #ddd;
+    background: #fafafa;
+    color: #555;
+    font-size: 10px;
+    font-weight: 600;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.ddr-table td {
+    padding: 9px 8px 12px;
+    border-bottom: 1px solid #eee;
+    color: #333;
+    font-size: 9px;
+    vertical-align: top;
+}
+
+.ddr-table tbody tr:hover {
+    background: #fafafa;
+}
+
+.ddr-details-table {
+    min-width: 1700px;
+}
+
+.ddr-primary {
+    font-weight: 600;
+}
+
+.ddr-secondary {
+    margin-top: 2px;
+    color: #777;
+    font-size: 8px;
+}
+
+.ddr-approver-email {
+    margin-top: 3px;
+    color: #555;
+    word-break: break-word;
+}
+
+.ddr-no-record {
+    padding: 30px 15px;
+    text-align: center;
+    color: #777;
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   STATUS BADGES
+========================================================= */
+
+.ddr-status-badge,
+.ddr-validation-badge,
+.ddr-mail-badge {
+    display: inline-block;
+    padding: 3px 7px;
+    border-radius: 10px;
+    font-size: 9px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.status-open {
+    color: #555;
+    background: #e9ecef;
+}
+
+.status-pending {
+    color: #856404;
+    background: #fff3cd;
+}
+
+.status-approved {
+    color: #0f5132;
+    background: #d1e7dd;
+}
+
+.status-rejected {
+    color: #842029;
+    background: #f8d7da;
+}
+
+.status-inspection {
+    color: #084298;
+    background: #cfe2ff;
+}
+
+.status-bse {
+    color: #3d2b56;
+    background: #e5d8f3;
+}
+
+.status-marketing {
+    color: #7a3b00;
+    background: #ffe0c2;
+}
+
+
+/* =========================================================
+   VALIDATION
+========================================================= */
+
+.validation-correct {
+    color: #0f5132;
+    background: #d1e7dd;
+}
+
+.validation-check {
+    color: #842029;
+    background: #f8d7da;
+}
+
+.validation-warning {
+    color: #856404;
+    background: #fff3cd;
+}
+
+.validation-workflow {
+    color: #084298;
+    background: #cfe2ff;
+}
+
+.validation-na {
+    color: #555;
+    background: #e9ecef;
+}
+
+
+/* =========================================================
+   MAIL
+========================================================= */
+
+.mail-sent {
+    color: #0f5132;
+    background: #d1e7dd;
+}
+
+.mail-failed {
+    color: #842029;
+    background: #f8d7da;
+}
+
+.mail-not-triggered {
+    color: #555;
+    background: #e9ecef;
+}
+
+.ddr-pending-days {
+    margin-top: 4px;
+    color: #856404;
+    font-size: 8px;
+    font-weight: 600;
+}
+
+.ddr-mail-error {
+    margin-top: 4px;
+    color: #842029;
+    font-size: 8px;
+    word-break: break-word;
+}
+
+
+/* =========================================================
+   FOLLOW UP
+========================================================= */
+
+.ddr-follow-up-button {
+    padding: 5px 9px;
+    border: 0;
+    border-radius: 4px;
+    background: #dc3545;
+    color: #ffffff;
+    font-size: 9px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   PAGINATION
+========================================================= */
+
+.ddr-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 12px 15px;
+    border-top: 1px solid #ddd;
+}
+
+.ddr-pagination button {
+    padding: 5px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    background: #ffffff;
+    cursor: pointer;
+    font-size: 11px;
+}
+
+.ddr-pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.ddr-pagination span {
+    font-size: 11px;
+    color: #555;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1200px) {
+
+    .ddr-summary-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .ddr-filter-box {
+        flex-wrap: wrap;
+    }
+
+    .ddr-filter-item {
+        min-width: 200px;
+    }
+}
+
+@media (max-width: 768px) {
+
+    .ddr-region-page {
+        padding: 8px 12px 12px;
+    }
+
+    .ddr-summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .ddr-filter-actions {
+        width: 100%;
+    }
+
+    .ddr-search-button,
+    .ddr-download-button {
+        flex: 1;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .ddr-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ddr-filter-item {
+        width: 100%;
+    }
+
+    .ddr-filter-actions {
+        flex-direction: column;
+    }
+}
