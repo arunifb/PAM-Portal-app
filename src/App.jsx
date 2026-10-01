@@ -15,6 +15,7 @@ import EditView from './pages/SubDealer/EditView'
 import SkillSetView from './pages/SkillSetView/SkillSetView'
 import BomExplodedView from './pages/BomExplodedView/BomExplodedView'
 import DDRRegion from './pages/DDRRegion/DDRRegion'
+import DigitalICR from './pages/DigitalICR/DigitalICR'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -121,6 +122,11 @@ function App() {
                     <Route
                         path="/ddr-region"
                         element={<DDRRegion />}
+                    />
+
+                    <Route
+                        path="/digital-icr"
+                        element={<DigitalICR />}
                     />
 
                     <Route

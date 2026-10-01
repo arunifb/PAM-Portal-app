@@ -445,6 +445,28 @@ function DashboardLayout({
 
 
         // =====================================
+        // DIGITAL ICR
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('digital icr')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('digitalicr.aspx')
+        ) {
+
+            navigate(
+                '/digital-icr'
+            )
+
+            return
+        }
+
+
+        // =====================================
         // OTHER MENU ITEMS
         // =====================================
 
@@ -686,6 +708,28 @@ function DashboardLayout({
             return (
                 currentPath ===
                 '/digital-contract'
+            )
+        }
+
+
+
+        // =====================================
+        // DIGITAL ICR
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('digital icr')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('digitalicr.aspx')
+        ) {
+
+            return (
+                currentPath ===
+                '/digital-icr'
             )
         }
 

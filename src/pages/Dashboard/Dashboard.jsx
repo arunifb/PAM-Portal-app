@@ -427,6 +427,22 @@ if (
         }
 
         // =========================================
+        // DIGITAL ICR
+        // =========================================
+
+        if (
+            menuName.includes('digital icr') ||
+            menuUrl.includes('digitalicr.aspx')
+        ) {
+
+            navigate(
+                '/digital-icr'
+            )
+
+            return
+        }
+
+        // =========================================
         // OTHER MENU ITEMS
         // =========================================
 
@@ -613,6 +629,21 @@ if (
 
             return (
                 currentPath === '/ddr-region'
+            )
+        }
+
+
+        // =========================================
+        // DIGITAL ICR
+        // =========================================
+
+        if (
+            menuName.includes('digital icr') ||
+            menuUrl.includes('digitalicr.aspx')
+        ) {
+
+            return (
+                currentPath === '/digital-icr'
             )
         }
 
