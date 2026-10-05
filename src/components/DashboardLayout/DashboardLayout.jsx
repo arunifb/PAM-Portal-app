@@ -215,6 +215,36 @@ function DashboardLayout({
 
 
         // =====================================
+        // USER MANAGEMENT
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('user management')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('useraddedit.aspx')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('usermanagement.aspx')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('user_management.aspx')
+        ) {
+
+            navigate(
+                '/user-management'
+            )
+
+            return
+        }
+
+
+        // =====================================
         // CLICK 2 CALL
         // =====================================
 
@@ -605,6 +635,35 @@ function DashboardLayout({
                 '/dashboard' &&
                 location.state?.activeSection ===
                 'report-data'
+            )
+        }
+
+
+        // =====================================
+        // USER MANAGEMENT
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('user management')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('useraddedit.aspx')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('usermanagement.aspx')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('user_management.aspx')
+        ) {
+
+            return (
+                currentPath ===
+                '/user-management'
             )
         }
 
