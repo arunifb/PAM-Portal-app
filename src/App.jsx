@@ -18,6 +18,8 @@ import DDRRegion from './pages/DDRRegion/DDRRegion'
 import DigitalICR from './pages/DigitalICR/DigitalICR'
 import SparesStock from './pages/SparesStock/SparesStock'
 import Technician from './pages/Technician/Technician'
+import SparesSearch from './pages/SparesSearch/SparesSearch'
+import UserManagement from './pages/UserManagement/UserManagement'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -140,6 +142,16 @@ function App() {
                     <Route
                         path="/technician"
                         element={<Technician />}
+                    />
+
+                    <Route
+                        path="/spares-search"
+                        element={<SparesSearch />}
+                    />
+
+                    <Route
+                        path="/user-management"
+                        element={<UserManagement />}
                     />
 
                     <Route

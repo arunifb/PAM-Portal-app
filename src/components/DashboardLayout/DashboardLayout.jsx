@@ -493,6 +493,40 @@ function DashboardLayout({
 
 
         // =====================================
+        // SPARES SEARCH / SPARES DETAILS
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('spares details')
+            ||
+            item.name
+                ?.toLowerCase()
+                .includes('spare details')
+            ||
+            item.name
+                ?.toLowerCase()
+                .includes('spares search')
+            ||
+            item.name
+                ?.toLowerCase()
+                .includes('spare search')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('sparessearch.aspx')
+        ) {
+
+            navigate(
+                '/spares-search'
+            )
+
+            return
+        }
+
+
+        // =====================================
         // TECHNICIAN
         // =====================================
 
@@ -802,6 +836,39 @@ function DashboardLayout({
             return (
                 currentPath ===
                 '/spares-stock'
+            )
+        }
+
+
+        // =====================================
+        // SPARES SEARCH / SPARES DETAILS
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('spares details')
+            ||
+            item.name
+                ?.toLowerCase()
+                .includes('spare details')
+            ||
+            item.name
+                ?.toLowerCase()
+                .includes('spares search')
+            ||
+            item.name
+                ?.toLowerCase()
+                .includes('spare search')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('sparessearch.aspx')
+        ) {
+
+            return (
+                currentPath ===
+                '/spares-search'
             )
         }
 

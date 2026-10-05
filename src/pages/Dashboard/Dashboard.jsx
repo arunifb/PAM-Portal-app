@@ -469,6 +469,26 @@ function Dashboard() {
 
 
         // =========================================
+        // SPARES SEARCH / SPARES DETAILS
+        // =========================================
+
+        if (
+            menuName.includes('spares details') ||
+            menuName.includes('spare details') ||
+            menuName.includes('spares search') ||
+            menuName.includes('spare search') ||
+            menuUrl.includes('sparessearch.aspx')
+        ) {
+
+            navigate(
+                '/spares-search'
+            )
+
+            return
+        }
+
+
+        // =========================================
         // TECHNICIAN
         // =========================================
 
@@ -479,6 +499,24 @@ function Dashboard() {
 
             navigate(
                 '/technician'
+            )
+
+            return
+        }
+
+
+        // =========================================
+        // USER MANAGEMENT
+        // =========================================
+
+        if (
+            menuName.includes('user management') ||
+            menuName.includes('user management creation') ||
+            menuUrl.includes('useraddedit.aspx')
+        ) {
+
+            navigate(
+                '/user-management'
             )
 
             return
@@ -708,6 +746,24 @@ function Dashboard() {
 
 
         // =========================================
+        // SPARES SEARCH / SPARES DETAILS
+        // =========================================
+
+        if (
+            menuName.includes('spares details') ||
+            menuName.includes('spare details') ||
+            menuName.includes('spares search') ||
+            menuName.includes('spare search') ||
+            menuUrl.includes('sparessearch.aspx')
+        ) {
+
+            return (
+                currentPath === '/spares-search'
+            )
+        }
+
+
+        // =========================================
         // TECHNICIAN
         // =========================================
 
@@ -718,6 +774,22 @@ function Dashboard() {
 
             return (
                 currentPath === '/technician'
+            )
+        }
+
+
+        // =========================================
+        // USER MANAGEMENT
+        // =========================================
+
+        if (
+            menuName.includes('user management') ||
+            menuName.includes('user management creation') ||
+            menuUrl.includes('useraddedit.aspx')
+        ) {
+
+            return (
+                currentPath === '/user-management'
             )
         }
 
