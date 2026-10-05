@@ -1,0 +1,582 @@
+/* =====================================================
+   SUPERSESSION PAGE
+   ===================================================== */
+
+.supersession-card {
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #e1e5ea;
+    border-radius: 6px;
+    margin-bottom: 18px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+}
+
+
+/* =====================================================
+   CARD HEADER - COMPACT
+   ===================================================== */
+
+.supersession-card-header {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 10px 16px;
+    background: #f6f7f9;
+    border-bottom: 1px solid #e1e5ea;
+}
+
+.supersession-card-header h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #344054;
+}
+
+
+/* =====================================================
+   CARD BODY - COMPACT
+   ===================================================== */
+
+.supersession-card-body {
+    padding: 14px 16px;
+}
+
+
+/* =====================================================
+   MESSAGE - COMPACT
+   ===================================================== */
+
+.supersession-message {
+    display: flex;
+    align-items: center;
+    min-height: 36px;
+    margin-bottom: 12px;
+    padding: 7px 12px;
+    border-radius: 5px;
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 500;
+}
+
+.supersession-message.success {
+    background: #edf8f0;
+    border: 1px solid #ccebd5;
+    color: #26743d;
+}
+
+.supersession-message.error {
+    background: #fff0f0;
+    border: 1px solid #f0cccc;
+    color: #a33a3a;
+}
+
+
+/* =====================================================
+   UPLOAD SECTION - COMPACT
+   ===================================================== */
+
+.supersession-upload-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 38px;
+}
+
+.supersession-label {
+    flex: 0 0 155px;
+    width: 155px;
+    margin: 0;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.supersession-file-wrapper {
+    flex: 0 1 380px;
+    width: 380px;
+}
+
+.supersession-file-wrapper .form-control {
+    width: 100%;
+    height: 36px;
+    padding: 5px 9px;
+    border: 1px solid #cfd6de;
+    border-radius: 4px;
+    background: #ffffff;
+    color: #495057;
+    font-size: 13px;
+    box-shadow: none;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.supersession-file-wrapper .form-control:hover {
+    border-color: #aeb8c4;
+}
+
+.supersession-file-wrapper .form-control:focus {
+    border-color: #80a9d6;
+    box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.08);
+    outline: none;
+}
+
+
+/* =====================================================
+   UPLOAD BUTTON - COMPACT
+   ===================================================== */
+
+.supersession-upload-button {
+    flex: 0 0 auto;
+    width: auto;
+}
+
+.supersession-upload-button .btn {
+    min-width: 140px;
+    height: 36px;
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.1s ease;
+}
+
+.supersession-upload-button .btn:hover:not(:disabled) {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.supersession-upload-button .btn:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+.supersession-upload-button .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+
+/* =====================================================
+   HORIZONTAL SEPARATOR - COMPACT
+   ===================================================== */
+
+.supersession-card-body hr {
+    margin: 14px 0;
+    border: 0;
+    border-top: 1px solid #e5e7eb;
+}
+
+
+/* =====================================================
+   PREVIEW SECTION
+   ===================================================== */
+
+.supersession-preview-section {
+    margin-top: 2px;
+}
+
+.supersession-section-title {
+    display: flex;
+    align-items: center;
+    min-height: 30px;
+    margin-bottom: 8px;
+    padding-left: 9px;
+    border-left: 3px solid #337ab7;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+
+/* =====================================================
+   TABLE WRAPPER
+   ===================================================== */
+
+.supersession-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    background: #ffffff;
+}
+
+
+/* =====================================================
+   TABLE
+   ===================================================== */
+
+.supersession-table {
+    width: 100%;
+    min-width: 1050px;
+    margin-bottom: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #ffffff;
+    font-size: 12px;
+}
+
+
+/* =====================================================
+   TABLE HEADER
+   ===================================================== */
+
+.supersession-table thead th {
+    padding: 9px 11px;
+    background: #f1f4f7;
+    border-bottom: 1px solid #d8dee5;
+    color: #344054;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.3;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+
+/* =====================================================
+   TABLE BODY
+   ===================================================== */
+
+.supersession-table tbody td {
+    padding: 8px 11px;
+    border-top: 1px solid #edf0f2;
+    color: #4b5563;
+    font-size: 12px;
+    line-height: 1.3;
+    white-space: nowrap;
+    vertical-align: middle;
+    background: #ffffff;
+}
+
+
+/* =====================================================
+   TABLE HOVER
+   ===================================================== */
+
+.supersession-table tbody tr:hover td {
+    background: #f5f8fb;
+}
+
+
+/* =====================================================
+   TABLE STRIPED ROWS
+   ===================================================== */
+
+.supersession-table.table-striped tbody tr:nth-of-type(odd) td {
+    background: #ffffff;
+}
+
+.supersession-table.table-striped tbody tr:nth-of-type(even) td {
+    background: #fafbfc;
+}
+
+.supersession-table.table-striped tbody tr:hover td {
+    background: #f5f8fb;
+}
+
+
+/* =====================================================
+   FIRST / LAST CELL
+   ===================================================== */
+
+.supersession-table th:first-child,
+.supersession-table td:first-child {
+    padding-left: 14px;
+}
+
+.supersession-table th:last-child,
+.supersession-table td:last-child {
+    padding-right: 14px;
+}
+
+
+/* =====================================================
+   SAVE BUTTON ROW
+   ===================================================== */
+
+.supersession-save-row {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 12px;
+}
+
+
+/* =====================================================
+   SAVE BUTTON
+   ===================================================== */
+
+.supersession-save-row .btn {
+    min-width: 155px;
+    height: 36px;
+    padding: 6px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.1s ease;
+}
+
+.supersession-save-row .btn:hover:not(:disabled) {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.supersession-save-row .btn:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+.supersession-save-row .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+
+/* =====================================================
+   LOADING
+   ===================================================== */
+
+.supersession-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 80px;
+    padding: 15px;
+    color: #6b7280;
+    font-size: 13px;
+}
+
+
+/* =====================================================
+   EMPTY STATE
+   ===================================================== */
+
+.supersession-empty-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 55px;
+    padding: 12px;
+    border: 1px dashed #cfd6de;
+    border-radius: 5px;
+    background: #fafbfc;
+    color: #6b7280;
+    font-size: 13px;
+}
+
+
+/* =====================================================
+   EXISTING DATA
+   ===================================================== */
+
+.supersession-existing-card {
+    margin-top: 4px;
+}
+
+.supersession-existing-card .supersession-card-header {
+    background: #f6f7f9;
+}
+
+
+/* =====================================================
+   TABLE SCROLLBAR
+   ===================================================== */
+
+.supersession-table-wrapper::-webkit-scrollbar {
+    height: 7px;
+}
+
+.supersession-table-wrapper::-webkit-scrollbar-track {
+    background: #f1f3f5;
+    border-radius: 4px;
+}
+
+.supersession-table-wrapper::-webkit-scrollbar-thumb {
+    background: #c5ccd4;
+    border-radius: 4px;
+}
+
+.supersession-table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #aeb7c2;
+}
+
+
+/* =====================================================
+   RESPONSIVE - TABLET
+   ===================================================== */
+
+@media (max-width: 992px) {
+
+    .supersession-card-body {
+        padding: 13px 15px;
+    }
+
+    .supersession-upload-row {
+        flex-wrap: wrap;
+    }
+
+    .supersession-label {
+        flex: 0 0 145px;
+        width: 145px;
+    }
+
+    .supersession-file-wrapper {
+        flex: 1 1 300px;
+        width: auto;
+    }
+}
+
+
+/* =====================================================
+   RESPONSIVE - MOBILE
+   ===================================================== */
+
+@media (max-width: 768px) {
+
+    .supersession-card {
+        border-radius: 5px;
+        margin-bottom: 15px;
+    }
+
+    .supersession-card-header {
+        min-height: 42px;
+        padding: 9px 13px;
+    }
+
+    .supersession-card-header h4 {
+        font-size: 15px;
+    }
+
+    .supersession-card-body {
+        padding: 12px;
+    }
+
+
+    /* ---------------------------------------------
+       MESSAGE
+       --------------------------------------------- */
+
+    .supersession-message {
+        min-height: 34px;
+        margin-bottom: 10px;
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+
+    /* ---------------------------------------------
+       UPLOAD
+       --------------------------------------------- */
+
+    .supersession-upload-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 7px;
+    }
+
+    .supersession-label {
+        flex: none;
+        width: 100%;
+        font-size: 13px;
+    }
+
+    .supersession-file-wrapper {
+        flex: none;
+        width: 100%;
+    }
+
+    .supersession-upload-button {
+        width: 100%;
+    }
+
+    .supersession-upload-button .btn {
+        width: 100%;
+    }
+
+
+    /* ---------------------------------------------
+       SEPARATOR
+       --------------------------------------------- */
+
+    .supersession-card-body hr {
+        margin: 12px 0;
+    }
+
+
+    /* ---------------------------------------------
+       PREVIEW TITLE
+       --------------------------------------------- */
+
+    .supersession-section-title {
+        min-height: 28px;
+        margin-bottom: 7px;
+        font-size: 13px;
+    }
+
+
+    /* ---------------------------------------------
+       TABLE
+       --------------------------------------------- */
+
+    .supersession-table {
+        min-width: 950px;
+    }
+
+
+    /* ---------------------------------------------
+       SAVE BUTTON
+       --------------------------------------------- */
+
+    .supersession-save-row {
+        justify-content: stretch;
+        margin-top: 10px;
+    }
+
+    .supersession-save-row .btn {
+        width: 100%;
+    }
+}
+
+
+/* =====================================================
+   RESPONSIVE - SMALL MOBILE
+   ===================================================== */
+
+@media (max-width: 480px) {
+
+    .supersession-card-body {
+        padding: 10px;
+    }
+
+    .supersession-card-header {
+        padding: 8px 11px;
+    }
+
+    .supersession-card-header h4 {
+        font-size: 14px;
+    }
+
+    .supersession-section-title {
+        font-size: 13px;
+    }
+
+    .supersession-table {
+        min-width: 900px;
+    }
+
+    .supersession-table thead th,
+    .supersession-table tbody td {
+        padding: 7px 9px;
+        font-size: 11px;
+    }
+}

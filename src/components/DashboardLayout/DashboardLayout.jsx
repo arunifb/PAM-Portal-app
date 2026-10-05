@@ -587,6 +587,28 @@ function DashboardLayout({
 
 
         // =====================================
+        // SUPERSESSION
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('supersession')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('supersession.aspx')
+        ) {
+
+            navigate(
+                '/supersession'
+            )
+
+            return
+        }
+
+
+        // =====================================
         // TECHNICIAN
         // =====================================
 
@@ -987,6 +1009,27 @@ function DashboardLayout({
             return (
                 currentPath ===
                 '/check-ticket-status'
+            )
+        }
+
+
+        // =====================================
+        // SUPERSESSION
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('supersession')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('supersession.aspx')
+        ) {
+
+            return (
+                currentPath ===
+                '/supersession'
             )
         }
 

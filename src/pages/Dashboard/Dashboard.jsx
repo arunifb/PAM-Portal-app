@@ -508,6 +508,23 @@ function Dashboard() {
 
 
         // =========================================
+        // SUPERSESSION
+        // =========================================
+
+        if (
+            menuName.includes('supersession') ||
+            menuUrl.includes('supersession.aspx')
+        ) {
+
+            navigate(
+                '/supersession'
+            )
+
+            return
+        }
+
+
+        // =========================================
         // TECHNICIAN
         // =========================================
 
@@ -795,6 +812,21 @@ function Dashboard() {
 
             return (
                 currentPath === '/check-ticket-status'
+            )
+        }
+
+
+        // =========================================
+        // SUPERSESSION
+        // =========================================
+
+        if (
+            menuName.includes('supersession') ||
+            menuUrl.includes('supersession.aspx')
+        ) {
+
+            return (
+                currentPath === '/supersession'
             )
         }
 

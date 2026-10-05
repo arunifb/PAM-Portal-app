@@ -21,6 +21,7 @@ import Technician from './pages/Technician/Technician'
 import SparesSearch from './pages/SparesSearch/SparesSearch'
 import UserManagement from './pages/UserManagement/UserManagement'
 import CheckTicketStatus from './pages/CheckTicketStatus/CheckTicketStatus'
+import Supersession from './pages/Supersession/Supersession'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -158,6 +159,11 @@ function App() {
                     <Route
                         path="/user-management"
                         element={<UserManagement />}
+                    />
+
+                    <Route
+                        path="/supersession"
+                        element={<Supersession />}
                     />
 
                     <Route
