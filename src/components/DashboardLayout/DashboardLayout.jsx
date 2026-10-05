@@ -557,6 +557,36 @@ function DashboardLayout({
 
 
         // =====================================
+        // CHECK TICKET STATUS WITH SPARE
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('check ticket status')
+            ||
+            item.name
+                ?.toLowerCase()
+                .includes('ticket status with spare')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('checkticketstauswithspare.aspx')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('checkticketstatuswithspare.aspx')
+        ) {
+
+            navigate(
+                '/check-ticket-status'
+            )
+
+            return
+        }
+
+
+        // =====================================
         // TECHNICIAN
         // =====================================
 
@@ -928,6 +958,35 @@ function DashboardLayout({
             return (
                 currentPath ===
                 '/spares-search'
+            )
+        }
+
+
+        // =====================================
+        // CHECK TICKET STATUS WITH SPARE
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('check ticket status')
+            ||
+            item.name
+                ?.toLowerCase()
+                .includes('ticket status with spare')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('checkticketstauswithspare.aspx')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('checkticketstatuswithspare.aspx')
+        ) {
+
+            return (
+                currentPath ===
+                '/check-ticket-status'
             )
         }
 

@@ -1,0 +1,232 @@
+/* =====================================================
+   PAGE
+   ===================================================== */
+
+.check-ticket-status-page {
+    width: 100%;
+}
+
+/* =====================================================
+   HEADER
+   ===================================================== */
+
+.check-ticket-status-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.check-ticket-status-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.check-ticket-status-title i {
+    font-size: 20px;
+}
+
+/* =====================================================
+   UPLOAD CARD
+   ===================================================== */
+
+.check-ticket-upload-card {
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.check-ticket-upload-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+
+    width: 100%;
+}
+
+.check-ticket-file-wrapper {
+    flex: 1;
+}
+
+.check-ticket-label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    font-weight: 500;
+}
+
+/* =====================================================
+   ACTION BUTTONS
+   ===================================================== */
+
+.check-ticket-upload-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.check-ticket-upload-actions .btn {
+    min-width: 100px;
+}
+
+/* =====================================================
+   SELECTED FILE
+   ===================================================== */
+
+.selected-file-name {
+    margin-top: 12px;
+
+    font-size: 14px;
+}
+
+.selected-file-name strong {
+    margin-left: 5px;
+}
+
+/* =====================================================
+   ALERT
+   ===================================================== */
+
+.check-ticket-alert {
+    margin-bottom: 20px;
+}
+
+/* =====================================================
+   RESULT INFO
+   ===================================================== */
+
+.check-ticket-result-info {
+    margin-bottom: 12px;
+
+    font-size: 15px;
+}
+
+/* =====================================================
+   TABLE CARD
+   ===================================================== */
+
+.check-ticket-table-card {
+    width: 100%;
+
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+
+    overflow: hidden;
+}
+
+/* =====================================================
+   TABLE WRAPPER
+   ===================================================== */
+
+.check-ticket-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* =====================================================
+   TABLE
+   ===================================================== */
+
+.check-ticket-table {
+    width: 100%;
+    min-width: 2200px;
+
+    margin-bottom: 0;
+
+    font-size: 13px;
+}
+
+.check-ticket-table th {
+    white-space: nowrap;
+
+    vertical-align: middle;
+
+    font-weight: 600;
+}
+
+.check-ticket-table td {
+    white-space: nowrap;
+
+    vertical-align: middle;
+}
+
+.check-ticket-table tbody tr {
+    vertical-align: middle;
+}
+
+/* =====================================================
+   STATUS
+   Old WebForms:
+   ForeColor = White
+   BackColor = YellowGreen
+   ===================================================== */
+
+.ticket-status-cell {
+    color: #ffffff !important;
+    background-color: yellowgreen !important;
+
+    font-weight: 600;
+}
+
+/* =====================================================
+   NO DATA
+   ===================================================== */
+
+.check-ticket-no-data {
+    padding: 25px;
+
+    text-align: center;
+
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+
+    color: #6c757d;
+}
+
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
+
+@media (max-width: 992px) {
+
+    .check-ticket-upload-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .check-ticket-upload-actions {
+        flex-wrap: wrap;
+    }
+
+    .check-ticket-upload-actions .btn {
+        min-width: 110px;
+    }
+}
+
+@media (max-width: 576px) {
+
+    .check-ticket-status-title {
+        font-size: 18px;
+    }
+
+    .check-ticket-upload-card {
+        padding: 15px;
+    }
+
+    .check-ticket-upload-actions {
+        width: 100%;
+    }
+
+    .check-ticket-upload-actions .btn {
+        flex: 1;
+    }
+}

@@ -20,6 +20,7 @@ import SparesStock from './pages/SparesStock/SparesStock'
 import Technician from './pages/Technician/Technician'
 import SparesSearch from './pages/SparesSearch/SparesSearch'
 import UserManagement from './pages/UserManagement/UserManagement'
+import CheckTicketStatus from './pages/CheckTicketStatus/CheckTicketStatus'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -147,6 +148,11 @@ function App() {
                     <Route
                         path="/spares-search"
                         element={<SparesSearch />}
+                    />
+
+                    <Route
+                        path="/check-ticket-status"
+                        element={<CheckTicketStatus />}
                     />
 
                     <Route
