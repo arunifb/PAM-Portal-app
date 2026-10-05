@@ -49,6 +49,7 @@ function BomExplodedView() {
 
     const fileInputRef = useRef(null)
     const [uploading, setUploading] = useState(false)
+    const [fileName, setFileName] = useState('')
 
 
     // =========================================
@@ -297,6 +298,7 @@ function BomExplodedView() {
             if (fileInputRef.current) {
                 fileInputRef.current.value = ''
             }
+            setFileName('')
 
             // Reload grid
             await loadRecords()
@@ -438,16 +440,8 @@ function BomExplodedView() {
     // =========================================
 
     return (
-        <DashboardLayout>
+        <DashboardLayout title="Exploded View">
             <div className="bom-container">
-
-
-                {/* ===== PAGE TITLE ===== */}
-
-                <div className="bom-title">
-                    <i className="fa fa-eye" aria-hidden="true"></i>
-                    Exploded View
-                </div>
 
 
                 {/* ===== TOOLBAR ===== */}
@@ -544,18 +538,38 @@ function BomExplodedView() {
                         )}
 
 
-                        {/* File Upload — visible for all roles */}
+                        {/* File Upload — custom picker (only the button opens the dialog) */}
                         {canUploadDelete && (
                             <>
-                                <div className="bom-field">
-                                    <label className="bom-label">
-                                        Upload
-                                    </label>
-                                    <input
-                                        type="file"
-                                        ref={fileInputRef}
-                                        className="bom-file-input"
-                                    />
+                                <div className="bom-field bom-field-btn">
+                                    <div className="bom-file-picker">
+                                        {/* Hidden native input */}
+                                        <input
+                                            type="file"
+                                            ref={fileInputRef}
+                                            style={{ display: 'none' }}
+                                            onChange={(e) =>
+                                                setFileName(
+                                                    e.target.files?.[0]?.name || ''
+                                                )
+                                            }
+                                        />
+
+                                        <button
+                                            type="button"
+                                            className="bom-btn bom-btn-choose"
+                                            onClick={() =>
+                                                fileInputRef.current?.click()
+                                            }
+                                        >
+                                            <i className="fa fa-folder-open"></i>
+                                            Choose File
+                                        </button>
+
+                                        <span className="bom-file-name">
+                                            {fileName || 'No file chosen'}
+                                        </span>
+                                    </div>
                                 </div>
 
                                 <div className="bom-field bom-field-btn">

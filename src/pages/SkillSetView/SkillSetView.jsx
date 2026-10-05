@@ -335,16 +335,6 @@ function SkillSetView() {
 
 
                 {/* ============================
-                    PAGE TITLE
-                ============================ */}
-
-                <div className="skillset-title">
-                    Product Knowledge Skill Identification and
-                    Certification Of Service Ambassadors
-                </div>
-
-
-                {/* ============================
                     TOOLBAR
                 ============================ */}
 
