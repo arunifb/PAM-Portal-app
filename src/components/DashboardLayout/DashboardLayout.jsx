@@ -493,6 +493,28 @@ function DashboardLayout({
 
 
         // =====================================
+        // TECHNICIAN
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('technician')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('addtech.aspx')
+        ) {
+
+            navigate(
+                '/technician'
+            )
+
+            return
+        }
+
+
+        // =====================================
         // OTHER MENU ITEMS
         // =====================================
 
@@ -738,7 +760,6 @@ function DashboardLayout({
         }
 
 
-
         // =====================================
         // DIGITAL ICR
         // =====================================
@@ -781,6 +802,27 @@ function DashboardLayout({
             return (
                 currentPath ===
                 '/spares-stock'
+            )
+        }
+
+
+        // =====================================
+        // TECHNICIAN
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('technician')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('addtech.aspx')
+        ) {
+
+            return (
+                currentPath ===
+                '/technician'
             )
         }
 

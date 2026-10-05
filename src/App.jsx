@@ -17,6 +17,7 @@ import BomExplodedView from './pages/BomExplodedView/BomExplodedView'
 import DDRRegion from './pages/DDRRegion/DDRRegion'
 import DigitalICR from './pages/DigitalICR/DigitalICR'
 import SparesStock from './pages/SparesStock/SparesStock'
+import Technician from './pages/Technician/Technician'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -134,6 +135,11 @@ function App() {
                     <Route
                         path="/spares-stock"
                         element={<SparesStock />}
+                    />
+
+                    <Route
+                        path="/technician"
+                        element={<Technician />}
                     />
 
                     <Route

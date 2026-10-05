@@ -370,9 +370,9 @@ function Dashboard() {
 
         if (
             menuName.includes('sub-dealer') ||
-    menuName.includes('subdealer') ||
-    menuUrl.includes('editview.aspx') ||
-    menuUrl.includes('subdealer.aspx')
+            menuName.includes('subdealer') ||
+            menuUrl.includes('editview.aspx') ||
+            menuUrl.includes('subdealer.aspx')
         ) {
 
             navigate(
@@ -382,18 +382,21 @@ function Dashboard() {
             return
         }
 
-// =====================================
-// SKILL SET VIEW
-// =====================================
 
-if (
-    item.url
-        ?.toLowerCase()
-        .includes('techskillmasterreport.aspx')
-) {
-    navigate('/skill-set-view')
-    return
-}
+        // =========================================
+        // SKILL SET VIEW
+        // =========================================
+
+        if (
+            menuUrl.includes('techskillmasterreport.aspx')
+        ) {
+
+            navigate(
+                '/skill-set-view'
+            )
+
+            return
+        }
 
 
         // =========================================
@@ -401,13 +404,16 @@ if (
         // =========================================
 
         if (
-            item.url
-                ?.toLowerCase()
-                .includes('bom_exploded_view.aspx')
+            menuUrl.includes('bom_exploded_view.aspx')
         ) {
-            navigate('/bom-exploded-view')
+
+            navigate(
+                '/bom-exploded-view'
+            )
+
             return
         }
+
 
         // =========================================
         // DDR REGION MONITORING
@@ -426,6 +432,7 @@ if (
             return
         }
 
+
         // =========================================
         // DIGITAL ICR
         // =========================================
@@ -441,6 +448,7 @@ if (
 
             return
         }
+
 
         // =========================================
         // SPARES STOCK
@@ -460,7 +468,22 @@ if (
         }
 
 
-        
+        // =========================================
+        // TECHNICIAN
+        // =========================================
+
+        if (
+            menuName.includes('technician') ||
+            menuUrl.includes('addtech.aspx')
+        ) {
+
+            navigate(
+                '/technician'
+            )
+
+            return
+        }
+
 
         // =========================================
         // OTHER MENU ITEMS
@@ -668,7 +691,6 @@ if (
         }
 
 
-
         // =========================================
         // SPARES STOCK
         // =========================================
@@ -681,6 +703,21 @@ if (
 
             return (
                 currentPath === '/spares-stock'
+            )
+        }
+
+
+        // =========================================
+        // TECHNICIAN
+        // =========================================
+
+        if (
+            menuName.includes('technician') ||
+            menuUrl.includes('addtech.aspx')
+        ) {
+
+            return (
+                currentPath === '/technician'
             )
         }
 
