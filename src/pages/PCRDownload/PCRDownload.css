@@ -1,0 +1,282 @@
+/* =====================================================
+   PCR DOWNLOAD PAGE
+   ===================================================== */
+
+.pcr-download-page {
+    width: 100%;
+    padding: 16px;
+}
+
+
+/* =====================================================
+   SEARCH CARD
+   ===================================================== */
+
+.pcr-download-card {
+    background: #ffffff;
+    border: 1px solid #e2e6ea;
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+
+.pcr-download-card-title {
+    font-size: 17px;
+    font-weight: 600;
+    color: #333333;
+    margin-bottom: 15px;
+}
+
+
+/* =====================================================
+   FORM
+   ===================================================== */
+
+.pcr-download-form {
+    display: flex;
+    align-items: flex-end;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+
+.pcr-download-field {
+    display: flex;
+    flex-direction: column;
+    min-width: 180px;
+}
+
+
+.pcr-download-field label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #555555;
+    margin-bottom: 5px;
+}
+
+
+.pcr-download-field select,
+.pcr-download-field input {
+    height: 36px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 5px 9px;
+    font-size: 13px;
+    background: #ffffff;
+    outline: none;
+}
+
+
+.pcr-download-field select:focus,
+.pcr-download-field input:focus {
+    border-color: #86b7fe;
+}
+
+
+/* =====================================================
+   BUTTONS
+   ===================================================== */
+
+.pcr-download-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+
+.pcr-download-actions button {
+    height: 36px;
+    padding: 0 14px;
+    border: none;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+
+.pcr-download-search-btn {
+    background: #0d6efd;
+    color: #ffffff;
+}
+
+
+.pcr-download-search-btn:hover {
+    background: #0b5ed7;
+}
+
+
+.pcr-download-excel-btn {
+    background: #198754;
+    color: #ffffff;
+}
+
+
+.pcr-download-excel-btn:hover {
+    background: #157347;
+}
+
+
+.pcr-download-back-btn {
+    background: #6c757d;
+    color: #ffffff;
+}
+
+
+.pcr-download-back-btn:hover {
+    background: #5c636a;
+}
+
+
+/* =====================================================
+   ERROR
+   ===================================================== */
+
+.pcr-download-error {
+    margin-top: 12px;
+    padding: 9px 12px;
+    background: #f8d7da;
+    color: #842029;
+    border: 1px solid #f5c2c7;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+
+/* =====================================================
+   TABLE CARD
+   ===================================================== */
+
+.pcr-download-table-card {
+    background: #ffffff;
+    border: 1px solid #e2e6ea;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+
+.pcr-download-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+
+/* =====================================================
+   TABLE
+   ===================================================== */
+
+.pcr-download-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+
+.pcr-download-table th {
+    background: #f5f6f8;
+    color: #333333;
+    font-weight: 600;
+    padding: 9px 10px;
+    border-bottom: 1px solid #dee2e6;
+    white-space: nowrap;
+    text-align: left;
+}
+
+
+.pcr-download-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #eeeeee;
+    color: #444444;
+    white-space: nowrap;
+}
+
+
+.pcr-download-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+
+/* =====================================================
+   LOADING
+   ===================================================== */
+
+.pcr-download-loading {
+    text-align: center;
+    padding: 20px !important;
+    color: #666666;
+    font-weight: 500;
+}
+
+
+.loading-dots::after {
+    content: '';
+    animation: loadingDots 1.5s infinite;
+}
+
+
+@keyframes loadingDots {
+
+    0% {
+        content: '';
+    }
+
+    33% {
+        content: '.';
+    }
+
+    66% {
+        content: '..';
+    }
+
+    100% {
+        content: '...';
+    }
+
+}
+
+
+/* =====================================================
+   NO DATA
+   ===================================================== */
+
+.pcr-download-no-data {
+    text-align: center;
+    padding: 20px !important;
+    color: #777777;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
+
+@media (max-width: 900px) {
+
+    .pcr-download-field {
+        min-width: 160px;
+    }
+
+}
+
+
+@media (max-width: 600px) {
+
+    .pcr-download-page {
+        padding: 10px;
+    }
+
+    .pcr-download-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .pcr-download-field {
+        width: 100%;
+    }
+
+    .pcr-download-actions {
+        width: 100%;
+    }
+
+}

@@ -36,7 +36,7 @@ function DashboardLayout({
         useState([])
 
     const [menuLoading, setMenuLoading] =
-        useState(true)
+        useState(false)
 
     const [menuError, setMenuError] =
         useState('')
@@ -44,6 +44,10 @@ function DashboardLayout({
 
     // =========================================
     // LOAD DASHBOARD MENU
+    //
+    // Load only once per browser session.
+    // This prevents every page navigation from
+    // calling the dashboard menu API again.
     // =========================================
 
     useEffect(() => {
@@ -60,16 +64,73 @@ function DashboardLayout({
                     'Role information is not available.'
                 )
 
-                setMenuLoading(false)
-
                 return
             }
 
 
+            // =====================================
+            // CHECK SESSION STORAGE FIRST
+            // =====================================
+
+            const savedMenu =
+                sessionStorage.getItem(
+                    'dashboardMenu'
+                )
+
+
+            if (savedMenu) {
+
+                try {
+
+                    const parsedMenu =
+                        JSON.parse(savedMenu)
+
+
+                    if (
+                        Array.isArray(parsedMenu) &&
+                        parsedMenu.length > 0
+                    ) {
+
+                        setMenuItems(
+                            parsedMenu
+                        )
+
+                        return
+
+                    }
+
+                }
+                catch (error) {
+
+                    console.error(
+                        'Invalid saved dashboard menu:',
+                        error
+                    )
+
+                    sessionStorage.removeItem(
+                        'dashboardMenu'
+                    )
+
+                }
+
+            }
+
+
+            // =====================================
+            // LOAD FROM API
+            // =====================================
+
             try {
 
+                setMenuLoading(true)
+
+                setMenuError('')
+
+
                 const data =
-                    await getDashboardMenu(roleId)
+                    await getDashboardMenu(
+                        roleId
+                    )
 
 
                 if (!Array.isArray(data)) {
@@ -77,6 +138,7 @@ function DashboardLayout({
                     throw new Error(
                         'Invalid dashboard menu response.'
                     )
+
                 }
 
 
@@ -105,7 +167,19 @@ function DashboardLayout({
                 )
 
 
-            } catch (error) {
+                // =====================================
+                // SAVE MENU
+                // =====================================
+
+                sessionStorage.setItem(
+                    'dashboardMenu',
+                    JSON.stringify(
+                        formattedMenu
+                    )
+                )
+
+            }
+            catch (error) {
 
                 console.error(
                     'Dashboard menu error:',
@@ -118,12 +192,13 @@ function DashboardLayout({
                     'Unable to load dashboard menu.'
                 )
 
-
-            } finally {
+            }
+            finally {
 
                 setMenuLoading(false)
 
             }
+
         }
 
 
@@ -150,20 +225,23 @@ function DashboardLayout({
 
             }
 
-        } catch (error) {
+        }
+        catch (error) {
 
             console.error(
                 'Logout error:',
                 error
             )
 
-        } finally {
+        }
+        finally {
 
             sessionStorage.clear()
 
             navigate('/')
 
         }
+
     }
 
 
@@ -236,9 +314,7 @@ function DashboardLayout({
                 .includes('user_management.aspx')
         ) {
 
-            navigate(
-                '/user-management'
-            )
+            navigate('/user-management')
 
             return
         }
@@ -258,9 +334,7 @@ function DashboardLayout({
                 .includes('click2call.aspx')
         ) {
 
-            navigate(
-                '/click2call'
-            )
+            navigate('/click2call')
 
             return
         }
@@ -280,9 +354,7 @@ function DashboardLayout({
                 .includes('callsummary.aspx')
         ) {
 
-            navigate(
-                '/call-summary'
-            )
+            navigate('/call-summary')
 
             return
         }
@@ -298,15 +370,7 @@ function DashboardLayout({
                 .includes('techskillmasterreport.aspx')
         ) {
 
-            console.log(
-                'Menu clicked:',
-                item.name,
-                item.url
-            )
-
-            navigate(
-                '/skill-set-view'
-            )
+            navigate('/skill-set-view')
 
             return
         }
@@ -322,9 +386,7 @@ function DashboardLayout({
                 .includes('bom_exploded_view.aspx')
         ) {
 
-            navigate(
-                '/bom-exploded-view'
-            )
+            navigate('/bom-exploded-view')
 
             return
         }
@@ -344,9 +406,7 @@ function DashboardLayout({
                 .includes('franchiseview.aspx')
         ) {
 
-            navigate(
-                '/franchise-view'
-            )
+            navigate('/franchise-view')
 
             return
         }
@@ -366,9 +426,7 @@ function DashboardLayout({
                 .includes('franchiseeinventory.aspx')
         ) {
 
-            navigate(
-                '/inventory'
-            )
+            navigate('/inventory')
 
             return
         }
@@ -392,9 +450,7 @@ function DashboardLayout({
                 .includes('ddrrequest.aspx')
         ) {
 
-            navigate(
-                '/ddr-region'
-            )
+            navigate('/ddr-region')
 
             return
         }
@@ -414,9 +470,7 @@ function DashboardLayout({
                 .includes('onesearch.aspx')
         ) {
 
-            navigate(
-                '/one-search'
-            )
+            navigate('/one-search')
 
             return
         }
@@ -436,9 +490,7 @@ function DashboardLayout({
                 .includes('digitalcontract.aspx')
         ) {
 
-            navigate(
-                '/digital-contract'
-            )
+            navigate('/digital-contract')
 
             return
         }
@@ -466,9 +518,7 @@ function DashboardLayout({
                 .includes('subdealer.aspx')
         ) {
 
-            navigate(
-                '/subdealer/editview'
-            )
+            navigate('/subdealer/editview')
 
             return
         }
@@ -488,9 +538,7 @@ function DashboardLayout({
                 .includes('digitalicr.aspx')
         ) {
 
-            navigate(
-                '/digital-icr'
-            )
+            navigate('/digital-icr')
 
             return
         }
@@ -514,16 +562,14 @@ function DashboardLayout({
                 .includes('sparesstock.aspx')
         ) {
 
-            navigate(
-                '/spares-stock'
-            )
+            navigate('/spares-stock')
 
             return
         }
 
 
         // =====================================
-        // SPARES SEARCH / SPARES DETAILS
+        // SPARES SEARCH
         // =====================================
 
         if (
@@ -548,16 +594,14 @@ function DashboardLayout({
                 .includes('sparessearch.aspx')
         ) {
 
-            navigate(
-                '/spares-search'
-            )
+            navigate('/spares-search')
 
             return
         }
 
 
         // =====================================
-        // CHECK TICKET STATUS WITH SPARE
+        // CHECK TICKET STATUS
         // =====================================
 
         if (
@@ -578,9 +622,7 @@ function DashboardLayout({
                 .includes('checkticketstatuswithspare.aspx')
         ) {
 
-            navigate(
-                '/check-ticket-status'
-            )
+            navigate('/check-ticket-status')
 
             return
         }
@@ -600,9 +642,55 @@ function DashboardLayout({
                 .includes('supersession.aspx')
         ) {
 
-            navigate(
-                '/supersession'
-            )
+            navigate('/supersession')
+
+            return
+        }
+
+
+        // =====================================
+        // PCR SEGREGATION
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('pcr segregation')
+            ||
+            item.name
+                ?.toLowerCase()
+                .trim() === 'pcr'
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('pcr.aspx')
+        ) {
+
+            navigate('/pcr')
+
+            return
+        }
+
+
+        // =====================================
+        // ADD PART CATEGORY
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('add part category')
+            ||
+            item.name
+                ?.toLowerCase()
+                .includes('add category')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('add_part_category.aspx')
+        ) {
+
+            navigate('/add-part-category')
 
             return
         }
@@ -622,9 +710,7 @@ function DashboardLayout({
                 .includes('addtech.aspx')
         ) {
 
-            navigate(
-                '/technician'
-            )
+            navigate('/technician')
 
             return
         }
@@ -641,6 +727,7 @@ function DashboardLayout({
 
         window.location.href =
             item.url
+
     }
 
 
@@ -683,10 +770,58 @@ function DashboardLayout({
         ) {
 
             return (
-                currentPath ===
-                '/dashboard' &&
+                currentPath === '/dashboard' &&
                 location.state?.activeSection ===
                 'report-data'
+            )
+        }
+
+
+        // =====================================
+        // PCR
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('pcr segregation')
+            ||
+            item.name
+                ?.toLowerCase()
+                .trim() === 'pcr'
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('pcr.aspx')
+        ) {
+
+            return (
+                currentPath === '/pcr' ||
+                currentPath === '/pcr-download'
+            )
+        }
+
+
+        // =====================================
+        // ADD PART CATEGORY
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('add part category')
+            ||
+            item.name
+                ?.toLowerCase()
+                .includes('add category')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('add_part_category.aspx')
+        ) {
+
+            return (
+                currentPath === '/add-part-category'
             )
         }
 
@@ -713,10 +848,7 @@ function DashboardLayout({
                 .includes('user_management.aspx')
         ) {
 
-            return (
-                currentPath ===
-                '/user-management'
-            )
+            return currentPath === '/user-management'
         }
 
 
@@ -734,10 +866,7 @@ function DashboardLayout({
                 .includes('click2call.aspx')
         ) {
 
-            return (
-                currentPath ===
-                '/click2call'
-            )
+            return currentPath === '/click2call'
         }
 
 
@@ -755,15 +884,12 @@ function DashboardLayout({
                 .includes('callsummary.aspx')
         ) {
 
-            return (
-                currentPath ===
-                '/call-summary'
-            )
+            return currentPath === '/call-summary'
         }
 
 
         // =====================================
-        // SKILL SET VIEW
+        // SKILL SET
         // =====================================
 
         if (
@@ -772,15 +898,12 @@ function DashboardLayout({
                 .includes('techskillmasterreport.aspx')
         ) {
 
-            return (
-                currentPath ===
-                '/skill-set-view'
-            )
+            return currentPath === '/skill-set-view'
         }
 
 
         // =====================================
-        // BOM EXPLODED VIEW
+        // BOM
         // =====================================
 
         if (
@@ -789,10 +912,7 @@ function DashboardLayout({
                 .includes('bom_exploded_view.aspx')
         ) {
 
-            return (
-                currentPath ===
-                '/bom-exploded-view'
-            )
+            return currentPath === '/bom-exploded-view'
         }
 
 
@@ -810,10 +930,7 @@ function DashboardLayout({
                 .includes('franchiseview.aspx')
         ) {
 
-            return (
-                currentPath ===
-                '/franchise-view'
-            )
+            return currentPath === '/franchise-view'
         }
 
 
@@ -831,15 +948,12 @@ function DashboardLayout({
                 .includes('franchiseeinventory.aspx')
         ) {
 
-            return (
-                currentPath ===
-                '/inventory'
-            )
+            return currentPath === '/inventory'
         }
 
 
         // =====================================
-        // DDR REGION MONITORING
+        // DDR
         // =====================================
 
         if (
@@ -856,10 +970,7 @@ function DashboardLayout({
                 .includes('ddrrequest.aspx')
         ) {
 
-            return (
-                currentPath ===
-                '/ddr-region'
-            )
+            return currentPath === '/ddr-region'
         }
 
 
@@ -877,10 +988,7 @@ function DashboardLayout({
                 .includes('onesearch.aspx')
         ) {
 
-            return (
-                currentPath ===
-                '/one-search'
-            )
+            return currentPath === '/one-search'
         }
 
 
@@ -898,10 +1006,7 @@ function DashboardLayout({
                 .includes('digitalcontract.aspx')
         ) {
 
-            return (
-                currentPath ===
-                '/digital-contract'
-            )
+            return currentPath === '/digital-contract'
         }
 
 
@@ -919,10 +1024,7 @@ function DashboardLayout({
                 .includes('digitalicr.aspx')
         ) {
 
-            return (
-                currentPath ===
-                '/digital-icr'
-            )
+            return currentPath === '/digital-icr'
         }
 
 
@@ -944,15 +1046,12 @@ function DashboardLayout({
                 .includes('sparesstock.aspx')
         ) {
 
-            return (
-                currentPath ===
-                '/spares-stock'
-            )
+            return currentPath === '/spares-stock'
         }
 
 
         // =====================================
-        // SPARES SEARCH / SPARES DETAILS
+        // SPARES SEARCH
         // =====================================
 
         if (
@@ -977,15 +1076,12 @@ function DashboardLayout({
                 .includes('sparessearch.aspx')
         ) {
 
-            return (
-                currentPath ===
-                '/spares-search'
-            )
+            return currentPath === '/spares-search'
         }
 
 
         // =====================================
-        // CHECK TICKET STATUS WITH SPARE
+        // CHECK TICKET STATUS
         // =====================================
 
         if (
@@ -1006,10 +1102,7 @@ function DashboardLayout({
                 .includes('checkticketstatuswithspare.aspx')
         ) {
 
-            return (
-                currentPath ===
-                '/check-ticket-status'
-            )
+            return currentPath === '/check-ticket-status'
         }
 
 
@@ -1027,10 +1120,7 @@ function DashboardLayout({
                 .includes('supersession.aspx')
         ) {
 
-            return (
-                currentPath ===
-                '/supersession'
-            )
+            return currentPath === '/supersession'
         }
 
 
@@ -1048,10 +1138,7 @@ function DashboardLayout({
                 .includes('addtech.aspx')
         ) {
 
-            return (
-                currentPath ===
-                '/technician'
-            )
+            return currentPath === '/technician'
         }
 
 
@@ -1077,10 +1164,7 @@ function DashboardLayout({
                 .includes('subdealer.aspx')
         ) {
 
-            return (
-                currentPath ===
-                '/subdealer/editview'
-            )
+            return currentPath === '/subdealer/editview'
         }
 
 

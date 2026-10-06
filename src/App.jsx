@@ -22,6 +22,9 @@ import SparesSearch from './pages/SparesSearch/SparesSearch'
 import UserManagement from './pages/UserManagement/UserManagement'
 import CheckTicketStatus from './pages/CheckTicketStatus/CheckTicketStatus'
 import Supersession from './pages/Supersession/Supersession'
+import PCR from './pages/PCR/PCR'
+import PCRDownload from './pages/PCRDownload/PCRDownload'
+import AddPartCategory from './pages/AddPartCategory/AddPartCategory'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -164,6 +167,21 @@ function App() {
                     <Route
                         path="/supersession"
                         element={<Supersession />}
+                    />
+
+                    <Route
+                        path="/pcr"
+                        element={<PCR />}
+                    />
+
+                    <Route
+                        path="/pcr-download"
+                        element={<PCRDownload />}
+                    />
+
+                    <Route
+                        path="/add-part-category"
+                        element={<AddPartCategory />}
                     />
 
                     <Route

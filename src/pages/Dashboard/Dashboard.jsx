@@ -525,6 +525,42 @@ function Dashboard() {
 
 
         // =========================================
+        // PCR SEGREGATION
+        // =========================================
+
+        if (
+            menuName.includes('pcr') ||
+            menuName.includes('pcr segregation') ||
+            menuUrl.includes('pcr.aspx')
+        ) {
+
+            navigate(
+                '/pcr'
+            )
+
+            return
+        }
+
+
+        // =========================================
+        // ADD PART CATEGORY
+        // =========================================
+
+        if (
+            menuName.includes('add part category') ||
+            menuName.includes('add category') ||
+            menuUrl.includes('add_part_category.aspx')
+        ) {
+
+            navigate(
+                '/add-part-category'
+            )
+
+            return
+        }
+
+
+        // =========================================
         // TECHNICIAN
         // =========================================
 
@@ -827,6 +863,39 @@ function Dashboard() {
 
             return (
                 currentPath === '/supersession'
+            )
+        }
+
+
+        // =========================================
+        // PCR SEGREGATION
+        // =========================================
+
+        if (
+            menuName.includes('pcr') ||
+            menuName.includes('pcr segregation') ||
+            menuUrl.includes('pcr.aspx')
+        ) {
+
+            return (
+                currentPath === '/pcr' ||
+                currentPath === '/pcr-download'
+            )
+        }
+
+
+        // =========================================
+        // ADD PART CATEGORY
+        // =========================================
+
+        if (
+            menuName.includes('add part category') ||
+            menuName.includes('add category') ||
+            menuUrl.includes('add_part_category.aspx')
+        ) {
+
+            return (
+                currentPath === '/add-part-category'
             )
         }
 
