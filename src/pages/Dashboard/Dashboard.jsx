@@ -596,6 +596,24 @@ function Dashboard() {
 
 
         // =========================================
+        // LEGAL CASE
+        // =========================================
+
+        if (
+            menuName.includes('legal case') ||
+            menuUrl.includes('/legalcase/') ||
+            menuUrl.includes('legalcase/default.aspx')
+        ) {
+
+            navigate(
+                '/legal-case'
+            )
+
+            return
+        }
+
+
+        // =========================================
         // OTHER MENU ITEMS
         // =========================================
 
@@ -943,6 +961,22 @@ function Dashboard() {
 
             return (
                 currentPath === '/subdealer/editview'
+            )
+        }
+
+
+        // =========================================
+        // LEGAL CASE
+        // =========================================
+
+        if (
+            menuName.includes('legal case') ||
+            menuUrl.includes('/legalcase/') ||
+            menuUrl.includes('legalcase/default.aspx')
+        ) {
+
+            return (
+                currentPath === '/legal-case'
             )
         }
 

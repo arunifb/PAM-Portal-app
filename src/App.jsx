@@ -25,6 +25,7 @@ import Supersession from './pages/Supersession/Supersession'
 import PCR from './pages/PCR/PCR'
 import PCRDownload from './pages/PCRDownload/PCRDownload'
 import AddPartCategory from './pages/AddPartCategory/AddPartCategory'
+import LegalCase from './pages/LegalCase/LegalCase'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -182,6 +183,11 @@ function App() {
                     <Route
                         path="/add-part-category"
                         element={<AddPartCategory />}
+                    />
+
+                    <Route
+                        path="/legal-case"
+                        element={<LegalCase />}
                     />
 
                     <Route

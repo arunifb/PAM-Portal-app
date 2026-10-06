@@ -717,6 +717,30 @@ function DashboardLayout({
 
 
         // =====================================
+        // LEGAL CASE
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('legal case')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('/legalcase/')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('legalcase/default.aspx')
+        ) {
+
+            navigate('/legal-case')
+
+            return
+        }
+
+
+        // =====================================
         // OTHER MENU ITEMS
         // =====================================
 
@@ -1165,6 +1189,28 @@ function DashboardLayout({
         ) {
 
             return currentPath === '/subdealer/editview'
+        }
+
+
+        // =====================================
+        // LEGAL CASE
+        // =====================================
+
+        if (
+            item.name
+                ?.toLowerCase()
+                .includes('legal case')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('/legalcase/')
+            ||
+            item.url
+                ?.toLowerCase()
+                .includes('legalcase/default.aspx')
+        ) {
+
+            return currentPath === '/legal-case'
         }
 
 
