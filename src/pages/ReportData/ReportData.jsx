@@ -1,15 +1,39 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { getReportList } from '../../api/reportsApi'
+import DashboardLayout from '../../components/DashboardLayout/DashboardLayout'
+import ReportParameter from '../ReportParameter/ReportParameter'
+
 import './ReportData.css'
 
 function ReportData({ onReportCountChange }) {
 
-    const navigate = useNavigate()
+    const location = useLocation()
 
     const [reports, setReports] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState('')
+
+    // =========================================
+    // SELECTED REPORT
+    // =========================================
+
+    const [selectedReport, setSelectedReport] =
+        useState(null)
+
+        // =========================================
+        // RESET REPORT DATA LIST
+        // =========================================
+
+        useEffect(() => {
+
+            if (location.state?.resetReportData) {
+
+                setSelectedReport(null)
+
+            }
+
+        }, [location.state?.resetReportData])
 
 
     // =========================================
@@ -97,143 +121,177 @@ function ReportData({ onReportCountChange }) {
 
     const handleReportClick = (report) => {
 
-        navigate('/report-parameter', {
-            state: {
-                report: report
-            }
-        })
+        setSelectedReport(report)
 
     }
 
 
     // =========================================
-    // LOADING
+    // REPORT PARAMETER
     // =========================================
 
-    if (loading) {
+    if (selectedReport) {
 
         return (
-            <section className="report-data-section">
 
-                <div className="report-loading">
+            <ReportParameter
+                report={selectedReport}
+                onBack={() =>
+                    setSelectedReport(null)
+                }
+            />
 
-                    <div className="report-loading-spinner">
-                    </div>
-
-                    <span>
-                        Loading reports...
-                    </span>
-
-                </div>
-
-            </section>
         )
     }
 
 
     // =========================================
-    // ERROR
+    // PAGE CONTENT
     // =========================================
 
-    if (error) {
+    const renderContent = () => {
 
-        return (
-            <section className="report-data-section">
+        // =========================================
+        // LOADING
+        // =========================================
 
-                <div className="report-empty-state error">
+        if (loading) {
 
-                    <div className="report-empty-icon">
+            return (
+                <section className="report-data-section">
 
-                        <i
-                            className="fa fa-exclamation-triangle"
-                            aria-hidden="true"
-                        />
+                    <div className="report-loading">
+
+                        <div className="report-loading-spinner">
+                        </div>
+
+                        <span>
+                            Loading reports...
+                        </span>
 
                     </div>
 
-                    <h3>
-                        Unable to load reports
-                    </h3>
-
-                    <p>
-                        {error}
-                    </p>
-
-                </div>
-
-            </section>
-        )
-    }
+                </section>
+            )
+        }
 
 
-    // =========================================
-    // NO REPORTS
-    // =========================================
+        // =========================================
+        // ERROR
+        // =========================================
 
-    if (reports.length === 0) {
+        if (error) {
 
-        return (
-            <section className="report-data-section">
+            return (
+                <section className="report-data-section">
 
-                <div className="report-empty-state">
+                    <div className="report-empty-state error">
 
-                    <div className="report-empty-icon">
+                        <div className="report-empty-icon">
 
-                        <i
-                            className="fa fa-file-text-o"
-                            aria-hidden="true"
-                        />
+                            <i
+                                className="fa fa-exclamation-triangle"
+                                aria-hidden="true"
+                            />
+
+                        </div>
+
+                        <h3>
+                            Unable to load reports
+                        </h3>
+
+                        <p>
+                            {error}
+                        </p>
 
                     </div>
 
-                    <h3>
-                        No reports available
-                    </h3>
-
-                    <p>
-                        There are currently no reports
-                        available for your role.
-                    </p>
-
-                </div>
-
-            </section>
-        )
-    }
+                </section>
+            )
+        }
 
 
-    // =========================================
-    // REPORT LIST
-    // =========================================
+        // =========================================
+        // NO REPORTS
+        // =========================================
 
-    return (
+        if (reports.length === 0) {
 
-        <section className="report-data-section">
+            return (
+                <section className="report-data-section">
 
-            <div className="report-list-grid">
+                    <div className="report-empty-state">
 
-                {reports.map((report) => (
+                        <div className="report-empty-icon">
 
-                    <button
-                        key={report.reportID}
-                        type="button"
-                        className="report-card"
-                        onClick={() => handleReportClick(report)}
-                    >
+                            <i
+                                className="fa fa-file-text-o"
+                                aria-hidden="true"
+                            />
 
-                        <div className="report-card-top">
+                        </div>
 
-                            <div className="report-card-icon">
+                        <h3>
+                            No reports available
+                        </h3>
 
-                                <span className="fa-stack">
+                        <p>
+                            There are currently no reports
+                            available for your role.
+                        </p>
+
+                    </div>
+
+                </section>
+            )
+        }
+
+
+        // =========================================
+        // REPORT LIST
+        // =========================================
+
+        return (
+
+            <section className="report-data-section">
+
+                <div className="report-list-grid">
+
+                    {reports.map((report) => (
+
+                        <button
+                            key={report.reportID}
+                            type="button"
+                            className="report-card"
+                            onClick={() =>
+                                handleReportClick(report)
+                            }
+                        >
+
+                            <div className="report-card-top">
+
+                                <div className="report-card-icon">
+
+                                    <span className="fa-stack">
+
+                                        <i
+                                            className="fa fa-circle fa-stack-2x"
+                                            aria-hidden="true"
+                                        />
+
+                                        <i
+                                            className={`fa ${report.imageUrl} fa-inverse fa-stack-1x`}
+                                            aria-hidden="true"
+                                        />
+
+                                    </span>
+
+                                </div>
+
+                                <span className="report-card-arrow">
 
                                     <i
-                                        className="fa fa-circle fa-stack-2x"
-                                        aria-hidden="true"
-                                    />
-
-                                    <i
-                                        className={`fa ${report.imageUrl} fa-inverse fa-stack-1x`}
+                                        className="fa fa-arrow-right"
                                         aria-hidden="true"
                                     />
 
@@ -241,37 +299,41 @@ function ReportData({ onReportCountChange }) {
 
                             </div>
 
-                            <span className="report-card-arrow">
 
-                                <i
-                                    className="fa fa-arrow-right"
-                                    aria-hidden="true"
-                                />
+                            <div className="report-card-content">
 
-                            </span>
+                                <span className="report-card-name">
+                                    {report.reportType}
+                                </span>
 
-                        </div>
+                                <span className="report-card-description">
+                                    View report details
+                                </span>
+
+                            </div>
+
+                        </button>
+
+                    ))}
+
+                </div>
+
+            </section>
+        )
+    }
 
 
-                        <div className="report-card-content">
+    // =========================================
+    // DASHBOARD LAYOUT
+    // =========================================
 
-                            <span className="report-card-name">
-                                {report.reportType}
-                            </span>
+    return (
 
-                            <span className="report-card-description">
-                                View report details
-                            </span>
+        <DashboardLayout title="Report Data">
 
-                        </div>
+            {renderContent()}
 
-                    </button>
-
-                ))}
-
-            </div>
-
-        </section>
+        </DashboardLayout>
     )
 }
 

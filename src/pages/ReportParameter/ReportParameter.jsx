@@ -616,11 +616,9 @@ function ColumnFilter({
 // MAIN COMPONENT
 // =================================================
 
-function ReportParameter() {
+function ReportParameter({ report: reportProp, onBack }) {
     const location = useLocation()
-
-
-    const report = location.state?.report
+const report = reportProp || location.state?.report
 
     const [parameters, setParameters] = useState([])
     const [loading, setLoading] = useState(true)

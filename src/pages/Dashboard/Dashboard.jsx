@@ -121,6 +121,16 @@ function Dashboard() {
                 }
 
 
+                // =========================================
+                // FORMAT MENU DATA
+                // =========================================
+                //
+                // ReactUrl = React page mapping
+                // RouteKey = browser URL
+                //
+                // Both values come from the database.
+                // =========================================
+
                 const formattedMenu =
                     data.map(
                         (item, index) => ({
@@ -134,6 +144,12 @@ function Dashboard() {
                             url:
                                 item.menuURL,
 
+                            reactUrl:
+                                item.reactUrl,
+
+                            routeKey:
+                                item.routeKey,
+
                             icon:
                                 item.menuImage
 
@@ -142,6 +158,16 @@ function Dashboard() {
 
 
                 setMenuItems(
+                    formattedMenu
+                )
+
+
+                // =========================================
+                // DEBUG
+                // =========================================
+
+                console.log(
+                    'Dashboard menu with RouteKey:',
                     formattedMenu
                 )
 
@@ -224,28 +250,6 @@ function Dashboard() {
                 .trim() || ''
 
 
-        const menuUrl =
-            item.url
-                ?.toLowerCase()
-                .trim() || ''
-
-
-        // =========================================
-        // REPORT DATA
-        // =========================================
-
-        if (
-            menuName === 'report data'
-        ) {
-
-            setActiveSection(
-                'report-data'
-            )
-
-            return
-        }
-
-
         // =========================================
         // DASHBOARD
         // =========================================
@@ -263,16 +267,46 @@ function Dashboard() {
 
 
         // =========================================
-        // CLICK 2 CALL
+        // ROUTEKEY NAVIGATION
+        // =========================================
+        //
+        // RouteKey comes from the database.
+        //
+        // Example:
+        //
+        // RoleID = 1
+        // ReactUrl = /click2call
+        // RouteKey =
+        // 8D0EC516-E566-478D-8CE8-49458F63A5F6
+        //
+        // Browser URL:
+        //
+        // /8D0EC516-E566-478D-8CE8-49458F63A5F6
+        //
         // =========================================
 
         if (
-            menuName.includes('click 2 call') ||
-            menuUrl.includes('click2call.aspx')
+            item.routeKey
         ) {
 
+            console.log(
+                'Navigating using RouteKey:',
+                item.routeKey
+            )
+
+            console.log(
+                'Menu Name:',
+                item.name
+            )
+
+            console.log(
+                'ReactUrl:',
+                item.reactUrl
+            )
+
+
             navigate(
-                '/click2call'
+                `/${item.routeKey}`
             )
 
             return
@@ -280,16 +314,25 @@ function Dashboard() {
 
 
         // =========================================
-        // CALL SUMMARY
+        // FALLBACK TO REACT URL
+        // =========================================
+        //
+        // This is only used if RouteKey is not
+        // available for a particular menu item.
         // =========================================
 
         if (
-            menuName.includes('call summary') ||
-            menuUrl.includes('callsummary')
+            item.reactUrl
         ) {
 
+            console.log(
+                'RouteKey not available. Using ReactUrl:',
+                item.reactUrl
+            )
+
+
             navigate(
-                '/call-summary'
+                item.reactUrl
             )
 
             return
@@ -297,333 +340,19 @@ function Dashboard() {
 
 
         // =========================================
-        // FRANCHISE VIEW
+        // FALLBACK TO OLD MENU URL
         // =========================================
 
         if (
-            menuName.includes('franchise') ||
-            menuUrl.includes('franchiseview.aspx')
-        ) {
-
-            navigate(
-                '/franchise-view'
-            )
-
-            return
-        }
-
-
-        // =========================================
-        // ONE SEARCH
-        // =========================================
-
-        if (
-            menuName.includes('one search') ||
-            menuUrl.includes('onesearch.aspx')
-        ) {
-
-            navigate(
-                '/one-search'
-            )
-
-            return
-        }
-
-
-        // =========================================
-        // DIGITAL CONTRACT
-        // =========================================
-
-        if (
-            menuName.includes('digital contract') ||
-            menuUrl.includes('digitalcontract.aspx')
-        ) {
-
-            navigate(
-                '/digital-contract'
-            )
-
-            return
-        }
-
-
-        // =========================================
-        // INVENTORY
-        // =========================================
-
-        if (
-            menuName.includes('inventory') ||
-            menuUrl.includes('franchiseeinventory.aspx')
-        ) {
-
-            navigate(
-                '/inventory'
-            )
-
-            return
-        }
-
-
-        // =========================================
-        // SUB-DEALER EDIT VIEW
-        // =========================================
-
-        if (
-            menuName.includes('sub-dealer') ||
-            menuName.includes('subdealer') ||
-            menuUrl.includes('editview.aspx') ||
-            menuUrl.includes('subdealer.aspx')
-        ) {
-
-            navigate(
-                '/subdealer/editview'
-            )
-
-            return
-        }
-
-
-        // =========================================
-        // SKILL SET VIEW
-        // =========================================
-
-        if (
-            menuUrl.includes('techskillmasterreport.aspx')
-        ) {
-
-            navigate(
-                '/skill-set-view'
-            )
-
-            return
-        }
-
-
-        // =========================================
-        // BOM EXPLODED VIEW
-        // =========================================
-
-        if (
-            menuUrl.includes('bom_exploded_view.aspx')
-        ) {
-
-            navigate(
-                '/bom-exploded-view'
-            )
-
-            return
-        }
-
-
-        // =========================================
-        // DDR REGION MONITORING
-        // =========================================
-
-        if (
-            menuName.includes('ddr region') ||
-            menuName.includes('ddr monitoring') ||
-            menuUrl.includes('ddrrequest.aspx')
-        ) {
-
-            navigate(
-                '/ddr-region'
-            )
-
-            return
-        }
-
-
-        // =========================================
-        // DIGITAL ICR
-        // =========================================
-
-        if (
-            menuName.includes('digital icr') ||
-            menuUrl.includes('digitalicr.aspx')
-        ) {
-
-            navigate(
-                '/digital-icr'
-            )
-
-            return
-        }
-
-
-        // =========================================
-        // SPARES STOCK
-        // =========================================
-
-        if (
-            menuName.includes('spares stock') ||
-            menuName.includes('spare stock') ||
-            menuUrl.includes('sparesstock.aspx')
-        ) {
-
-            navigate(
-                '/spares-stock'
-            )
-
-            return
-        }
-
-
-        // =========================================
-        // SPARES SEARCH / SPARES DETAILS
-        // =========================================
-
-        if (
-            menuName.includes('spares details') ||
-            menuName.includes('spare details') ||
-            menuName.includes('spares search') ||
-            menuName.includes('spare search') ||
-            menuUrl.includes('sparessearch.aspx')
-        ) {
-
-            navigate(
-                '/spares-search'
-            )
-
-            return
-        }
-
-
-        // =========================================
-        // CHECK TICKET STATUS WITH SPARE
-        // =========================================
-
-        if (
-            menuName.includes('check ticket status') ||
-            menuName.includes('ticket status with spare') ||
-            menuUrl.includes('checkticketstauswithspare.aspx') ||
-            menuUrl.includes('checkticketstatuswithspare.aspx')
-        ) {
-
-            navigate(
-                '/check-ticket-status'
-            )
-
-            return
-        }
-
-
-        // =========================================
-        // SUPERSESSION
-        // =========================================
-
-        if (
-            menuName.includes('supersession') ||
-            menuUrl.includes('supersession.aspx')
-        ) {
-
-            navigate(
-                '/supersession'
-            )
-
-            return
-        }
-
-
-        // =========================================
-        // PCR SEGREGATION
-        // =========================================
-
-        if (
-            menuName.includes('pcr') ||
-            menuName.includes('pcr segregation') ||
-            menuUrl.includes('pcr.aspx')
-        ) {
-
-            navigate(
-                '/pcr'
-            )
-
-            return
-        }
-
-
-        // =========================================
-        // ADD PART CATEGORY
-        // =========================================
-
-        if (
-            menuName.includes('add part category') ||
-            menuName.includes('add category') ||
-            menuUrl.includes('add_part_category.aspx')
-        ) {
-
-            navigate(
-                '/add-part-category'
-            )
-
-            return
-        }
-
-
-        // =========================================
-        // TECHNICIAN
-        // =========================================
-
-        if (
-            menuName.includes('technician') ||
-            menuUrl.includes('addtech.aspx')
-        ) {
-
-            navigate(
-                '/technician'
-            )
-
-            return
-        }
-
-
-        // =========================================
-        // USER MANAGEMENT
-        // =========================================
-
-        if (
-            menuName.includes('user management') ||
-            menuName.includes('user management creation') ||
-            menuUrl.includes('useraddedit.aspx')
-        ) {
-
-            navigate(
-                '/user-management'
-            )
-
-            return
-        }
-
-
-        // =========================================
-        // LEGAL CASE
-        // =========================================
-
-        if (
-            menuName.includes('legal case') ||
-            menuUrl.includes('/legalcase/') ||
-            menuUrl.includes('legalcase/default.aspx')
-        ) {
-
-            navigate(
-                '/legal-case'
-            )
-
-            return
-        }
-
-
-        // =========================================
-        // OTHER MENU ITEMS
-        // =========================================
-
-        if (!item.url) {
-            return
-        }
-
-
-        window.location.href =
             item.url
+        ) {
+
+            window.location.href =
+                item.url
+
+            return
+        }
+
     }
 
 
@@ -658,12 +387,6 @@ function Dashboard() {
                 .trim() || ''
 
 
-        const menuUrl =
-            item.url
-                ?.toLowerCase()
-                .trim() || ''
-
-
         const currentPath =
             location.pathname
 
@@ -684,300 +407,38 @@ function Dashboard() {
 
 
         // =========================================
-        // REPORT DATA
+        // ROUTEKEY ACTIVE STATE
+        // =========================================
+        //
+        // The current browser URL is compared
+        // with the RouteKey belonging to this
+        // menu item.
+        //
+        // Example:
+        //
+        // currentPath:
+        // /8D0EC516-E566-478D-8CE8-49458F63A5F6
+        //
+        // item.routeKey:
+        // 8D0EC516-E566-478D-8CE8-49458F63A5F6
+        //
         // =========================================
 
         if (
-            menuName === 'report data'
+            item.routeKey
         ) {
 
-            return (
-                currentPath === '/dashboard' &&
-                activeSection === 'report-data'
-            )
-        }
+            const routeKeyPath =
+                `/${item.routeKey}`
 
 
-        // =========================================
-        // CLICK 2 CALL
-        // =========================================
+            if (
+                currentPath.toLowerCase() ===
+                routeKeyPath.toLowerCase()
+            ) {
 
-        if (
-            menuName.includes('click 2 call') ||
-            menuUrl.includes('click2call.aspx')
-        ) {
-
-            return (
-                currentPath === '/click2call'
-            )
-        }
-
-
-        // =========================================
-        // CALL SUMMARY
-        // =========================================
-
-        if (
-            menuName.includes('call summary') ||
-            menuUrl.includes('callsummary')
-        ) {
-
-            return (
-                currentPath === '/call-summary'
-            )
-        }
-
-
-        // =========================================
-        // FRANCHISE VIEW
-        // =========================================
-
-        if (
-            menuName.includes('franchise') ||
-            menuUrl.includes('franchiseview.aspx')
-        ) {
-
-            return (
-                currentPath === '/franchise-view'
-            )
-        }
-
-
-        // =========================================
-        // ONE SEARCH
-        // =========================================
-
-        if (
-            menuName.includes('one search') ||
-            menuUrl.includes('onesearch.aspx')
-        ) {
-
-            return (
-                currentPath === '/one-search'
-            )
-        }
-
-
-        // =========================================
-        // DIGITAL CONTRACT
-        // =========================================
-
-        if (
-            menuName.includes('digital contract') ||
-            menuUrl.includes('digitalcontract.aspx')
-        ) {
-
-            return (
-                currentPath === '/digital-contract'
-            )
-        }
-
-
-        // =========================================
-        // INVENTORY
-        // =========================================
-
-        if (
-            menuName.includes('inventory') ||
-            menuUrl.includes('franchiseeinventory.aspx')
-        ) {
-
-            return (
-                currentPath === '/inventory'
-            )
-        }
-
-
-        // =========================================
-        // DDR REGION MONITORING
-        // =========================================
-
-        if (
-            menuName.includes('ddr region') ||
-            menuName.includes('ddr monitoring') ||
-            menuUrl.includes('ddrrequest.aspx')
-        ) {
-
-            return (
-                currentPath === '/ddr-region'
-            )
-        }
-
-
-        // =========================================
-        // DIGITAL ICR
-        // =========================================
-
-        if (
-            menuName.includes('digital icr') ||
-            menuUrl.includes('digitalicr.aspx')
-        ) {
-
-            return (
-                currentPath === '/digital-icr'
-            )
-        }
-
-
-        // =========================================
-        // SPARES STOCK
-        // =========================================
-
-        if (
-            menuName.includes('spares stock') ||
-            menuName.includes('spare stock') ||
-            menuUrl.includes('sparesstock.aspx')
-        ) {
-
-            return (
-                currentPath === '/spares-stock'
-            )
-        }
-
-
-        // =========================================
-        // SPARES SEARCH / SPARES DETAILS
-        // =========================================
-
-        if (
-            menuName.includes('spares details') ||
-            menuName.includes('spare details') ||
-            menuName.includes('spares search') ||
-            menuName.includes('spare search') ||
-            menuUrl.includes('sparessearch.aspx')
-        ) {
-
-            return (
-                currentPath === '/spares-search'
-            )
-        }
-
-
-        // =========================================
-        // CHECK TICKET STATUS WITH SPARE
-        // =========================================
-
-        if (
-            menuName.includes('check ticket status') ||
-            menuName.includes('ticket status with spare') ||
-            menuUrl.includes('checkticketstauswithspare.aspx') ||
-            menuUrl.includes('checkticketstatuswithspare.aspx')
-        ) {
-
-            return (
-                currentPath === '/check-ticket-status'
-            )
-        }
-
-
-        // =========================================
-        // SUPERSESSION
-        // =========================================
-
-        if (
-            menuName.includes('supersession') ||
-            menuUrl.includes('supersession.aspx')
-        ) {
-
-            return (
-                currentPath === '/supersession'
-            )
-        }
-
-
-        // =========================================
-        // PCR SEGREGATION
-        // =========================================
-
-        if (
-            menuName.includes('pcr') ||
-            menuName.includes('pcr segregation') ||
-            menuUrl.includes('pcr.aspx')
-        ) {
-
-            return (
-                currentPath === '/pcr' ||
-                currentPath === '/pcr-download'
-            )
-        }
-
-
-        // =========================================
-        // ADD PART CATEGORY
-        // =========================================
-
-        if (
-            menuName.includes('add part category') ||
-            menuName.includes('add category') ||
-            menuUrl.includes('add_part_category.aspx')
-        ) {
-
-            return (
-                currentPath === '/add-part-category'
-            )
-        }
-
-
-        // =========================================
-        // TECHNICIAN
-        // =========================================
-
-        if (
-            menuName.includes('technician') ||
-            menuUrl.includes('addtech.aspx')
-        ) {
-
-            return (
-                currentPath === '/technician'
-            )
-        }
-
-
-        // =========================================
-        // USER MANAGEMENT
-        // =========================================
-
-        if (
-            menuName.includes('user management') ||
-            menuName.includes('user management creation') ||
-            menuUrl.includes('useraddedit.aspx')
-        ) {
-
-            return (
-                currentPath === '/user-management'
-            )
-        }
-
-
-        // =========================================
-        // SUB-DEALER EDIT VIEW
-        // =========================================
-
-        if (
-            menuName.includes('sub-dealer') ||
-            menuName.includes('subdealer') ||
-            menuUrl.includes('editview.aspx')
-        ) {
-
-            return (
-                currentPath === '/subdealer/editview'
-            )
-        }
-
-
-        // =========================================
-        // LEGAL CASE
-        // =========================================
-
-        if (
-            menuName.includes('legal case') ||
-            menuUrl.includes('/legalcase/') ||
-            menuUrl.includes('legalcase/default.aspx')
-        ) {
-
-            return (
-                currentPath === '/legal-case'
-            )
+                return true
+            }
         }
 
 
@@ -1185,32 +646,10 @@ function Dashboard() {
 
                             <span className="dashboard-breadcrumb-current">
 
-                                {activeSection ===
-                                'report-data'
-                                    ? 'Report Data'
-                                    : 'Dashboard'}
+                                Dashboard
 
                             </span>
 
-
-                            {activeSection ===
-                                'report-data' && (
-
-                                <span className="dashboard-report-count">
-
-                                    {reportCount}
-
-                                    <span>
-
-                                        {reportCount === 1
-                                            ? 'Report'
-                                            : 'Reports'}
-
-                                    </span>
-
-                                </span>
-
-                            )}
 
                         </div>
 

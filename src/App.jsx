@@ -26,6 +26,7 @@ import PCR from './pages/PCR/PCR'
 import PCRDownload from './pages/PCRDownload/PCRDownload'
 import AddPartCategory from './pages/AddPartCategory/AddPartCategory'
 import LegalCase from './pages/LegalCase/LegalCase'
+import RouteKeyPage from './pages/RouteKeyPage/RouteKeyPage'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -36,7 +37,6 @@ function App() {
 
             <Routes>
 
-
                 {/* =========================================
                     PUBLIC PAGES
                 ========================================= */}
@@ -46,12 +46,10 @@ function App() {
                     element={<Login />}
                 />
 
-
                 <Route
                     path="/reset-password"
                     element={<ResetPassword />}
                 />
-
 
                 <Route
                     path="/2fa"
@@ -67,7 +65,6 @@ function App() {
                     element={<ProtectedRoute />}
                 >
 
-
                     {/* =========================================
                         DASHBOARD
                     ========================================= */}
@@ -80,18 +77,15 @@ function App() {
 
                     {/* =========================================
                         REPORT PARAMETER
+                        
+                        This is an internal React page.
+                        It is opened from ReportData.jsx
+                        using navigate() with location.state.
                     ========================================= */}
 
                     <Route
                         path="/report-parameter"
-                        element={
-                            <ReportParameter
-                                report={{
-                                    reportID: 239,
-                                    reportType: 'Report 239'
-                                }}
-                            />
-                        }
+                        element={<ReportParameter />}
                     />
 
 
@@ -104,12 +98,12 @@ function App() {
                         element={<Click2Call />}
                     />
 
-                     <Route
+                    <Route
                         path="/call-summary"
                         element={<CallSummary />}
                     />
 
-                   <Route
+                    <Route
                         path="/franchise-view"
                         element={<FranchiseView />}
                     />
@@ -138,7 +132,6 @@ function App() {
                         path="/digital-icr"
                         element={<DigitalICR />}
                     />
-
 
                     <Route
                         path="/spares-stock"
@@ -195,6 +188,7 @@ function App() {
                         element={<EditView />}
                     />
 
+
                     {/* =========================================
                         SKILL SET VIEW
                     ========================================= */}
@@ -203,6 +197,8 @@ function App() {
                         path="/skill-set-view"
                         element={<SkillSetView />}
                     />
+
+
                     {/* =========================================
                         BOM EXPLODED VIEW
                     ========================================= */}
@@ -212,6 +208,26 @@ function App() {
                         element={<BomExplodedView />}
                     />
 
+
+                    {/* =========================================
+                        DYNAMIC ROUTE KEY
+                        
+                        RouteKey comes from Menu table.
+                        
+                        Example:
+                        /43DDCC31-125F-4F9C-B325-BB5CADA392A9
+                        
+                        RouteKeyPage then finds:
+                        ReactUrl = /report-data
+                        
+                        and renders ReportData.jsx.
+                    ========================================= */}
+
+                    <Route
+                        path="/:routeKey"
+                        element={<RouteKeyPage />}
+                    />
+
                 </Route>
 
             </Routes>
@@ -219,8 +235,6 @@ function App() {
         </BrowserRouter>
 
     )
-
 }
-
 
 export default App
