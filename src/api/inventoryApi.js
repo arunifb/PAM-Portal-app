@@ -53,7 +53,9 @@ export async function searchInventory(request) {
         branchCode = '',
         materialCategory = '',
         franchiseCodes = '',
-        fgDescription = ''
+        fgDescription = '',
+        component = '',
+        componentDescription = ''
     } = request
 
 
@@ -71,7 +73,9 @@ export async function searchInventory(request) {
         `?branchCode=${encodeURIComponent(branchCode)}` +
         `&materialCategory=${encodeURIComponent(materialCategory)}` +
         `&franchiseCodes=${encodeURIComponent(franchiseCodes)}` +
-        `&fgDescription=${encodeURIComponent(fgDescription)}`
+        `&fgDescription=${encodeURIComponent(fgDescription)}` +
+        `&component=${encodeURIComponent(component)}` +
+        `&componentDescription=${encodeURIComponent(componentDescription)}`
 
 
     const response =
@@ -115,7 +119,9 @@ export async function exportInventory(request) {
         branchCode = '',
         materialCategory = '',
         franchiseCodes = '',
-        fgDescription = ''
+        fgDescription = '',
+        component = '',
+        componentDescription = ''
     } = request
 
 
@@ -133,7 +139,9 @@ export async function exportInventory(request) {
         `?branchCode=${encodeURIComponent(branchCode)}` +
         `&materialCategory=${encodeURIComponent(materialCategory)}` +
         `&franchiseCodes=${encodeURIComponent(franchiseCodes)}` +
-        `&fgDescription=${encodeURIComponent(fgDescription)}`
+        `&fgDescription=${encodeURIComponent(fgDescription)}` +
+        `&component=${encodeURIComponent(component)}` +
+        `&componentDescription=${encodeURIComponent(componentDescription)}`
 
 
     const response =

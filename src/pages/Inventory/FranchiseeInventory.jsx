@@ -54,6 +54,14 @@ function FranchiseeInventory() {
     const [fgDescription, setFgDescription] =
         useState('')
 
+    // NEW: COMPONENT
+    const [component, setComponent] =
+        useState('')
+
+    // NEW: COMPONENT DESCRIPTION
+    const [componentDescription, setComponentDescription] =
+        useState('')
+
     const [inventoryData, setInventoryData] =
         useState([])
 
@@ -488,7 +496,15 @@ function FranchiseeInventory() {
                     franchiseCodes,
 
                 fgDescription:
-                    fgDescription
+                    fgDescription,
+
+                // NEW
+                component:
+                    component,
+
+                // NEW
+                componentDescription:
+                    componentDescription
 
             }
 
@@ -610,7 +626,15 @@ function FranchiseeInventory() {
                     franchiseCodes,
 
                 fgDescription:
-                    fgDescription
+                    fgDescription,
+
+                // NEW
+                component:
+                    component,
+
+                // NEW
+                componentDescription:
+                    componentDescription
 
             }
 
@@ -983,6 +1007,52 @@ function FranchiseeInventory() {
                                 placeholder="Enter FG description"
                                 onChange={event =>
                                     setFgDescription(
+                                        event.target.value
+                                    )
+                                }
+                            />
+
+                        </div>
+
+
+                        {/* COMPONENT */}
+
+                        <div className="inventory-field">
+
+                            <label>
+                                Component
+                            </label>
+
+                            <input
+                                type="text"
+                                value={component}
+                                maxLength={50}
+                                placeholder="Enter component"
+                                onChange={event =>
+                                    setComponent(
+                                        event.target.value
+                                    )
+                                }
+                            />
+
+                        </div>
+
+
+                        {/* COMPONENT DESCRIPTION */}
+
+                        <div className="inventory-field">
+
+                            <label>
+                                Component Description
+                            </label>
+
+                            <input
+                                type="text"
+                                value={componentDescription}
+                                maxLength={164}
+                                placeholder="Enter component description"
+                                onChange={event =>
+                                    setComponentDescription(
                                         event.target.value
                                     )
                                 }
