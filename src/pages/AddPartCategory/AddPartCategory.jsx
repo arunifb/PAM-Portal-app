@@ -1,8 +1,4 @@
 import { useState } from 'react'
-import {
-    useLocation,
-    useNavigate
-} from 'react-router-dom'
 
 import { addPartCategory } from '../../api/pcrApi'
 import DashboardLayout from '../../components/DashboardLayout/DashboardLayout'
@@ -10,10 +6,10 @@ import DashboardLayout from '../../components/DashboardLayout/DashboardLayout'
 import './AddPartCategory.css'
 
 
-function AddPartCategory() {
-
-    const location = useLocation()
-    const navigate = useNavigate()
+function AddPartCategory({
+    pcrState,
+    onBack
+}) {
 
 
     // =====================================================
@@ -308,7 +304,23 @@ function AddPartCategory() {
 
     // =====================================================
     // BACK TO PCR
-    // Same state restoration pattern as PCR Download
+    // =====================================================
+    //
+    // IMPORTANT:
+    // Do NOT use navigate().
+    //
+    // PCR.jsx passes onBack={handleBackToPCR}.
+    //
+    // This immediately changes:
+    //
+    // activePage = 'add-category'
+    //
+    // to:
+    //
+    // activePage = 'pcr'
+    //
+    // Therefore the PCR RouteKey stays in the browser URL.
+    //
     // =====================================================
 
     const handleBack = () => {
@@ -320,69 +332,11 @@ function AddPartCategory() {
         }
 
 
-        const originalPCRState =
-            location.state || {}
+        if (onBack) {
 
+            onBack()
 
-        navigate(
-            '/pcr',
-            {
-                state: {
-
-                    // =====================================
-                    // RESTORE FLAG
-                    // =====================================
-
-                    restoreSearch: true,
-
-
-                    // =====================================
-                    // ORIGINAL PCR RESULT DATA
-                    // =====================================
-
-                    pcrData:
-                        Array.isArray(
-                            originalPCRState.pcrData
-                        )
-                            ? originalPCRState.pcrData
-                            : [],
-
-
-                    // =====================================
-                    // ORIGINAL PCR FILTERS
-                    // =====================================
-
-                    branchCode:
-                        originalPCRState.branchCode ||
-                        'All',
-
-                    franchiseCode:
-                        originalPCRState.franchiseCode ||
-                        'All',
-
-                    ticketNo:
-                        originalPCRState.ticketNo ||
-                        '',
-
-                    spuNo:
-                        originalPCRState.spuNo ||
-                        '',
-
-                    fromDate:
-                        originalPCRState.fromDate ||
-                        '',
-
-                    toDate:
-                        originalPCRState.toDate ||
-                        '',
-
-                    status:
-                        originalPCRState.status ||
-                        '1'
-
-                }
-            }
-        )
+        }
 
     }
 

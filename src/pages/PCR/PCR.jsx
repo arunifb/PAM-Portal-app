@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import {
-    useLocation,
-    useNavigate
+    useLocation
 } from 'react-router-dom'
 
 import DashboardLayout from '../../components/DashboardLayout/DashboardLayout'
+
+import PCRDownload from '../PCRDownload/PCRDownload'
+import AddPartCategory from '../AddPartCategory/AddPartCategory'
 
 import {
     searchPCR,
@@ -22,7 +24,6 @@ import './PCR.css'
 function PCR() {
 
     const location = useLocation()
-    const navigate = useNavigate()
 
 
     // =====================================================
@@ -39,6 +40,18 @@ function PCR() {
 
     const loginId =
         sessionStorage.getItem('loginId') || ''
+
+
+    // =====================================================
+    // CURRENT PAGE
+    // =====================================================
+
+    // pcr
+    // pcr-download
+    // add-category
+
+    const [activePage, setActivePage] =
+        useState('pcr')
 
 
     // =====================================================
@@ -93,9 +106,6 @@ function PCR() {
     // PAGE STATE
     // =====================================================
 
-    // Start with loading=true.
-    // This means when PCR page opens, loading is shown
-    // while the dropdown data is being loaded.
     const [loading, setLoading] =
         useState(true)
 
@@ -205,10 +215,6 @@ function PCR() {
         }
         finally {
 
-            // =================================================
-            // STOP PAGE LOADING
-            // =================================================
-
             setLoading(false)
 
         }
@@ -229,7 +235,6 @@ function PCR() {
 
     // =====================================================
     // RESTORE PCR SEARCH RESULTS
-    // When returning from PCR Download
     // =====================================================
 
     useEffect(() => {
@@ -429,45 +434,13 @@ function PCR() {
         }
 
 
-        navigate(
-            '/pcr-download',
-            {
-                state: {
+        // =================================================
+        // DO NOT NAVIGATE
+        // Keep PCR RouteKey in browser URL.
+        // =================================================
 
-                    // =====================================
-                    // RESTORE FLAG
-                    // =====================================
-
-                    fromPCR: true,
-
-
-                    // =====================================
-                    // CURRENT PCR RESULT DATA
-                    // =====================================
-
-                    pcrData,
-
-
-                    // =====================================
-                    // CURRENT SEARCH FILTERS
-                    // =====================================
-
-                    branchCode,
-
-                    franchiseCode,
-
-                    ticketNo,
-
-                    spuNo,
-
-                    fromDate,
-
-                    toDate,
-
-                    status
-
-                }
-            }
+        setActivePage(
+            'pcr-download'
         )
 
     }
@@ -479,23 +452,27 @@ function PCR() {
 
     const handleAddCategory = () => {
 
-    navigate(
-        '/add-part-category',
-        {
-            state: {
-                branchCode,
-                franchiseCode,
-                ticketNo,
-                spuNo,
-                fromDate,
-                toDate,
-                status,
-                pcrData
-            }
-        }
-    )
+        // =================================================
+        // DO NOT NAVIGATE
+        // Keep PCR RouteKey in browser URL.
+        // =================================================
 
-}
+        setActivePage(
+            'add-category'
+        )
+
+    }
+
+
+    // =====================================================
+    // BACK FROM CHILD PAGES
+    // =====================================================
+
+    const handleBackToPCR = () => {
+
+        setActivePage('pcr')
+
+    }
 
 
     // =====================================================
@@ -556,7 +533,99 @@ function PCR() {
 
 
     // =====================================================
-    // RENDER
+    // PCR DOWNLOAD PAGE
+    //
+    // IMPORTANT:
+    // PCR component remains mounted.
+    // Therefore PCR state is preserved.
+    // =====================================================
+
+    if (
+        activePage === 'pcr-download'
+    ) {
+
+        return (
+
+            <PCRDownload
+                pcrState={{
+
+                    fromPCR: true,
+
+                    pcrData,
+
+                    branchCode,
+
+                    franchiseCode,
+
+                    ticketNo,
+
+                    spuNo,
+
+                    fromDate,
+
+                    toDate,
+
+                    status
+
+                }}
+
+                onBack={
+                    handleBackToPCR
+                }
+            />
+
+        )
+
+    }
+
+
+    // =====================================================
+    // ADD PART CATEGORY PAGE
+    //
+    // IMPORTANT:
+    // PCR component remains mounted.
+    // Therefore PCR state is preserved.
+    // =====================================================
+
+    if (
+        activePage === 'add-category'
+    ) {
+
+        return (
+
+            <AddPartCategory
+                pcrState={{
+
+                    branchCode,
+
+                    franchiseCode,
+
+                    ticketNo,
+
+                    spuNo,
+
+                    fromDate,
+
+                    toDate,
+
+                    status,
+
+                    pcrData
+
+                }}
+
+                onBack={
+                    handleBackToPCR
+                }
+            />
+
+        )
+
+    }
+
+
+    // =====================================================
+    // PCR MAIN PAGE
     // =====================================================
 
     return (
@@ -605,7 +674,9 @@ function PCR() {
                             <button
                                 type="button"
                                 className="pcr-add-button"
-                                onClick={handleAddCategory}
+                                onClick={
+                                    handleAddCategory
+                                }
                             >
                                 Add Category
                             </button>

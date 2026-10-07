@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import {
-    useLocation,
-    useNavigate
+    useLocation
 } from 'react-router-dom'
 
 import DashboardLayout from '../../components/DashboardLayout/DashboardLayout'
@@ -16,10 +15,12 @@ import {
 import './PCRDownload.css'
 
 
-function PCRDownload() {
+function PCRDownload({
+    pcrState,
+    onBack
+}) {
 
     const location = useLocation()
-    const navigate = useNavigate()
 
 
     // =====================================================
@@ -48,7 +49,9 @@ function PCRDownload() {
     // =====================================================
 
     const originalPCRState =
-        location.state || {}
+        pcrState ||
+        location.state ||
+        {}
 
 
     // =====================================================
@@ -444,54 +447,26 @@ function PCRDownload() {
 
     const handleBack = () => {
 
-        navigate(
-            '/pcr',
-            {
-                state: {
-
-                    // =====================================
-                    // RESTORE FLAG
-                    // =====================================
-
-                    restoreSearch: true,
+        if (
+            loading ||
+            downloading
+        ) {
+            return
+        }
 
 
-                    // =====================================
-                    // ORIGINAL PCR RESULT DATA
-                    // =====================================
+        // =================================================
+        // DO NOT NAVIGATE
+        //
+        // PCR.jsx controls which page is displayed.
+        // This keeps the PCR RouteKey in the browser URL.
+        // =================================================
 
-                    pcrData:
-                        originalPCRState.pcrData || [],
+        if (onBack) {
 
+            onBack()
 
-                    // =====================================
-                    // ORIGINAL PCR FILTERS
-                    // =====================================
-
-                    branchCode:
-                        originalPCRState.branchCode || 'All',
-
-                    franchiseCode:
-                        originalPCRState.franchiseCode || 'All',
-
-                    ticketNo:
-                        originalPCRState.ticketNo || '',
-
-                    spuNo:
-                        originalPCRState.spuNo || '',
-
-                    fromDate:
-                        originalPCRState.fromDate || '',
-
-                    toDate:
-                        originalPCRState.toDate || '',
-
-                    status:
-                        originalPCRState.status || '1'
-
-                }
-            }
-        )
+        }
 
     }
 
@@ -697,6 +672,7 @@ function PCRDownload() {
                                 type="button"
                                 className="pcr-download-excel-btn"
                                 onClick={handleDownload}
+                                disabled={downloading}
                             >
 
                                 {downloading

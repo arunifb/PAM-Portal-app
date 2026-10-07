@@ -16,6 +16,13 @@ import './FranchiseeInventory.css'
 function FranchiseeInventory() {
 
     // =========================================
+    // CONSTANT
+    // =========================================
+
+    const MAX_FRANCHISE_SELECTION = 10
+
+
+    // =========================================
     // LOGGED-IN USER DETAILS
     // =========================================
 
@@ -54,11 +61,9 @@ function FranchiseeInventory() {
     const [fgDescription, setFgDescription] =
         useState('')
 
-    // NEW: COMPONENT
     const [component, setComponent] =
         useState('')
 
-    // NEW: COMPONENT DESCRIPTION
     const [componentDescription, setComponentDescription] =
         useState('')
 
@@ -82,6 +87,17 @@ function FranchiseeInventory() {
 
 
     // =========================================
+    // MODAL STATE
+    // =========================================
+
+    const [showModal, setShowModal] =
+        useState(false)
+
+    const [modalMessage, setModalMessage] =
+        useState('')
+
+
+    // =========================================
     // FRANCHISE DROPDOWN
     // =========================================
 
@@ -90,6 +106,26 @@ function FranchiseeInventory() {
 
     const franchiseDropdownRef =
         useRef(null)
+
+
+    // =========================================
+    // MODAL FUNCTIONS
+    // =========================================
+
+    function openModal(messageText) {
+
+        setModalMessage(messageText)
+        setShowModal(true)
+
+    }
+
+
+    function closeModal() {
+
+        setShowModal(false)
+        setModalMessage('')
+
+    }
 
 
     // =========================================
@@ -183,8 +219,6 @@ function FranchiseeInventory() {
 
             setBranches(branchList)
 
-
-            // Keep branch locked to logged-in user's BPCode
 
             const userBranch =
                 branchList.find(
@@ -375,13 +409,23 @@ function FranchiseeInventory() {
 
         if (event.target.checked) {
 
-            setSelectedFranchises(
+            const availableCodes =
                 normalizedFranchises
                     .map(
                         franchise =>
                             franchise.code
                     )
                     .filter(Boolean)
+
+
+            // Select maximum 10 only.
+            // Do NOT open modal here.
+
+            setSelectedFranchises(
+                availableCodes.slice(
+                    0,
+                    MAX_FRANCHISE_SELECTION
+                )
             )
 
         }
@@ -405,6 +449,8 @@ function FranchiseeInventory() {
         setSelectedFranchises(
             current => {
 
+                // Unselect existing franchise
+
                 if (
                     current.includes(franchiseCode)
                 ) {
@@ -413,6 +459,24 @@ function FranchiseeInventory() {
                         code =>
                             code !== franchiseCode
                     )
+
+                }
+
+
+                // Maximum 10 check
+                // Modal opens ONLY when trying
+                // to select the 11th franchise.
+
+                if (
+                    current.length >=
+                    MAX_FRANCHISE_SELECTION
+                ) {
+
+                    openModal(
+                        'You can select maximum 10 franchises.'
+                    )
+
+                    return current
 
                 }
 
@@ -431,18 +495,6 @@ function FranchiseeInventory() {
     // =========================================
     // FORMAT SELECTED FRANCHISE CODES
     // =========================================
-    //
-    // NEW API STORED PROCEDURE EXPECTS:
-    //
-    // 3013481
-    //
-    // OR:
-    //
-    // 3013481,3013482,3013483
-    //
-    // DO NOT ADD SINGLE QUOTES HERE.
-    //
-    // =========================================
 
     function getFormattedFranchiseCodes() {
 
@@ -460,6 +512,25 @@ function FranchiseeInventory() {
         setMessage('')
         setMessageType('')
         setInventoryData([])
+
+
+        // =========================================
+        // FG CATEGORY VALIDATION
+        // NORMAL MESSAGE ONLY
+        // NO MODAL
+        // =========================================
+
+        if (!selectedCategory) {
+
+            setMessage(
+                'FG Category is required.'
+            )
+
+            setMessageType('error')
+
+            return
+
+        }
 
 
         if (!selectedBranch) {
@@ -498,11 +569,9 @@ function FranchiseeInventory() {
                 fgDescription:
                     fgDescription,
 
-                // NEW
                 component:
                     component,
 
-                // NEW
                 componentDescription:
                     componentDescription
 
@@ -590,6 +659,19 @@ function FranchiseeInventory() {
 
     async function handleExport() {
 
+        if (!selectedCategory) {
+
+            setMessage(
+                'FG Category is required.'
+            )
+
+            setMessageType('error')
+
+            return
+
+        }
+
+
         if (
             inventoryData.length === 0
         ) {
@@ -628,11 +710,9 @@ function FranchiseeInventory() {
                 fgDescription:
                     fgDescription,
 
-                // NEW
                 component:
                     component,
 
-                // NEW
                 componentDescription:
                     componentDescription
 
@@ -803,58 +883,68 @@ function FranchiseeInventory() {
 
                             <label>
                                 FG Category
+                                <span
+                                    style={{
+                                        color: 'red',
+                                        marginLeft: '4px'
+                                    }}
+                                >
+                                    *
+                                </span>
                             </label>
 
                             <select
                                 value={selectedCategory}
-                                onChange={event =>
-                                    setSelectedCategory(
-                                        event.target.value
-                                    )
-                                }
+                                onChange={event => {
+                                    setSelectedCategory(event.target.value)
+
+                                    // Clear FG Category validation message
+                                    if (event.target.value) {
+                                        setMessage('')
+                                        setMessageType('')
+                                    }
+                                }}
                             >
+                            <option value="">
+                                Select FG Category
+                            </option>
 
-                                <option value="">
-                                    Select FG Category
-                                </option>
+                            <option value="WM">
+                                Washing Machine
+                            </option>
 
-                                <option value="WM">
-                                    Washing Machine
-                                </option>
+                            <option value="DW">
+                                Dish Washer
+                            </option>
 
-                                <option value="DW">
-                                    Dish Washer
-                                </option>
+                            <option value="AC">
+                                Air Conditioner
+                            </option>
 
-                                <option value="AC">
-                                    Air Conditioner
-                                </option>
+                            <option value="MW">
+                                Micro Wave
+                            </option>
 
-                                <option value="MW">
-                                    Micro Wave
-                                </option>
+                            <option value="CD">
+                                Cloth Dryer
+                            </option>
 
-                                <option value="CD">
-                                    Cloth Dryer
-                                </option>
+                            <option value="KA">
+                                Kitchen Appliances
+                            </option>
 
-                                <option value="KA">
-                                    Kitchen Appliances
-                                </option>
+                            <option value="ACC">
+                                Accessories
+                            </option>
 
-                                <option value="ACC">
-                                    Accessories
-                                </option>
+                            <option value="ADD">
+                                Additive
+                            </option>
 
-                                <option value="ADD">
-                                    Additive
-                                </option>
-
-                                <option value="WP">
-                                    Water Purifier
-                                </option>
-
-                            </select>
+                            <option value="WP">
+                                Water Purifier
+                            </option>
+                        </select>
 
                         </div>
 
@@ -1206,6 +1296,133 @@ function FranchiseeInventory() {
                                 </tbody>
 
                             </table>
+
+                        </div>
+
+                    </div>
+
+                )}
+
+
+                {/* =====================================
+                    MAX 10 FRANCHISE MODAL
+                ===================================== */}
+
+                {showModal && (
+
+                    <div
+                        style={{
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            zIndex: 99999
+                        }}
+                        onClick={closeModal}
+                    >
+
+                        <div
+                            style={{
+                                width: '420px',
+                                maxWidth: '90%',
+                                backgroundColor: '#ffffff',
+                                borderRadius: '8px',
+                                boxShadow: '0 10px 30px rgba(0, 0, 0, 0.25)',
+                                overflow: 'hidden'
+                            }}
+                            onClick={event =>
+                                event.stopPropagation()
+                            }
+                        >
+
+                            {/* MODAL HEADER */}
+
+                            <div
+                                style={{
+                                    padding: '16px 20px',
+                                    borderBottom: '1px solid #e5e5e5',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between'
+                                }}
+                            >
+
+                                <h3
+                                    style={{
+                                        margin: 0,
+                                        fontSize: '18px',
+                                        fontWeight: 600
+                                    }}
+                                >
+                                    Validation
+                                </h3>
+
+                                <button
+                                    type="button"
+                                    onClick={closeModal}
+                                    style={{
+                                        border: 'none',
+                                        background: 'transparent',
+                                        fontSize: '24px',
+                                        cursor: 'pointer',
+                                        lineHeight: 1,
+                                        padding: '0 4px'
+                                    }}
+                                >
+                                    ×
+                                </button>
+
+                            </div>
+
+
+                            {/* MODAL BODY */}
+
+                            <div
+                                style={{
+                                    padding: '24px 20px',
+                                    fontSize: '15px',
+                                    color: '#333'
+                                }}
+                            >
+
+                                {modalMessage}
+
+                            </div>
+
+
+                            {/* MODAL FOOTER */}
+
+                            <div
+                                style={{
+                                    padding: '12px 20px 18px',
+                                    display: 'flex',
+                                    justifyContent: 'flex-end'
+                                }}
+                            >
+
+                                <button
+                                    type="button"
+                                    onClick={closeModal}
+                                    style={{
+                                        minWidth: '80px',
+                                        padding: '8px 18px',
+                                        border: 'none',
+                                        borderRadius: '5px',
+                                        backgroundColor: '#0d6efd',
+                                        color: '#ffffff',
+                                        cursor: 'pointer',
+                                        fontSize: '14px'
+                                    }}
+                                >
+                                    OK
+                                </button>
+
+                            </div>
 
                         </div>
 
