@@ -723,6 +723,9 @@ const report = reportProp || location.state?.report
     // LOGGED-IN USER DETAILS
     // =================================================
 
+    const loggedInUserId =
+    sessionStorage.getItem('userId') || ''
+
     const loggedInRegionCode =
         sessionStorage.getItem('regionCode') || ''
 
@@ -855,57 +858,48 @@ const report = reportProp || location.state?.report
     // =================================================
 
     useEffect(() => {
-        const loadUserRegion = async () => {
-            if (!loggedInRegionCode) {
-                setRegionError(
-                    'Unable to determine logged-in region.'
+    const loadUserRegion = async () => {
+        try {
+            setRegionLoading(true)
+            setRegionError('')
+
+            const data =
+                await getRegions(
+                    '',
+                    loggedInUserId
                 )
 
-                setRegionLoading(false)
-                return
-            }
+            const regionData =
+                Array.isArray(data)
+                    ? data
+                    : []
 
-            try {
-                setRegionLoading(true)
-                setRegionError('')
+            setRegions(regionData)
 
-                const data =
-                    await getRegions(
-                        loggedInRegionCode
-                    )
+            // User will select the Region manually.
+            setSelectedRegion('')
+        } catch (error) {
+            console.error(
+                'Load region error:',
+                error
+            )
 
-                const regionData =
-                    Array.isArray(data)
-                        ? data
-                        : []
+            setRegions([])
+            setSelectedRegion('')
 
-                setRegions(regionData)
-
-                // Region always comes from the
-                // logged-in user's session.
-                setSelectedRegion(
-                    loggedInRegionCode
-                )
-            } catch (error) {
-                console.error(
-                    'Load region error:',
-                    error
-                )
-
-                setRegions([])
-                setSelectedRegion('')
-
-                setRegionError(
-                    error.message ||
-                    'Unable to load region.'
-                )
-            } finally {
-                setRegionLoading(false)
-            }
+            setRegionError(
+                error.message ||
+                'Unable to load region.'
+            )
+        } finally {
+            setRegionLoading(false)
         }
+    }
 
-        loadUserRegion()
-    }, [loggedInRegionCode])
+    loadUserRegion()
+}, [
+    loggedInUserId
+])
 
     // =================================================
     // LOAD PRODUCTS
@@ -1287,9 +1281,8 @@ const report = reportProp || location.state?.report
                 if (isRegionUser) {
                     const data =
                         await getBranches(
-                            loggedInRoleId,
-                            selectedRegion,
-                            ''
+                            loggedInUserId,
+                            selectedRegion
                         )
 
                     const branchData =
@@ -1312,11 +1305,17 @@ const report = reportProp || location.state?.report
                 // ROLE 6 / ROLE 5
                 // =========================================
 
+                // const data =
+                //     await getBranches(
+                //         loggedInRoleId,
+                //         selectedRegion,
+                //         loggedInBpCode
+                //     )
+
                 const data =
                     await getBranches(
-                        loggedInRoleId,
-                        selectedRegion,
-                        loggedInBpCode
+                        loggedInUserId,
+                        selectedRegion
                     )
 
                 const branchData =
@@ -2646,14 +2645,19 @@ const report = reportProp || location.state?.report
 
                                         {isRegion && (
                                             <select
-                                                className="report-filter-control"
-                                                value={
-                                                    selectedRegion
-                                                }
-                                                disabled={
-                                                    true
-                                                }
-                                            >
+                                                    className="report-filter-control"
+                                                    value={
+                                                        selectedRegion
+                                                    }
+                                                    onChange={(event) =>
+                                                        setSelectedRegion(
+                                                            event.target.value
+                                                        )
+                                                    }
+                                                    disabled={
+                                                        regionLoading
+                                                    }
+                                                >
 
                                                 <option value="">
                                                     {regionLoading

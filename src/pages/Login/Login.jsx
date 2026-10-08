@@ -115,8 +115,8 @@ function Login() {
 
 
             console.log(
-            'Login: reCAPTCHA token received:',
-            !!recaptchaToken
+                'Login: reCAPTCHA token received:',
+                !!recaptchaToken
             )
 
 
@@ -198,6 +198,26 @@ function Login() {
 
 
                 // =========================================
+                // TEMPORARY 2FA MULTIPLE ROLES
+                // =========================================
+
+                sessionStorage.setItem(
+                    'twoFactorRoles',
+                    JSON.stringify(data.roles || [])
+                )
+
+                sessionStorage.setItem(
+                    'twoFactorRegions',
+                    data.regions || ''
+                )
+
+                sessionStorage.setItem(
+                    'twoFactorBranches',
+                    data.branches || ''
+                )
+
+
+                // =========================================
                 // GO TO 2FA
                 // =========================================
 
@@ -241,6 +261,26 @@ function Login() {
             sessionStorage.setItem(
                 'regionCode',
                 data.regionCode || ''
+            )
+
+
+            // =========================================
+            // STORE MULTIPLE ROLES
+            // =========================================
+
+            sessionStorage.setItem(
+                'roles',
+                JSON.stringify(data.roles || [])
+            )
+
+            sessionStorage.setItem(
+                'regions',
+                data.regions || ''
+            )
+
+            sessionStorage.setItem(
+                'branches',
+                data.branches || ''
             )
 
 

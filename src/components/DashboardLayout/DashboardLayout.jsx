@@ -54,14 +54,14 @@ function DashboardLayout({
 
         const loadDashboardMenu = async () => {
 
-            const roleId =
-                sessionStorage.getItem('roleId')
+            const userId =
+                sessionStorage.getItem('userId')
 
 
-            if (!roleId) {
+            if (!userId) {
 
                 setMenuError(
-                    'Role information is not available.'
+                    'User information is not available.'
                 )
 
                 return
@@ -129,7 +129,7 @@ function DashboardLayout({
 
                 const data =
                     await getDashboardMenu(
-                        roleId
+                        userId
                     )
 
 

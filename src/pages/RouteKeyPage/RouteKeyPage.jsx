@@ -27,7 +27,6 @@ import LegalCase from '../LegalCase/LegalCase'
 import ReportData from '../ReportData/ReportData'
 
 
-
 function RouteKeyPage() {
 
     const { routeKey } = useParams()
@@ -129,21 +128,21 @@ function RouteKeyPage() {
 
 
     // =========================================
-    // LOAD MENU BY ROLE
+    // LOAD MENU BY USER
     // =========================================
 
     useEffect(() => {
 
         const loadMenu = async () => {
 
-            const roleId =
-                sessionStorage.getItem('roleId')
+            const userId =
+                sessionStorage.getItem('userId')
 
 
-            if (!roleId) {
+            if (!userId) {
 
                 setError(
-                    'Role information is not available.'
+                    'User information is not available.'
                 )
 
                 setLoading(false)
@@ -167,7 +166,7 @@ function RouteKeyPage() {
             try {
 
                 const data =
-                    await getDashboardMenu(roleId)
+                    await getDashboardMenu(userId)
 
 
                 if (!Array.isArray(data)) {
@@ -194,7 +193,7 @@ function RouteKeyPage() {
                 if (!matchedMenu) {
 
                     throw new Error(
-                        'The requested menu was not found for your role.'
+                        'The requested menu was not found for your user.'
                     )
                 }
 
@@ -203,6 +202,11 @@ function RouteKeyPage() {
                     matchedMenu
                 )
 
+
+                console.log(
+                    'UserID:',
+                    userId
+                )
 
                 console.log(
                     'RouteKey matched menu:',

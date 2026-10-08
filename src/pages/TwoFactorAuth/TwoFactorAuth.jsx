@@ -225,6 +225,26 @@ function TwoFactorAuth() {
 
 
             // =========================================
+            // GET TEMPORARY MULTIPLE ROLE DATA
+            // =========================================
+
+            const twoFactorRoles =
+                sessionStorage.getItem(
+                    'twoFactorRoles'
+                )
+
+            const twoFactorRegions =
+                sessionStorage.getItem(
+                    'twoFactorRegions'
+                )
+
+            const twoFactorBranches =
+                sessionStorage.getItem(
+                    'twoFactorBranches'
+                )
+
+
+            // =========================================
             // SAVE NORMAL SESSION
             // =========================================
 
@@ -260,6 +280,26 @@ function TwoFactorAuth() {
 
 
             // =========================================
+            // SAVE MULTIPLE ROLE DATA
+            // =========================================
+
+            sessionStorage.setItem(
+                'roles',
+                twoFactorRoles || '[]'
+            )
+
+            sessionStorage.setItem(
+                'regions',
+                twoFactorRegions || ''
+            )
+
+            sessionStorage.setItem(
+                'branches',
+                twoFactorBranches || ''
+            )
+
+
+            // =========================================
             // REMOVE TEMPORARY 2FA DATA
             // =========================================
 
@@ -285,6 +325,18 @@ function TwoFactorAuth() {
 
             sessionStorage.removeItem(
                 'twoFactorRegionCode'
+            )
+
+            sessionStorage.removeItem(
+                'twoFactorRoles'
+            )
+
+            sessionStorage.removeItem(
+                'twoFactorRegions'
+            )
+
+            sessionStorage.removeItem(
+                'twoFactorBranches'
             )
 
 
@@ -391,6 +443,18 @@ function TwoFactorAuth() {
 
         sessionStorage.removeItem(
             'twoFactorRegionCode'
+        )
+
+        sessionStorage.removeItem(
+            'twoFactorRoles'
+        )
+
+        sessionStorage.removeItem(
+            'twoFactorRegions'
+        )
+
+        sessionStorage.removeItem(
+            'twoFactorBranches'
         )
 
 

@@ -5,58 +5,46 @@ import API_BASE_URL, { authFetch } from './api'
 // GET BRANCHES
 // =============================================
 
+// =============================================
+// GET BRANCHES FOR FRANCHISE VIEW
+// =============================================
+
 export async function getFranchiseViewBranches(
-    roleId,
-    regionCode,
-    bpCode
+    userId,
+    regionCode
 ) {
-
     const params = new URLSearchParams({
-        roleId: roleId?.toString() || '',
-        regionCode: regionCode || '',
-        bpCode: bpCode || ''
+        userId: userId?.toString() || '',
+        regionCode: regionCode || ''
     })
-
 
     const response =
         await authFetch(
             `${API_BASE_URL}/api/Reports/branches?${params.toString()}`
         )
 
-
     const text =
         await response.text()
 
-
     let data = null
 
-
     if (text) {
-
         try {
-
             data = JSON.parse(text)
-
-        } catch {
-
+        }
+        catch {
             throw new Error(
                 'Invalid response received while loading branches.'
             )
-
         }
-
     }
 
-
     if (!response.ok) {
-
         throw new Error(
             data?.message ||
             'Unable to load branches.'
         )
-
     }
-
 
     return data || []
 }

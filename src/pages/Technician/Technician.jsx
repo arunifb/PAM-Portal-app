@@ -122,7 +122,8 @@ function getFranchiseName(item) {
 }
 
 function getStatusClass(status) {
-    const value = String(status || '').toLowerCase()
+    const value =
+        String(status || '').toLowerCase()
 
     if (value.includes('approved')) {
         return 'technician-status-badge technician-status-success'
@@ -150,30 +151,43 @@ function Technician() {
     // =================================================
 
     const roleId = Number(
-        getSessionValue('roleId', 'RoleID') || 1
+        getSessionValue(
+            'roleId',
+            'RoleID'
+        ) || 1
     )
 
-    const sessionRegionCode = getSessionValue(
-        'regionCode',
-        'RegionCode'
-    )
+    const sessionUserId =
+        getSessionValue(
+            'userId',
+            'UserID'
+        )
 
-    const sessionBpCode = getSessionValue(
-        'bpCode',
-        'BPCode'
-    )
+    const sessionRegionCode =
+        getSessionValue(
+            'regionCode',
+            'RegionCode'
+        )
 
-    const sessionLoginId = getSessionValue(
-        'loginId',
-        'LoginID'
-    )
+    const sessionBpCode =
+        getSessionValue(
+            'bpCode',
+            'BPCode'
+        )
+
+    const sessionLoginId =
+        getSessionValue(
+            'loginId',
+            'LoginID'
+        )
 
     // =================================================
     // FILTER STATES
     // =================================================
 
+    // Region is selected manually by the user.
     const [regionCode, setRegionCode] =
-        useState(sessionRegionCode)
+        useState('')
 
     const [branchCode, setBranchCode] =
         useState('')
@@ -217,9 +231,6 @@ function Technician() {
     const [loading, setLoading] =
         useState(false)
 
-    const [initialLoading, setInitialLoading] =
-        useState(true)
-
     const [downloadLoading, setDownloadLoading] =
         useState(false)
 
@@ -242,38 +253,56 @@ function Technician() {
     // ROLE FLAGS
     // =================================================
 
-    const isRole1 = roleId === 1
-    const isRole5 = roleId === 5
-    const isRole6 = roleId === 6
+    const isRole1 =
+        roleId === 1
+
+    const isRole5 =
+        roleId === 5
+
+    const isRole6 =
+        roleId === 6
 
     // =================================================
     // LOAD REGIONS
     // =================================================
 
     useEffect(() => {
+
         let cancelled = false
 
         async function loadRegions() {
+
             try {
+
+                setError('')
+
                 const response =
-                    await getRegions(sessionRegionCode)
+                    await getRegions(
+                        '',
+                        sessionUserId
+                    )
 
                 if (cancelled) {
                     return
                 }
 
                 const data =
-                    getArrayFromResponse(response)
+                    getArrayFromResponse(
+                        response
+                    )
 
                 setRegions(data)
 
-                if (sessionRegionCode) {
-                    setRegionCode(sessionRegionCode)
-                }
+                // Region must be selected manually.
+                setRegionCode('')
 
             } catch (err) {
 
                 if (!cancelled) {
+
+                    setRegions([])
+                    setRegionCode('')
+
                     setError(
                         err.message ||
                         'Unable to load regions.'
@@ -288,31 +317,48 @@ function Technician() {
             cancelled = true
         }
 
-    }, [sessionRegionCode])
+    }, [
+        sessionUserId
+    ])
 
     // =================================================
-    // LOAD BRANCHES
+    // LOAD BRANCHES WHEN REGION CHANGES
     // =================================================
 
     useEffect(() => {
+
         let cancelled = false
 
         async function loadBranches() {
 
+            // No Region selected.
             if (!regionCode) {
+
                 setBranches([])
+                setBranchCode('')
+                setFranchises([])
+                setFranchiseCode('')
+
                 return
             }
 
             try {
 
+                setError('')
+
+                /*
+                 * Same pattern as ReportParameter.
+                 *
+                 * getBranches(
+                 *     userId,
+                 *     regionCode
+                 * )
+                 */
+
                 const response =
                     await getBranches(
-                        roleId,
-                        regionCode,
-                        isRole5 || isRole6
-                            ? sessionBpCode
-                            : ''
+                        sessionUserId,
+                        regionCode
                     )
 
                 if (cancelled) {
@@ -320,7 +366,9 @@ function Technician() {
                 }
 
                 const data =
-                    getArrayFromResponse(response)
+                    getArrayFromResponse(
+                        response
+                    )
 
                 setBranches(data)
 
@@ -329,7 +377,10 @@ function Technician() {
                 // Branch locked to session BPCode
                 // -------------------------------------
 
-                if (isRole5 || isRole6) {
+                if (
+                    isRole5 ||
+                    isRole6
+                ) {
 
                     setBranchCode(
                         sessionBpCode || ''
@@ -337,7 +388,9 @@ function Technician() {
 
                 } else {
 
+                    // Role 1 can select Branch manually.
                     setBranchCode('')
+
                 }
 
             } catch (err) {
@@ -345,6 +398,10 @@ function Technician() {
                 if (!cancelled) {
 
                     setBranches([])
+                    setBranchCode('')
+
+                    setFranchises([])
+                    setFranchiseCode('')
 
                     setError(
                         err.message ||
@@ -361,7 +418,7 @@ function Technician() {
         }
 
     }, [
-        roleId,
+        sessionUserId,
         regionCode,
         sessionBpCode,
         isRole5,
@@ -379,8 +436,10 @@ function Technician() {
         async function loadFranchises() {
 
             if (!regionCode) {
+
                 setFranchises([])
                 setFranchiseCode('')
+
                 return
             }
 
@@ -388,7 +447,10 @@ function Technician() {
             // ROLE 1
             // -----------------------------------------
 
-            if (isRole1 && !branchCode) {
+            if (
+                isRole1 &&
+                !branchCode
+            ) {
 
                 setFranchises([])
                 setFranchiseCode('')
@@ -424,6 +486,7 @@ function Technician() {
                         sessionBpCode
 
                     loginIdForFranchise = ''
+
                 }
 
                 // -----------------------------------------
@@ -436,6 +499,7 @@ function Technician() {
                         branchCode
 
                     loginIdForFranchise = ''
+
                 }
 
                 // -----------------------------------------
@@ -462,7 +526,9 @@ function Technician() {
                 }
 
                 const data =
-                    getArrayFromResponse(response)
+                    getArrayFromResponse(
+                        response
+                    )
 
                 setFranchises(data)
 
@@ -477,16 +543,11 @@ function Technician() {
                         sessionLoginId || ''
                     )
 
-                }
+                } else {
 
-                // -----------------------------------------
-                // ROLE 6 / OTHER ROLES
-                // Franchise selectable
-                // -----------------------------------------
-
-                else {
-
+                    // Role 1 / Role 6 can select franchise.
                     setFranchiseCode('')
+
                 }
 
             } catch (err) {
@@ -494,6 +555,8 @@ function Technician() {
                 if (!cancelled) {
 
                     setFranchises([])
+
+                    setFranchiseCode('')
 
                     setError(
                         err.message ||
@@ -524,12 +587,14 @@ function Technician() {
     // SEARCH FUNCTION
     // =================================================
 
-    async function handleSearch(
-        showInitialLoading = false
-    ) {
+    async function handleSearch() {
 
         setError('')
         setSuccessMessage('')
+
+        // ---------------------------------------------
+        // REGION VALIDATION
+        // ---------------------------------------------
 
         if (!regionCode) {
 
@@ -542,10 +607,6 @@ function Technician() {
 
         setLoading(true)
 
-        if (showInitialLoading) {
-            setInitialLoading(true)
-        }
-
         try {
 
             const response =
@@ -554,7 +615,7 @@ function Technician() {
 
                     branchCode:
                         isRole1
-                            ? ''
+                            ? branchCode
                             : branchCode,
 
                     franchiseCode,
@@ -571,9 +632,13 @@ function Technician() {
                 })
 
             const data =
-                Array.isArray(response?.data)
+                Array.isArray(
+                    response?.data
+                )
                     ? response.data
-                    : []
+                    : Array.isArray(response)
+                        ? response
+                        : []
 
             setTechnicians(data)
 
@@ -589,28 +654,8 @@ function Technician() {
         } finally {
 
             setLoading(false)
-            setInitialLoading(false)
         }
     }
-
-    // =================================================
-    // INITIAL SEARCH
-    // =================================================
-
-    useEffect(() => {
-
-        if (!regionCode) {
-            return
-        }
-
-        handleSearch(true)
-
-        // Intentionally run when region is initialized.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-
-    }, [
-        regionCode
-    ])
 
     // =================================================
     // BRANCH CHANGE
@@ -623,8 +668,33 @@ function Technician() {
 
         setBranchCode(value)
 
-        // Franchise gets reloaded by useEffect.
+        // Franchise will reload automatically.
         setFranchiseCode('')
+
+        // Clear old technician results.
+        setTechnicians([])
+    }
+
+    // =================================================
+    // REGION CHANGE
+    // =================================================
+
+    function handleRegionChange(event) {
+
+        const value =
+            event.target.value
+
+        setRegionCode(value)
+
+        // Clear dependent filters.
+        setBranchCode('')
+        setFranchiseCode('')
+
+        // Clear old search results.
+        setTechnicians([])
+
+        setError('')
+        setSuccessMessage('')
     }
 
     // =================================================
@@ -705,7 +775,9 @@ function Technician() {
                     newFranchiseCode
                 )
 
-            if (response?.isSuccess === false) {
+            if (
+                response?.isSuccess === false
+            ) {
 
                 throw new Error(
                     response.message ||
@@ -721,7 +793,7 @@ function Technician() {
             setEditingTechId(null)
             setEditingFranchiseCode('')
 
-            await handleSearch(false)
+            await handleSearch()
 
         } catch (err) {
 
@@ -776,7 +848,9 @@ function Technician() {
                     techId
                 )
 
-            if (response?.isSuccess === false) {
+            if (
+                response?.isSuccess === false
+            ) {
 
                 throw new Error(
                     response.message ||
@@ -789,7 +863,7 @@ function Technician() {
                 'Your request has been submitted. Please wait for confirmation from CRM.'
             )
 
-            await handleSearch(false)
+            await handleSearch()
 
         } catch (err) {
 
@@ -835,9 +909,7 @@ function Technician() {
                     regionCode,
 
                     branchCode:
-                        isRole1
-                            ? ''
-                            : branchCode,
+                        branchCode,
 
                     franchiseCode,
 
@@ -852,7 +924,10 @@ function Technician() {
                     roleId
                 })
 
-            if (!blob || blob.size === 0) {
+            if (
+                !blob ||
+                blob.size === 0
+            ) {
 
                 throw new Error(
                     'No technician data available for download.'
@@ -860,7 +935,9 @@ function Technician() {
             }
 
             const url =
-                window.URL.createObjectURL(blob)
+                window.URL.createObjectURL(
+                    blob
+                )
 
             const link =
                 document.createElement('a')
@@ -880,11 +957,6 @@ function Technician() {
             link.remove()
 
             window.URL.revokeObjectURL(url)
-
-            // -----------------------------------------
-            // SUCCESS MESSAGE
-            // Automatically disappears after 2 seconds
-            // -----------------------------------------
 
             setSuccessMessage(
                 'Technician data downloaded successfully.'
@@ -954,11 +1026,8 @@ function Technician() {
 
                         <select
                             value={regionCode}
-                            disabled
-                            onChange={event =>
-                                setRegionCode(
-                                    event.target.value
-                                )
+                            onChange={
+                                handleRegionChange
                             }
                         >
 
@@ -967,7 +1036,10 @@ function Technician() {
                             </option>
 
                             {regions.map(
-                                (region, index) => {
+                                (
+                                    region,
+                                    index
+                                ) => {
 
                                     const code =
                                         getRegionCode(
@@ -984,7 +1056,10 @@ function Technician() {
                                             key={`${code}-${index}`}
                                             value={code}
                                         >
-                                            {name || code}
+                                            {
+                                                name ||
+                                                code
+                                            }
                                         </option>
                                     )
                                 }
@@ -1008,6 +1083,7 @@ function Technician() {
                                 handleBranchChange
                             }
                             disabled={
+                                !regionCode ||
                                 isRole5 ||
                                 isRole6
                             }
@@ -1018,7 +1094,10 @@ function Technician() {
                             </option>
 
                             {branches.map(
-                                (branch, index) => {
+                                (
+                                    branch,
+                                    index
+                                ) => {
 
                                     const code =
                                         getBranchCode(
@@ -1035,7 +1114,10 @@ function Technician() {
                                             key={`${code}-${index}`}
                                             value={code}
                                         >
-                                            {name || code}
+                                            {
+                                                name ||
+                                                code
+                                            }
                                         </option>
                                     )
                                 }
@@ -1060,7 +1142,11 @@ function Technician() {
                                     event.target.value
                                 )
                             }
-                            disabled={isRole5}
+                            disabled={
+                                !regionCode ||
+                                isRole5 
+                                
+                            }
                         >
 
                             <option value="">
@@ -1068,7 +1154,10 @@ function Technician() {
                             </option>
 
                             {franchises.map(
-                                (franchise, index) => {
+                                (
+                                    franchise,
+                                    index
+                                ) => {
 
                                     const code =
                                         getFranchiseCode(
@@ -1085,7 +1174,10 @@ function Technician() {
                                             key={`${code}-${index}`}
                                             value={code}
                                         >
-                                            {name || code}
+                                            {
+                                                name ||
+                                                code
+                                            }
                                         </option>
                                     )
                                 }
@@ -1174,13 +1266,13 @@ function Technician() {
 
                     <div className="technician-filter-actions">
 
-                        {/* SEARCH - ALL ROLES */}
+                        {/* SEARCH */}
 
                         <button
                             type="button"
                             className="technician-search-button"
-                            onClick={() =>
-                                handleSearch(false)
+                            onClick={
+                                handleSearch
                             }
                             disabled={
                                 loading ||
@@ -1224,7 +1316,7 @@ function Technician() {
                     LOADING
                 ====================================== */}
 
-                {(loading || initialLoading) && (
+                {loading && (
 
                     <div className="technician-loading">
 
@@ -1248,7 +1340,6 @@ function Technician() {
                 ====================================== */}
 
                 {!loading &&
-                    !initialLoading &&
                     technicians.length > 0 && (
 
                         <h3 className="technician-record-count">
@@ -1269,233 +1360,251 @@ function Technician() {
                     TABLE
                 ====================================== */}
 
-                {!loading &&
-                    !initialLoading && (
+                {!loading && (
 
-                        <div className="technician-report-section">
+                    <div className="technician-report-section">
 
-                            <div className="technician-section-header">
-                                Search Technician
-                            </div>
+                        <div className="technician-section-header">
+                            Search Technician
+                        </div>
 
-                            {technicians.length > 0 ? (
+                        {technicians.length > 0 ? (
 
-                                <div className="technician-table-container">
+                            <div className="technician-table-container">
 
-                                    <table className="technician-table">
+                                <table className="technician-table">
 
-                                        <thead>
+                                    <thead>
 
-                                            <tr>
+                                        <tr>
 
+                                            <th>
+                                                SNo
+                                            </th>
+
+                                            <th>
+                                                Franchise
+                                            </th>
+
+                                            <th>
+                                                BpExt.
+                                            </th>
+
+                                            <th>
+                                                PartnerID
+                                            </th>
+
+                                            <th>
+                                                Name
+                                            </th>
+
+                                            <th>
+                                                MobileNo
+                                            </th>
+
+                                            <th>
+                                                Status
+                                            </th>
+
+                                            {!isRole6 && (
                                                 <th>
-                                                    SNo
+                                                    Action
                                                 </th>
+                                            )}
 
-                                                <th>
-                                                    Franchise
-                                                </th>
+                                        </tr>
 
-                                                <th>
-                                                    BpExt.
-                                                </th>
+                                    </thead>
 
-                                                <th>
-                                                    PartnerID
-                                                </th>
+                                    <tbody>
 
-                                                <th>
-                                                    Name
-                                                </th>
+                                        {technicians.map(
+                                            (
+                                                technician,
+                                                index
+                                            ) => {
 
-                                                <th>
-                                                    MobileNo
-                                                </th>
-
-                                                <th>
-                                                    Status
-                                                </th>
-
-                                                {/* ACTION HEADER - ROLE 1/5 ONLY */}
-
-                                                {!isRole6 && (
-                                                    <th>
-                                                        Action
-                                                    </th>
-                                                )}
-
-                                            </tr>
-
-                                        </thead>
-
-                                        <tbody>
-
-                                            {technicians.map(
-                                                (
-                                                    technician,
-                                                    index
-                                                ) => {
-
-                                                    const techId =
-                                                        String(
-                                                            technician?.techId ||
-                                                            ''
-                                                        )
-
-                                                    const partnerId =
-                                                        technician?.partnerId ||
+                                                const techId =
+                                                    String(
+                                                        technician?.techId ||
                                                         ''
+                                                    )
 
-                                                    const isEditing =
-                                                        editingTechId ===
-                                                        techId
+                                                const partnerId =
+                                                    technician?.partnerId ||
+                                                    ''
 
-                                                    return (
+                                                const isEditing =
+                                                    editingTechId ===
+                                                    techId
 
-                                                        <tr
-                                                            key={
-                                                                techId ||
-                                                                index
-                                                            }
-                                                        >
+                                                return (
 
-                                                            {/* SNO */}
+                                                    <tr
+                                                        key={
+                                                            techId ||
+                                                            index
+                                                        }
+                                                    >
 
-                                                            <td>
-                                                                {index + 1}
-                                                            </td>
+                                                        {/* SNO */}
 
-                                                            {/* FRANCHISE */}
+                                                        <td>
+                                                            {index + 1}
+                                                        </td>
 
-                                                            <td className="technician-franchise-cell">
+                                                        {/* FRANCHISE */}
 
-                                                                {isEditing ? (
+                                                        <td className="technician-franchise-cell">
 
-                                                                    <input
-                                                                        type="text"
-                                                                        className="technician-edit-input"
-                                                                        value={
-                                                                            editingFranchiseCode
-                                                                        }
-                                                                        onChange={
-                                                                            event =>
-                                                                                setEditingFranchiseCode(
-                                                                                    event.target.value
-                                                                                )
-                                                                        }
-                                                                        disabled={
-                                                                            actionLoading
-                                                                        }
-                                                                    />
+                                                            {isEditing ? (
 
-                                                                ) : (
-
-                                                                    <span>
-                                                                        {
-                                                                            technician?.franchiseName ||
-                                                                            '-'
-                                                                        }
-                                                                    </span>
-
-                                                                )}
-
-                                                            </td>
-
-                                                            {/* BPEXT */}
-
-                                                            <td>
-                                                                {techId ||
-                                                                    '-'}
-                                                            </td>
-
-                                                            {/* PARTNER ID */}
-
-                                                            <td>
-
-                                                                {partnerId &&
-                                                                String(
-                                                                    partnerId
-                                                                ).length >
-                                                                    1 ? (
-
-                                                                    <span className="technician-partner-id">
-                                                                        {
-                                                                            partnerId
-                                                                        }
-                                                                    </span>
-
-                                                                ) : (
-
-                                                                    <button
-                                                                        type="button"
-                                                                        className="technician-partner-button"
-                                                                        onClick={() =>
-                                                                            handleGeneratePartnerId(
-                                                                                technician
+                                                                <input
+                                                                    type="text"
+                                                                    className="technician-edit-input"
+                                                                    value={
+                                                                        editingFranchiseCode
+                                                                    }
+                                                                    onChange={
+                                                                        event =>
+                                                                            setEditingFranchiseCode(
+                                                                                event.target.value
                                                                             )
-                                                                        }
-                                                                        disabled={
-                                                                            actionLoading
-                                                                        }
-                                                                        title="Generate Partner ID"
-                                                                    >
-                                                                        Generate
-                                                                    </button>
+                                                                    }
+                                                                    disabled={
+                                                                        actionLoading
+                                                                    }
+                                                                />
 
-                                                                )}
+                                                            ) : (
 
-                                                            </td>
-
-                                                            {/* NAME */}
-
-                                                            <td>
-                                                                {
-                                                                    technician?.name ||
-                                                                    '-'
-                                                                }
-                                                            </td>
-
-                                                            {/* MOBILE */}
-
-                                                            <td>
-                                                                {
-                                                                    technician?.mobileNo ||
-                                                                    'NA'
-                                                                }
-                                                            </td>
-
-                                                            {/* STATUS */}
-
-                                                            <td>
-
-                                                                <span
-                                                                    className={getStatusClass(
-                                                                        technician?.status
-                                                                    )}
-                                                                >
+                                                                <span>
                                                                     {
-                                                                        technician?.status ||
+                                                                        technician?.franchiseName ||
                                                                         '-'
                                                                     }
                                                                 </span>
 
-                                                            </td>
+                                                            )}
 
-                                                            {/* ACTION - ROLE 1 / ROLE 5 ONLY */}
+                                                        </td>
 
-                                                            {!isRole6 && (
+                                                        {/* BPEXT */}
 
-                                                                <td>
+                                                        <td>
+                                                            {
+                                                                techId ||
+                                                                '-'
+                                                            }
+                                                        </td>
 
-                                                                    <div className="technician-row-actions">
+                                                        {/* PARTNER ID */}
 
-                                                                        {!isEditing ? (
+                                                        <td>
+
+                                                            {partnerId &&
+                                                            String(
+                                                                partnerId
+                                                            ).length >
+                                                                1 ? (
+
+                                                                <span className="technician-partner-id">
+                                                                    {
+                                                                        partnerId
+                                                                    }
+                                                                </span>
+
+                                                            ) : (
+
+                                                                <button
+                                                                    type="button"
+                                                                    className="technician-partner-button"
+                                                                    onClick={() =>
+                                                                        handleGeneratePartnerId(
+                                                                            technician
+                                                                        )
+                                                                    }
+                                                                    disabled={
+                                                                        actionLoading
+                                                                    }
+                                                                    title="Generate Partner ID"
+                                                                >
+                                                                    Generate
+                                                                </button>
+
+                                                            )}
+
+                                                        </td>
+
+                                                        {/* NAME */}
+
+                                                        <td>
+                                                            {
+                                                                technician?.name ||
+                                                                '-'
+                                                            }
+                                                        </td>
+
+                                                        {/* MOBILE */}
+
+                                                        <td>
+                                                            {
+                                                                technician?.mobileNo ||
+                                                                'NA'
+                                                            }
+                                                        </td>
+
+                                                        {/* STATUS */}
+
+                                                        <td>
+
+                                                            <span
+                                                                className={getStatusClass(
+                                                                    technician?.status
+                                                                )}
+                                                            >
+                                                                {
+                                                                    technician?.status ||
+                                                                    '-'
+                                                                }
+                                                            </span>
+
+                                                        </td>
+
+                                                        {/* ACTION */}
+
+                                                        {!isRole6 && (
+
+                                                            <td>
+
+                                                                <div className="technician-row-actions">
+
+                                                                    {!isEditing ? (
+
+                                                                        <button
+                                                                            type="button"
+                                                                            className="technician-edit-button"
+                                                                            onClick={() =>
+                                                                                handleEdit(
+                                                                                    technician
+                                                                                )
+                                                                            }
+                                                                            disabled={
+                                                                                actionLoading
+                                                                            }
+                                                                        >
+                                                                            Edit
+                                                                        </button>
+
+                                                                    ) : (
+
+                                                                        <>
 
                                                                             <button
                                                                                 type="button"
-                                                                                className="technician-edit-button"
+                                                                                className="technician-save-button"
                                                                                 onClick={() =>
-                                                                                    handleEdit(
+                                                                                    handleSave(
                                                                                         technician
                                                                                     )
                                                                                 }
@@ -1503,74 +1612,57 @@ function Technician() {
                                                                                     actionLoading
                                                                                 }
                                                                             >
-                                                                                Edit
+                                                                                {
+                                                                                    actionLoading
+                                                                                        ? 'Saving...'
+                                                                                        : 'Save'
+                                                                                }
                                                                             </button>
 
-                                                                        ) : (
+                                                                            <button
+                                                                                type="button"
+                                                                                className="technician-cancel-button"
+                                                                                onClick={
+                                                                                    handleCancelEdit
+                                                                                }
+                                                                                disabled={
+                                                                                    actionLoading
+                                                                                }
+                                                                            >
+                                                                                Cancel
+                                                                            </button>
 
-                                                                            <>
+                                                                        </>
 
-                                                                                <button
-                                                                                    type="button"
-                                                                                    className="technician-save-button"
-                                                                                    onClick={() =>
-                                                                                        handleSave(
-                                                                                            technician
-                                                                                        )
-                                                                                    }
-                                                                                    disabled={
-                                                                                        actionLoading
-                                                                                    }
-                                                                                >
-                                                                                    {actionLoading
-                                                                                        ? 'Saving...'
-                                                                                        : 'Save'}
-                                                                                </button>
+                                                                    )}
 
-                                                                                <button
-                                                                                    type="button"
-                                                                                    className="technician-cancel-button"
-                                                                                    onClick={
-                                                                                        handleCancelEdit
-                                                                                    }
-                                                                                    disabled={
-                                                                                        actionLoading
-                                                                                    }
-                                                                                >
-                                                                                    Cancel
-                                                                                </button>
+                                                                </div>
 
-                                                                            </>
+                                                            </td>
 
-                                                                        )}
+                                                        )}
 
-                                                                    </div>
+                                                    </tr>
+                                                )
+                                            }
+                                        )}
 
-                                                                </td>
+                                    </tbody>
 
-                                                            )}
+                                </table>
 
-                                                        </tr>
-                                                    )
-                                                }
-                                            )}
+                            </div>
 
-                                        </tbody>
+                        ) : (
 
-                                    </table>
+                            <div className="technician-no-record">
+                                No Record found!
+                            </div>
 
-                                </div>
+                        )}
 
-                            ) : (
-
-                                <div className="technician-no-record">
-                                    No Record found!
-                                </div>
-
-                            )}
-
-                        </div>
-                    )}
+                    </div>
+                )}
 
             </div>
 

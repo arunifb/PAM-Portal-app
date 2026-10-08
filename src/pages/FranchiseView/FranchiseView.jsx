@@ -10,6 +10,11 @@ import {
     updateFranchise
 } from '../../api/franchiseViewApi'
 
+import {
+    getRegions,
+    getFranchises
+} from '../../api/reportsApi'
+
 
 function FranchiseView() {
 
@@ -17,18 +22,35 @@ function FranchiseView() {
     // SESSION VALUES
     // =========================================
 
-    const regionCode =
-        sessionStorage.getItem('regionCode') || ''
+    const sessionUserId =
+        Number(
+            sessionStorage.getItem('userId') || 0
+        )
 
     const roleId =
         Number(
             sessionStorage.getItem('roleId') || 0
         )
 
-    const userId =
-        Number(
-            sessionStorage.getItem('userId') || 0
-        )
+    const sessionBpCode =
+        sessionStorage.getItem('bpCode') || ''
+
+    const sessionLoginId =
+        sessionStorage.getItem('loginId') || ''
+
+
+    // =========================================
+    // REGION
+    // =========================================
+
+    const [regions, setRegions] =
+        useState([])
+
+    const [regionCode, setRegionCode] =
+        useState('')
+
+    const [regionLoading, setRegionLoading] =
+        useState(false)
 
 
     // =========================================
@@ -36,6 +58,9 @@ function FranchiseView() {
     // =========================================
 
     const [branch, setBranch] =
+        useState('')
+
+    const [franchiseCode, setFranchiseCode] =
         useState('')
 
     const [frCode, setFrCode] =
@@ -62,6 +87,17 @@ function FranchiseView() {
         useState([])
 
     const [branchLoading, setBranchLoading] =
+        useState(false)
+
+
+    // =========================================
+    // FRANCHISE DROPDOWN
+    // =========================================
+
+    const [franchisesList, setFranchisesList] =
+        useState([])
+
+    const [franchiseLoading, setFranchiseLoading] =
         useState(false)
 
 
@@ -112,16 +148,6 @@ function FranchiseView() {
 
     // =========================================
     // VALUE HELPER
-    //
-    // Handles API property names
-    // regardless of capitalization.
-    //
-    // Example:
-    // frcode
-    // FrCode
-    // FRCODE
-    //
-    // All are handled.
     // =========================================
 
     const getValue = (
@@ -154,6 +180,7 @@ function FranchiseView() {
                 return item[matchingKey]
 
             }
+
         }
 
         return ''
@@ -183,14 +210,6 @@ function FranchiseView() {
 
     // =========================================
     // STATUS VALUE FOR EDIT
-    //
-    // API returns:
-    // "Active"
-    // "De-Activated"
-    //
-    // Update API expects:
-    // "1"
-    // "0"
     // =========================================
 
     const getStatusValue = (value) => {
@@ -232,36 +251,169 @@ function FranchiseView() {
 
 
     // =========================================
-    // LOAD BRANCHES
+    // LOAD REGIONS
     // =========================================
 
     useEffect(() => {
 
+        let cancelled = false
+
+
+        const loadRegions = async () => {
+
+            try {
+
+                setRegionLoading(true)
+                setError('')
+
+
+                const data =
+                    await getRegions(
+                        '',
+                        sessionUserId
+                    )
+
+
+                if (cancelled) {
+                    return
+                }
+
+
+                const regionData =
+                    Array.isArray(data)
+                        ? data
+                        : []
+
+
+                setRegions(
+                    regionData
+                )
+
+
+                // Initially:
+                // Select Region
+                setRegionCode('')
+
+            }
+            catch (error) {
+
+                if (cancelled) {
+                    return
+                }
+
+
+                console.error(
+                    'Franchise region error:',
+                    error
+                )
+
+
+                setRegions([])
+                setRegionCode('')
+
+
+                setError(
+                    error.message ||
+                    'Unable to load regions.'
+                )
+
+            }
+            finally {
+
+                if (!cancelled) {
+
+                    setRegionLoading(
+                        false
+                    )
+
+                }
+
+            }
+
+        }
+
+
+        loadRegions()
+
+
+        return () => {
+
+            cancelled = true
+
+        }
+
+    }, [sessionUserId])
+
+
+    // =========================================
+    // LOAD BRANCHES AFTER REGION SELECTION
+    // =========================================
+
+    useEffect(() => {
+
+        let cancelled = false
+
+
         const loadBranches = async () => {
+
+            // ---------------------------------
+            // No Region selected
+            // ---------------------------------
+
+            if (!regionCode) {
+
+                setBranches([])
+                setBranch('')
+
+                setFranchisesList([])
+                setFranchiseCode('')
+
+                setBranchLoading(false)
+
+                return
+
+            }
+
 
             try {
 
                 setBranchLoading(true)
                 setError('')
 
-                if (!regionCode) {
 
-                    setBranches([])
+                console.log(
+                    'Loading branches for Region:',
+                    regionCode
+                )
 
-                    return
-                }
+
+                // ---------------------------------
+                // IMPORTANT:
+                //
+                // Region is passed to Branch API.
+                //
+                // bpCode is empty because Branch
+                // should be loaded according to
+                // selected Region.
+                // ---------------------------------
 
                 const data =
                     await getFranchiseViewBranches(
-                        roleId,
-                        regionCode,
-                        ''
+                        sessionUserId,
+                        regionCode
                     )
+
+
+                if (cancelled) {
+                    return
+                }
+
 
                 console.log(
                     'Franchise View Branch Response:',
                     data
                 )
+
 
                 if (!Array.isArray(data)) {
 
@@ -271,17 +423,48 @@ function FranchiseView() {
 
                 }
 
+
+                // ---------------------------------
+                // Set branches for selected Region
+                // ---------------------------------
+
                 setBranches(data)
+
+
+                // Default Branch = All
+                setBranch('')
+
+
+                // ---------------------------------
+                // Region selected:
+                //
+                // Franchise is enabled but only
+                // "All" should be visible.
+                // ---------------------------------
+
+                setFranchisesList([])
+                setFranchiseCode('')
 
             }
             catch (error) {
+
+                if (cancelled) {
+                    return
+                }
+
 
                 console.error(
                     'Franchise branch error:',
                     error
                 )
 
+
                 setBranches([])
+                setBranch('')
+
+                setFranchisesList([])
+                setFranchiseCode('')
+
 
                 setError(
                     error.message ||
@@ -291,15 +474,236 @@ function FranchiseView() {
             }
             finally {
 
-                setBranchLoading(false)
+                if (!cancelled) {
+
+                    setBranchLoading(
+                        false
+                    )
+
+                }
 
             }
+
         }
 
 
         loadBranches()
 
-    }, [regionCode, roleId])
+
+        return () => {
+
+            cancelled = true
+
+        }
+
+    }, [
+        regionCode,
+        roleId
+    ])
+
+
+    // =========================================
+    // LOAD FRANCHISE DROPDOWN
+    //
+    // Region selected:
+    //     Franchise enabled
+    //     Only All shown
+    //
+    // Branch selected:
+    //     Load franchise options
+    // =========================================
+
+    useEffect(() => {
+
+        let cancelled = false
+
+
+        const loadFranchises = async () => {
+
+            // ---------------------------------
+            // No Region
+            // ---------------------------------
+
+            if (!regionCode) {
+
+                setFranchisesList([])
+                setFranchiseCode('')
+
+                setFranchiseLoading(false)
+
+                return
+
+            }
+
+
+            // ---------------------------------
+            // Region selected but Branch = All
+            //
+            // Do not call Franchise API.
+            // Only "All" should be displayed.
+            // ---------------------------------
+
+            if (!branch) {
+
+                setFranchisesList([])
+                setFranchiseCode('')
+
+                setFranchiseLoading(false)
+
+                return
+
+            }
+
+
+            try {
+
+                setFranchiseLoading(true)
+                setError('')
+
+
+                let bpCodeForFranchise =
+                    branch
+
+                let loginIdForFranchise =
+                    ''
+
+
+                // ---------------------------------
+                // ROLE 5
+                // ---------------------------------
+
+                if (roleId === 5) {
+
+                    bpCodeForFranchise =
+                        sessionBpCode
+
+                    loginIdForFranchise =
+                        sessionLoginId
+
+                }
+
+
+                // ---------------------------------
+                // ROLE 6
+                // ---------------------------------
+
+                else if (roleId === 6) {
+
+                    bpCodeForFranchise =
+                        sessionBpCode
+
+                }
+
+
+                console.log(
+                    'Loading franchises:',
+                    {
+                        roleId,
+                        bpCodeForFranchise,
+                        loginIdForFranchise
+                    }
+                )
+
+
+                const data =
+                    await getFranchises(
+                        roleId,
+                        bpCodeForFranchise,
+                        loginIdForFranchise
+                    )
+
+
+                if (cancelled) {
+                    return
+                }
+
+
+                console.log(
+                    'Franchise Dropdown Response:',
+                    data
+                )
+
+
+                setFranchisesList(
+                    Array.isArray(data)
+                        ? data
+                        : []
+                )
+
+
+                // ---------------------------------
+                // ROLE 5:
+                // Franchise is fixed
+                // ---------------------------------
+
+                if (roleId === 5) {
+
+                    setFranchiseCode(
+                        sessionLoginId || ''
+                    )
+
+                }
+                else {
+
+                    setFranchiseCode('')
+
+                }
+
+            }
+            catch (error) {
+
+                if (cancelled) {
+                    return
+                }
+
+
+                console.error(
+                    'Franchise dropdown error:',
+                    error
+                )
+
+
+                setFranchisesList([])
+                setFranchiseCode('')
+
+
+                setError(
+                    error.message ||
+                    'Unable to load franchises.'
+                )
+
+            }
+            finally {
+
+                if (!cancelled) {
+
+                    setFranchiseLoading(
+                        false
+                    )
+
+                }
+
+            }
+
+        }
+
+
+        loadFranchises()
+
+
+        return () => {
+
+            cancelled = true
+
+        }
+
+    }, [
+        regionCode,
+        branch,
+        roleId,
+        sessionBpCode,
+        sessionLoginId
+    ])
 
 
     // =========================================
@@ -308,12 +712,37 @@ function FranchiseView() {
 
     const handleSearch = async () => {
 
+        // ---------------------------------
+        // Region is required
+        // ---------------------------------
+
+        if (!regionCode) {
+
+            setError(
+                'Region is required.'
+            )
+
+            return
+
+        }
+
+
         try {
 
             setLoading(true)
 
             setError('')
             setSuccessMessage('')
+
+
+            // ---------------------------------
+            // IMPORTANT:
+            //
+            // franchiseCode is NOT included here
+            // because searchFranchises() in
+            // franchiseViewApi.js does not send
+            // franchiseCode to the backend.
+            // ---------------------------------
 
             const request = {
 
@@ -369,6 +798,7 @@ function FranchiseView() {
                     data[0]
                 )
 
+
                 console.log(
                     'First Franchise Code:',
                     getValue(
@@ -377,6 +807,7 @@ function FranchiseView() {
                         'FrCode'
                     )
                 )
+
 
                 console.log(
                     'First Franchise Status:',
@@ -404,7 +835,9 @@ function FranchiseView() {
                 error
             )
 
+
             setFranchises([])
+
 
             setError(
                 error.message ||
@@ -417,22 +850,8 @@ function FranchiseView() {
             setLoading(false)
 
         }
+
     }
-
-
-    // =========================================
-    // INITIAL SEARCH
-    // =========================================
-
-    useEffect(() => {
-
-        if (!regionCode) {
-            return
-        }
-
-        handleSearch()
-
-    }, [regionCode])
 
 
     // =========================================
@@ -535,6 +954,7 @@ function FranchiseView() {
         if (!editingFrCode) {
 
             return
+
         }
 
 
@@ -545,6 +965,7 @@ function FranchiseView() {
             )
 
             return
+
         }
 
 
@@ -574,7 +995,7 @@ function FranchiseView() {
                     editStatus,
 
                 UpdatedBy:
-                    userId
+                    sessionUserId
 
             }
 
@@ -611,7 +1032,6 @@ function FranchiseView() {
             )
 
 
-            // Same behavior as old WebForms.
             await handleSearch()
 
         }
@@ -621,6 +1041,7 @@ function FranchiseView() {
                 'Franchise update error:',
                 error
             )
+
 
             setError(
                 error.message ||
@@ -633,6 +1054,7 @@ function FranchiseView() {
             setUpdateLoading(false)
 
         }
+
     }
 
 
@@ -656,63 +1078,101 @@ function FranchiseView() {
                     <div className="franchise-view-search-grid">
 
 
-                        {/* BRANCH */}
+                        {/* =====================================
+                            REGION
+                        ===================================== */}
 
                         <div className="franchise-field">
 
                             <label>
-                                Branch
+                                Region
                             </label>
 
+
                             <select
-                                value={branch}
-                                onChange={(event) =>
-                                    setBranch(
+                                value={regionCode}
+                                onChange={(event) => {
+
+                                    const selectedRegion =
                                         event.target.value
+
+
+                                    // ---------------------------------
+                                    // This changes regionCode.
+                                    //
+                                    // The Branch useEffect will
+                                    // immediately load branches for
+                                    // this selected Region.
+                                    // ---------------------------------
+
+                                    setRegionCode(
+                                        selectedRegion
                                     )
-                                }
+
+
+                                    // Reset Branch
+                                    setBranch('')
+
+
+                                    // Reset Franchise
+                                    setFranchisesList([])
+                                    setFranchiseCode('')
+
+
+                                    // Clear old search results
+                                    setFranchises([])
+
+
+                                    setError('')
+                                    setSuccessMessage('')
+
+                                }}
                                 disabled={
-                                    branchLoading
+                                    regionLoading
                                 }
                             >
 
                                 <option value="">
-                                    All
+                                    Select Region
                                 </option>
 
+
                                 {
-                                    branches.map(
+                                    regions.map(
                                         (item, index) => {
 
-                                            const bpCode =
+                                            const code =
                                                 getValue(
                                                     item,
-                                                    'bpCode',
-                                                    'BPCode',
-                                                    'Brcode',
-                                                    'BrCode'
+                                                    'regionCode',
+                                                    'RegionCode',
+                                                    'code',
+                                                    'Code'
                                                 )
 
-                                            const branchName =
+
+                                            const name =
                                                 getValue(
                                                     item,
-                                                    'branchName',
-                                                    'BranchName'
+                                                    'regionName',
+                                                    'RegionName',
+                                                    'name',
+                                                    'Name'
                                                 )
+
 
                                             return (
 
                                                 <option
                                                     key={
-                                                        bpCode ||
-                                                        `branch-${index}`
+                                                        code ||
+                                                        `region-${index}`
                                                     }
-                                                    value={
-                                                        bpCode
-                                                    }
+                                                    value={code}
                                                 >
                                                     {
-                                                        branchName
+                                                        name ||
+                                                        code
                                                     }
                                                 </option>
 
@@ -727,13 +1187,186 @@ function FranchiseView() {
                         </div>
 
 
-                        {/* FRANCHISE CODE */}
+                        {/* =====================================
+                            BRANCH
+                        ===================================== */}
+
+                        <div className="franchise-field">
+
+                            <label>
+                                Branch
+                            </label>
+
+
+                            <select
+                                value={branch}
+                                onChange={(event) => {
+
+                                    const selectedBranch =
+                                        event.target.value
+
+
+                                    setBranch(
+                                        selectedBranch
+                                    )
+
+
+                                    // Reset Franchise
+                                    setFranchiseCode('')
+                                    setFranchisesList([])
+
+                                }}
+                                disabled={
+                                    !regionCode ||
+                                    branchLoading
+                                }
+                            >
+
+                                <option value="">
+                                    All
+                                </option>
+
+
+                                {
+                                    branches.map(
+                                        (item, index) => {
+
+                                            const bpCode =
+                                                getValue(
+                                                    item,
+                                                    'bpCode',
+                                                    'BPCode',
+                                                    'BPCODE',
+                                                    'branchCode',
+                                                    'BranchCode',
+                                                    'Brcode',
+                                                    'BrCode'
+                                                )
+
+
+                                            const branchName =
+                                                getValue(
+                                                    item,
+                                                    'branchName',
+                                                    'BranchName',
+                                                    'branch',
+                                                    'Branch',
+                                                    'name',
+                                                    'Name'
+                                                )
+
+
+                                            return (
+
+                                                <option
+                                                        key={bpCode || `branch-${index}`}
+                                                        value={bpCode}
+                                                    >
+                                                        {branchName}
+                                                </option>
+
+                                            )
+
+                                        }
+                                    )
+                                }
+
+                            </select>
+
+                        </div>
+
+
+                        {/* =====================================
+                            FRANCHISE
+                        ===================================== */}
+
+                        <div className="franchise-field">
+
+                            <label>
+                                Franchise
+                            </label>
+
+
+                            <select
+                                value={
+                                    franchiseCode
+                                }
+                                onChange={(event) =>
+                                    setFranchiseCode(
+                                        event.target.value
+                                    )
+                                }
+                                disabled={
+                                    !regionCode ||
+                                    franchiseLoading ||
+                                    roleId === 5
+                                }
+                            >
+
+                                <option value="">
+                                    All
+                                </option>
+
+
+                                {
+                                    franchisesList.map(
+                                        (item, index) => {
+
+                                            const code =
+                                                getValue(
+                                                    item,
+                                                    'loginId',
+                                                    'LoginID',
+                                                    'frCode',
+                                                    'FrCode',
+                                                    'frcode',
+                                                    'BPCode',
+                                                    'bpCode'
+                                                )
+
+
+                                            const name =
+                                                getValue(
+                                                    item,
+                                                    'franchiseName',
+                                                    'FranchiseName',
+                                                    'userName',
+                                                    'UserName',
+                                                    'name',
+                                                    'Name'
+                                                )
+
+
+                                            return (
+
+                                                <option
+                                                    key={code || `franchise-${index}`}
+                                                    value={code}
+                                                >
+                                                    {name}
+                                                </option>
+
+                                            )
+
+                                        }
+                                    )
+                                }
+
+                            </select>
+
+                        </div>
+
+
+                        {/* =====================================
+                            FRANCHISE CODE
+                        ===================================== */}
 
                         <div className="franchise-field">
 
                             <label>
                                 Franchise Code
                             </label>
+
 
                             <input
                                 type="text"
@@ -748,13 +1381,16 @@ function FranchiseView() {
                         </div>
 
 
-                        {/* FRANCHISE NAME */}
+                        {/* =====================================
+                            FRANCHISE NAME
+                        ===================================== */}
 
                         <div className="franchise-field">
 
                             <label>
                                 Franchise Name
                             </label>
+
 
                             <input
                                 type="text"
@@ -771,13 +1407,16 @@ function FranchiseView() {
                         </div>
 
 
-                        {/* MOBILE */}
+                        {/* =====================================
+                            MOBILE
+                        ===================================== */}
 
                         <div className="franchise-field">
 
                             <label>
                                 Mobile Number
                             </label>
+
 
                             <input
                                 type="text"
@@ -793,13 +1432,16 @@ function FranchiseView() {
                         </div>
 
 
-                        {/* STATUS */}
+                        {/* =====================================
+                            STATUS
+                        ===================================== */}
 
                         <div className="franchise-field">
 
                             <label>
                                 Status
                             </label>
+
 
                             <select
                                 value={status}
@@ -827,13 +1469,16 @@ function FranchiseView() {
                         </div>
 
 
-                        {/* FR OWN APP */}
+                        {/* =====================================
+                            FR OWN APP
+                        ===================================== */}
 
                         <div className="franchise-field">
 
                             <label>
                                 FrOWNApp
                             </label>
+
 
                             <select
                                 value={
@@ -865,7 +1510,9 @@ function FranchiseView() {
                     </div>
 
 
-                    {/* SEARCH BUTTON */}
+                    {/* =========================================
+                        SEARCH BUTTON
+                    ========================================= */}
 
                     <div className="franchise-search-actions">
 
@@ -1018,18 +1665,6 @@ function FranchiseView() {
                                     franchises.map(
                                         (item, index) => {
 
-                                            // =====================================
-                                            // API RESPONSE:
-                                            //
-                                            // "frcode": "3013481"
-                                            // "FranchiseName": "Yadav Services"
-                                            // "Phoneno": "7763000780"
-                                            // "EmailID": "..."
-                                            // "CPerson": "..."
-                                            // "is_fo_app_enabled": "Enabled"
-                                            // "isactive": "Active"
-                                            // =====================================
-
                                             const currentFrCode =
                                                 getValue(
                                                     item,
@@ -1067,7 +1702,6 @@ function FranchiseView() {
                                                         index
                                                     }
                                                 >
-
 
                                                     {/* SNO */}
 
@@ -1321,7 +1955,6 @@ function FranchiseView() {
                                                                             }
                                                                         >
                                                                             💾
-                                                                            {/* ✓ */}
                                                                         </button>
 
 

@@ -104,12 +104,32 @@ export async function getReportParameters(
 // =========================================
 
 export async function getRegions(
-    regionCode = ''
+    regionCode = '',
+    userId = ''
 ) {
 
-    const url = regionCode
-        ? `${API_BASE_URL}/api/Reports/regions?regionCode=${encodeURIComponent(regionCode)}`
-        : `${API_BASE_URL}/api/Reports/regions`
+    const params = new URLSearchParams()
+
+    if (regionCode) {
+        params.append(
+            'regionCode',
+            regionCode
+        )
+    }
+
+    if (userId) {
+        params.append(
+            'userId',
+            userId
+        )
+    }
+
+    const queryString =
+        params.toString()
+
+    const url =
+        `${API_BASE_URL}/api/Reports/regions` +
+        (queryString ? `?${queryString}` : '')
 
 
     const response =
@@ -139,16 +159,26 @@ export async function getRegions(
 // =========================================
 
 export async function getBranches(
-    roleId,
-    regionCode,
-    bpCode = ''
+    userId,
+    regionCode = ''
 ) {
 
+    const params = new URLSearchParams()
+
+    params.append(
+        'userId',
+        userId
+    )
+
+    if (regionCode) {
+        params.append(
+            'regionCode',
+            regionCode
+        )
+    }
+
     const url =
-        `${API_BASE_URL}/api/Reports/branches` +
-        `?roleId=${encodeURIComponent(roleId)}` +
-        `&regionCode=${encodeURIComponent(regionCode)}` +
-        `&bpCode=${encodeURIComponent(bpCode)}`
+        `${API_BASE_URL}/api/Reports/branches?${params.toString()}`
 
 
     const response =

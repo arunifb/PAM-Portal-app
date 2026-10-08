@@ -5,11 +5,11 @@ import API_BASE_URL, { authFetch } from './api'
 // GET DASHBOARD MENU
 // =========================================
 
-export async function getDashboardMenu(roleId) {
+export async function getDashboardMenu(userId) {
 
     const response =
         await authFetch(
-            `${API_BASE_URL}/api/Dashboard/menu/${roleId}`,
+            `${API_BASE_URL}/api/Dashboard/menu/${userId}`,
             {
                 method: 'GET'
             }

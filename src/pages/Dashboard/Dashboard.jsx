@@ -91,14 +91,18 @@ function Dashboard() {
 
         const loadDashboardMenu = async () => {
 
-            const roleId =
-                sessionStorage.getItem('roleId')
+            // =========================================
+            // GET LOGGED-IN USER ID
+            // =========================================
+
+            const userId =
+                sessionStorage.getItem('userId')
 
 
-            if (!roleId) {
+            if (!userId) {
 
                 setMenuError(
-                    'Role information is not available.'
+                    'User information is not available.'
                 )
 
                 setMenuLoading(false)
@@ -109,8 +113,12 @@ function Dashboard() {
 
             try {
 
+                // =========================================
+                // LOAD MENU USING USER ID
+                // =========================================
+
                 const data =
-                    await getDashboardMenu(roleId)
+                    await getDashboardMenu(userId)
 
 
                 if (!Array.isArray(data)) {
@@ -165,6 +173,11 @@ function Dashboard() {
                 // =========================================
                 // DEBUG
                 // =========================================
+
+                console.log(
+                    'Dashboard UserID:',
+                    userId
+                )
 
                 console.log(
                     'Dashboard menu with RouteKey:',
@@ -229,7 +242,9 @@ function Dashboard() {
             sessionStorage.clear()
 
             navigate('/')
+
         }
+
     }
 
 
@@ -274,7 +289,6 @@ function Dashboard() {
         //
         // Example:
         //
-        // RoleID = 1
         // ReactUrl = /click2call
         // RouteKey =
         // 8D0EC516-E566-478D-8CE8-49458F63A5F6
@@ -367,6 +381,7 @@ function Dashboard() {
         setReportCount(
             count
         )
+
     }
 
 
@@ -403,6 +418,7 @@ function Dashboard() {
                 currentPath === '/dashboard' &&
                 activeSection === 'dashboard'
             )
+
         }
 
 
@@ -438,11 +454,14 @@ function Dashboard() {
             ) {
 
                 return true
+
             }
+
         }
 
 
         return false
+
     }
 
 
@@ -650,7 +669,6 @@ function Dashboard() {
 
                             </span>
 
-
                         </div>
 
                     </div>
@@ -797,6 +815,7 @@ function Dashboard() {
         </div>
 
     )
+
 }
 
 
