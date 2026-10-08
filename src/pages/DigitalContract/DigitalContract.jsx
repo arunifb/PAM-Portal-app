@@ -39,19 +39,38 @@ function DigitalContract() {
         sessionStorage.getItem('bpCode') || ''
 
     // =========================================
+    // NEW REGION / BRANCH / FRANCHISE ROLES
+    // Role 1, 6 and 9 use new dropdown flow
+    // Role 7 keeps existing logic
+    // =========================================
+
+    const isNewDropdownRole =
+        roleId === '1' ||
+        roleId === '6' ||
+        roleId === '9'
+
+    // =========================================
     // SEARCH FIELDS
     // =========================================
 
     const [regionCode, setRegionCode] =
-        useState(sessionRegionCode)
+        useState(
+            isNewDropdownRole
+                ? ''
+                : sessionRegionCode
+        )
 
     const [branchCode, setBranchCode] =
         useState(
-            roleId === '5' ||
-            roleId === '6' ||
-            roleId === '21'
-                ? sessionBpCode
-                : ''
+            isNewDropdownRole
+                ? ''
+                : (
+                    roleId === '5' ||
+                    roleId === '6' ||
+                    roleId === '21'
+                        ? sessionBpCode
+                        : ''
+                )
         )
 
     // Empty value means ALL franchises
@@ -205,6 +224,56 @@ function DigitalContract() {
     }
 
     // =========================================
+    // FROM DATE CHANGE
+    // =========================================
+
+    const handleFromDateChange = (
+        event
+    ) => {
+
+        const value =
+            event.target.value
+
+        setFromDate(value)
+
+        // Remove only the From Date
+        // validation message immediately
+        if (
+            value &&
+            message ===
+            'Please select a From Date.'
+        ) {
+
+            clearMessage()
+        }
+    }
+
+    // =========================================
+    // TO DATE CHANGE
+    // =========================================
+
+    const handleToDateChange = (
+        event
+    ) => {
+
+        const value =
+            event.target.value
+
+        setToDate(value)
+
+        // Remove only the To Date
+        // validation message immediately
+        if (
+            value &&
+            message ===
+            'Please select a To Date.'
+        ) {
+
+            clearMessage()
+        }
+    }
+
+    // =========================================
     // LOAD REGIONS
     // =========================================
 
@@ -213,6 +282,36 @@ function DigitalContract() {
         const loadRegions = async () => {
 
             try {
+
+                // ---------------------------------
+                // NEW ROLES: 1, 6, 9
+                // Load all regions for selection
+                // ---------------------------------
+
+                if (isNewDropdownRole) {
+
+                    const result =
+                        await getRegions(
+                            '',
+                            Number(userId)
+                        )
+
+                    const regionList =
+                        Array.isArray(result)
+                            ? result
+                            : result?.data || []
+
+                    setRegions(
+                        regionList
+                    )
+
+                    return
+                }
+
+                // ---------------------------------
+                // EXISTING LOGIC
+                // INCLUDING ROLE 7
+                // ---------------------------------
 
                 const result =
                     await getRegions(
@@ -250,7 +349,9 @@ function DigitalContract() {
 
     }, [
         roleId,
-        sessionRegionCode
+        userId,
+        sessionRegionCode,
+        isNewDropdownRole
     ])
 
     // =========================================
@@ -260,6 +361,82 @@ function DigitalContract() {
     useEffect(() => {
 
         const loadBranches = async () => {
+
+            // =====================================
+            // NEW LOGIC
+            // ROLE 1, 6, 9
+            // =====================================
+
+            if (isNewDropdownRole) {
+
+                if (!regionCode) {
+
+                    setBranches([])
+
+                    setBranchCode('')
+
+                    setFranchises([])
+
+                    setFranchiseCode('')
+
+                    return
+                }
+
+                try {
+
+                    setDropdownLoading(true)
+
+                    const result =
+                        await getBranches(
+                            Number(userId),
+                            regionCode
+                        )
+
+                    const branchList =
+                        Array.isArray(result)
+                            ? result
+                            : result?.data || []
+
+                    setBranches(
+                        branchList
+                    )
+
+                    // Empty value means ALL branches
+                    setBranchCode('')
+
+                    // Franchise resets when branch changes
+                    setFranchises([])
+
+                    setFranchiseCode('')
+
+                } catch (error) {
+
+                    console.error(
+                        'Digital Contract branch error:',
+                        error
+                    )
+
+                    setBranches([])
+
+                    setMessage(
+                        error.message ||
+                        'Unable to load branches.'
+                    )
+
+                    setMessageType('error')
+
+                } finally {
+
+                    setDropdownLoading(false)
+                }
+
+                return
+            }
+
+            // =====================================
+            // EXISTING LOGIC
+            // INCLUDING ROLE 7
+            // =====================================
 
             if (!regionCode) {
 
@@ -319,7 +496,9 @@ function DigitalContract() {
     }, [
         regionCode,
         roleId,
-        sessionBpCode
+        userId,
+        sessionBpCode,
+        isNewDropdownRole
     ])
 
     // =========================================
@@ -331,7 +510,83 @@ function DigitalContract() {
         const loadFranchises = async () => {
 
             // =====================================
-            // BRANCH = ALL
+            // NEW LOGIC
+            // ROLE 1, 6, 9
+            // =====================================
+
+            if (isNewDropdownRole) {
+
+                // No Region selected
+                if (!regionCode) {
+
+                    setFranchises([])
+
+                    setFranchiseCode('')
+
+                    return
+                }
+
+                // Region selected but Branch = ALL
+                // Do not load franchise list
+                if (!branchCode) {
+
+                    setFranchises([])
+
+                    setFranchiseCode('')
+
+                    return
+                }
+
+                try {
+
+                    setDropdownLoading(true)
+
+                    const result =
+                        await getFranchises(
+                            Number(roleId),
+                            branchCode,
+                            loginId
+                        )
+
+                    const franchiseList =
+                        Array.isArray(result)
+                            ? result
+                            : result?.data || []
+
+                    setFranchises(
+                        franchiseList
+                    )
+
+                    // Empty value means ALL franchises
+                    setFranchiseCode('')
+
+                } catch (error) {
+
+                    console.error(
+                        'Digital Contract franchise error:',
+                        error
+                    )
+
+                    setFranchises([])
+
+                    setMessage(
+                        error.message ||
+                        'Unable to load franchises.'
+                    )
+
+                    setMessageType('error')
+
+                } finally {
+
+                    setDropdownLoading(false)
+                }
+
+                return
+            }
+
+            // =====================================
+            // EXISTING LOGIC
+            // INCLUDING ROLE 7
             // =====================================
 
             if (!branchCode) {
@@ -420,8 +675,10 @@ function DigitalContract() {
 
     }, [
         branchCode,
+        regionCode,
         roleId,
-        loginId
+        loginId,
+        isNewDropdownRole
     ])
 
     // =========================================
@@ -439,10 +696,10 @@ function DigitalContract() {
             value
         )
 
-        // Reset Branch to ALL
+        // Reset Branch
         setBranchCode('')
 
-        // Reset Franchise to ALL
+        // Reset Franchise
         setFranchiseCode('')
 
         setBranches([])
@@ -507,6 +764,25 @@ function DigitalContract() {
         event?.preventDefault()
 
         clearMessage()
+
+        // -------------------------------------
+        // REGION VALIDATION
+        // Only for roles 1, 6 and 9
+        // -------------------------------------
+
+        if (
+            isNewDropdownRole &&
+            !regionCode
+        ) {
+
+            setMessage(
+                'Please select a Region.'
+            )
+
+            setMessageType('error')
+
+            return
+        }
 
         // -------------------------------------
         // FROM DATE VALIDATION
@@ -890,6 +1166,12 @@ function DigitalContract() {
 
                                 <label>
                                     Region
+
+                                    {isNewDropdownRole && (
+                                        <span className="required">
+                                            *
+                                        </span>
+                                    )}
                                 </label>
 
                                 <select
@@ -897,7 +1179,8 @@ function DigitalContract() {
                                         regionCode
                                     }
                                     disabled={
-                                        roleId !== '7'
+                                        roleId !== '7' &&
+                                        !isNewDropdownRole
                                     }
                                     onChange={
                                         handleRegionChange
@@ -959,16 +1242,19 @@ function DigitalContract() {
                                         branchCode
                                     }
                                     disabled={
-                                        roleId === '5' ||
-                                        roleId === '6' ||
-                                        roleId === '21'
+                                        isNewDropdownRole
+                                            ? !regionCode ||
+                                              dropdownLoading
+                                            : (
+                                                roleId === '5' ||
+                                                roleId === '6' ||
+                                                roleId === '21'
+                                            )
                                     }
                                     onChange={
                                         handleBranchChange
                                     }
                                 >
-
-                                    {/* ALL BRANCHES */}
 
                                     <option value="">
                                         All
@@ -1025,14 +1311,15 @@ function DigitalContract() {
                                         franchiseCode
                                     }
                                     disabled={
-                                        roleId === '5'
+                                        isNewDropdownRole
+                                            ? !regionCode ||
+                                              dropdownLoading
+                                            : roleId === '5'
                                     }
                                     onChange={
                                         handleFranchiseChange
                                     }
                                 >
-
-                                    {/* ALL FRANCHISES */}
 
                                     <option value="">
                                         All
@@ -1221,10 +1508,7 @@ function DigitalContract() {
                                         fromDate
                                     }
                                     onChange={
-                                        event =>
-                                            setFromDate(
-                                                event.target.value
-                                            )
+                                        handleFromDateChange
                                     }
                                 />
 
@@ -1250,10 +1534,7 @@ function DigitalContract() {
                                         toDate
                                     }
                                     onChange={
-                                        event =>
-                                            setToDate(
-                                                event.target.value
-                                            )
+                                        handleToDateChange
                                     }
                                 />
 

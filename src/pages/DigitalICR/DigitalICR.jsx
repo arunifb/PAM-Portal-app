@@ -4,6 +4,7 @@ import './DigitalICR.css'
 import DashboardLayout from '../../components/DashboardLayout/DashboardLayout'
 
 import {
+    getRegions,
     getBranches,
     getFranchises
 } from '../../api/reportsApi'
@@ -20,13 +21,18 @@ function DigitalICR() {
     // SESSION VALUES
     // =========================================
 
+    const sessionUserId =
+        Number(
+            sessionStorage.getItem('userId') || 0
+        )
+
     const roleId =
         Number(
             sessionStorage.getItem('roleId') ||
             sessionStorage.getItem('roleID')
         ) || 0
 
-    const regionCode =
+    const sessionRegionCode =
         sessionStorage.getItem('regionCode') || ''
 
     const bpCode =
@@ -37,17 +43,36 @@ function DigitalICR() {
 
 
     // =========================================
+    // REGION STATE
+    // =========================================
+
+    const [regions, setRegions] =
+        useState([])
+
+    const [selectedRegionCode, setSelectedRegionCode] =
+        useState('')
+
+    const [loadingRegions, setLoadingRegions] =
+        useState(false)
+
+
+    // =========================================
     // FORM STATE
     // =========================================
 
-    const [branches, setBranches] = useState([])
-    const [franchises, setFranchises] = useState([])
+    const [branches, setBranches] =
+        useState([])
+
+    const [franchises, setFranchises] =
+        useState([])
+
 
     const [branchCode, setBranchCode] =
-        useState('All')
+        useState('')
 
     const [franchiseCode, setFranchiseCode] =
         useState('All')
+
 
     const [fromDate, setFromDate] =
         useState('')
@@ -93,24 +118,228 @@ function DigitalICR() {
 
 
     // =========================================
+    // GET REGION VALUE
+    // =========================================
+
+    const getRegionCode = (item) => {
+
+        return (
+            item.regionCode ??
+            item.RegionCode ??
+            ''
+        )
+
+    }
+
+
+    const getRegionName = (item) => {
+
+        return (
+            item.regionName ??
+            item.RegionName ??
+            item.name ??
+            item.Name ??
+            ''
+        )
+
+    }
+
+
+    // =========================================
+    // LOAD REGIONS
+    // =========================================
+
+    useEffect(() => {
+
+        let cancelled = false
+
+
+        const loadRegions = async () => {
+
+            try {
+
+                setLoadingRegions(true)
+                setError('')
+
+
+                const data =
+                    await getRegions(
+                        '',
+                        sessionUserId
+                    )
+
+
+                if (cancelled) {
+                    return
+                }
+
+
+                if (!Array.isArray(data)) {
+
+                    throw new Error(
+                        'Invalid region response.'
+                    )
+
+                }
+
+
+                setRegions(data)
+
+
+                // =====================================
+                // INITIAL REGION
+                // =====================================
+                //
+                // Role 1:
+                // Start with Select Region.
+                //
+                // Other roles:
+                // Use session region if available.
+                // =====================================
+
+                if (
+                    roleId === 1
+                ) {
+
+                    setSelectedRegionCode('')
+
+                }
+                else if (
+                    sessionRegionCode
+                ) {
+
+                    setSelectedRegionCode(
+                        sessionRegionCode
+                    )
+
+                }
+                else {
+
+                    setSelectedRegionCode('')
+
+                }
+
+
+            } catch (error) {
+
+                if (cancelled) {
+                    return
+                }
+
+
+                console.error(
+                    'Digital ICR region error:',
+                    error
+                )
+
+
+                setRegions([])
+
+                setSelectedRegionCode('')
+
+
+                setError(
+                    error.message ||
+                    'Unable to load regions.'
+                )
+
+
+            } finally {
+
+                if (!cancelled) {
+
+                    setLoadingRegions(false)
+
+                }
+
+            }
+
+        }
+
+
+        loadRegions()
+
+
+        return () => {
+
+            cancelled = true
+
+        }
+
+
+    }, [
+        sessionUserId,
+        roleId,
+        sessionRegionCode
+    ])
+
+
+    // =========================================
     // LOAD BRANCHES
     // =========================================
 
     useEffect(() => {
 
+        let cancelled = false
+
+
         const loadBranches = async () => {
+
+            // =====================================
+            // NO REGION SELECTED
+            // =====================================
+
+            if (!selectedRegionCode) {
+
+                setBranches([])
+
+                setBranchCode('')
+
+                setFranchises([])
+
+                setFranchiseCode('All')
+
+                setLoadingBranches(false)
+
+                return
+
+            }
+
 
             try {
 
                 setLoadingBranches(true)
                 setError('')
 
+
+                console.log(
+                    'Digital ICR Loading branches:',
+                    {
+                        userId:
+                            sessionUserId,
+
+                        regionCode:
+                            selectedRegionCode
+                    }
+                )
+
+
                 const data =
                     await getBranches(
-                        roleId,
-                        regionCode,
-                        bpCode
+                        sessionUserId,
+                        selectedRegionCode
                     )
+
+
+                if (cancelled) {
+                    return
+                }
+
+
+                console.log(
+                    'Digital ICR Branch Response:',
+                    data
+                )
 
 
                 if (!Array.isArray(data)) {
@@ -118,6 +347,7 @@ function DigitalICR() {
                     throw new Error(
                         'Invalid branch response.'
                     )
+
                 }
 
 
@@ -125,8 +355,7 @@ function DigitalICR() {
                 // ROLE 1
                 // =====================================
                 //
-                // Role 1:
-                // Show all branches.
+                // Show All + returned branches.
                 // =====================================
 
                 if (roleId === 1) {
@@ -146,52 +375,115 @@ function DigitalICR() {
                 // =====================================
                 // OTHER ROLES
                 // =====================================
+                //
+                // Keep their existing branch behavior.
+                // =====================================
 
                 else {
 
                     setBranches(data)
 
 
-                    if (data.length > 0) {
+                    if (
+                        bpCode &&
+                        data.some(
+                            item =>
+                                String(
+                                    getBranchCode(item)
+                                ) ===
+                                String(bpCode)
+                        )
+                    ) {
 
                         setBranchCode(
-                            data[0].bpCode
+                            bpCode
                         )
 
                     }
-                    else if (bpCode) {
+                    else if (
+                        data.length > 0
+                    ) {
 
-                        setBranchCode(bpCode)
+                        setBranchCode(
+                            getBranchCode(
+                                data[0]
+                            )
+                        )
+
+                    }
+                    else {
+
+                        setBranchCode('')
 
                     }
 
                 }
 
+
+                // =====================================
+                // RESET FRANCHISE
+                // =====================================
+
+                setFranchises([])
+
+                setFranchiseCode('All')
+
+
             } catch (error) {
+
+                if (cancelled) {
+                    return
+                }
+
 
                 console.error(
                     'Digital ICR branch error:',
                     error
                 )
 
+
+                setBranches([])
+
+                setBranchCode('')
+
+                setFranchises([])
+
+                setFranchiseCode('All')
+
+
                 setError(
                     error.message ||
                     'Unable to load branches.'
                 )
 
+
             } finally {
 
-                setLoadingBranches(false)
+                if (!cancelled) {
+
+                    setLoadingBranches(false)
+
+                }
 
             }
+
         }
 
 
         loadBranches()
 
+
+        return () => {
+
+            cancelled = true
+
+        }
+
+
     }, [
+        selectedRegionCode,
+        sessionUserId,
         roleId,
-        regionCode,
         bpCode
     ])
 
@@ -202,12 +494,57 @@ function DigitalICR() {
 
     useEffect(() => {
 
+        let cancelled = false
+
+
         const loadFranchises = async () => {
+
+            // =====================================
+            // NO REGION
+            // =====================================
+
+            if (!selectedRegionCode) {
+
+                setFranchises([])
+
+                setFranchiseCode('All')
+
+                setLoadingFranchises(false)
+
+                return
+
+            }
+
+
+            // =====================================
+            // NO BRANCH
+            // =====================================
+
+            if (!branchCode) {
+
+                setFranchises([])
+
+                setFranchiseCode('All')
+
+                setLoadingFranchises(false)
+
+                return
+
+            }
+
 
             try {
 
                 setLoadingFranchises(true)
                 setError('')
+
+
+                let franchiseBpCode =
+                    branchCode
+
+                let franchiseLoginId =
+                    loginId
+
 
                 // =====================================
                 // ROLE 1
@@ -215,22 +552,106 @@ function DigitalICR() {
 
                 if (roleId === 1) {
 
-                    const data =
-                        await getFranchises(
-                            roleId,
-                            branchCode,
-                            loginId
-                        )
+                    franchiseBpCode =
+                        branchCode
+
+                    franchiseLoginId =
+                        loginId
+
+                }
+
+                // =====================================
+                // ROLE 6
+                // =====================================
+
+                else if (roleId === 6) {
+
+                    franchiseBpCode =
+                        bpCode
+
+                    franchiseLoginId =
+                        loginId
+
+                }
+
+                // =====================================
+                // ROLE 5
+                // =====================================
+
+                else if (roleId === 5) {
+
+                    franchiseBpCode =
+                        bpCode
+
+                    franchiseLoginId =
+                        loginId
+
+                }
+
+                // =====================================
+                // OTHER ROLES
+                // =====================================
+
+                else {
+
+                    setFranchises([])
+
+                    setFranchiseCode('All')
+
+                    setLoadingFranchises(false)
+
+                    return
+
+                }
 
 
-                    if (!Array.isArray(data)) {
-
-                        throw new Error(
-                            'Invalid franchise response.'
-                        )
-
+                console.log(
+                    'Digital ICR Loading franchises:',
+                    {
+                        roleId,
+                        regionCode:
+                            selectedRegionCode,
+                        bpCode:
+                            franchiseBpCode,
+                        loginId:
+                            franchiseLoginId
                     }
+                )
 
+
+                const data =
+                    await getFranchises(
+                        roleId,
+                        franchiseBpCode,
+                        franchiseLoginId
+                    )
+
+
+                if (cancelled) {
+                    return
+                }
+
+
+                console.log(
+                    'Digital ICR Franchise Response:',
+                    data
+                )
+
+
+                if (!Array.isArray(data)) {
+
+                    throw new Error(
+                        'Invalid franchise response.'
+                    )
+
+                }
+
+
+                // =====================================
+                // ROLE 1
+                // =====================================
+
+                if (roleId === 1) {
 
                     setFranchises([
                         {
@@ -239,7 +660,6 @@ function DigitalICR() {
                         },
                         ...data
                     ])
-
 
                     setFranchiseCode('All')
 
@@ -251,30 +671,17 @@ function DigitalICR() {
 
                 else if (roleId === 6) {
 
-                    const data =
-                        await getFranchises(
-                            roleId,
-                            bpCode,
-                            loginId
-                        )
-
-
-                    if (!Array.isArray(data)) {
-
-                        throw new Error(
-                            'Invalid franchise response.'
-                        )
-
-                    }
-
-
                     setFranchises(data)
 
 
-                    if (data.length > 0) {
+                    if (
+                        data.length > 0
+                    ) {
 
                         setFranchiseCode(
-                            data[0].frCode
+                            getFranchiseCode(
+                                data[0]
+                            )
                         )
 
                     }
@@ -292,30 +699,17 @@ function DigitalICR() {
 
                 else if (roleId === 5) {
 
-                    const data =
-                        await getFranchises(
-                            roleId,
-                            bpCode,
-                            loginId
-                        )
-
-
-                    if (!Array.isArray(data)) {
-
-                        throw new Error(
-                            'Invalid franchise response.'
-                        )
-
-                    }
-
-
                     setFranchises(data)
 
 
-                    if (data.length > 0) {
+                    if (
+                        data.length > 0
+                    ) {
 
                         setFranchiseCode(
-                            data[0].frCode
+                            getFranchiseCode(
+                                data[0]
+                            )
                         )
 
                     }
@@ -327,49 +721,96 @@ function DigitalICR() {
 
                 }
 
-                // =====================================
-                // OTHER ROLES
-                // =====================================
-
-                else {
-
-                    setFranchises([])
-                    setFranchiseCode('All')
-
-                }
 
             } catch (error) {
+
+                if (cancelled) {
+                    return
+                }
+
 
                 console.error(
                     'Digital ICR franchise error:',
                     error
                 )
 
+
                 setFranchises([])
 
                 setFranchiseCode('All')
+
 
                 setError(
                     error.message ||
                     'Unable to load franchises.'
                 )
 
+
             } finally {
 
-                setLoadingFranchises(false)
+                if (!cancelled) {
+
+                    setLoadingFranchises(false)
+
+                }
 
             }
+
         }
 
 
         loadFranchises()
 
+
+        return () => {
+
+            cancelled = true
+
+        }
+
+
     }, [
+        selectedRegionCode,
         branchCode,
         roleId,
         bpCode,
         loginId
     ])
+
+
+    // =========================================
+    // REGION CHANGE
+    // =========================================
+
+    const handleRegionChange = (event) => {
+
+        const selectedRegion =
+            event.target.value
+
+
+        setSelectedRegionCode(
+            selectedRegion
+        )
+
+
+        // Reset dependent filters.
+        setBranches([])
+
+        setBranchCode('')
+
+        setFranchises([])
+
+        setFranchiseCode('All')
+
+
+        // Clear previous results/messages.
+        setRecords([])
+
+        setError('')
+
+        setMessage('')
+
+    }
 
 
     // =========================================
@@ -385,6 +826,7 @@ function DigitalICR() {
         setBranchCode(
             selectedBranch
         )
+
 
         setFranchiseCode('All')
 
@@ -410,6 +852,7 @@ function DigitalICR() {
         )
 
         setError('')
+
         setMessage('')
 
     }
@@ -422,17 +865,38 @@ function DigitalICR() {
     const handleSearch = async () => {
 
         setError('')
+
         setMessage('')
 
+
         // Clear previous records immediately.
+
         setRecords([])
 
 
         // =====================================
-        // VALIDATION
+        // REGION VALIDATION
         // =====================================
 
-        if (!fromDate || !toDate) {
+        if (!selectedRegionCode) {
+
+            setError(
+                'Region is required.'
+            )
+
+            return
+
+        }
+
+
+        // =====================================
+        // DATE VALIDATION
+        // =====================================
+
+        if (
+            !fromDate ||
+            !toDate
+        ) {
 
             setError(
                 'From Date and To Date are required.'
@@ -443,7 +907,10 @@ function DigitalICR() {
         }
 
 
-        if (fromDate > toDate) {
+        if (
+            fromDate >
+            toDate
+        ) {
 
             setError(
                 'From Date cannot be greater than To Date.'
@@ -461,10 +928,12 @@ function DigitalICR() {
         const searchData = {
 
             branchCode:
-                branchCode || 'All',
+                branchCode ||
+                'All',
 
             franchiseCode:
-                franchiseCode || 'All',
+                franchiseCode ||
+                'All',
 
             fromDate:
                 fromDate,
@@ -503,7 +972,9 @@ function DigitalICR() {
 
 
             const data =
-                Array.isArray(response?.data)
+                Array.isArray(
+                    response?.data
+                )
                     ? response.data
                     : []
 
@@ -511,13 +982,16 @@ function DigitalICR() {
             setRecords(data)
 
 
-            if (data.length === 0) {
+            if (
+                data.length === 0
+            ) {
 
                 setMessage(
                     'No records found.'
                 )
 
             }
+
 
         } catch (error) {
 
@@ -526,10 +1000,12 @@ function DigitalICR() {
                 error
             )
 
+
             setError(
                 error.message ||
                 'Unable to load Digital ICR data.'
             )
+
 
         } finally {
 
@@ -547,22 +1023,27 @@ function DigitalICR() {
     const handleDownload = async () => {
 
         setError('')
+
         setMessage('')
 
 
         const searchData = {
 
             branchCode:
-                branchCode || 'All',
+                branchCode ||
+                'All',
 
             franchiseCode:
-                franchiseCode || 'All',
+                franchiseCode ||
+                'All',
 
             fromDate:
-                fromDate || null,
+                fromDate ||
+                null,
 
             toDate:
-                toDate || null
+                toDate ||
+                null
 
         }
 
@@ -588,7 +1069,9 @@ function DigitalICR() {
                 document.createElement('a')
 
 
-            link.href = url
+            link.href =
+                url
+
 
             link.download =
                 'DigitalICR.xlsx'
@@ -598,7 +1081,9 @@ function DigitalICR() {
                 link
             )
 
+
             link.click()
+
 
             link.remove()
 
@@ -607,6 +1092,7 @@ function DigitalICR() {
                 url
             )
 
+
         } catch (error) {
 
             console.error(
@@ -614,10 +1100,12 @@ function DigitalICR() {
                 error
             )
 
+
             setError(
                 error.message ||
                 'Unable to download Digital ICR.'
             )
+
 
         } finally {
 
@@ -704,6 +1192,9 @@ function DigitalICR() {
             item.frCode ??
             item.Frcode ??
             item.FRCode ??
+            item.frcode ??
+            item.loginId ??
+            item.LoginID ??
             ''
         )
 
@@ -715,6 +1206,9 @@ function DigitalICR() {
         return (
             item.franchiseName ??
             item.FranchiseName ??
+            item.FranchiseName ??
+            item.userName ??
+            item.UserName ??
             ''
         )
 
@@ -747,6 +1241,81 @@ function DigitalICR() {
 
 
                         {/* =============================
+                            REGION
+                        ============================= */}
+
+                        <div className="digital-icr-field">
+
+                            <label>
+                                Region
+                            </label>
+
+
+                            <select
+                                value={
+                                    selectedRegionCode
+                                }
+                                onChange={
+                                    handleRegionChange
+                                }
+                                disabled={
+                                    loadingRegions
+                                }
+                            >
+
+                                <option value="">
+                                    Select Region
+                                </option>
+
+
+                                {
+                                    regions.map(
+                                        (
+                                            item,
+                                            index
+                                        ) => {
+
+                                            const code =
+                                                getRegionCode(
+                                                    item
+                                                )
+
+                                            const name =
+                                                getRegionName(
+                                                    item
+                                                )
+
+
+                                            return (
+
+                                                <option
+                                                    key={
+                                                        code ||
+                                                        `region-${index}`
+                                                    }
+                                                    value={
+                                                        code
+                                                    }
+                                                >
+
+                                                    {
+                                                        name
+                                                    }
+
+                                                </option>
+
+                                            )
+
+                                        }
+                                    )
+                                }
+
+                            </select>
+
+                        </div>
+
+
+                        {/* =============================
                             BRANCH
                         ============================= */}
 
@@ -756,37 +1325,58 @@ function DigitalICR() {
                                 Branch
                             </label>
 
+
                             <select
-                                value={branchCode}
+                                value={
+                                    branchCode
+                                }
                                 onChange={
                                     handleBranchChange
                                 }
                                 disabled={
-                                    loadingBranches ||
-                                    roleId !== 1
+                                    !selectedRegionCode ||
+                                    loadingBranches
                                 }
                             >
 
-                                {branches.map(
-                                    (item, index) => (
+                                {
+                                    !selectedRegionCode ? (
 
-                                        <option
-                                            key={
-                                                `${getBranchCode(item)}-${index}`
-                                            }
-                                            value={
-                                                getBranchCode(item)
-                                            }
-                                        >
-
-                                            {
-                                                getBranchName(item)
-                                            }
-
+                                        <option value="">
+                                            Select Region First
                                         </option>
 
+                                    ) : (
+
+                                        branches.map(
+                                            (
+                                                item,
+                                                index
+                                            ) => (
+
+                                                <option
+                                                    key={
+                                                        `${getBranchCode(item)}-${index}`
+                                                    }
+                                                    value={
+                                                        getBranchCode(item)
+                                                    }
+                                                >
+
+                                                    {
+                                                        getBranchName(
+                                                            item
+                                                        )
+                                                    }
+
+                                                </option>
+
+                                            )
+                                        )
+
                                     )
-                                )}
+
+                                }
 
                             </select>
 
@@ -803,38 +1393,66 @@ function DigitalICR() {
                                 Franchise
                             </label>
 
+
                             <select
-                                value={franchiseCode}
+                                value={
+                                    franchiseCode
+                                }
                                 onChange={
                                     handleFranchiseChange
                                 }
                                 disabled={
+                                    !selectedRegionCode ||
+                                    !branchCode ||
                                     loadingFranchises ||
-                                    roleId === 5 ||
-                                    !branchCode
+                                    roleId === 5
                                 }
                             >
 
-                                {franchises.map(
-                                    (item, index) => (
+                                {
+                                    !selectedRegionCode ? (
 
-                                        <option
-                                            key={
-                                                `${getFranchiseCode(item)}-${index}`
-                                            }
-                                            value={
-                                                getFranchiseCode(item)
-                                            }
-                                        >
-
-                                            {
-                                                getFranchiseName(item)
-                                            }
-
+                                        <option value="All">
+                                            Select Region First
                                         </option>
 
+                                    ) : !branchCode ? (
+
+                                        <option value="All">
+                                            All
+                                        </option>
+
+                                    ) : (
+
+                                        franchises.map(
+                                            (
+                                                item,
+                                                index
+                                            ) => (
+
+                                                <option
+                                                    key={
+                                                        `${getFranchiseCode(item)}-${index}`
+                                                    }
+                                                    value={
+                                                        getFranchiseCode(item)
+                                                    }
+                                                >
+
+                                                    {
+                                                        getFranchiseName(
+                                                            item
+                                                        )
+                                                    }
+
+                                                </option>
+
+                                            )
+                                        )
+
                                     )
-                                )}
+
+                                }
 
                             </select>
 
@@ -857,9 +1475,12 @@ function DigitalICR() {
 
                             </label>
 
+
                             <input
                                 type="date"
-                                value={fromDate}
+                                value={
+                                    fromDate
+                                }
                                 onChange={
                                     (event) =>
                                         setFromDate(
@@ -887,9 +1508,12 @@ function DigitalICR() {
 
                             </label>
 
+
                             <input
                                 type="date"
-                                value={toDate}
+                                value={
+                                    toDate
+                                }
                                 onChange={
                                     (event) =>
                                         setToDate(
@@ -907,26 +1531,30 @@ function DigitalICR() {
                         ERROR
                     ================================= */}
 
-                    {error && (
+                    {
+                        error && (
 
-                        <div className="digital-icr-error">
-                            {error}
-                        </div>
+                            <div className="digital-icr-error">
+                                {error}
+                            </div>
 
-                    )}
+                        )
+                    }
 
 
                     {/* =================================
                         MESSAGE
                     ================================= */}
 
-                    {message && (
+                    {
+                        message && (
 
-                        <div className="digital-icr-message">
-                            {message}
-                        </div>
+                            <div className="digital-icr-message">
+                                {message}
+                            </div>
 
-                    )}
+                        )
+                    }
 
 
                     {/* =================================
@@ -946,9 +1574,11 @@ function DigitalICR() {
                             }
                         >
 
-                            {searching
-                                ? 'Searching...'
-                                : 'Search'}
+                            {
+                                searching
+                                    ? 'Searching...'
+                                    : 'Search'
+                            }
 
                         </button>
 
@@ -966,9 +1596,11 @@ function DigitalICR() {
                             }
                         >
 
-                            {downloading
-                                ? 'Downloading...'
-                                : 'Download'}
+                            {
+                                downloading
+                                    ? 'Downloading...'
+                                    : 'Download'
+                            }
 
                         </button>
 
@@ -988,23 +1620,34 @@ function DigitalICR() {
                         TOTAL RECORDS
                     ================================= */}
 
-                    {records.length > 0 &&
+                    {
+                        records.length > 0 &&
                         !searching && (
 
                             <h3 className="digital-icr-record-count">
 
-                                {records.length}
+                                {
+                                    records.length
+                                }
+
                                 {' '}
+
                                 record
-                                {records.length !== 1
-                                    ? 's'
-                                    : ''}
+
+                                {
+                                    records.length !== 1
+                                        ? 's'
+                                        : ''
+                                }
+
                                 {' '}
+
                                 found
 
                             </h3>
 
-                        )}
+                        )
+                    }
 
 
                     {/* =================================
@@ -1067,137 +1710,142 @@ function DigitalICR() {
                                     LOADING
                                 ================================= */}
 
-                                {searching ? (
+                                {
+                                    searching ? (
 
-                                    <tr>
+                                        <tr>
 
-                                        <td
-                                            colSpan="9"
-                                            className="digital-icr-loading-cell"
-                                        >
+                                            <td
+                                                colSpan="9"
+                                                className="digital-icr-loading-cell"
+                                            >
 
-                                            <div className="digital-icr-loading">
+                                                <div className="digital-icr-loading">
 
-                                                <div className="digital-icr-loading-dots">
+                                                    <div className="digital-icr-loading-dots">
 
-                                                    <span></span>
-                                                    <span></span>
-                                                    <span></span>
+                                                        <span></span>
+                                                        <span></span>
+                                                        <span></span>
+
+                                                    </div>
+
+                                                    <span className="digital-icr-loading-text">
+                                                        Loading...
+                                                    </span>
 
                                                 </div>
 
-                                                <span className="digital-icr-loading-text">
-                                                    Loading...
-                                                </span>
+                                            </td>
 
-                                            </div>
+                                        </tr>
 
-                                        </td>
+                                    ) : records.length > 0 ? (
 
-                                    </tr>
+                                        /* =================================
+                                           RESULTS
+                                        ================================= */
 
-                                ) : records.length > 0 ? (
+                                        records.map(
+                                            (
+                                                record,
+                                                index
+                                            ) => (
 
-                                    /* =================================
-                                       RESULTS
-                                    ================================= */
-
-                                    records.map(
-                                        (record, index) => (
-
-                                            <tr
-                                                key={
-                                                    `${record.ticketNo || index}-${index}`
-                                                }
-                                            >
-
-                                                <td>
-                                                    {
-                                                        record.ticketNo ||
-                                                        ''
+                                                <tr
+                                                    key={
+                                                        `${record.ticketNo || index}-${index}`
                                                     }
-                                                </td>
+                                                >
 
-                                                <td>
-                                                    {
-                                                        record.customer ||
-                                                        ''
-                                                    }
-                                                </td>
+                                                    <td>
+                                                        {
+                                                            record.ticketNo ||
+                                                            ''
+                                                        }
+                                                    </td>
 
-                                                <td>
-                                                    {
-                                                        record.franchiseName ||
-                                                        ''
-                                                    }
-                                                </td>
+                                                    <td>
+                                                        {
+                                                            record.customer ||
+                                                            ''
+                                                        }
+                                                    </td>
 
-                                                <td>
-                                                    {
-                                                        record.technician ||
-                                                        ''
-                                                    }
-                                                </td>
+                                                    <td>
+                                                        {
+                                                            record.franchiseName ||
+                                                            ''
+                                                        }
+                                                    </td>
 
-                                                <td>
-                                                    {
-                                                        record.icrNo ||
-                                                        ''
-                                                    }
-                                                </td>
+                                                    <td>
+                                                        {
+                                                            record.technician ||
+                                                            ''
+                                                        }
+                                                    </td>
 
-                                                <td>
-                                                    {
-                                                        record.amount ||
-                                                        ''
-                                                    }
-                                                </td>
+                                                    <td>
+                                                        {
+                                                            record.icrNo ||
+                                                            ''
+                                                        }
+                                                    </td>
 
-                                                <td>
-                                                    {
-                                                        formatICRDate(
-                                                            record.icrDate
-                                                        )
-                                                    }
-                                                </td>
+                                                    <td>
+                                                        {
+                                                            record.amount ||
+                                                            ''
+                                                        }
+                                                    </td>
 
-                                                <td>
-                                                    {
-                                                        record.paymentMode ||
-                                                        ''
-                                                    }
-                                                </td>
+                                                    <td>
+                                                        {
+                                                            formatICRDate(
+                                                                record.icrDate
+                                                            )
+                                                        }
+                                                    </td>
 
-                                                <td>
-                                                    {
-                                                        record.type ||
-                                                        ''
-                                                    }
-                                                </td>
+                                                    <td>
+                                                        {
+                                                            record.paymentMode ||
+                                                            ''
+                                                        }
+                                                    </td>
 
-                                            </tr>
+                                                    <td>
+                                                        {
+                                                            record.type ||
+                                                            ''
+                                                        }
+                                                    </td>
 
+                                                </tr>
+
+                                            )
                                         )
+
+                                    ) : (
+
+                                        /* =================================
+                                           NO RECORDS
+                                        ================================= */
+
+                                        <tr>
+
+                                            <td
+                                                colSpan="9"
+                                                className="digital-icr-empty"
+                                            >
+                                                no record found change search criteria
+                                            </td>
+
+                                        </tr>
+
                                     )
-
-                                ) : (
-
-                                    /* =================================
-                                       NO RECORDS
-                                    ================================= */
-
-                                    <tr>
-
-                                        <td
-                                            colSpan="9"
-                                            className="digital-icr-empty"
-                                        >
-                                            no record found change search criteria
-                                        </td>
-
-                                    </tr>
-
-                                )}
+                                }
 
                             </tbody>
 

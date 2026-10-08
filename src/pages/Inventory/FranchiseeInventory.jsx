@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-import { getBranches, getFranchises } from '../../api/reportsApi'
+import {
+    getRegions,
+    getBranches,
+    getFranchises
+} from '../../api/reportsApi'
 
 import {
     searchInventory,
@@ -29,28 +33,74 @@ function FranchiseeInventory() {
     const roleId =
         sessionStorage.getItem('roleId') || ''
 
-    const bpCode =
-        sessionStorage.getItem('bpCode') || ''
-
     const loginId =
         sessionStorage.getItem('loginId') || ''
 
-    const regionCode =
-        sessionStorage.getItem('regionCode') || ''
+
+    // =========================================
+    // GET LOGGED-IN USER ID
+    // =========================================
+
+    const getViewerUserId = () => {
+
+        const possibleKeys = [
+            'userId',
+            'UserId',
+            'userid',
+            'UserID'
+        ]
+
+        for (const key of possibleKeys) {
+
+            const value =
+                sessionStorage.getItem(key)
+
+            if (value) {
+
+                const parsedValue =
+                    Number(value)
+
+                if (
+                    Number.isInteger(parsedValue) &&
+                    parsedValue > 0
+                ) {
+
+                    return parsedValue
+
+                }
+
+            }
+
+        }
+
+        return 0
+
+    }
 
 
     // =========================================
     // STATE
     // =========================================
 
-    const [branches, setBranches] =
+    const [regions, setRegions] =
         useState([])
+
+    const [regionCode, setRegionCode] =
+        useState('')
+
+    const [branches, setBranches] =
+        useState([
+            {
+                bpCode: 'All',
+                branchName: 'All'
+            }
+        ])
+
+    const [selectedBranch, setSelectedBranch] =
+        useState('All')
 
     const [franchises, setFranchises] =
         useState([])
-
-    const [selectedBranch, setSelectedBranch] =
-        useState(bpCode)
 
     const [selectedCategory, setSelectedCategory] =
         useState('')
@@ -71,6 +121,12 @@ function FranchiseeInventory() {
         useState([])
 
     const [loading, setLoading] =
+        useState(false)
+
+    const [loadingRegions, setLoadingRegions] =
+        useState(false)
+
+    const [loadingBranches, setLoadingBranches] =
         useState(false)
 
     const [franchiseLoading, setFranchiseLoading] =
@@ -167,86 +223,220 @@ function FranchiseeInventory() {
 
 
     // =========================================
-    // LOAD BRANCH
+    // LOAD REGIONS
     // =========================================
 
     useEffect(() => {
 
-        loadBranch()
+        let isMounted = true
+
+
+        async function loadRegions() {
+
+            try {
+
+                setLoadingRegions(true)
+
+                setMessage('')
+                setMessageType('')
+
+
+                const viewerUserId =
+                    getViewerUserId()
+
+
+                if (!viewerUserId) {
+
+                    setRegions([])
+
+                    setMessage(
+                        'User ID is not available.'
+                    )
+
+                    setMessageType('error')
+
+                    return
+
+                }
+
+
+                const response =
+                    await getRegions(
+                        '',
+                        viewerUserId
+                    )
+
+
+                if (!isMounted) {
+                    return
+                }
+
+
+                const regionData =
+                    Array.isArray(response)
+                        ? response
+                        : Array.isArray(response?.data)
+                            ? response.data
+                            : []
+
+
+                setRegions(regionData)
+
+            }
+            catch (error) {
+
+                if (!isMounted) {
+                    return
+                }
+
+
+                console.error(
+                    'Inventory region error:',
+                    error
+                )
+
+
+                setRegions([])
+
+                setMessage(
+                    error.message ||
+                    'Unable to load regions.'
+                )
+
+                setMessageType('error')
+
+            }
+            finally {
+
+                if (isMounted) {
+
+                    setLoadingRegions(false)
+
+                }
+
+            }
+
+        }
+
+
+        loadRegions()
+
+
+        return () => {
+
+            isMounted = false
+
+        }
 
     }, [])
 
 
-    async function loadBranch() {
+    // =========================================
+    // LOAD BRANCHES
+    // =========================================
+
+    async function loadBranches(
+        selectedRegionCode
+    ) {
+
+        if (!selectedRegionCode) {
+
+            setBranches([
+                {
+                    bpCode: 'All',
+                    branchName: 'All'
+                }
+            ])
+
+            setSelectedBranch('All')
+
+            return
+
+        }
+
 
         try {
 
-            if (
-                !roleId ||
-                !regionCode ||
-                !bpCode
-            ) {
+            setLoadingBranches(true)
 
-                throw new Error(
-                    'Logged-in user details are missing. Please login again.'
+            setMessage('')
+            setMessageType('')
+
+
+            const viewerUserId =
+                getViewerUserId()
+
+
+            if (!viewerUserId) {
+
+                setBranches([
+                    {
+                        bpCode: 'All',
+                        branchName: 'All'
+                    }
+                ])
+
+                setSelectedBranch('All')
+
+                setMessage(
+                    'User ID is not available.'
                 )
+
+                setMessageType('error')
+
+                return
 
             }
 
 
             const data =
                 await getBranches(
-                    roleId,
-                    regionCode,
-                    bpCode
+                    viewerUserId,
+                    selectedRegionCode
                 )
 
 
-            let branchList = []
+            const branchData =
+                Array.isArray(data)
+                    ? data
+                    : Array.isArray(data?.data)
+                        ? data.data
+                        : []
 
 
-            if (Array.isArray(data)) {
+            const filteredBranches =
+                branchData.filter(
+                    branch => {
 
-                branchList = data
+                        const code =
+                            String(
+                                branch.BPCode ??
+                                branch.bpCode ??
+                                branch.BpCode ??
+                                branch.branchCode ??
+                                branch.BranchCode ??
+                                ''
+                            )
+                                .trim()
+                                .toLowerCase()
 
-            }
-            else if (Array.isArray(data?.data)) {
 
-                branchList = data.data
+                        return code !== 'all'
 
-            }
-
-
-            setBranches(branchList)
-
-
-            const userBranch =
-                branchList.find(
-                    branch =>
-                        String(
-                            branch.BPCode ??
-                            branch.bpCode ??
-                            branch.BpCode ??
-                            ''
-                        ) === String(bpCode)
+                    }
                 )
 
 
-            if (userBranch) {
+            setBranches([
+                {
+                    bpCode: 'All',
+                    branchName: 'All'
+                },
+                ...filteredBranches
+            ])
 
-                setSelectedBranch(
-                    userBranch.BPCode ??
-                    userBranch.bpCode ??
-                    userBranch.BpCode ??
-                    bpCode
-                )
 
-            }
-            else {
-
-                setSelectedBranch(bpCode)
-
-            }
+            setSelectedBranch('All')
 
         }
         catch (error) {
@@ -256,12 +446,79 @@ function FranchiseeInventory() {
                 error
             )
 
+
+            setBranches([
+                {
+                    bpCode: 'All',
+                    branchName: 'All'
+                }
+            ])
+
+
+            setSelectedBranch('All')
+
+
             setMessage(
                 error.message ||
                 'Unable to load branch.'
             )
 
             setMessageType('error')
+
+        }
+        finally {
+
+            setLoadingBranches(false)
+
+        }
+
+    }
+
+
+    // =========================================
+    // REGION CHANGE
+    // =========================================
+
+    async function handleRegionChange(event) {
+
+        const value =
+            event.target.value
+
+
+        setRegionCode(value)
+
+        setSelectedBranch('All')
+
+
+        setBranches([
+            {
+                bpCode: 'All',
+                branchName: 'All'
+            }
+        ])
+
+
+        // Clear franchise data
+
+        setFranchises([])
+
+        setSelectedFranchises([])
+
+        setFranchiseDropdownOpen(false)
+
+
+        // Clear inventory results
+
+        setInventoryData([])
+
+
+        setMessage('')
+        setMessageType('')
+
+
+        if (value) {
+
+            await loadBranches(value)
 
         }
 
@@ -274,10 +531,15 @@ function FranchiseeInventory() {
 
     useEffect(() => {
 
-        if (!selectedBranch) {
+        if (
+            !regionCode ||
+            !selectedBranch
+        ) {
 
             setFranchises([])
+
             setSelectedFranchises([])
+
             setFranchiseDropdownOpen(false)
 
             return
@@ -287,7 +549,10 @@ function FranchiseeInventory() {
 
         loadFranchises()
 
-    }, [selectedBranch])
+    }, [
+        regionCode,
+        selectedBranch
+    ])
 
 
     async function loadFranchises() {
@@ -332,14 +597,18 @@ function FranchiseeInventory() {
                 franchiseList = data
 
             }
-            else if (Array.isArray(data?.data)) {
+            else if (
+                Array.isArray(data?.data)
+            ) {
 
                 franchiseList = data.data
 
             }
 
 
-            setFranchises(franchiseList)
+            setFranchises(
+                franchiseList
+            )
 
         }
         catch (error) {
@@ -452,7 +721,9 @@ function FranchiseeInventory() {
                 // Unselect existing franchise
 
                 if (
-                    current.includes(franchiseCode)
+                    current.includes(
+                        franchiseCode
+                    )
                 ) {
 
                     return current.filter(
@@ -515,15 +786,13 @@ function FranchiseeInventory() {
 
 
         // =========================================
-        // FG CATEGORY VALIDATION
-        // NORMAL MESSAGE ONLY
-        // NO MODAL
+        // REGION VALIDATION
         // =========================================
 
-        if (!selectedCategory) {
+        if (!regionCode) {
 
             setMessage(
-                'FG Category is required.'
+                'Region is required.'
             )
 
             setMessageType('error')
@@ -533,10 +802,34 @@ function FranchiseeInventory() {
         }
 
 
-        if (!selectedBranch) {
+        // =========================================
+        // BRANCH VALIDATION
+        // =========================================
+
+        if (
+            !selectedBranch ||
+            selectedBranch === 'All'
+        ) {
 
             setMessage(
-                'Branch code is required.'
+                'Branch is required.'
+            )
+
+            setMessageType('error')
+
+            return
+
+        }
+
+
+        // =========================================
+        // FG CATEGORY VALIDATION
+        // =========================================
+
+        if (!selectedCategory) {
+
+            setMessage(
+                'FG Category is required.'
             )
 
             setMessageType('error')
@@ -585,7 +878,9 @@ function FranchiseeInventory() {
 
 
             const data =
-                await searchInventory(request)
+                await searchInventory(
+                    request
+                )
 
 
             if (
@@ -598,6 +893,7 @@ function FranchiseeInventory() {
                 )
 
                 setMessageType('error')
+
 
                 setInventoryData(
                     Array.isArray(data.data)
@@ -658,6 +954,47 @@ function FranchiseeInventory() {
     // =========================================
 
     async function handleExport() {
+
+        // =========================================
+        // REGION VALIDATION
+        // =========================================
+
+        if (!regionCode) {
+
+            setMessage(
+                'Region is required.'
+            )
+
+            setMessageType('error')
+
+            return
+
+        }
+
+
+        // =========================================
+        // BRANCH VALIDATION
+        // =========================================
+
+        if (
+            !selectedBranch ||
+            selectedBranch === 'All'
+        ) {
+
+            setMessage(
+                'Branch is required.'
+            )
+
+            setMessageType('error')
+
+            return
+
+        }
+
+
+        // =========================================
+        // FG CATEGORY VALIDATION
+        // =========================================
 
         if (!selectedCategory) {
 
@@ -726,11 +1063,15 @@ function FranchiseeInventory() {
 
 
             const blob =
-                await exportInventory(request)
+                await exportInventory(
+                    request
+                )
 
 
             const url =
-                window.URL.createObjectURL(blob)
+                window.URL.createObjectURL(
+                    blob
+                )
 
 
             const link =
@@ -822,27 +1163,105 @@ function FranchiseeInventory() {
 
                     <div className="inventory-form-grid">
 
+                        {/* REGION */}
+
+                        <div className="inventory-field">
+
+                            <label>
+                                Region
+                                <span
+                                    style={{
+                                        color: 'red',
+                                        marginLeft: '4px'
+                                    }}
+                                >
+                                    *
+                                </span>
+                            </label>
+
+                            <select
+                                value={regionCode}
+                                onChange={
+                                    handleRegionChange
+                                }
+                                disabled={loadingRegions}
+                            >
+
+                                <option value="">
+                                    Select Region
+                                </option>
+
+                                {regions.map(
+                                    (region, index) => {
+
+                                        const code =
+                                            region.RegionCode ??
+                                            region.regionCode ??
+                                            region.Code ??
+                                            region.code ??
+                                            ''
+
+                                        const name =
+                                            region.RegionName ??
+                                            region.regionName ??
+                                            region.Name ??
+                                            region.name ??
+                                            ''
+
+                                        return (
+
+                                            <option
+                                                key={`${code}-${index}`}
+                                                value={code}
+                                            >
+                                                {name}
+                                            </option>
+
+                                        )
+
+                                    }
+                                )}
+
+                            </select>
+
+                        </div>
+
+
                         {/* BRANCH */}
 
                         <div className="inventory-field">
 
                             <label>
                                 Branch
+                                <span
+                                    style={{
+                                        color: 'red',
+                                        marginLeft: '4px'
+                                    }}
+                                >
+                                    *
+                                </span>
                             </label>
 
                             <select
                                 value={selectedBranch}
-                                disabled
-                                onChange={event =>
+                                disabled={
+                                    !regionCode ||
+                                    loadingBranches
+                                }
+                                onChange={event => {
+
                                     setSelectedBranch(
                                         event.target.value
                                     )
-                                }
-                            >
 
-                                <option value="">
-                                    Select Branch
-                                </option>
+                                    setInventoryData([])
+
+                                    setMessage('')
+                                    setMessageType('')
+
+                                }}
+                            >
 
                                 {branches.map(
                                     (branch, index) => {
@@ -851,11 +1270,15 @@ function FranchiseeInventory() {
                                             branch.BPCode ??
                                             branch.bpCode ??
                                             branch.BpCode ??
+                                            branch.branchCode ??
+                                            branch.BranchCode ??
                                             ''
 
                                         const name =
                                             branch.BranchName ??
                                             branch.branchName ??
+                                            branch.Name ??
+                                            branch.name ??
                                             ''
 
                                         return (
@@ -896,55 +1319,68 @@ function FranchiseeInventory() {
                             <select
                                 value={selectedCategory}
                                 onChange={event => {
-                                    setSelectedCategory(event.target.value)
 
-                                    // Clear FG Category validation message
-                                    if (event.target.value) {
+                                    setSelectedCategory(
+                                        event.target.value
+                                    )
+
+
+                                    // Clear FG Category
+                                    // validation message
+
+                                    if (
+                                        event.target.value
+                                    ) {
+
                                         setMessage('')
                                         setMessageType('')
+
                                     }
+
                                 }}
                             >
-                            <option value="">
-                                Select FG Category
-                            </option>
 
-                            <option value="WM">
-                                Washing Machine
-                            </option>
+                                <option value="">
+                                    Select FG Category
+                                </option>
 
-                            <option value="DW">
-                                Dish Washer
-                            </option>
+                                <option value="WM">
+                                    Washing Machine
+                                </option>
 
-                            <option value="AC">
-                                Air Conditioner
-                            </option>
+                                <option value="DW">
+                                    Dish Washer
+                                </option>
 
-                            <option value="MW">
-                                Micro Wave
-                            </option>
+                                <option value="AC">
+                                    Air Conditioner
+                                </option>
 
-                            <option value="CD">
-                                Cloth Dryer
-                            </option>
+                                <option value="MW">
+                                    Micro Wave
+                                </option>
 
-                            <option value="KA">
-                                Kitchen Appliances
-                            </option>
+                                <option value="CD">
+                                    Cloth Dryer
+                                </option>
 
-                            <option value="ACC">
-                                Accessories
-                            </option>
+                                <option value="KA">
+                                    Kitchen Appliances
+                                </option>
 
-                            <option value="ADD">
-                                Additive
-                            </option>
+                                <option value="ACC">
+                                    Accessories
+                                </option>
 
-                            <option value="WP">
-                                Water Purifier
-                            </option>
-                        </select>
+                                <option value="ADD">
+                                    Additive
+                                </option>
+
+                                <option value="WP">
+                                    Water Purifier
+                                </option>
+
+                            </select>
 
                         </div>
 
@@ -973,7 +1409,10 @@ function FranchiseeInventory() {
                                             !current
                                     )
                                 }
-                                disabled={franchiseLoading}
+                                disabled={
+                                    franchiseLoading ||
+                                    !regionCode
+                                }
                             >
 
                                 <span>
@@ -1026,7 +1465,9 @@ function FranchiseeInventory() {
 
                                                     <input
                                                         type="checkbox"
-                                                        checked={allSelected}
+                                                        checked={
+                                                            allSelected
+                                                        }
                                                         onChange={
                                                             handleSelectAll
                                                         }
@@ -1044,7 +1485,9 @@ function FranchiseeInventory() {
 
                                                         <label
                                                             className="franchise-option"
-                                                            key={franchise.code}
+                                                            key={
+                                                                franchise.code
+                                                            }
                                                         >
 
                                                             <input
@@ -1062,7 +1505,9 @@ function FranchiseeInventory() {
                                                             />
 
                                                             <span>
-                                                                {franchise.name}
+                                                                {
+                                                                    franchise.name
+                                                                }
                                                             </span>
 
                                                         </label>
@@ -1092,7 +1537,9 @@ function FranchiseeInventory() {
 
                             <input
                                 type="text"
-                                value={fgDescription}
+                                value={
+                                    fgDescription
+                                }
                                 maxLength={164}
                                 placeholder="Enter FG description"
                                 onChange={event =>
@@ -1138,7 +1585,9 @@ function FranchiseeInventory() {
 
                             <input
                                 type="text"
-                                value={componentDescription}
+                                value={
+                                    componentDescription
+                                }
                                 maxLength={164}
                                 placeholder="Enter component description"
                                 onChange={event =>
@@ -1228,7 +1677,9 @@ function FranchiseeInventory() {
                                 </h2>
 
                                 <span>
-                                    {inventoryData.length} records
+                                    {
+                                        inventoryData.length
+                                    } records
                                 </span>
 
                             </div>
@@ -1251,7 +1702,9 @@ function FranchiseeInventory() {
                                         {columns.map(
                                             column => (
 
-                                                <th key={column}>
+                                                <th
+                                                    key={column}
+                                                >
                                                     {column}
                                                 </th>
 
@@ -1266,14 +1719,21 @@ function FranchiseeInventory() {
                                 <tbody>
 
                                     {inventoryData.map(
-                                        (row, rowIndex) => (
+                                        (
+                                            row,
+                                            rowIndex
+                                        ) => (
 
                                             <tr
-                                                key={rowIndex}
+                                                key={
+                                                    rowIndex
+                                                }
                                             >
 
                                                 <td>
-                                                    {rowIndex + 1}
+                                                    {
+                                                        rowIndex + 1
+                                                    }
                                                 </td>
 
                                                 {columns.map(
@@ -1282,7 +1742,11 @@ function FranchiseeInventory() {
                                                         <td
                                                             key={`${rowIndex}-${column}`}
                                                         >
-                                                            {row[column] ?? ''}
+                                                            {
+                                                                row[
+                                                                    column
+                                                                ] ?? ''
+                                                            }
                                                         </td>
 
                                                     )
@@ -1317,7 +1781,8 @@ function FranchiseeInventory() {
                             left: 0,
                             right: 0,
                             bottom: 0,
-                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                            backgroundColor:
+                                'rgba(0, 0, 0, 0.5)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -1332,7 +1797,8 @@ function FranchiseeInventory() {
                                 maxWidth: '90%',
                                 backgroundColor: '#ffffff',
                                 borderRadius: '8px',
-                                boxShadow: '0 10px 30px rgba(0, 0, 0, 0.25)',
+                                boxShadow:
+                                    '0 10px 30px rgba(0, 0, 0, 0.25)',
                                 overflow: 'hidden'
                             }}
                             onClick={event =>
@@ -1344,34 +1810,44 @@ function FranchiseeInventory() {
 
                             <div
                                 style={{
-                                    padding: '16px 20px',
-                                    borderBottom: '1px solid #e5e5e5',
+                                    padding:
+                                        '16px 20px',
+                                    borderBottom:
+                                        '1px solid #e5e5e5',
                                     display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between'
+                                    alignItems:
+                                        'center',
+                                    justifyContent:
+                                        'space-between'
                                 }}
                             >
 
                                 <h3
                                     style={{
                                         margin: 0,
-                                        fontSize: '18px',
+                                        fontSize:
+                                            '18px',
                                         fontWeight: 600
                                     }}
                                 >
                                     Validation
                                 </h3>
 
+
                                 <button
                                     type="button"
                                     onClick={closeModal}
                                     style={{
                                         border: 'none',
-                                        background: 'transparent',
-                                        fontSize: '24px',
-                                        cursor: 'pointer',
+                                        background:
+                                            'transparent',
+                                        fontSize:
+                                            '24px',
+                                        cursor:
+                                            'pointer',
                                         lineHeight: 1,
-                                        padding: '0 4px'
+                                        padding:
+                                            '0 4px'
                                     }}
                                 >
                                     ×
@@ -1384,8 +1860,10 @@ function FranchiseeInventory() {
 
                             <div
                                 style={{
-                                    padding: '24px 20px',
-                                    fontSize: '15px',
+                                    padding:
+                                        '24px 20px',
+                                    fontSize:
+                                        '15px',
                                     color: '#333'
                                 }}
                             >
@@ -1399,9 +1877,11 @@ function FranchiseeInventory() {
 
                             <div
                                 style={{
-                                    padding: '12px 20px 18px',
+                                    padding:
+                                        '12px 20px 18px',
                                     display: 'flex',
-                                    justifyContent: 'flex-end'
+                                    justifyContent:
+                                        'flex-end'
                                 }}
                             >
 
@@ -1409,14 +1889,21 @@ function FranchiseeInventory() {
                                     type="button"
                                     onClick={closeModal}
                                     style={{
-                                        minWidth: '80px',
-                                        padding: '8px 18px',
+                                        minWidth:
+                                            '80px',
+                                        padding:
+                                            '8px 18px',
                                         border: 'none',
-                                        borderRadius: '5px',
-                                        backgroundColor: '#0d6efd',
-                                        color: '#ffffff',
-                                        cursor: 'pointer',
-                                        fontSize: '14px'
+                                        borderRadius:
+                                            '5px',
+                                        backgroundColor:
+                                            '#0d6efd',
+                                        color:
+                                            '#ffffff',
+                                        cursor:
+                                            'pointer',
+                                        fontSize:
+                                            '14px'
                                     }}
                                 >
                                     OK

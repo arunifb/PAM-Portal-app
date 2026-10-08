@@ -38,12 +38,9 @@
 .spares-stock-filter-grid {
     display: grid;
 
+    /* 6 fields in one row */
     grid-template-columns:
-        1.1fr
-        1.3fr
-        1fr
-        1fr
-        1.3fr;
+        repeat(6, minmax(0, 1fr));
 
     gap: 10px;
 
@@ -402,7 +399,6 @@
 
         opacity: 1;
     }
-
 }
 
 
@@ -452,11 +448,11 @@
    TABLET
 ========================================= */
 
-@media (max-width: 1000px) {
+@media (max-width: 1100px) {
 
     .spares-stock-filter-grid {
         grid-template-columns:
-            repeat(2, minmax(0, 1fr));
+            repeat(3, minmax(0, 1fr));
 
         gap: 10px;
     }
@@ -477,7 +473,6 @@
 
         min-width: 0;
     }
-
 }
 
 
@@ -516,7 +511,6 @@
     .spares-stock-table {
         min-width: 1050px;
     }
-
 }
 
 
@@ -639,7 +633,6 @@
     .spares-stock-loading {
         width: 100%;
     }
-
 }
 
 
@@ -681,5 +674,4 @@
 
         font-size: 13px;
     }
-
 }

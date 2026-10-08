@@ -6,6 +6,7 @@ import {
 } from '../../api/ddrRegionApi'
 
 import {
+    getRegions,
     getBranches
 } from '../../api/reportsApi'
 
@@ -254,8 +255,24 @@ function DDRRegion() {
         )
 
 
+    const [regionCode, setRegionCode] =
+        useState('')
+
+
     const [branchCode, setBranchCode] =
         useState('All')
+
+
+    // =====================================================
+    // REGIONS
+    // =====================================================
+
+    const [regions, setRegions] =
+        useState([])
+
+
+    const [regionsLoading, setRegionsLoading] =
+        useState(false)
 
 
     // =====================================================
@@ -384,52 +401,99 @@ function DDRRegion() {
 
 
     // =========================================================
+    // LOAD REGIONS
+    // =========================================================
+
+    const loadRegions = async () => {
+
+        try {
+
+            setRegionsLoading(true)
+
+
+            const viewerUserId =
+                getViewerUserId()
+
+
+            if (!viewerUserId) {
+
+                console.warn(
+                    'User ID is not available in sessionStorage.'
+                )
+
+                setRegions([])
+
+                return
+            }
+
+
+            const response =
+                await getRegions(
+                    '',
+                    viewerUserId
+                )
+
+
+            const regionData =
+                Array.isArray(response)
+                    ? response
+                    : Array.isArray(response?.data)
+                        ? response.data
+                        : []
+
+
+            setRegions(regionData)
+
+        }
+        catch (error) {
+
+            console.error(
+                'Unable to load DDR regions:',
+                error
+            )
+
+            setRegions([])
+
+        }
+        finally {
+
+            setRegionsLoading(false)
+
+        }
+
+    }
+
+
+    // =========================================================
     // LOAD BRANCHES
     // =========================================================
 
-    const loadBranches = async () => {
+    const loadBranches = async (selectedRegionCode) => {
+
+        if (!selectedRegionCode) {
+
+            setBranches([])
+
+            setBranchCode('All')
+
+            return
+
+        }
+
 
         try {
 
             setBranchesLoading(true)
 
 
-            const roleId =
-                Number(
-                    sessionStorage.getItem('roleId') ||
-                    sessionStorage.getItem('RoleID') ||
-                    0
-                )
+            const viewerUserId =
+                getViewerUserId()
 
 
-            const regionCode =
-                sessionStorage.getItem('regionCode') ||
-                sessionStorage.getItem('RegionCode') ||
-                ''
-
-
-            const bpCode =
-                sessionStorage.getItem('bpCode') ||
-                sessionStorage.getItem('BPCode') ||
-                ''
-
-
-            if (!roleId) {
+            if (!viewerUserId) {
 
                 console.warn(
-                    'Role ID is not available in sessionStorage.'
-                )
-
-                setBranches([])
-
-                return
-            }
-
-
-            if (!regionCode) {
-
-                console.warn(
-                    'Region code is not available in sessionStorage.'
+                    'User ID is not available in sessionStorage.'
                 )
 
                 setBranches([])
@@ -440,28 +504,10 @@ function DDRRegion() {
 
             const response =
                 await getBranches(
-                    roleId,
-                    regionCode,
-                    bpCode
+                    viewerUserId,
+                    selectedRegionCode
                 )
 
-
-            /*
-             * The existing Reports API may return either:
-             *
-             * [
-             *     {...},
-             *     {...}
-             * ]
-             *
-             * or:
-             *
-             * {
-             *     data: [...]
-             * }
-             *
-             * Handle both.
-             */
 
             const branchData =
                 Array.isArray(response)
@@ -473,6 +519,8 @@ function DDRRegion() {
 
             setBranches(branchData)
 
+            setBranchCode('All')
+
         }
         catch (error) {
 
@@ -483,12 +531,45 @@ function DDRRegion() {
 
             setBranches([])
 
+            setBranchCode('All')
+
         }
         finally {
 
             setBranchesLoading(false)
 
         }
+
+    }
+
+
+    // =========================================================
+    // REGION CHANGE
+    // =========================================================
+
+    const handleRegionChange = async (event) => {
+
+        const value =
+            event.target.value
+
+
+        setRegionCode(value)
+
+        setBranchCode('All')
+
+        setBranches([])
+
+        setErrorMessage('')
+
+        setSuccessMessage('')
+
+
+        if (!value) {
+            return
+        }
+
+
+        await loadBranches(value)
 
     }
 
@@ -502,6 +583,20 @@ function DDRRegion() {
         setErrorMessage('')
 
         setSuccessMessage('')
+
+
+        // ================================================
+        // REGION VALIDATION
+        // ================================================
+
+        if (!regionCode) {
+
+            setErrorMessage(
+                'Region is required.'
+            )
+
+            return
+        }
 
 
         // ================================================
@@ -563,6 +658,8 @@ function DDRRegion() {
         const request = {
 
             viewerUserId,
+
+            regionCode,
 
             branchCode:
                 branchCode || 'All',
@@ -697,9 +794,7 @@ function DDRRegion() {
 
     useEffect(() => {
 
-        loadBranches()
-
-        loadReport()
+        loadRegions()
 
     }, [])
 
@@ -766,6 +861,20 @@ function DDRRegion() {
 
 
         // ================================================
+        // REGION VALIDATION
+        // ================================================
+
+        if (!regionCode) {
+
+            setErrorMessage(
+                'Region is required.'
+            )
+
+            return
+        }
+
+
+        // ================================================
         // DATE VALIDATION
         // ================================================
 
@@ -814,6 +923,8 @@ function DDRRegion() {
         const request = {
 
             viewerUserId,
+
+            regionCode,
 
             branchCode:
                 branchCode || 'All',
@@ -1009,6 +1120,82 @@ function DDRRegion() {
                     </div>
 
 
+                    {/* =================================================
+                        REGION
+                    ================================================= */}
+
+                    <div className="ddr-filter-item">
+
+                        <label htmlFor="region">
+
+                            Region
+
+                            <span className="required">
+                                *
+                            </span>
+
+                        </label>
+
+
+                        <select
+                            id="region"
+                            value={regionCode}
+                            onChange={handleRegionChange}
+                            disabled={regionsLoading}
+                        >
+
+                            <option value="">
+                                Select Region
+                            </option>
+
+
+                            {regions.map(
+                                (region, index) => {
+
+                                    const value =
+                                        region.regionCode ??
+                                        region.RegionCode ??
+                                        region.regioncode ??
+                                        ''
+
+
+                                    const name =
+                                        region.regionName ??
+                                        region.RegionName ??
+                                        region.regionname ??
+                                        value
+
+
+                                    if (!value) {
+                                        return null
+                                    }
+
+
+                                    return (
+
+                                        <option
+                                            key={
+                                                `${value}-${index}`
+                                            }
+                                            value={value}
+                                        >
+                                            {name}
+                                        </option>
+
+                                    )
+
+                                }
+                            )}
+
+                        </select>
+
+                    </div>
+
+
+                    {/* =================================================
+                        BRANCH
+                    ================================================= */}
+
                     <div className="ddr-filter-item">
 
                         <label htmlFor="branch">
@@ -1024,7 +1211,10 @@ function DDRRegion() {
                                     event.target.value
                                 )
                             }
-                            disabled={branchesLoading}
+                            disabled={
+                                !regionCode ||
+                                branchesLoading
+                            }
                         >
 
                             <option value="All">
@@ -1081,7 +1271,11 @@ function DDRRegion() {
                             type="button"
                             className="ddr-search-button"
                             onClick={handleSearch}
-                            disabled={loading}
+                            disabled={
+                                loading ||
+                                regionsLoading ||
+                                branchesLoading
+                            }
                         >
 
                             {loading
@@ -1097,7 +1291,9 @@ function DDRRegion() {
                             onClick={handleDownload}
                             disabled={
                                 exporting ||
-                                loading
+                                loading ||
+                                regionsLoading ||
+                                branchesLoading
                             }
                         >
 

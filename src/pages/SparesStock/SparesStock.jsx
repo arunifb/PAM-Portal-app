@@ -4,6 +4,7 @@ import './SparesStock.css'
 import DashboardLayout from '../../components/DashboardLayout/DashboardLayout'
 
 import {
+    getRegions,
     getBranches
 } from '../../api/reportsApi'
 
@@ -15,28 +16,62 @@ import {
 function SparesStock() {
 
     // =========================================
-    // SESSION VALUES
+    // GET VIEWER USER ID
     // =========================================
 
-    const roleId =
-        Number(
-            sessionStorage.getItem('roleId') ||
-            sessionStorage.getItem('roleID')
-        ) || 0
+    const getViewerUserId = () => {
 
-    const regionCode =
-        sessionStorage.getItem('regionCode') || ''
+        const possibleKeys = [
+            'userId',
+            'UserId',
+            'userid',
+            'UserID'
+        ]
 
-    const bpCode =
-        sessionStorage.getItem('bpCode') || ''
+        for (const key of possibleKeys) {
+
+            const value =
+                sessionStorage.getItem(key)
+
+            if (value) {
+
+                const parsedValue =
+                    Number(value)
+
+                if (
+                    Number.isInteger(parsedValue) &&
+                    parsedValue > 0
+                ) {
+                    return parsedValue
+                }
+
+            }
+
+        }
+
+        return 0
+    }
 
 
     // =========================================
     // FORM STATE
     // =========================================
 
-    const [branches, setBranches] =
+    const [regions, setRegions] =
         useState([])
+
+    const [regionCode, setRegionCode] =
+        useState('')
+
+
+    // Branch initially contains "All"
+    const [branches, setBranches] =
+        useState([
+            {
+                bpCode: 'All',
+                branchName: 'All'
+            }
+        ])
 
     const [branchCode, setBranchCode] =
         useState('All')
@@ -66,6 +101,9 @@ function SparesStock() {
     // =========================================
     // LOADING STATE
     // =========================================
+
+    const [loadingRegions, setLoadingRegions] =
+        useState(false)
 
     const [loadingBranches, setLoadingBranches] =
         useState(false)
@@ -120,7 +158,7 @@ function SparesStock() {
 
 
     // =========================================
-    // LOAD BRANCHES
+    // LOAD REGIONS
     // =========================================
 
     useEffect(() => {
@@ -128,20 +166,36 @@ function SparesStock() {
         let isMounted = true
 
 
-        const loadBranches = async () => {
+        const loadRegions = async () => {
 
             try {
 
-                setLoadingBranches(true)
+                setLoadingRegions(true)
 
                 setError('')
 
 
+                const viewerUserId =
+                    getViewerUserId()
+
+
+                if (!viewerUserId) {
+
+                    setRegions([])
+
+                    setError(
+                        'User ID is not available.'
+                    )
+
+                    return
+
+                }
+
+
                 const response =
-                    await getBranches(
-                        roleId,
-                        regionCode,
-                        bpCode
+                    await getRegions(
+                        '',
+                        viewerUserId
                     )
 
 
@@ -152,42 +206,16 @@ function SparesStock() {
                 }
 
 
-                if (!Array.isArray(response)) {
-
-                    throw new Error(
-                        'Invalid branch response.'
-                    )
-
-                }
-
-
-                // =====================================
-                // ADD ALL OPTION
-                // =====================================
-
-                const branchList = [
-
-                    {
-                        bpCode: 'All',
-                        branchName: 'All'
-                    },
-
-                    ...response
-
-                ]
+                const regionData =
+                    Array.isArray(response)
+                        ? response
+                        : Array.isArray(response?.data)
+                            ? response.data
+                            : []
 
 
-                setBranches(
-                    branchList
-                )
-
-
-                // =====================================
-                // DEFAULT SELECTION
-                // =====================================
-
-                setBranchCode(
-                    'All'
+                setRegions(
+                    regionData
                 )
 
             }
@@ -201,27 +229,17 @@ function SparesStock() {
 
 
                 console.error(
-                    'Spares Stock branch error:',
+                    'Spares Stock region error:',
                     error
                 )
 
 
-                setBranches([
-                    {
-                        bpCode: 'All',
-                        branchName: 'All'
-                    }
-                ])
-
-
-                setBranchCode(
-                    'All'
-                )
+                setRegions([])
 
 
                 setError(
                     error.message ||
-                    'Unable to load branches.'
+                    'Unable to load regions.'
                 )
 
             }
@@ -229,7 +247,7 @@ function SparesStock() {
 
                 if (isMounted) {
 
-                    setLoadingBranches(
+                    setLoadingRegions(
                         false
                     )
 
@@ -240,7 +258,7 @@ function SparesStock() {
         }
 
 
-        loadBranches()
+        loadRegions()
 
 
         return () => {
@@ -249,18 +267,221 @@ function SparesStock() {
 
         }
 
-    }, [
-        roleId,
-        regionCode,
-        bpCode
-    ])
+    }, [])
+
+
+    // =========================================
+    // LOAD BRANCHES
+    // =========================================
+
+    const loadBranches = async (
+        selectedRegionCode
+    ) => {
+
+        if (!selectedRegionCode) {
+
+            // Keep "All" visible when no region
+            setBranches([
+                {
+                    bpCode: 'All',
+                    branchName: 'All'
+                }
+            ])
+
+            setBranchCode('All')
+
+            return
+
+        }
+
+
+        try {
+
+            setLoadingBranches(true)
+
+            setError('')
+
+
+            const viewerUserId =
+                getViewerUserId()
+
+
+            if (!viewerUserId) {
+
+                setBranches([
+                    {
+                        bpCode: 'All',
+                        branchName: 'All'
+                    }
+                ])
+
+                setBranchCode('All')
+
+                setError(
+                    'User ID is not available.'
+                )
+
+                return
+
+            }
+
+
+            const response =
+                await getBranches(
+                    viewerUserId,
+                    selectedRegionCode
+                )
+
+
+            const branchData =
+                Array.isArray(response)
+                    ? response
+                    : Array.isArray(response?.data)
+                        ? response.data
+                        : []
+
+
+            // =====================================
+            // REMOVE ANY EXISTING "ALL"
+            // =====================================
+
+            const filteredBranches =
+                branchData.filter(
+                    item => {
+
+                        const code =
+                            String(
+                                getBranchCode(item)
+                            )
+                                .trim()
+                                .toLowerCase()
+
+                        return code !== 'all'
+
+                    }
+                )
+
+
+            // =====================================
+            // ADD ONLY ONE "ALL"
+            // =====================================
+
+            const branchList = [
+
+                {
+                    bpCode: 'All',
+                    branchName: 'All'
+                },
+
+                ...filteredBranches
+
+            ]
+
+
+            setBranches(
+                branchList
+            )
+
+
+            setBranchCode(
+                'All'
+            )
+
+        }
+        catch (error) {
+
+            console.error(
+                'Spares Stock branch error:',
+                error
+            )
+
+
+            setBranches([
+                {
+                    bpCode: 'All',
+                    branchName: 'All'
+                }
+            ])
+
+
+            setBranchCode(
+                'All'
+            )
+
+
+            setError(
+                error.message ||
+                'Unable to load branches.'
+            )
+
+        }
+        finally {
+
+            setLoadingBranches(
+                false
+            )
+
+        }
+
+    }
+
+
+    // =========================================
+    // REGION CHANGE
+    // =========================================
+
+    const handleRegionChange = async (
+        event
+    ) => {
+
+        const value =
+            event.target.value
+
+
+        setRegionCode(
+            value
+        )
+
+        setBranchCode(
+            'All'
+        )
+
+
+        // Keep "All" visible while
+        // branches are loading
+        setBranches([
+            {
+                bpCode: 'All',
+                branchName: 'All'
+            }
+        ])
+
+
+        setRecords([])
+
+        setError('')
+
+        setMessage('')
+
+
+        if (value) {
+
+            await loadBranches(
+                value
+            )
+
+        }
+
+    }
 
 
     // =========================================
     // BRANCH CHANGE
     // =========================================
 
-    const handleBranchChange = (event) => {
+    const handleBranchChange = (
+        event
+    ) => {
 
         setBranchCode(
             event.target.value
@@ -289,13 +510,28 @@ function SparesStock() {
 
 
         // =====================================
-        // OLD SEARCH BEHAVIOR
+        // REGION REQUIRED
+        // =====================================
+
+        if (!regionCode) {
+
+            setError(
+                'Region is required.'
+            )
+
+            return
+
+        }
+
+
+        // =====================================
+        // SEARCH DATA
         // =====================================
 
         const searchData = {
 
             RegionCode:
-                regionCode || '',
+                regionCode,
 
             BpCode:
                 branchCode === 'All'
@@ -422,7 +658,9 @@ function SparesStock() {
     // FORMAT DATE
     // =========================================
 
-    const formatStockDate = (value) => {
+    const formatStockDate = (
+        value
+    ) => {
 
         if (!value) {
 
@@ -486,6 +724,89 @@ function SparesStock() {
 
 
                         {/* =============================
+                            REGION
+                        ============================= */}
+
+                        <div className="spares-stock-field">
+
+                            <label>
+                                Region
+                                <span className="required">
+                                    *
+                                </span>
+                            </label>
+
+                            <select
+                                value={
+                                    regionCode
+                                }
+                                onChange={
+                                    handleRegionChange
+                                }
+                                disabled={
+                                    loadingRegions
+                                }
+                            >
+
+                                <option value="">
+                                    Select Region
+                                </option>
+
+
+                                {regions.map(
+                                    (
+                                        region,
+                                        index
+                                    ) => {
+
+                                        const value =
+                                            region.regionCode ??
+                                            region.RegionCode ??
+                                            region.regioncode ??
+                                            ''
+
+                                        const name =
+                                            region.regionName ??
+                                            region.RegionName ??
+                                            region.regionname ??
+                                            value
+
+
+                                        if (!value) {
+
+                                            return null
+
+                                        }
+
+
+                                        return (
+
+                                            <option
+                                                key={
+                                                    `${value}-${index}`
+                                                }
+                                                value={
+                                                    value
+                                                }
+                                            >
+
+                                                {
+                                                    name
+                                                }
+
+                                            </option>
+
+                                        )
+
+                                    }
+                                )}
+
+                            </select>
+
+                        </div>
+
+
+                        {/* =============================
                             BRANCH
                         ============================= */}
 
@@ -503,6 +824,7 @@ function SparesStock() {
                                     handleBranchChange
                                 }
                                 disabled={
+                                    !regionCode ||
                                     loadingBranches
                                 }
                             >

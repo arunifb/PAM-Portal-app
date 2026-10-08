@@ -44,22 +44,25 @@
 
 .click2call-form {
     display: grid;
+
+    /* 6 fields in one row */
     grid-template-columns:
-        1.2fr
-        1.2fr
-        1fr
-        1fr
-        1fr;
+        repeat(6, minmax(0, 1fr));
 
     gap: 5px;
 
     padding: 5px;
+
+    width: 100%;
+    box-sizing: border-box;
 }
 
 
 .click2call-field {
     display: flex;
     flex-direction: column;
+
+    min-width: 0;
 }
 
 
@@ -373,7 +376,7 @@
 
     .click2call-form {
         grid-template-columns:
-            repeat(3, 1fr);
+            repeat(3, minmax(0, 1fr));
     }
 }
 
