@@ -743,17 +743,24 @@ const report = reportProp || location.state?.report
     // =================================================
 
     const REGION_ROLE_ID = '1'
-    const FRANCHISE_ROLE_ID = '5'
-    const BRANCH_ROLE_ID = '6'
+const FRANCHISE_ROLE_ID = '5'
+const BRANCH_ROLE_ID = '6'
+const FACTORY_ROLE_ID = '7'
 
-    const isRegionUser =
-        String(loggedInRoleId) === REGION_ROLE_ID
+const isRegionUser =
+    String(loggedInRoleId) === REGION_ROLE_ID
 
-    const isBranchUser =
-        String(loggedInRoleId) === BRANCH_ROLE_ID
+const isBranchUser =
+    String(loggedInRoleId) === BRANCH_ROLE_ID
 
-    const isFranchiseUser =
-        String(loggedInRoleId) === FRANCHISE_ROLE_ID
+const isFranchiseUser =
+    String(loggedInRoleId) === FRANCHISE_ROLE_ID
+
+const isFactoryUser =
+    String(loggedInRoleId) === FACTORY_ROLE_ID
+
+const isRegionOrFactoryUser =
+    isRegionUser || isFactoryUser
 
     // =================================================
     // DATE CALENDAR LIMITS
@@ -1278,7 +1285,7 @@ const report = reportProp || location.state?.report
                 // REGION USER - ROLE 1
                 // =========================================
 
-                if (isRegionUser) {
+                if (isRegionOrFactoryUser) {
                     const data =
                         await getBranches(
                             loggedInUserId,
@@ -1381,7 +1388,7 @@ const report = reportProp || location.state?.report
             // =========================================
 
             if (
-                isRegionUser &&
+                isRegionOrFactoryUser &&
                 (!selectedBranch ||
                     selectedBranch === 'All')
             ) {
@@ -1439,9 +1446,9 @@ const report = reportProp || location.state?.report
                 setFranchiseError('')
 
                 const branchCode =
-                    isRegionUser
-                        ? selectedBranch
-                        : loggedInBpCode
+                isRegionOrFactoryUser
+                    ? selectedBranch
+                    : loggedInBpCode
 
                 const data =
                     await getFranchises(
@@ -2732,7 +2739,7 @@ const report = reportProp || location.state?.report
                                                 {/* "All" is available
                                                     ONLY for Region users */}
 
-                                                {isRegionUser && (
+                                                {isRegionOrFactoryUser && (
                                                     <option value="All">
                                                         All
                                                     </option>

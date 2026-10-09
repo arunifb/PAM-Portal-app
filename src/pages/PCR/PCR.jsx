@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react'
-import {
-    useLocation
-} from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 import DashboardLayout from '../../components/DashboardLayout/DashboardLayout'
 
@@ -30,6 +28,10 @@ function PCR() {
     // SESSION DATA
     // =====================================================
 
+    const sessionUserId = Number(
+        sessionStorage.getItem('userId') || 0
+    )
+
     const roleId =
         sessionStorage.getItem('roleId') ||
         sessionStorage.getItem('roleID') ||
@@ -41,14 +43,12 @@ function PCR() {
     const loginId =
         sessionStorage.getItem('loginId') || ''
 
+    const isRole7 = Number(roleId) === 7
+
 
     // =====================================================
     // CURRENT PAGE
     // =====================================================
-
-    // pcr
-    // pcr-download
-    // add-category
 
     const [activePage, setActivePage] =
         useState('pcr')
@@ -59,7 +59,7 @@ function PCR() {
     // =====================================================
 
     const [branchCode, setBranchCode] =
-        useState('All')
+        useState(isRole7 ? '' : 'All')
 
     const [franchiseCode, setFranchiseCode] =
         useState('All')
@@ -93,6 +93,12 @@ function PCR() {
     const [statuses, setStatuses] =
         useState([])
 
+    const [branchLoading, setBranchLoading] =
+        useState(false)
+
+    const [franchiseLoading, setFranchiseLoading] =
+        useState(false)
+
 
     // =====================================================
     // PCR DATA
@@ -117,120 +123,460 @@ function PCR() {
 
 
     // =====================================================
-    // LOAD DROPDOWNS
+    // BRANCH HELPERS
     // =====================================================
 
-    const loadDropdowns = async () => {
+    const getBranchCode = (item) => (
+        item.bpCode ??
+        item.BPCode ??
+        item.branchCode ??
+        item.BrCode ??
+        ''
+    )
 
-        try {
-
-            setLoading(true)
-
-            setError('')
-
-
-            const [
-                branchResponse,
-                franchiseResponse,
-                statusResponse
-            ] = await Promise.all([
-
-                getBranches(
-                    roleId,
-                    'All',
-                    bpCode
-                ),
-
-                getFranchises(
-                    roleId,
-                    bpCode,
-                    loginId
-                ),
-
-                getPCRStatuses()
-
-            ])
-
-
-            // =================================================
-            // BRANCHES
-            // =================================================
-
-            const branchList =
-                Array.isArray(branchResponse)
-                    ? branchResponse
-                    : branchResponse?.data || []
-
-            setBranches(
-                Array.isArray(branchList)
-                    ? branchList
-                    : []
-            )
-
-
-            // =================================================
-            // FRANCHISES
-            // =================================================
-
-            const franchiseList =
-                Array.isArray(franchiseResponse)
-                    ? franchiseResponse
-                    : franchiseResponse?.data || []
-
-            setFranchises(
-                Array.isArray(franchiseList)
-                    ? franchiseList
-                    : []
-            )
-
-
-            // =================================================
-            // STATUSES
-            // =================================================
-
-            const statusList =
-                Array.isArray(statusResponse)
-                    ? statusResponse
-                    : statusResponse?.data || []
-
-            setStatuses(
-                Array.isArray(statusList)
-                    ? statusList
-                    : []
-            )
-
-        }
-        catch (err) {
-
-            console.error(
-                'Unable to load PCR dropdowns:',
-                err
-            )
-
-            setError(
-                err.message ||
-                'Unable to load PCR dropdown data.'
-            )
-
-        }
-        finally {
-
-            setLoading(false)
-
-        }
-
-    }
+    const getBranchName = (item) => (
+        item.branchName ??
+        item.BranchName ??
+        ''
+    )
 
 
     // =====================================================
-    // INITIAL LOAD
+    // FRANCHISE HELPERS
+    // =====================================================
+
+    const getFranchiseCode = (item) => (
+        item.frCode ??
+        item.Frcode ??
+        item.FRCode ??
+        item.frcode ??
+        item.franchiseCode ??
+        item.FranchiseCode ??
+        item.loginId ??
+        item.LoginID ??
+        ''
+    )
+
+    const getFranchiseName = (item) => (
+        item.franchiseName ??
+        item.FranchiseName ??
+        item.userName ??
+        item.UserName ??
+        getFranchiseCode(item)
+    )
+
+
+    // =====================================================
+    // LOAD BRANCHES
+    //
+    // Role 7: Same branch-loading arguments as Click2Call.
+    // Other roles: Preserve the existing PCR API arguments.
     // =====================================================
 
     useEffect(() => {
 
-        loadDropdowns()
+        let cancelled = false
 
-    }, [])
+        const loadBranches = async () => {
+
+            try {
+
+                setBranchLoading(true)
+
+                setError('')
+
+                console.log(
+                    'PCR Loading Branches:',
+                    isRole7
+                        ? {
+                            roleId,
+                            userId: sessionUserId,
+                            regionCode: ''
+                        }
+                        : {
+                            roleId,
+                            bpCode
+                        }
+                )
+
+
+                const branchResponse = isRole7
+                    ? await getBranches(
+                        sessionUserId,
+                        ''
+                    )
+                    : await getBranches(
+                        roleId,
+                        'All',
+                        bpCode
+                    )
+
+
+                if (cancelled) return
+
+
+                console.log(
+                    'PCR Branch Response:',
+                    branchResponse
+                )
+
+
+                const branchList =
+                    Array.isArray(branchResponse)
+                        ? branchResponse
+                        : branchResponse?.data || []
+
+
+                if (!Array.isArray(branchList)) {
+                    throw new Error(
+                        'Invalid branch response.'
+                    )
+                }
+
+
+                const validBranches = branchList.filter(
+                    (item) => (
+                        item &&
+                        getBranchCode(item) &&
+                        getBranchName(item)
+                    )
+                )
+
+
+                setBranches(validBranches)
+
+
+                // Role 7 must select a branch manually.
+                if (isRole7) {
+
+                    setBranchCode('')
+
+                    setFranchiseCode('All')
+
+                    setFranchises([])
+
+                }
+
+
+            }
+            catch (err) {
+
+                if (cancelled) return
+
+                console.error(
+                    'Unable to load PCR branches:',
+                    err
+                )
+
+                setBranches([])
+
+                if (isRole7) {
+                    setBranchCode('')
+                }
+
+                setError(
+                    err.message ||
+                    'Unable to load branches.'
+                )
+
+            }
+            finally {
+
+                if (!cancelled) {
+                    setBranchLoading(false)
+                }
+
+            }
+
+        }
+
+
+        loadBranches()
+
+
+        return () => {
+            cancelled = true
+        }
+
+    }, [roleId, sessionUserId, bpCode, isRole7])
+
+
+    // =====================================================
+    // LOAD OTHER DROPDOWNS
+    //
+    // Status loading and non-Role-7 franchise behavior
+    // remain unchanged.
+    // =====================================================
+
+    useEffect(() => {
+
+        let cancelled = false
+
+        const loadOtherDropdowns = async () => {
+
+            try {
+
+                setLoading(true)
+
+                setError('')
+
+
+                const [
+                    franchiseResponse,
+                    statusResponse
+                ] = await Promise.all([
+
+                    isRole7
+                        ? Promise.resolve([])
+                        : getFranchises(
+                            roleId,
+                            bpCode,
+                            loginId
+                        ),
+
+                    getPCRStatuses()
+
+                ])
+
+
+                if (cancelled) return
+
+
+                // =================================================
+                // FRANCHISES FOR OTHER ROLES
+                // =================================================
+
+                const franchiseList =
+                    Array.isArray(franchiseResponse)
+                        ? franchiseResponse
+                        : franchiseResponse?.data || []
+
+
+                setFranchises(
+                    Array.isArray(franchiseList)
+                        ? franchiseList
+                        : []
+                )
+
+
+                // =================================================
+                // STATUSES - UNCHANGED
+                // =================================================
+
+                const statusList =
+                    Array.isArray(statusResponse)
+                        ? statusResponse
+                        : statusResponse?.data || []
+
+
+                setStatuses(
+                    Array.isArray(statusList)
+                        ? statusList
+                        : []
+                )
+
+            }
+            catch (err) {
+
+                if (cancelled) return
+
+                console.error(
+                    'Unable to load PCR dropdowns:',
+                    err
+                )
+
+                setError(
+                    err.message ||
+                    'Unable to load PCR dropdown data.'
+                )
+
+            }
+            finally {
+
+                if (!cancelled) {
+                    setLoading(false)
+                }
+
+            }
+
+        }
+
+
+        loadOtherDropdowns()
+
+
+        return () => {
+            cancelled = true
+        }
+
+    }, [roleId, bpCode, loginId, isRole7])
+
+
+    // =====================================================
+    // LOAD FRANCHISES WHEN ROLE 7 SELECTS A BRANCH
+    // =====================================================
+
+    useEffect(() => {
+
+        if (!isRole7) {
+            return
+        }
+
+
+        let cancelled = false
+
+
+        const loadBranchFranchises = async () => {
+
+            // Wait until a branch has been selected.
+            if (!branchCode) {
+
+                setFranchises([])
+
+                setFranchiseCode('All')
+
+                setFranchiseLoading(false)
+
+                return
+
+            }
+
+
+            try {
+
+                setFranchiseLoading(true)
+
+                setError('')
+
+
+                console.log(
+                    'PCR Role 7 Loading Franchises:',
+                    {
+                        roleId,
+                        selectedBranch: branchCode,
+                        loginId
+                    }
+                )
+
+
+                const franchiseResponse =
+                    await getFranchises(
+                        roleId,
+                        branchCode,
+                        loginId
+                    )
+
+
+                if (cancelled) return
+
+
+                console.log(
+                    'PCR Franchise Response:',
+                    franchiseResponse
+                )
+
+
+                const franchiseList =
+                    Array.isArray(franchiseResponse)
+                        ? franchiseResponse
+                        : franchiseResponse?.data || []
+
+
+                if (!Array.isArray(franchiseList)) {
+                    throw new Error(
+                        'Invalid franchise response.'
+                    )
+                }
+
+
+                const sortedFranchises = [
+                    ...franchiseList
+                ].sort(
+                    (a, b) =>
+                        getFranchiseName(a).localeCompare(
+                            getFranchiseName(b),
+                            undefined,
+                            {
+                                sensitivity: 'base'
+                            }
+                        )
+                )
+
+
+                setFranchises(sortedFranchises)
+
+                setFranchiseCode('All')
+
+            }
+            catch (err) {
+
+                if (cancelled) return
+
+                console.error(
+                    'Unable to load PCR franchises:',
+                    err
+                )
+
+                setFranchises([])
+
+                setFranchiseCode('All')
+
+                setError(
+                    err.message ||
+                    'Unable to load franchises.'
+                )
+
+            }
+            finally {
+
+                if (!cancelled) {
+                    setFranchiseLoading(false)
+                }
+
+            }
+
+        }
+
+
+        loadBranchFranchises()
+
+
+        return () => {
+            cancelled = true
+        }
+
+    }, [branchCode, isRole7, roleId, loginId])
+
+
+    // =====================================================
+    // BRANCH CHANGE
+    // =====================================================
+
+    const handleBranchChange = (event) => {
+
+        const selectedBranch =
+            event.target.value
+
+        console.log(
+            'Selected PCR Branch:',
+            selectedBranch
+        )
+
+
+        setBranchCode(selectedBranch)
+
+        setError('')
+
+
+        if (isRole7) {
+
+            setFranchiseCode('All')
+
+            setFranchises([])
+
+        }
+
+    }
 
 
     // =====================================================
@@ -261,7 +607,8 @@ function PCR() {
         // =================================================
 
         setBranchCode(
-            restoreState.branchCode || 'All'
+            restoreState.branchCode ??
+            (isRole7 ? '' : 'All')
         )
 
         setFranchiseCode(
@@ -301,9 +648,7 @@ function PCR() {
                 : []
 
 
-        setPcrData(
-            restoredData
-        )
+        setPcrData(restoredData)
 
 
         // =================================================
@@ -333,6 +678,25 @@ function PCR() {
     // =====================================================
 
     const handleSearch = async () => {
+
+        // Role 7 must select a branch before searching.
+        if (
+            isRole7 &&
+            !branchCode
+        ) {
+
+            setError(
+                'Please select a branch.'
+            )
+
+            setShowResults(false)
+
+            setPcrData([])
+
+            return
+
+        }
+
 
         try {
 
@@ -378,9 +742,7 @@ function PCR() {
 
 
             const response =
-                await searchPCR(
-                    searchData
-                )
+                await searchPCR(searchData)
 
 
             const data =
@@ -434,11 +796,6 @@ function PCR() {
         }
 
 
-        // =================================================
-        // DO NOT NAVIGATE
-        // Keep PCR RouteKey in browser URL.
-        // =================================================
-
         setActivePage(
             'pcr-download'
         )
@@ -451,11 +808,6 @@ function PCR() {
     // =====================================================
 
     const handleAddCategory = () => {
-
-        // =================================================
-        // DO NOT NAVIGATE
-        // Keep PCR RouteKey in browser URL.
-        // =================================================
 
         setActivePage(
             'add-category'
@@ -534,10 +886,6 @@ function PCR() {
 
     // =====================================================
     // PCR DOWNLOAD PAGE
-    //
-    // IMPORTANT:
-    // PCR component remains mounted.
-    // Therefore PCR state is preserved.
     // =====================================================
 
     if (
@@ -581,10 +929,6 @@ function PCR() {
 
     // =====================================================
     // ADD PART CATEGORY PAGE
-    //
-    // IMPORTANT:
-    // PCR component remains mounted.
-    // Therefore PCR state is preserved.
     // =====================================================
 
     if (
@@ -635,9 +979,7 @@ function PCR() {
             <div className="pcr-page">
 
 
-                {/* =================================================
-                    PAGE LOADING
-                ================================================= */}
+                {/* PAGE LOADING */}
 
                 {loading && !showResults ? (
 
@@ -665,9 +1007,7 @@ function PCR() {
 
                     <>
 
-                        {/* =================================================
-                            TOP ACTION
-                        ================================================= */}
+                        {/* TOP ACTION */}
 
                         <div className="pcr-action-row">
 
@@ -684,9 +1024,7 @@ function PCR() {
                         </div>
 
 
-                        {/* =================================================
-                            ERROR
-                        ================================================= */}
+                        {/* ERROR */}
 
                         {error && (
 
@@ -697,54 +1035,51 @@ function PCR() {
                         )}
 
 
-                        {/* =================================================
-                            SEARCH CARD
-                        ================================================= */}
+                        {/* SEARCH CARD */}
 
                         <div className="pcr-search-card">
 
                             <div className="pcr-search-grid">
 
 
-                                {/* =================================================
-                                    BRANCH
-                                ================================================= */}
+                                {/* BRANCH */}
 
                                 <div className="pcr-field">
 
                                     <label>
-                                        Branch
+                                        Select Branch
                                     </label>
 
                                     <select
                                         value={branchCode}
-                                        onChange={(event) =>
-                                            setBranchCode(
-                                                event.target.value
-                                            )
+                                        onChange={
+                                            handleBranchChange
                                         }
+                                        disabled={branchLoading}
                                     >
 
-                                        <option value="All">
-                                            All
-                                        </option>
+                                        {isRole7 ? (
+
+                                            <option value="">
+                                                Select Branch
+                                            </option>
+
+                                        ) : (
+
+                                            <option value="All">
+                                                All
+                                            </option>
+
+                                        )}
 
                                         {branches.map(
                                             (branch, index) => {
 
                                                 const value =
-                                                    branch.bpCode ??
-                                                    branch.BPCode ??
-                                                    branch.branchCode ??
-                                                    branch.BrCode ??
-                                                    ''
+                                                    getBranchCode(branch)
 
                                                 const label =
-                                                    branch.branchName ??
-                                                    branch.BranchName ??
-                                                    branch.bpCode ??
-                                                    branch.BPCode ??
-                                                    ''
+                                                    getBranchName(branch)
 
                                                 return (
 
@@ -768,9 +1103,7 @@ function PCR() {
                                 </div>
 
 
-                                {/* =================================================
-                                    FRANCHISE
-                                ================================================= */}
+                                {/* FRANCHISE */}
 
                                 <div className="pcr-field">
 
@@ -785,6 +1118,10 @@ function PCR() {
                                                 event.target.value
                                             )
                                         }
+                                        disabled={
+                                            franchiseLoading ||
+                                            (isRole7 && !branchCode)
+                                        }
                                     >
 
                                         <option value="All">
@@ -795,18 +1132,10 @@ function PCR() {
                                             (franchise, index) => {
 
                                                 const value =
-                                                    franchise.frcode ??
-                                                    franchise.FrCode ??
-                                                    franchise.franchiseCode ??
-                                                    franchise.FranchiseCode ??
-                                                    ''
+                                                    getFranchiseCode(franchise)
 
                                                 const label =
-                                                    franchise.franchiseName ??
-                                                    franchise.FranchiseName ??
-                                                    franchise.frcode ??
-                                                    franchise.FrCode ??
-                                                    ''
+                                                    getFranchiseName(franchise)
 
                                                 return (
 
@@ -830,9 +1159,7 @@ function PCR() {
                                 </div>
 
 
-                                {/* =================================================
-                                    TICKET NO
-                                ================================================= */}
+                                {/* TICKET NO */}
 
                                 <div className="pcr-field">
 
@@ -854,9 +1181,7 @@ function PCR() {
                                 </div>
 
 
-                                {/* =================================================
-                                    SPU NO
-                                ================================================= */}
+                                {/* SPU NO */}
 
                                 <div className="pcr-field">
 
@@ -878,9 +1203,7 @@ function PCR() {
                                 </div>
 
 
-                                {/* =================================================
-                                    FROM DATE
-                                ================================================= */}
+                                {/* FROM DATE */}
 
                                 <div className="pcr-field">
 
@@ -901,9 +1224,7 @@ function PCR() {
                                 </div>
 
 
-                                {/* =================================================
-                                    TO DATE
-                                ================================================= */}
+                                {/* TO DATE */}
 
                                 <div className="pcr-field">
 
@@ -924,9 +1245,7 @@ function PCR() {
                                 </div>
 
 
-                                {/* =================================================
-                                    STATUS
-                                ================================================= */}
+                                {/* STATUS - UNCHANGED */}
 
                                 <div className="pcr-field">
 
@@ -978,9 +1297,7 @@ function PCR() {
                                 </div>
 
 
-                                {/* =================================================
-                                    ACTION BUTTONS
-                                ================================================= */}
+                                {/* ACTION BUTTONS */}
 
                                 <div className="pcr-search-button-wrapper">
 
@@ -1017,9 +1334,7 @@ function PCR() {
                         </div>
 
 
-                        {/* =================================================
-                            RESULT TABLE
-                        ================================================= */}
+                        {/* RESULT TABLE */}
 
                         {showResults && (
 
@@ -1033,49 +1348,17 @@ function PCR() {
 
                                             <tr>
 
-                                                <th>
-                                                    Ticket No.
-                                                </th>
-
-                                                <th>
-                                                    Product
-                                                </th>
-
-                                                <th>
-                                                    Serial No.
-                                                </th>
-
-                                                <th>
-                                                    Spare
-                                                </th>
-
-                                                <th>
-                                                    Spare Description
-                                                </th>
-
-                                                <th>
-                                                    Quantity
-                                                </th>
-
-                                                <th>
-                                                    Status
-                                                </th>
-
-                                                <th>
-                                                    Price
-                                                </th>
-
-                                                <th>
-                                                    Credit
-                                                </th>
-
-                                                <th>
-                                                    Debit
-                                                </th>
-
-                                                <th>
-                                                    Marking
-                                                </th>
+                                                <th>Ticket No.</th>
+                                                <th>Product</th>
+                                                <th>Serial No.</th>
+                                                <th>Spare</th>
+                                                <th>Spare Description</th>
+                                                <th>Quantity</th>
+                                                <th>Status</th>
+                                                <th>Price</th>
+                                                <th>Credit</th>
+                                                <th>Debit</th>
+                                                <th>Marking</th>
 
                                             </tr>
 
@@ -1083,10 +1366,6 @@ function PCR() {
 
 
                                         <tbody>
-
-                                            {/* =================================
-                                                LOADING
-                                            ================================= */}
 
                                             {loading ? (
 
@@ -1119,10 +1398,6 @@ function PCR() {
 
                                             ) : pcrData.length > 0 ? (
 
-                                                /* =================================
-                                                   RESULTS
-                                                ================================= */
-
                                                 pcrData.map(
                                                     (row, index) => {
 
@@ -1131,12 +1406,10 @@ function PCR() {
                                                             row.Status ??
                                                             ''
 
-
                                                         const refId =
                                                             row.refId ??
                                                             row.RefId ??
                                                             ''
-
 
                                                         return (
 
@@ -1155,7 +1428,6 @@ function PCR() {
                                                                     }
                                                                 </td>
 
-
                                                                 <td>
                                                                     {
                                                                         row.product ??
@@ -1163,7 +1435,6 @@ function PCR() {
                                                                         ''
                                                                     }
                                                                 </td>
-
 
                                                                 <td>
                                                                     {
@@ -1173,7 +1444,6 @@ function PCR() {
                                                                     }
                                                                 </td>
 
-
                                                                 <td>
                                                                     {
                                                                         row.spare ??
@@ -1181,7 +1451,6 @@ function PCR() {
                                                                         ''
                                                                     }
                                                                 </td>
-
 
                                                                 <td>
                                                                     {
@@ -1191,7 +1460,6 @@ function PCR() {
                                                                     }
                                                                 </td>
 
-
                                                                 <td>
                                                                     {
                                                                         row.quantity ??
@@ -1199,7 +1467,6 @@ function PCR() {
                                                                         ''
                                                                     }
                                                                 </td>
-
 
                                                                 <td>
 
@@ -1217,7 +1484,6 @@ function PCR() {
 
                                                                 </td>
 
-
                                                                 <td>
                                                                     {
                                                                         row.price ??
@@ -1225,7 +1491,6 @@ function PCR() {
                                                                         ''
                                                                     }
                                                                 </td>
-
 
                                                                 <td>
                                                                     {
@@ -1235,7 +1500,6 @@ function PCR() {
                                                                     }
                                                                 </td>
 
-
                                                                 <td>
                                                                     {
                                                                         row.debit ??
@@ -1243,7 +1507,6 @@ function PCR() {
                                                                         ''
                                                                     }
                                                                 </td>
-
 
                                                                 <td>
                                                                     {
@@ -1261,10 +1524,6 @@ function PCR() {
                                                 )
 
                                             ) : (
-
-                                                /* =================================
-                                                   NO RECORDS
-                                                ================================= */
 
                                                 <tr>
 
