@@ -290,6 +290,9 @@ function SparesSearch() {
                     modelName
                 )
 
+                console.log('Spare API response:', data)
+                console.log('Response property names:', Object.keys(data || {}))
+
             setSpareInfo(data)
 
         } catch (err) {
@@ -392,6 +395,9 @@ function SparesSearch() {
                 await getSpareInfoByCode(
                     selectedCode
                 )
+
+                console.log('Spare API response by code:', data)
+                console.log('Response property names:', Object.keys(data || {}))
 
             setSpareInfo(data)
 
@@ -843,29 +849,26 @@ function SparesSearch() {
                     IMAGE
                 ================================================= */}
 
-                {spareInfo && spareInfo.Image && (
-                    <div className="spares-report-section">
+                {spareInfo && (
+                <div className="spares-report-section">
+                    <div className="spares-section-header">
+                        Spare Image
+                    </div>
 
-                        <div className="spares-section-header">
-                            Spare Image
-                        </div>
-
-                        <div className="spares-image-container">
-
+                    <div className="spares-image-container">
+                        {spareInfo.Image && (
                             <img
                                 src={spareInfo.Image}
-                                alt={
-                                    spareInfo.Spare_Description ||
-                                    'Spare'
-                                }
+                                alt={spareInfo.Spare_Description || 'Spare'}
                                 className="spares-image"
-                                onError={handleImageError}
+                                onError={(event) => {
+                                    event.currentTarget.style.display = 'none'
+                                }}
                             />
-
-                        </div>
-
+                        )}
                     </div>
-                )}
+                </div>
+            )}
 
                 {/* =================================================
                     NO RESULT

@@ -1,0 +1,489 @@
+/* =========================================
+   TECHNICIAN EDIT PAGE
+========================================= */
+
+.technician-edit-page,
+.technician-edit-page * {
+    box-sizing: border-box;
+}
+
+.technician-edit-page {
+    width: 100%;
+    padding: 5px;
+    margin: 0;
+    color: #263445;
+    background: transparent;
+}
+
+/* =========================================
+   TOP ACTIONS
+   Back button outside the form card
+========================================= */
+
+.technician-edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 6px;
+    padding: 0;
+}
+
+/* Add Franchise style button */
+
+.technician-edit-actions .te-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 29px;
+    padding: 5px 10px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: center;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease;
+}
+
+.technician-edit-actions .te-button-secondary {
+    color: #ffffff;
+    background-color: #198754;
+    border-color: #146c43;
+}
+
+.technician-edit-actions .te-button-secondary:hover {
+    color: #ffffff;
+    background-color: #157347;
+    border-color: #146c43;
+}
+
+.technician-edit-actions .te-button:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+/* =========================================
+   MAIN FORM CARD
+========================================= */
+
+.technician-edit-card {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+}
+
+/* =========================================
+   OPTIONAL INNER HEADER
+   Kept compatible with existing JSX
+========================================= */
+
+.technician-edit-header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    margin: 0;
+    background: #ffffff;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.technician-edit-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #263445;
+}
+
+.technician-edit-subtitle {
+    margin: 3px 0 0;
+    font-size: 11px;
+    color: #6c757d;
+}
+
+.technician-edit-header .btn {
+    min-height: 29px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.technician-edit-header .btn-light {
+    color: #ffffff;
+    background-color: #198754;
+    border: 1px solid #146c43;
+}
+
+.technician-edit-header .btn-light:hover {
+    color: #ffffff;
+    background-color: #157347;
+    border-color: #146c43;
+}
+
+.technician-edit-header .btn-light:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+/* =========================================
+   FORM BODY
+========================================= */
+
+.technician-edit-body {
+    width: 100%;
+    padding: 10px;
+}
+
+.technician-edit-body form {
+    width: 100%;
+    margin: 0;
+}
+
+/* =========================================
+   FORM SECTIONS
+========================================= */
+
+.technician-edit-section {
+    width: 100%;
+    margin: 0 0 14px;
+}
+
+.technician-edit-section:last-of-type {
+    margin-bottom: 0;
+}
+
+.technician-edit-section-title {
+    margin: 0 0 9px;
+    padding: 0 0 6px;
+    color: #337ab7;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* =========================================
+   FORM GRID
+   Desktop: 6 fields per row
+========================================= */
+
+.technician-edit-body .row {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 9px 10px;
+    margin: 0;
+}
+
+.technician-edit-body .row > * {
+    width: auto;
+    max-width: none;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+}
+
+/* Fields spanning multiple columns */
+
+.technician-edit-body .row > .col-md-8 {
+    grid-column: span 2;
+}
+
+.technician-edit-body .row > .col-12 {
+    grid-column: 1 / -1;
+}
+
+/* =========================================
+   LABELS
+========================================= */
+
+.technician-edit-body .form-label {
+    display: block;
+    margin: 0 0 4px;
+    color: #374151;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.technician-edit-body .text-danger {
+    color: #dc3545 !important;
+}
+
+/* =========================================
+   INPUTS AND SELECTS
+========================================= */
+
+.technician-edit-body .form-control,
+.technician-edit-body .form-select {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    height: 32px;
+    padding: 5px 8px;
+    color: #333333;
+    background-color: #ffffff;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.4;
+    box-shadow: none;
+    box-sizing: border-box;
+}
+
+.technician-edit-body .form-select {
+    padding-right: 26px;
+}
+
+.technician-edit-body .form-control:focus,
+.technician-edit-body .form-select:focus {
+    color: #333333;
+    background-color: #ffffff;
+    border-color: #86b7fe;
+    outline: 0;
+    box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.12);
+}
+
+/* Read-only fields */
+
+.technician-edit-body .form-control[readonly] {
+    color: #6c757d;
+    background-color: #f5f6f7;
+    border-color: #ced4da;
+    cursor: default;
+}
+
+/* Textareas */
+
+.technician-edit-body textarea.form-control {
+    height: auto;
+    min-height: 54px;
+    padding: 6px 8px;
+    line-height: 1.4;
+    resize: vertical;
+}
+
+/* =========================================
+   HELP TEXT
+========================================= */
+
+.field-help {
+    display: block;
+    margin: 3px 0 0;
+    color: #6c757d;
+    font-size: 10px;
+    line-height: 1.35;
+}
+
+/* =========================================
+   ALERTS
+========================================= */
+
+.technician-edit-body .alert {
+    margin: 0 0 10px;
+    padding: 8px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.technician-edit-body .alert:last-child {
+    margin-bottom: 0;
+}
+
+/* =========================================
+   LOADING
+========================================= */
+
+.technician-edit-loading {
+    padding: 20px 10px;
+    color: #6c757d;
+    font-size: 13px;
+    text-align: center;
+}
+
+/* =========================================
+   FORM FOOTER BUTTONS
+========================================= */
+
+.technician-edit-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    margin: 14px 0 0;
+    padding: 10px 0 0;
+    border-top: 1px solid #dee2e6;
+}
+
+.technician-edit-footer .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 90px;
+    min-height: 30px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.technician-edit-footer .btn-secondary {
+    color: #ffffff;
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.technician-edit-footer .btn-secondary:hover {
+    background-color: #5c636a;
+    border-color: #565e64;
+}
+
+.technician-edit-footer .btn-primary {
+    color: #ffffff;
+    background-color: #198754;
+    border-color: #146c43;
+}
+
+.technician-edit-footer .btn-primary:hover {
+    color: #ffffff;
+    background-color: #157347;
+    border-color: #146c43;
+}
+
+.technician-edit-footer .btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.technician-edit-body .alert-success {
+    color: #0f5132;
+    background-color: #d1e7dd;
+    border: 1px solid #a3cfbb;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+}
+
+/* =========================================
+   MEDIUM SCREENS
+   3 fields per row
+========================================= */
+
+@media (max-width: 1199px) {
+    .technician-edit-body .row {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .technician-edit-body .row > .col-md-8 {
+        grid-column: span 2;
+    }
+}
+
+/* =========================================
+   TABLETS
+   2 fields per row
+========================================= */
+
+@media (max-width: 767px) {
+    .technician-edit-page {
+        padding: 4px;
+    }
+
+    .technician-edit-actions {
+        margin-bottom: 5px;
+    }
+
+    .technician-edit-body {
+        padding: 9px;
+    }
+
+    .technician-edit-header {
+        padding: 6px 9px;
+    }
+
+    .technician-edit-body .row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .technician-edit-body .row > .col-md-8 {
+        grid-column: span 2;
+    }
+
+    .technician-edit-section {
+        margin-bottom: 12px;
+    }
+}
+
+/* =========================================
+   MOBILE
+   1 field per row
+========================================= */
+
+@media (max-width: 480px) {
+    .technician-edit-page {
+        padding: 3px;
+    }
+
+    .technician-edit-actions {
+        justify-content: flex-end;
+    }
+
+    .technician-edit-actions .te-button {
+        min-height: 29px;
+        padding: 5px 8px;
+        font-size: 11px;
+    }
+
+    .technician-edit-header {
+        padding: 6px 8px;
+    }
+
+    .technician-edit-header .btn {
+        font-size: 11px;
+    }
+
+    .technician-edit-body {
+        padding: 8px;
+    }
+
+    .technician-edit-section-title {
+        font-size: 12px;
+    }
+
+    .technician-edit-body .row {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 10px;
+    }
+
+    .technician-edit-body .row > .col-md-8,
+    .technician-edit-body .row > .col-12 {
+        grid-column: 1 / -1;
+    }
+
+    .technician-edit-footer {
+        flex-direction: column-reverse;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .technician-edit-footer .btn {
+        width: 100%;
+    }
+}

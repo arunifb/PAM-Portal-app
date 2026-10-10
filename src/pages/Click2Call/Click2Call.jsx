@@ -2,27 +2,32 @@ import { useEffect, useState } from 'react'
 import './Click2Call.css'
 
 import {
-    getClick2CallBranches,
+    getBranches,
+    getRegions
+} from '../../api/reportsApi'
+
+import {
     getClick2CallFranchises,
     searchClick2Call
 } from '../../api/click2CallApi'
 
 import DashboardLayout from '../../components/DashboardLayout/DashboardLayout'
 
-
 function Click2Call() {
-
     // =========================================
     // SESSION VALUES
     // =========================================
 
-    const roleId =
-        Number(
-            sessionStorage.getItem('roleId') ||
-            sessionStorage.getItem('roleID')
-        ) || 0
+    const sessionUserId = Number(
+        sessionStorage.getItem('userId') || 0
+    )
 
-    const regionCode =
+    const roleId = Number(
+        sessionStorage.getItem('roleId') ||
+        sessionStorage.getItem('roleID')
+    ) || 0
+
+    const sessionRegionCode =
         sessionStorage.getItem('regionCode') || ''
 
     const bpCode =
@@ -31,38 +36,39 @@ function Click2Call() {
     const loginId =
         sessionStorage.getItem('loginId') || ''
 
-
     // =========================================
     // USER TYPE
     // =========================================
-    //
-    // Role 1:
-    //     Branch can be selected.
-    //     "All" is available.
-    //
-    // Role != 1:
-    //     Branch is frozen to logged-in BPCode.
-    //
-    // Role 7:
-    //     Branch list is loaded for all branches.
-    //     User can select a branch.
-    //
+
+    const isRole1Or3 = roleId === 1 || roleId === 3
+    const isRole7 = roleId === 7
+    const isBranchUser = !isRole1Or3 && !isRole7
+
+    // =========================================
+    // REGION STATE
     // =========================================
 
-    const isBranchUser =
-        roleId !== 1 && roleId !== 7
-
+    const [regions, setRegions] = useState([])
+    const [region, setRegion] = useState('')
+    const [regionLoading, setRegionLoading] = useState(false)
 
     // =========================================
     // FORM STATE
     // =========================================
 
     const [ticketNumber, setTicketNumber] = useState('')
-    const [branch, setBranch] = useState('')
+
+    const [branch, setBranch] = useState(
+        isRole7
+            ? ''
+            : isBranchUser
+                ? bpCode
+                : ''
+    )
+
     const [franchise, setFranchise] = useState('')
     const [fromDate, setFromDate] = useState('')
     const [toDate, setToDate] = useState('')
-
 
     // =========================================
     // DROPDOWN STATE
@@ -70,11 +76,8 @@ function Click2Call() {
 
     const [branches, setBranches] = useState([])
     const [franchises, setFranchises] = useState([])
-
     const [branchLoading, setBranchLoading] = useState(false)
-    const [franchiseLoading, setFranchiseLoading] =
-        useState(false)
-
+    const [franchiseLoading, setFranchiseLoading] = useState(false)
 
     // =========================================
     // SEARCH STATE
@@ -82,1242 +85,871 @@ function Click2Call() {
 
     const [results, setResults] = useState([])
     const [loading, setLoading] = useState(false)
-
     const [error, setError] = useState('')
     const [message, setMessage] = useState('')
-
     const [showResults, setShowResults] = useState(false)
-
     const [isTicketSearch, setIsTicketSearch] = useState(false)
 
+    // =========================================
+    // REGION HELPERS
+    // =========================================
+
+    const getRegionCode = (item) => (
+        item.regionCode ??
+        item.RegionCode ??
+        ''
+    )
+
+    const getRegionName = (item) => (
+        item.regionName ??
+        item.RegionName ??
+        item.name ??
+        item.Name ??
+        ''
+    )
+
+    // =========================================
+    // BRANCH HELPERS
+    // =========================================
+
+    const getBranchCode = (item) => (
+        item.bpCode ??
+        item.BPCode ??
+        ''
+    )
+
+    const getBranchName = (item) => (
+        item.branchName ??
+        item.BranchName ??
+        ''
+    )
+
+    // =========================================
+    // FRANCHISE HELPERS
+    // =========================================
+
+    const getFranchiseCode = (item) => (
+        item.frCode ??
+        item.Frcode ??
+        item.FRCode ??
+        item.frcode ??
+        item.loginId ??
+        item.LoginID ??
+        ''
+    )
+
+    const getFranchiseName = (item) => (
+        item.franchiseName ??
+        item.FranchiseName ??
+        item.userName ??
+        item.UserName ??
+        ''
+    )
+
+    // =========================================
+    // LOAD REGIONS
+    // =========================================
+
+    useEffect(() => {
+        if (!isRole1Or3) {
+            setRegions([])
+            setRegion('')
+            return
+        }
+
+        let cancelled = false
+
+        const loadRegions = async () => {
+            try {
+                setRegionLoading(true)
+                setError('')
+
+                console.log('Click2Call Loading regions:', {
+                    userId: sessionUserId
+                })
+
+                const data = await getRegions('', sessionUserId)
+
+                if (cancelled) return
+
+                console.log('Click2Call Region Response:', data)
+
+                if (!Array.isArray(data)) {
+                    throw new Error('Invalid region response.')
+                }
+
+                setRegions(data)
+                setRegion('')
+            } catch (error) {
+                if (cancelled) return
+
+                console.error('Click2Call region error:', error)
+
+                setRegions([])
+                setRegion('')
+
+                setError(
+                    error.message ||
+                    'Unable to load regions.'
+                )
+            } finally {
+                if (!cancelled) {
+                    setRegionLoading(false)
+                }
+            }
+        }
+
+        loadRegions()
+
+        return () => {
+            cancelled = true
+        }
+    }, [isRole1Or3, sessionUserId])
 
     // =========================================
     // LOAD BRANCHES
     // =========================================
 
     useEffect(() => {
+        let cancelled = false
 
         const loadBranches = async () => {
+            // Role 1 / 3 must select a region first.
+            if (isRole1Or3 && !region) {
+                setBranches([])
+                setBranch('')
+                setFranchises([])
+                setFranchise('')
+                setBranchLoading(false)
+                return
+            }
 
             try {
-
                 setBranchLoading(true)
                 setError('')
 
-                // =====================================
-                // ROLE 7
-                // =====================================
-                //
-                // Role 7 should receive all branches.
-                //
-                // Do not pass logged-in region/BPCode.
-                // =====================================
+                let data = []
 
-                const branchRegionCode =
-                    roleId === 7
-                        ? ''
-                        : regionCode
-
-                const branchBpCode =
-                    roleId === 7
-                        ? ''
-                        : bpCode
-
-
-                console.log(
-                    'Loading Click2Call branches:',
-                    {
-                        roleId,
-                        regionCode: branchRegionCode,
-                        bpCode: branchBpCode
-                    }
-                )
-
-
-                const data =
-                    await getClick2CallBranches(
-                        roleId,
-                        branchRegionCode,
-                        branchBpCode
+                // Role 1 / 3: branches for selected region.
+                if (isRole1Or3) {
+                    console.log(
+                        'Click2Call Role 1/3 Loading branches:',
+                        {
+                            userId: sessionUserId,
+                            regionCode: region
+                        }
                     )
 
+                    data = await getBranches(
+                        sessionUserId,
+                        region
+                    )
+                }
 
-                console.log(
-                    'Click2Call Branch Response:',
-                    data
-                )
+                // Role 7: load available branches.
+                else if (isRole7) {
+                    console.log(
+                        'Click2Call Role 7 Loading branches:',
+                        {
+                            userId: sessionUserId,
+                            regionCode: ''
+                        }
+                    )
 
+                    data = await getBranches(
+                        sessionUserId,
+                        ''
+                    )
+                }
+
+                // Other roles: preserve logged-in branch behavior.
+                else {
+                    console.log(
+                        'Click2Call Loading branch:',
+                        {
+                            roleId,
+                            regionCode: sessionRegionCode,
+                            bpCode
+                        }
+                    )
+
+                    data = bpCode
+                        ? [{
+                            bpCode,
+                            branchName: bpCode
+                        }]
+                        : []
+                }
+
+                if (cancelled) return
+
+                console.log('Click2Call Branch Response:', data)
 
                 if (!Array.isArray(data)) {
-
-                    throw new Error(
-                        'Invalid branch response.'
-                    )
+                    throw new Error('Invalid branch response.')
                 }
 
-
-                // =====================================
-                // REMOVE INVALID BRANCHES
-                // =====================================
-
-                const validBranches =
-                    data.filter(
-                        item =>
-                            item &&
-                            item.bpCode &&
-                            item.branchName
-                    )
-
-
-                setBranches(
-                    validBranches
+                const validBranches = data.filter(
+                    item =>
+                        item &&
+                        getBranchCode(item) &&
+                        getBranchName(item)
                 )
 
+                setBranches(validBranches)
 
-                // =====================================
-                // BRANCH USER
-                // =====================================
-                //
-                // Role other than 1 and 7:
-                //
-                // Automatically select the logged-in
-                // user's branch.
-                //
-                // The branch dropdown will be frozen.
-                // =====================================
-
-                if (
-                    isBranchUser &&
-                    bpCode
-                ) {
-
+                if (isRole1Or3 || isRole7) {
+                    // Require the user to select a branch.
+                    setBranch('')
+                } else if (isBranchUser) {
                     setBranch(bpCode)
-
                 }
 
+                setFranchises([])
+                setFranchise('')
             } catch (error) {
+                if (cancelled) return
 
-                console.error(
-                    'Click2Call branch error:',
-                    error
-                )
+                console.error('Click2Call branch error:', error)
+
+                setBranches([])
+                setFranchises([])
+                setFranchise('')
+
+                if (isBranchUser) {
+                    setBranch(bpCode)
+                } else {
+                    setBranch('')
+                }
 
                 setError(
                     error.message ||
                     'Unable to load branches.'
                 )
-
             } finally {
-
-                setBranchLoading(false)
-
+                if (!cancelled) {
+                    setBranchLoading(false)
+                }
             }
         }
 
         loadBranches()
 
+        return () => {
+            cancelled = true
+        }
     }, [
         roleId,
-        regionCode,
+        region,
+        sessionUserId,
+        sessionRegionCode,
         bpCode,
+        isRole1Or3,
+        isRole7,
         isBranchUser
     ])
 
-
     // =========================================
-    // LOAD FRANCHISES WHEN BRANCH CHANGES
-    // =========================================
-    //
-    // IMPORTANT:
-    //
-    // "branch" contains the ACTUAL selected
-    // branch BPCode.
-    //
-    // For example:
-    //
-    // Role 7:
-    //
-    // User selects:
-    // Bangalore Service Branch
-    //
-    // branch =
-    // 11002487
-    //
-    // Then:
-    //
-    // getClick2CallFranchises(
-    //     roleId,
-    //     11002487,
-    //     loginId
-    // )
-    //
-    // This means franchise data is loaded
-    // specifically for the selected branch.
-    //
+    // LOAD FRANCHISES
     // =========================================
 
     useEffect(() => {
+        let cancelled = false
 
         const loadFranchises = async () => {
-
-            // =====================================
-            // No branch selected
-            // =====================================
-
-            if (!branch) {
-
+            // Role 1 / 3: wait until a branch is selected.
+            if (isRole1Or3 && !branch) {
                 setFranchises([])
                 setFranchise('')
-
+                setFranchiseLoading(false)
                 return
             }
 
+            // Role 7: wait until a branch is selected.
+            if (isRole7 && !branch) {
+                setFranchises([])
+                setFranchise('')
+                setFranchiseLoading(false)
+                return
+            }
+
+            // Other branch users: preserve existing behavior.
+            if (isBranchUser && !branch) {
+                setFranchises([])
+                setFranchise('')
+                setFranchiseLoading(false)
+                return
+            }
 
             try {
-
                 setFranchiseLoading(true)
                 setError('')
 
-                console.log(
-                    'Loading Click2Call franchises:',
-                    {
-                        roleId,
-                        selectedBranchBpCode: branch,
-                        loginId
-                    }
+                console.log('Click2Call Loading franchises:', {
+                    roleId,
+                    selectedBranch: branch,
+                    loginId
+                })
+
+                const data = await getClick2CallFranchises(
+                    roleId,
+                    branch,
+                    loginId
                 )
 
+                if (cancelled) return
 
-                // =====================================
-                // IMPORTANT
-                // =====================================
-                //
-                // Use the SELECTED branch BPCode.
-                //
-                // Do NOT use session bpCode here.
-                //
-                // This is important for Role 7 because
-                // Role 7 can select different branches.
-                // =====================================
-
-                const data =
-                    await getClick2CallFranchises(
-                        roleId,
-                        branch,
-                        loginId
-                    )
-
-
-                console.log(
-                    'Click2Call Franchise Response:',
-                    data
-                )
-
+                console.log('Click2Call Franchise Response:', data)
 
                 if (!Array.isArray(data)) {
-
-                    throw new Error(
-                        'Invalid franchise response.'
-                    )
+                    throw new Error('Invalid franchise response.')
                 }
 
-
-                // =====================================
-                // SORT FRANCHISE A-Z
-                // =====================================
-
-                const sortedFranchises =
-                    [...data].sort((a, b) =>
-                        (
-                            a.franchiseName || ''
-                        ).localeCompare(
-                            b.franchiseName || '',
+                const sortedFranchises = [...data].sort(
+                    (a, b) =>
+                        (getFranchiseName(a) || '').localeCompare(
+                            getFranchiseName(b) || '',
                             undefined,
-                            {
-                                sensitivity: 'base'
-                            }
+                            { sensitivity: 'base' }
                         )
-                    )
-
-
-                setFranchises(
-                    sortedFranchises
                 )
 
+                setFranchises(sortedFranchises)
+                setFranchise('')
             } catch (error) {
+                if (cancelled) return
 
-                console.error(
-                    'Click2Call franchise error:',
-                    error
-                )
+                console.error('Click2Call franchise error:', error)
 
                 setFranchises([])
+                setFranchise('')
 
                 setError(
                     error.message ||
                     'Unable to load franchises.'
                 )
-
             } finally {
-
-                setFranchiseLoading(false)
-
+                if (!cancelled) {
+                    setFranchiseLoading(false)
+                }
             }
         }
 
         loadFranchises()
 
+        return () => {
+            cancelled = true
+        }
     }, [
         branch,
         roleId,
-        loginId
+        loginId,
+        isRole1Or3,
+        isRole7,
+        isBranchUser
     ])
 
+    // =========================================
+    // REGION CHANGE
+    // =========================================
+
+    const handleRegionChange = (event) => {
+        const selectedRegion = event.target.value
+
+        setRegion(selectedRegion)
+        setBranch('')
+        setBranches([])
+        setFranchise('')
+        setFranchises([])
+        setResults([])
+        setError('')
+        setMessage('')
+        setShowResults(false)
+        setIsTicketSearch(false)
+    }
 
     // =========================================
     // BRANCH CHANGE
     // =========================================
 
     const handleBranchChange = (event) => {
-
-        const selectedBranch =
-            event.target.value
-
+        const selectedBranch = event.target.value
 
         console.log(
-            'Selected Click2Call Branch BPCode:',
+            'Selected Click2Call Branch:',
             selectedBranch
         )
 
-
-        // =====================================
-        // Store selected branch BPCode.
-        //
-        // This triggers the franchise useEffect.
-        // =====================================
-
-        setBranch(
-            selectedBranch
-        )
-
-
-        // =====================================
-        // Clear old franchise selection.
-        // =====================================
-
+        setBranch(selectedBranch)
         setFranchise('')
-
         setFranchises([])
-
+        setResults([])
         setError('')
         setMessage('')
+        setShowResults(false)
     }
-
 
     // =========================================
     // FRANCHISE CHANGE
     // =========================================
 
     const handleFranchiseChange = (event) => {
-
-        setFranchise(
-            event.target.value
-        )
-
+        setFranchise(event.target.value)
         setError('')
         setMessage('')
     }
-
 
     // =========================================
     // SEARCH
     // =========================================
 
     const handleSearch = async () => {
-
         setError('')
         setMessage('')
         setResults([])
-
         setShowResults(true)
 
-
-        // =====================================
-        // DETERMINE SEARCH TYPE
-        // =====================================
-
         const isTicket = !!ticketNumber.trim()
+
         setIsTicketSearch(isTicket)
 
+        // Role 1 / 3 region validation.
+        if (isRole1Or3 && !region) {
+            setError('Please select a region.')
+            return
+        }
 
-        // =====================================
-        // VALIDATION
-        // =====================================
+        // Branch is mandatory for every role.
+        if (!branch) {
+            setError('Please select a branch.')
+            return
+        }
 
+        // Require dates when no ticket number is provided.
         if (!ticketNumber.trim()) {
-
             if (!fromDate || !toDate) {
-
                 setError(
                     'From Date and To Date are required when Ticket Number is not provided.'
                 )
-
                 return
             }
 
-
             if (fromDate > toDate) {
-
                 setError(
                     'From Date cannot be greater than To Date.'
                 )
-
                 return
             }
         }
 
+        const searchRegionCode = isRole7
+            ? ''
+            : isRole1Or3
+                ? region
+                : sessionRegionCode
 
-        // =====================================
-        // REQUEST
-        // =====================================
+        const searchBpCode = branch || bpCode
 
         const request = {
-
-            roleId: roleId,
-
-            leadId:
-                ticketNumber.trim(),
-
-            regionCode:
-                regionCode,
-
-            bpCode:
-                branch || bpCode,
-
-            frCode:
-                franchise,
-
-            loginId:
-                loginId,
-
-            fromDate:
-                fromDate,
-
-            toDate:
-                toDate
+            roleId,
+            leadId: ticketNumber.trim(),
+            regionCode: searchRegionCode,
+            bpCode: searchBpCode,
+            frCode: franchise,
+            loginId,
+            fromDate,
+            toDate
         }
 
-
-        console.log(
-            'Click2Call Request:',
-            request
-        )
-
-
-        // =====================================
-        // API CALL
-        // =====================================
+        console.log('Click2Call Request:', request)
 
         try {
-
             setLoading(true)
 
-            const data =
-                await searchClick2Call(
-                    request
-                )
+            const data = await searchClick2Call(request)
 
+            console.log('Click2Call Response:', data)
 
-            console.log(
-                'Click2Call Response:',
-                data
-            )
-
-
-            // =================================
-            // NO DATA
-            // =================================
-
-            if (
-                !Array.isArray(data) ||
-                data.length === 0
-            ) {
-
-                setMessage(
-                    'No records found.'
-                )
-
+            if (!Array.isArray(data) || data.length === 0) {
+                setMessage('No records found.')
                 return
             }
 
-
-            // =================================
-            // SET RESULTS
-            // =================================
-
             setResults(data)
-
         } catch (error) {
-
-            console.error(
-                'Click2Call error:',
-                error
-            )
+            console.error('Click2Call error:', error)
 
             setError(
                 error.message ||
                 'Unable to search Click 2 Call.'
             )
-
         } finally {
-
             setLoading(false)
         }
     }
-
 
     // =========================================
     // CLEAR
     // =========================================
 
     const handleClear = () => {
-
         setTicketNumber('')
-
         setFranchise('')
-
         setFromDate('')
-
         setToDate('')
-
         setFranchises([])
-
         setResults([])
-
         setError('')
-
         setMessage('')
-
         setShowResults(false)
-
         setIsTicketSearch(false)
 
-
-        // =====================================
-        // ROLE 1
-        // =====================================
-        //
-        // Reset branch to "All".
-        // =====================================
-
-        if (roleId === 1) {
-
+        if (isRole1Or3) {
+            setRegion('')
             setBranch('')
-
+            setBranches([])
             return
         }
 
-
-        // =====================================
-        // ROLE 7
-        // =====================================
-        //
-        // Role 7 can select any branch.
-        //
-        // Reset to "All".
-        // =====================================
-
-        if (roleId === 7) {
-
+        if (isRole7) {
             setBranch('')
-
             return
         }
 
-
-        // =====================================
-        // OTHER BRANCH USERS
-        // =====================================
-        //
-        // Restore their logged-in branch.
-        // =====================================
-
-        if (bpCode) {
-
-            setBranch(bpCode)
-
-        } else {
-
-            setBranch('')
-
-        }
+        setBranch(bpCode || '')
     }
-
 
     // =========================================
     // FORMAT DATE
     // =========================================
 
     const formatDate = (value) => {
+        if (!value) return ''
 
-        if (!value) {
-            return ''
-        }
+        const date = new Date(value)
 
-
-        const date =
-            new Date(value)
-
-
-        if (
-            Number.isNaN(
-                date.getTime()
-            )
-        ) {
-
+        if (Number.isNaN(date.getTime())) {
             return value
         }
 
-
-        return date.toLocaleDateString(
-            'en-GB',
-            {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric'
-            }
-        )
+        return date.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        })
     }
-
 
     // =========================================
     // DISPLAY RESULTS
     // =========================================
-    //
-    // Ticket search: show ALL records.
-    // Date search:   show only first 10.
-    // =========================================
 
-    const displayResults =
-        isTicketSearch
-            ? results
-            : results.slice(0, 10)
-
+    const displayResults = isTicketSearch
+        ? results
+        : results.slice(0, 10)
 
     // =========================================
     // UI
     // =========================================
 
     return (
-
         <DashboardLayout title="Click 2 Call">
-
             <div className="click2call-page">
-
-
-                {/* =================================
-                    SEARCH BOX
-                ================================= */}
-
                 <div className="click2call-box">
-
                     <div className="click2call-form">
 
+                        {/* REGION */}
+                        {isRole1Or3 && (
+                            <div className="click2call-field">
+                                <label>
+                                    Select Region:
+                                    <span className="required">*</span>
+                                </label>
 
-                        {/* =============================
-                            BRANCH
-                        ============================= */}
+                                <select
+                                    value={region}
+                                    onChange={handleRegionChange}
+                                    disabled={regionLoading}
+                                >
+                                    <option value="">
+                                        Select Region
+                                    </option>
 
+                                    {regions.map((item, index) => {
+                                        const code = getRegionCode(item)
+                                        const name = getRegionName(item)
+
+                                        return (
+                                            <option
+                                                key={code || `region-${index}`}
+                                                value={code}
+                                            >
+                                                {name}
+                                            </option>
+                                        )
+                                    })}
+                                </select>
+                            </div>
+                        )}
+
+                        {/* BRANCH */}
                         <div className="click2call-field">
-
                             <label>
-                                Branch:
+                                Select Branch:
+                                <span className="required">*</span>
                             </label>
 
                             <select
                                 value={branch}
-                                onChange={
-                                    handleBranchChange
-                                }
+                                onChange={handleBranchChange}
                                 disabled={
                                     branchLoading ||
+                                    (isRole1Or3 && !region) ||
                                     isBranchUser
                                 }
                             >
+                                <option value="">
+                                    Select Branch
+                                </option>
 
-                                {/* =================================
-                                    ALL OPTION
-                                    =================================
-                                    Role 1 and Role 7 can select All.
-                                ================================= */}
-
-                                {!isBranchUser && (
-
-                                    <option value="">
-                                        All
+                                {branches.map((item, index) => (
+                                    <option
+                                        key={`${getBranchCode(item)}-${index}`}
+                                        value={getBranchCode(item)}
+                                    >
+                                        {getBranchName(item)}
                                     </option>
-
-                                )}
-
-
-                                {branches.map(
-                                    (item, index) => (
-
-                                        <option
-                                            key={
-                                                item.bpCode ||
-                                                `branch-${index}`
-                                            }
-                                            value={
-                                                item.bpCode
-                                            }
-                                        >
-
-                                            {
-                                                item.branchName
-                                            }
-
-                                        </option>
-
-                                    )
-                                )}
-
+                                ))}
                             </select>
-
                         </div>
 
-
-                        {/* =============================
-                            FRANCHISE
-                        ============================= */}
-
+                        {/* FRANCHISE */}
                         <div className="click2call-field">
-
-                            <label>
-                                Franchise
-                            </label>
+                            <label>Franchise:</label>
 
                             <select
                                 value={franchise}
-                                onChange={
-                                    handleFranchiseChange
-                                }
+                                onChange={handleFranchiseChange}
                                 disabled={
                                     franchiseLoading ||
                                     !branch
                                 }
                             >
+                                <option value="">All</option>
 
-                                <option value="">
-                                    All
-                                </option>
-
-
-                                {franchises.map(
-                                    (item, index) => (
-
-                                        <option
-                                            key={
-                                                item.frCode ||
-                                                `franchise-${index}`
-                                            }
-                                            value={
-                                                item.frCode
-                                            }
-                                        >
-
-                                            {
-                                                item.franchiseName
-                                            }
-
-                                        </option>
-
-                                    )
-                                )}
-
+                                {franchises.map((item, index) => (
+                                    <option
+                                        key={`${getFranchiseCode(item)}-${index}`}
+                                        value={getFranchiseCode(item)}
+                                    >
+                                        {getFranchiseName(item)}
+                                    </option>
+                                ))}
                             </select>
-
                         </div>
 
-
-                        {/* =============================
-                            TICKET NUMBER
-                        ============================= */}
-
+                        {/* TICKET NUMBER */}
                         <div className="click2call-field">
-
-                            <label>
-                                Ticket Number
-                            </label>
+                            <label>Ticket Number:</label>
 
                             <input
                                 type="text"
-                                value={
-                                    ticketNumber
+                                value={ticketNumber}
+                                onChange={(event) =>
+                                    setTicketNumber(event.target.value)
                                 }
-                                onChange={
-                                    (event) =>
-                                        setTicketNumber(
-                                            event.target.value
-                                        )
-                                }
-                                placeholder=""
                             />
-
                         </div>
 
-
-                        {/* =============================
-                            FROM DATE
-                        ============================= */}
-
+                        {/* FROM DATE */}
                         <div className="click2call-field">
-
                             <label>
-
                                 From Date:
-
-                                <span className="required">
-                                    *
-                                </span>
-
+                                <span className="required">*</span>
                             </label>
 
                             <input
                                 type="date"
-                                value={
-                                    fromDate
-                                }
-                                onChange={
-                                    (event) =>
-                                        setFromDate(
-                                            event.target.value
-                                        )
+                                value={fromDate}
+                                onChange={(event) =>
+                                    setFromDate(event.target.value)
                                 }
                             />
-
                         </div>
 
-
-                        {/* =============================
-                            TO DATE
-                        ============================= */}
-
+                        {/* TO DATE */}
                         <div className="click2call-field">
-
                             <label>
-
                                 To Date:
-
-                                <span className="required">
-                                    *
-                                </span>
-
+                                <span className="required">*</span>
                             </label>
 
                             <input
                                 type="date"
-                                value={
-                                    toDate
-                                }
-                                onChange={
-                                    (event) =>
-                                        setToDate(
-                                            event.target.value
-                                        )
+                                value={toDate}
+                                onChange={(event) =>
+                                    setToDate(event.target.value)
                                 }
                             />
-
                         </div>
-
                     </div>
 
-
-                    {/* =================================
-                        ERROR
-                    ================================= */}
-
+                    {/* ERROR */}
                     {error && (
-
                         <div className="click2call-error">
                             {error}
                         </div>
-
                     )}
 
-
-                    {/* =================================
-                        MESSAGE
-                    ================================= */}
-
+                    {/* MESSAGE */}
                     {message && (
-
                         <div className="click2call-message">
                             {message}
                         </div>
-
                     )}
 
-
-                    {/* =================================
-                        BUTTONS
-                    ================================= */}
-
+                    {/* BUTTONS */}
                     <div className="click2call-button-area">
-
                         <button
                             type="button"
                             className="click2call-search-button"
-                            onClick={
-                                handleSearch
-                            }
-                            disabled={
-                                loading
-                            }
+                            onClick={handleSearch}
+                            disabled={loading}
                         >
-
-                            {loading
-                                ? 'Searching...'
-                                : 'Search'}
-
+                            {loading ? 'Searching...' : 'Search'}
                         </button>
-
 
                         <button
                             type="button"
                             className="click2call-clear-button"
-                            onClick={
-                                handleClear
-                            }
+                            onClick={handleClear}
                         >
-
                             Clear
-
                         </button>
-
                     </div>
-
                 </div>
 
-
-                {/* =================================
-                    RESULT TABLE
-                ================================= */}
-
+                {/* RESULT TABLE */}
                 {showResults && (
-
                     <div className="click2call-box">
-
-                        {/* =============================
-                            RESULT HEADER
-                        ============================= */}
-
                         {results.length > 0 && !loading && (
-
-                            <h3 style={{
-                                margin: '10px',
-                                fontSize: '15px',
-                                color: '#333'
-                            }}>
-
+                            <h3
+                                style={{
+                                    margin: '10px',
+                                    fontSize: '15px',
+                                    color: '#333'
+                                }}
+                            >
                                 {isTicketSearch
                                     ? `${results.length} record${results.length !== 1 ? 's' : ''} found`
                                     : (
                                         <>
                                             Showing {displayResults.length} of {results.length} records
+
                                             {results.length > 10 && (
-                                                <span style={{
-                                                    fontSize: '13px',
-                                                    fontWeight: '500',
-                                                    color: '#666',
-                                                    marginLeft: '10px'
-                                                }}>
+                                                <span
+                                                    style={{
+                                                        fontSize: '13px',
+                                                        fontWeight: '500',
+                                                        color: '#666',
+                                                        marginLeft: '10px'
+                                                    }}
+                                                >
                                                     — Use Ticket Number to search specific records
                                                 </span>
                                             )}
                                         </>
-                                    )
-                                }
-
+                                    )}
                             </h3>
-
                         )}
 
-
                         <div className="click2call-table-wrapper">
-
                             <table className="click2call-table">
-
                                 <thead>
-
                                     <tr>
-
-                                        <th>
-                                            SNo.
-                                        </th>
-
-                                        <th>
-                                            Branch
-                                        </th>
-
-                                        <th>
-                                            Franchise
-                                        </th>
-
-                                        <th>
-                                            TicketNo
-                                        </th>
-
-                                        <th>
-                                            start_stamp
-                                        </th>
-
-                                        <th>
-                                            end_stamp
-                                        </th>
-
-                                        <th>
-                                            hangup_cause
-                                        </th>
-
-                                        <th>
-                                            duration
-                                        </th>
-
-                                        <th>
-                                            call_status
-                                        </th>
-
-                                        <th>
-                                            CreatedDate
-                                        </th>
-
-                                        <th>
-                                            Recording
-                                        </th>
-
+                                        <th>SNo.</th>
+                                        <th>Branch</th>
+                                        <th>Franchise</th>
+                                        <th>TicketNo</th>
+                                        <th>start_stamp</th>
+                                        <th>end_stamp</th>
+                                        <th>hangup_cause</th>
+                                        <th>duration</th>
+                                        <th>call_status</th>
+                                        <th>CreatedDate</th>
+                                        <th>Recording</th>
                                     </tr>
-
                                 </thead>
 
-
                                 <tbody>
-
-                                    {/* =================================
-                                        LOADING
-                                    ================================= */}
-
                                     {loading ? (
-
                                         <tr>
-
                                             <td
                                                 colSpan="11"
                                                 className="click2call-loading-cell"
                                             >
-
                                                 <div className="click2call-loading">
-
                                                     <div className="click2call-loading-dots">
-
                                                         <span></span>
                                                         <span></span>
                                                         <span></span>
-
                                                     </div>
 
                                                     <span className="click2call-loading-text">
                                                         Loading...
                                                     </span>
-
                                                 </div>
-
                                             </td>
-
                                         </tr>
-
                                     ) : displayResults.length > 0 ? (
-
-                                        /* =================================
-                                           RESULTS
-                                        ================================= */
-
-                                        displayResults.map(
-                                            (item, index) => (
-
-                                                <tr
-                                                    key={
-                                                        `${
-                                                            item.lead_id ||
-                                                            index
-                                                        }-${index}`
-                                                    }
-                                                >
-
-                                                    <td>
-                                                        {index + 1}
-                                                    </td>
-
-
-                                                    <td>
-                                                        {
-                                                            item.Branch ||
-                                                            ''
-                                                        }
-                                                    </td>
-
-
-                                                    <td>
-                                                        {
-                                                            item.Franchise ||
-                                                            ''
-                                                        }
-                                                    </td>
-
-
-                                                    <td>
-
-                                                        {
-                                                            item.lead_id ||
-                                                            item.Lead_Id ||
-                                                            ''
-                                                        }
-
-                                                    </td>
-
-
-                                                    <td>
-
-                                                        {
-                                                            item.start_stamp ||
-                                                            ''
-                                                        }
-
-                                                    </td>
-
-
-                                                    <td>
-
-                                                        {
-                                                            item.end_stamp ||
-                                                            ''
-                                                        }
-
-                                                    </td>
-
-
-                                                    <td>
-
-                                                        {
-                                                            item.hangup_cause ||
-                                                            ''
-                                                        }
-
-                                                    </td>
-
-
-                                                    <td>
-
-                                                        {
-                                                            item.duration ||
-                                                            ''
-                                                        }
-
-                                                    </td>
-
-
-                                                    <td>
-
-                                                        {
-                                                            item.call_status ||
-                                                            ''
-                                                        }
-
-                                                    </td>
-
-
-                                                    <td>
-
-                                                        {
-                                                            formatDate(
-                                                                item.CreatedDate
-                                                            )
-                                                        }
-
-                                                    </td>
-
-
-                                                    <td>
-
-                                                        {
-                                                            item.recording_url ? (
-
-                                                                <audio
-                                                                    controls
-                                                                >
-
-                                                                    <source
-                                                                        src={
-                                                                            item.recording_url
-                                                                        }
-                                                                        type="audio/mpeg"
-                                                                    />
-
-                                                                    Your browser does not
-                                                                    support the audio element.
-
-                                                                </audio>
-
-                                                            ) : (
-
-                                                                <span>
-                                                                    No recording
-                                                                </span>
-
-                                                            )
-                                                        }
-
-                                                    </td>
-
-                                                </tr>
-
-                                            )
-                                        )
-
+                                        displayResults.map((item, index) => (
+                                            <tr
+                                                key={`${item.lead_id || item.Lead_Id || index}-${index}`}
+                                            >
+                                                <td>{index + 1}</td>
+                                                <td>{item.Branch || ''}</td>
+                                                <td>{item.Franchise || ''}</td>
+                                                <td>
+                                                    {item.lead_id || item.Lead_Id || ''}
+                                                </td>
+                                                <td>{item.start_stamp || ''}</td>
+                                                <td>{item.end_stamp || ''}</td>
+                                                <td>{item.hangup_cause || ''}</td>
+                                                <td>{item.duration || ''}</td>
+                                                <td>{item.call_status || ''}</td>
+                                                <td>{formatDate(item.CreatedDate)}</td>
+                                                <td>
+                                                    {item.recording_url ? (
+                                                        <audio controls>
+                                                            <source
+                                                                src={item.recording_url}
+                                                                type="audio/mpeg"
+                                                            />
+                                                            Your browser does not support the audio element.
+                                                        </audio>
+                                                    ) : (
+                                                        <span>No recording</span>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))
                                     ) : (
-
-                                        /* =================================
-                                           NO RECORDS
-                                        ================================= */
-
                                         <tr>
-
                                             <td
                                                 colSpan="11"
                                                 className="click2call-no-record"
                                             >
                                                 No records found.
                                             </td>
-
                                         </tr>
-
                                     )}
-
                                 </tbody>
-
                             </table>
-
                         </div>
-
                     </div>
-
                 )}
-
             </div>
-
         </DashboardLayout>
     )
 }
-
 
 export default Click2Call

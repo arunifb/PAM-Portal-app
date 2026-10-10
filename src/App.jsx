@@ -27,6 +27,9 @@ import PCRDownload from './pages/PCRDownload/PCRDownload'
 import AddPartCategory from './pages/AddPartCategory/AddPartCategory'
 import LegalCase from './pages/LegalCase/LegalCase'
 import RouteKeyPage from './pages/RouteKeyPage/RouteKeyPage'
+import AddFranchise from './pages/AddFranchise/AddFranchise'
+import FranchiseList from './pages/Franchise/FranchiseList'
+import TechnicianEdit from './pages/Technician/TechnicianEdit'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -144,6 +147,11 @@ function App() {
                     />
 
                     <Route
+                        path="/technician/edit/:techId"
+                        element={<TechnicianEdit />}
+                    />
+
+                    <Route
                         path="/spares-search"
                         element={<SparesSearch />}
                     />
@@ -181,6 +189,16 @@ function App() {
                     <Route
                         path="/legal-case"
                         element={<LegalCase />}
+                    />
+
+                    <Route
+                        path="/add-franchise"
+                        element={<AddFranchise />}
+                    />
+
+                    <Route
+                        path="/franchise-list"
+                        element={<FranchiseList />}
                     />
 
                     <Route

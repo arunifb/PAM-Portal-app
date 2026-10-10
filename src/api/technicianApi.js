@@ -148,3 +148,55 @@ export async function generatePartnerId(techId) {
 
     return data
 }
+
+// =====================================================
+// GET TECHNICIAN DETAILS BY ID
+// GET /api/Technician/{id}
+// =====================================================
+
+export async function getTechnicianById(techId) {
+    const response = await authFetch(
+        `${API_BASE_URL}/api/Technician/${encodeURIComponent(techId)}`,
+        {
+            method: 'GET'
+        }
+    )
+
+    const data = await readResponse(response)
+
+    if (!response.ok) {
+        throw new Error(
+            data.message || 'Unable to load technician details.'
+        )
+    }
+
+    return data
+}
+
+// =====================================================
+// UPDATE TECHNICIAN
+// PUT /api/Technician
+// =====================================================
+
+export async function updateTechnician(technicianData) {
+    const response = await authFetch(
+        `${API_BASE_URL}/api/Technician`,
+        {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(technicianData)
+        }
+    )
+
+    const data = await readResponse(response)
+
+    if (!response.ok) {
+        throw new Error(
+            data.message || 'Unable to update technician details.'
+        )
+    }
+
+    return data
+}

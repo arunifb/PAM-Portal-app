@@ -25,6 +25,8 @@ import PCRDownload from '../PCRDownload/PCRDownload'
 import AddPartCategory from '../AddPartCategory/AddPartCategory'
 import LegalCase from '../LegalCase/LegalCase'
 import ReportData from '../ReportData/ReportData'
+import AddFranchise from '../AddFranchise/AddFranchise'
+import FranchiseList from '../Franchise/FranchiseList'
 
 
 function RouteKeyPage() {
@@ -46,6 +48,8 @@ function RouteKeyPage() {
 
     const [menuItem, setMenuItem] =
         useState(null)
+
+    const [franchiseView, setFranchiseView] = useState('add')
 
 
     // =========================================
@@ -116,6 +120,10 @@ function RouteKeyPage() {
 
         '/legal-case':
             LegalCase,
+
+        '/add-franchise': AddFranchise,
+
+        '/franchise-list': FranchiseList,
 
         // =========================================
         // REPORT DATA
@@ -381,12 +389,26 @@ function RouteKeyPage() {
 
 
     // =========================================
-    // RENDER CORRECT REACT PAGE
-    // =========================================
+// RENDER FRANCHISE PAGES WITHOUT URL CHANGE
+// =========================================
+
+if (reactUrl === '/add-franchise') {
+    if (franchiseView === 'list') {
+        return (
+            <FranchiseList
+                onAddFranchise={() => setFranchiseView('add')}
+            />
+        )
+    }
 
     return (
-        <PageComponent />
+        <AddFranchise
+            onBack={() => setFranchiseView('list')}
+        />
     )
+}
+
+return <PageComponent />
 }
 
 

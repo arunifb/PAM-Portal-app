@@ -1,0 +1,350 @@
+
+/* =========================================
+   PAGE
+========================================= */
+
+.franchise-page {
+    width: 100%;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+.franchise-header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin: 0 0 6px;
+    min-height: 30px;
+}
+
+/* =========================================
+   CARDS
+========================================= */
+
+.franchise-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 7px;
+    padding: 7px;
+    box-sizing: border-box;
+}
+
+.franchise-card h3 {
+    margin: 0 0 6px;
+    font-size: 14px;
+    line-height: 1.3;
+    font-weight: 600;
+    color: #333;
+}
+
+.franchise-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.franchise-list-header h3 {
+    margin: 0;
+}
+
+.franchise-list-header span {
+    font-size: 12px;
+    color: #666;
+    white-space: nowrap;
+}
+
+/* =========================================
+   FILTER FORM
+========================================= */
+
+.franchise-filter-grid {
+    display: grid;
+    width: 100%;
+    gap: 6px;
+    box-sizing: border-box;
+}
+
+.franchise-filter-row-one {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    margin-bottom: 7px;
+}
+
+.franchise-filter-row-two {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: end;
+}
+
+.franchise-filter-grid label {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    margin: 0;
+    color: #444;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.3;
+}
+
+.franchise-filter-grid input,
+.franchise-filter-grid select {
+    display: block;
+    width: 100%;
+    height: 32px;
+    min-width: 0;
+    margin-top: 4px;
+    padding: 4px 7px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+    color: #333;
+    font-family: inherit;
+    font-size: 12px;
+    box-sizing: border-box;
+}
+
+.franchise-filter-grid input::placeholder {
+    color: #999;
+    font-size: 11px;
+}
+
+.franchise-filter-grid input:focus,
+.franchise-filter-grid select:focus {
+    outline: none;
+    border-color: #888;
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 5%);
+}
+
+.franchise-filter-grid input:disabled,
+.franchise-filter-grid select:disabled {
+    background: #f3f3f3;
+    color: #777;
+    cursor: not-allowed;
+}
+
+/* =========================================
+   BUTTONS
+========================================= */
+
+.franchise-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+    padding-bottom: 0;
+}
+
+.franchise-btn {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 29px;
+    padding: 5px 11px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.2;
+    white-space: nowrap;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease;
+}
+
+.franchise-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* SEARCH - BLUE */
+
+.franchise-btn-primary {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #ffffff;
+}
+
+.franchise-btn-primary:hover:not(:disabled) {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+}
+
+/* ADD NEW FRANCHISE - GREEN */
+
+.franchise-header .franchise-btn-primary {
+    background-color: #198754;
+    border-color: #198754;
+    color: #ffffff;
+}
+
+.franchise-header .franchise-btn-primary:hover:not(:disabled) {
+    background-color: #157347;
+    border-color: #146c43;
+}
+
+/* RESET AND VIEW - DARK GRAY */
+
+.franchise-btn-secondary {
+    background: #343a40;
+    border-color: #343a40;
+    color: #ffffff;
+}
+
+.franchise-btn-secondary:hover:not(:disabled) {
+    background: #23272b;
+    border-color: #23272b;
+}
+
+/* =========================================
+   ALERT
+========================================= */
+
+.franchise-alert {
+    margin: 0 0 7px;
+    padding: 7px 10px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.franchise-alert-error {
+    color: #842029;
+    background: #f8d7da;
+    border-color: #f1b0b7;
+}
+
+/* =========================================
+   TABLE
+========================================= */
+
+.franchise-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.franchise-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.franchise-table th {
+    padding: 8px 7px;
+    border: 1px solid #ddd;
+    background: #f5f5f5;
+    color: #333;
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.franchise-table td {
+    padding: 7px;
+    border: 1px solid #ddd;
+    color: #444;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.franchise-table tbody tr:hover {
+    background: #fafafa;
+}
+
+.franchise-table .franchise-empty {
+    padding: 18px 10px;
+    color: #777;
+    text-align: center;
+}
+
+.franchise-status {
+    display: inline-block;
+    padding: 3px 7px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.franchise-status.active {
+    background: #dff0d8;
+    color: #3c763d;
+}
+
+.franchise-status.inactive {
+    background: #f2dede;
+    color: #a94442;
+}
+
+/* VIEW BUTTON - COMPACT */
+
+.franchise-table .franchise-btn {
+    min-height: 25px;
+    padding: 4px 9px;
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 1200px) {
+    .franchise-filter-row-one {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .franchise-filter-row-two {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .franchise-actions {
+        grid-column: 1 / -1;
+        justify-content: flex-end;
+        padding-top: 2px;
+    }
+}
+
+@media (max-width: 700px) {
+    .franchise-page {
+        padding: 4px;
+    }
+
+    .franchise-card {
+        padding: 7px;
+    }
+
+    .franchise-filter-row-one,
+    .franchise-filter-row-two {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .franchise-actions {
+        grid-column: 1 / -1;
+        justify-content: flex-end;
+    }
+
+    .franchise-header {
+        margin-bottom: 5px;
+    }
+
+    .franchise-btn {
+        min-height: 29px;
+        padding: 5px 9px;
+    }
+}
+
+@media (max-width: 420px) {
+    .franchise-filter-row-one,
+    .franchise-filter-row-two {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .franchise-actions {
+        justify-content: flex-start;
+    }
+}
