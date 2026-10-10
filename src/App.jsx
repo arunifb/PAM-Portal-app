@@ -30,6 +30,7 @@ import RouteKeyPage from './pages/RouteKeyPage/RouteKeyPage'
 import AddFranchise from './pages/AddFranchise/AddFranchise'
 import FranchiseList from './pages/Franchise/FranchiseList'
 import TechnicianEdit from './pages/Technician/TechnicianEdit'
+import AddTechSkill from './pages/AddTechSkill/AddTechSkill'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -204,6 +205,11 @@ function App() {
                     <Route
                         path="/subdealer/editview"
                         element={<EditView />}
+                    />
+
+                    <Route
+                        path="/add-tech-skill"
+                        element={<AddTechSkill />}
                     />
 
 

@@ -1,0 +1,704 @@
+import { useEffect, useState } from 'react'
+import './AddTechSkill.css'
+
+import {
+    getRegions,
+    getBranches,
+    getFranchises
+} from '../../api/reportsApi'
+
+import {
+    getTechnicianSkillMatrix,
+    saveTechnicianSkillMatrix
+} from '../../api/technicianSkillApi'
+
+import DashboardLayout from '../../components/DashboardLayout/DashboardLayout'
+
+function AddTechSkill() {
+    // =========================================
+    // SESSION VALUES
+    // =========================================
+
+    const sessionUserId = Number(
+        sessionStorage.getItem('userId') || 0
+    )
+
+    const roleId = Number(
+        sessionStorage.getItem('roleId') ||
+        sessionStorage.getItem('roleID') ||
+        0
+    )
+
+    const loginId = sessionStorage.getItem('loginId') || ''
+
+    // =========================================
+    // DROPDOWN STATE
+    // =========================================
+
+    const [regions, setRegions] = useState([])
+    const [branches, setBranches] = useState([])
+    const [franchises, setFranchises] = useState([])
+
+    const [region, setRegion] = useState('')
+    const [branch, setBranch] = useState('')
+    const [franchise, setFranchise] = useState('')
+
+    const [regionLoading, setRegionLoading] = useState(false)
+    const [branchLoading, setBranchLoading] = useState(false)
+    const [franchiseLoading, setFranchiseLoading] = useState(false)
+
+    // =========================================
+    // SKILL MATRIX STATE
+    // =========================================
+
+    const [products, setProducts] = useState([])
+    const [technicians, setTechnicians] = useState([])
+    const [matrixLoading, setMatrixLoading] = useState(false)
+    const [saving, setSaving] = useState(false)
+
+    const [error, setError] = useState('')
+    const [message, setMessage] = useState('')
+
+    // =========================================
+    // DROPDOWN HELPERS
+    // =========================================
+
+    const getRegionCode = (item) =>
+        item.regionCode ?? item.RegionCode ?? ''
+
+    const getRegionName = (item) =>
+        item.regionName ??
+        item.RegionName ??
+        item.name ??
+        item.Name ??
+        ''
+
+    const getBranchCode = (item) =>
+        item.bpCode ?? item.BPCode ?? ''
+
+    const getBranchName = (item) =>
+        item.branchName ?? item.BranchName ?? ''
+
+    const getFranchiseCode = (item) =>
+        item.frCode ??
+        item.Frcode ??
+        item.FRCode ??
+        item.frcode ??
+        item.loginId ??
+        item.LoginID ??
+        ''
+
+    const getFranchiseName = (item) =>
+        item.franchiseName ??
+        item.FranchiseName ??
+        item.userName ??
+        item.UserName ??
+        ''
+
+    // =========================================
+    // LOAD REGIONS
+    // All roles can select a region.
+    // =========================================
+
+    useEffect(() => {
+        let cancelled = false
+
+        const loadRegions = async () => {
+            try {
+                setRegionLoading(true)
+                setError('')
+
+                const data = await getRegions('', sessionUserId)
+
+                if (cancelled) return
+
+                if (!Array.isArray(data)) {
+                    throw new Error('Invalid region response.')
+                }
+
+                setRegions(data)
+            } catch (err) {
+                if (cancelled) return
+
+                setRegions([])
+                setError(err.message || 'Unable to load regions.')
+            } finally {
+                if (!cancelled) {
+                    setRegionLoading(false)
+                }
+            }
+        }
+
+        loadRegions()
+
+        return () => {
+            cancelled = true
+        }
+    }, [sessionUserId])
+
+    // =========================================
+    // LOAD BRANCHES WHEN REGION CHANGES
+    // =========================================
+
+    useEffect(() => {
+        let cancelled = false
+
+        const loadBranches = async () => {
+            setBranches([])
+            setBranch('')
+            setFranchises([])
+            setFranchise('')
+            setProducts([])
+            setTechnicians([])
+
+            if (!region) {
+                setBranchLoading(false)
+                return
+            }
+
+            try {
+                setBranchLoading(true)
+                setError('')
+                setMessage('')
+
+                const data = await getBranches(
+                    sessionUserId,
+                    region
+                )
+
+                if (cancelled) return
+
+                if (!Array.isArray(data)) {
+                    throw new Error('Invalid branch response.')
+                }
+
+                setBranches(
+                    data.filter(
+                        item =>
+                            item &&
+                            getBranchCode(item) &&
+                            getBranchName(item)
+                    )
+                )
+            } catch (err) {
+                if (cancelled) return
+
+                setBranches([])
+                setError(err.message || 'Unable to load branches.')
+            } finally {
+                if (!cancelled) {
+                    setBranchLoading(false)
+                }
+            }
+        }
+
+        loadBranches()
+
+        return () => {
+            cancelled = true
+        }
+    }, [region, sessionUserId])
+
+    // =========================================
+    // LOAD FRANCHISES WHEN BRANCH CHANGES
+    // =========================================
+
+    useEffect(() => {
+        let cancelled = false
+
+        const loadFranchises = async () => {
+            setFranchises([])
+            setFranchise('')
+            setProducts([])
+            setTechnicians([])
+
+            if (!branch) {
+                setFranchiseLoading(false)
+                return
+            }
+
+            try {
+                setFranchiseLoading(true)
+                setError('')
+                setMessage('')
+
+                const data = await getFranchises(
+                    roleId,
+                    branch,
+                    loginId
+                )
+
+                if (cancelled) return
+
+                if (!Array.isArray(data)) {
+                    throw new Error('Invalid franchise response.')
+                }
+
+                const sortedFranchises = [...data].sort(
+                    (a, b) =>
+                        getFranchiseName(a).localeCompare(
+                            getFranchiseName(b),
+                            undefined,
+                            { sensitivity: 'base' }
+                        )
+                )
+
+                setFranchises(sortedFranchises)
+            } catch (err) {
+                if (cancelled) return
+
+                setFranchises([])
+                setError(err.message || 'Unable to load franchises.')
+            } finally {
+                if (!cancelled) {
+                    setFranchiseLoading(false)
+                }
+            }
+        }
+
+        loadFranchises()
+
+        return () => {
+            cancelled = true
+        }
+    }, [branch, roleId, loginId])
+
+    // =========================================
+    // LOAD SKILL MATRIX WHEN FRANCHISE CHANGES
+    // =========================================
+
+    useEffect(() => {
+        let cancelled = false
+
+        const loadSkillMatrix = async () => {
+            setProducts([])
+            setTechnicians([])
+
+            if (!franchise) {
+                setMatrixLoading(false)
+                return
+            }
+
+            try {
+                setMatrixLoading(true)
+                setError('')
+                setMessage('')
+
+                const data = await getTechnicianSkillMatrix(franchise)
+
+                if (cancelled) return
+
+                const productList = Array.isArray(data.products)
+                    ? data.products
+                    : []
+
+                const rows = Array.isArray(data.rows)
+                    ? data.rows
+                    : []
+
+                setProducts(productList)
+
+                setTechnicians(
+                    rows.map(row => ({
+                        techId: row.techId ?? row.TechId ?? row.techID,
+                        name: row.name ?? row.Name ?? '',
+                        scores: { ...(row.scores ?? row.Scores ?? {}) }
+                    }))
+                )
+
+                if (rows.length === 0) {
+                    setMessage('No technicians found for this franchise.')
+                }
+            } catch (err) {
+                if (cancelled) return
+
+                setProducts([])
+                setTechnicians([])
+                setError(
+                    err.message ||
+                    'Unable to load technician skill matrix.'
+                )
+            } finally {
+                if (!cancelled) {
+                    setMatrixLoading(false)
+                }
+            }
+        }
+
+        loadSkillMatrix()
+
+        return () => {
+            cancelled = true
+        }
+    }, [franchise])
+
+    // =========================================
+    // REGION CHANGE
+    // =========================================
+
+    const handleRegionChange = (event) => {
+        setRegion(event.target.value)
+        setBranch('')
+        setFranchise('')
+        setBranches([])
+        setFranchises([])
+        setProducts([])
+        setTechnicians([])
+        setError('')
+        setMessage('')
+    }
+
+    // =========================================
+    // BRANCH CHANGE
+    // =========================================
+
+    const handleBranchChange = (event) => {
+        setBranch(event.target.value)
+        setFranchise('')
+        setFranchises([])
+        setProducts([])
+        setTechnicians([])
+        setError('')
+        setMessage('')
+    }
+
+    // =========================================
+    // FRANCHISE CHANGE
+    // =========================================
+
+    const handleFranchiseChange = (event) => {
+        setFranchise(event.target.value)
+        setProducts([])
+        setTechnicians([])
+        setError('')
+        setMessage('')
+    }
+
+    // =========================================
+    // UPDATE SKILL SCORE
+    // =========================================
+
+    const handleScoreChange = (techId, productCode, value) => {
+        // Allow only numeric values.
+        if (value !== '' && !/^\d+$/.test(value)) {
+            return
+        }
+
+        setTechnicians(previous =>
+            previous.map(technician =>
+                String(technician.techId) === String(techId)
+                    ? {
+                        ...technician,
+                        scores: {
+                            ...technician.scores,
+                            [productCode]: value
+                        }
+                    }
+                    : technician
+            )
+        )
+    }
+
+    // =========================================
+    // SAVE SKILL MATRIX
+    // =========================================
+
+    const handleSave = async () => {
+        setError('')
+        setMessage('')
+
+        if (!region) {
+            setError('Please select a region.')
+            return
+        }
+
+        if (!branch) {
+            setError('Please select a branch.')
+            return
+        }
+
+        if (!franchise) {
+            setError('Please select a franchise.')
+            return
+        }
+
+        if (technicians.length === 0 || products.length === 0) {
+            setError('No skill matrix data available to save.')
+            return
+        }
+
+        const items = []
+
+        technicians.forEach(technician => {
+            products.forEach(product => {
+                const score =
+                    technician.scores?.[product.code] ??
+                    technician.scores?.[product.Code] ??
+                    ''
+
+                // Preserve backend behavior: blank values are not submitted.
+                if (String(score).trim() !== '') {
+                    items.push({
+                        techId: Number(technician.techId),
+                        productCode: product.code ?? product.Code ?? '',
+                        score: String(score).trim()
+                    })
+                }
+            })
+        })
+
+        if (items.length === 0) {
+            setError('Please enter at least one skill score.')
+            return
+        }
+
+        try {
+            setSaving(true)
+
+            const result = await saveTechnicianSkillMatrix(items)
+
+            setMessage(
+                `Skill scores saved successfully. Rows affected: ${result.rowsAffected ?? 0}.`
+            )
+        } catch (err) {
+            setError(err.message || 'Unable to save skill scores.')
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    // =========================================
+    // UI
+    // =========================================
+
+    return (
+        <DashboardLayout title="Add/Update Skill Set">
+            <div className="add-tech-skill-page">
+                <div className="add-tech-skill-card">
+
+                    {/* FILTERS */}
+                    <div className="add-tech-skill-filters">
+
+                        <div className="add-tech-skill-field">
+                            <label>
+                                Region <span className="required">*</span>
+                            </label>
+
+                            <select
+                                value={region}
+                                onChange={handleRegionChange}
+                                disabled={regionLoading || saving}
+                            >
+                                <option value="">Select Region</option>
+
+                                {regions.map((item, index) => {
+                                    const code = getRegionCode(item)
+
+                                    return (
+                                        <option
+                                            key={code || `region-${index}`}
+                                            value={code}
+                                        >
+                                            {getRegionName(item)}
+                                        </option>
+                                    )
+                                })}
+                            </select>
+
+                            {regionLoading && (
+                                <small>Loading regions...</small>
+                            )}
+                        </div>
+
+                        <div className="add-tech-skill-field">
+                            <label>
+                                Branch <span className="required">*</span>
+                            </label>
+
+                            <select
+                                value={branch}
+                                onChange={handleBranchChange}
+                                disabled={!region || branchLoading || saving}
+                            >
+                                <option value="">Select Branch</option>
+
+                                {branches.map((item, index) => {
+                                    const code = getBranchCode(item)
+
+                                    return (
+                                        <option
+                                            key={`${code}-${index}`}
+                                            value={code}
+                                        >
+                                            {getBranchName(item)}
+                                        </option>
+                                    )
+                                })}
+                            </select>
+
+                            {branchLoading && (
+                                <small>Loading branches...</small>
+                            )}
+                        </div>
+
+                        <div className="add-tech-skill-field">
+                            <label>
+                                Franchise <span className="required">*</span>
+                            </label>
+
+                            <select
+                                value={franchise}
+                                onChange={handleFranchiseChange}
+                                disabled={!branch || franchiseLoading || saving}
+                            >
+                                <option value="">Select Franchise</option>
+
+                                {franchises.map((item, index) => {
+                                    const code = getFranchiseCode(item)
+
+                                    return (
+                                        <option
+                                            key={`${code}-${index}`}
+                                            value={code}
+                                        >
+                                            {getFranchiseName(item) || code}
+                                        </option>
+                                    )
+                                })}
+                            </select>
+
+                            {franchiseLoading && (
+                                <small>Loading franchises...</small>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* ERROR */}
+                    {error && (
+                        <div className="add-tech-skill-error">
+                            {error}
+                        </div>
+                    )}
+
+                    {/* SUCCESS / INFO */}
+                    {message && (
+                        <div className="add-tech-skill-message">
+                            {message}
+                        </div>
+                    )}
+
+                    {/* MATRIX LOADING */}
+                    {matrixLoading && (
+                        <div className="add-tech-skill-loading">
+                            Loading technician skill matrix...
+                        </div>
+                    )}
+
+                    {/* SKILL TABLE */}
+                    {!matrixLoading && franchise && (
+                        <div className="add-tech-skill-table-wrapper">
+                            <table className="add-tech-skill-table">
+                                <thead>
+                                    <tr>
+                                        <th className="tech-id-column">Tech ID</th>
+                                        <th className="tech-name-column">
+                                            Technician Name
+                                        </th>
+
+                                        {products.map((product, index) => (
+                                            <th
+                                                key={
+                                                    product.code ??
+                                                    product.Code ??
+                                                    index
+                                                }
+                                            >
+                                                {product.code ??
+                                                    product.Code ??
+                                                    ''}
+                                            </th>
+                                        ))}
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {technicians.length > 0 ? (
+                                        technicians.map((technician, index) => (
+                                            <tr
+                                                key={
+                                                    technician.techId ??
+                                                    `tech-${index}`
+                                                }
+                                            >
+                                                <td>{technician.techId}</td>
+                                                <td>{technician.name}</td>
+
+                                                {products.map((product, productIndex) => {
+                                                    const code =
+                                                        product.code ??
+                                                        product.Code ??
+                                                        ''
+
+                                                    const score =
+                                                        technician.scores?.[code] ?? ''
+
+                                                    return (
+                                                        <td key={`${code}-${productIndex}`}>
+                                                            <input
+                                                                type="text"
+                                                                inputMode="numeric"
+                                                                pattern="[0-9]*"
+                                                                aria-label={`${technician.name} ${code} skill score`}
+                                                                value={score}
+                                                                onChange={event =>
+                                                                    handleScoreChange(
+                                                                        technician.techId,
+                                                                        code,
+                                                                        event.target.value
+                                                                    )
+                                                                }
+                                                                disabled={saving}
+                                                            />
+                                                        </td>
+                                                    )
+                                                })}
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td
+                                                colSpan={Math.max(
+                                                    products.length + 2,
+                                                    2
+                                                )}
+                                                className="add-tech-skill-empty"
+                                            >
+                                                No technicians found.
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+
+                    {/* SAVE BUTTON */}
+                    {franchise && !matrixLoading && technicians.length > 0 && (
+                        <div className="add-tech-skill-actions">
+                            <button
+                                type="button"
+                                className="add-tech-skill-save"
+                                onClick={handleSave}
+                                disabled={saving}
+                            >
+                                {saving ? 'Saving...' : 'Save'}
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </DashboardLayout>
+    )
+}
+
+export default AddTechSkill

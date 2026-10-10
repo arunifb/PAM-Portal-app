@@ -27,6 +27,7 @@ import LegalCase from '../LegalCase/LegalCase'
 import ReportData from '../ReportData/ReportData'
 import AddFranchise from '../AddFranchise/AddFranchise'
 import FranchiseList from '../Franchise/FranchiseList'
+import AddTechSkill from '../AddTechSkill/AddTechSkill'
 
 
 function RouteKeyPage() {
@@ -124,6 +125,9 @@ function RouteKeyPage() {
         '/add-franchise': AddFranchise,
 
         '/franchise-list': FranchiseList,
+
+        '/add-tech-skill':
+                 AddTechSkill,
 
         // =========================================
         // REPORT DATA
