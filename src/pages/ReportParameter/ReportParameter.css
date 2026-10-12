@@ -1727,3 +1727,64 @@ input[type="checkbox"]:checked::after {
         max-width: none;
     }
 }
+
+
+/* =========================================
+   BACK BUTTON - TOP RIGHT
+========================================= */
+
+.report-parameter-header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    width: calc(100% + 20px);
+    margin: -8px -10px 12px;
+    padding: 8px 10px;
+    box-sizing: border-box;
+    background: transparent;
+}
+
+/* Back Button */
+.report-parameter-header .af-button-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    min-height: 28px;
+    padding: 4px 9px;
+
+    background: #198754;
+    border: 1px solid #198754;
+    border-radius: 4px;
+
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.2;
+
+    cursor: pointer;
+    white-space: nowrap;
+
+    transition: background-color 0.15s ease,
+                border-color 0.15s ease;
+}
+
+/* Back Arrow */
+.report-parameter-header .back-arrow {
+    display: inline-block;
+    font-size: 17px;
+    line-height: 1;
+}
+
+/* Hover Effect */
+.report-parameter-header .af-button-secondary:hover {
+    background: #157347;
+    border-color: #146c43;
+}
+
+/* Focus Effect */
+.report-parameter-header .af-button-secondary:focus-visible {
+    outline: 2px solid #86b7fe;
+    outline-offset: 2px;
+}

@@ -20,12 +20,30 @@ function DashboardLayout({
     const navigate = useNavigate()
 
 
+    // // =========================================
+    // // SIDEBAR
+    // // =========================================
+
+    // const [sidebarCollapsed, setSidebarCollapsed] =
+    //     useState(true)
+
     // =========================================
     // SIDEBAR
+    // Preserve state during page navigation
     // =========================================
 
-    const [sidebarCollapsed, setSidebarCollapsed] =
-        useState(true)
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+        const savedState = sessionStorage.getItem('sidebarCollapsed')
+
+        return savedState === null ? true : savedState === 'true'
+    })
+
+    useEffect(() => {
+        sessionStorage.setItem(
+            'sidebarCollapsed',
+            String(sidebarCollapsed)
+        )
+    }, [sidebarCollapsed])
 
 
     // =========================================
@@ -462,10 +480,13 @@ function DashboardLayout({
                 <button
                     type="button"
                     className="sidebar-toggle"
+                    // onClick={() =>
+                    //     setSidebarCollapsed(
+                    //         !sidebarCollapsed
+                    //     )
+                    // }
                     onClick={() =>
-                        setSidebarCollapsed(
-                            !sidebarCollapsed
-                        )
+                        setSidebarCollapsed(prev => !prev)
                     }
                     aria-label={
                         sidebarCollapsed

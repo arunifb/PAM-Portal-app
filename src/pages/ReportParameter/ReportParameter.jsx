@@ -2504,7 +2504,20 @@ const isRegionOrFactoryUser =
                 {/* =====================================
                     HEADER
                 ===================================== */}
-
+                <div className="report-parameter-header">
+                    <button
+                        type="button"
+                        className="af-button af-button-secondary"
+                        onClick={() => {
+                            if (typeof onBack === 'function') {
+                                onBack()
+                            }
+                        }}
+                    >
+                        <span className="back-arrow" aria-hidden="true">←</span>
+                        <span>Back</span>
+                    </button>
+                </div>
 
 
                 {/* =====================================
