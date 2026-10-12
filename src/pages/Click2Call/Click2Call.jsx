@@ -151,7 +151,13 @@ function Click2Call() {
     // =========================================
 
     useEffect(() => {
-        if (!isRole1Or3) {
+        // if (!isRole1Or3) {
+        //     setRegions([])
+        //     setRegion('')
+        //     return
+        // }
+
+        if (!isRole1Or3 && roleId !== 5) {
             setRegions([])
             setRegion('')
             return
@@ -204,7 +210,8 @@ function Click2Call() {
         return () => {
             cancelled = true
         }
-    }, [isRole1Or3, sessionUserId])
+    // }, [isRole1Or3, sessionUserId])
+    }, [isRole1Or3, roleId, sessionUserId])
 
     // =========================================
     // LOAD BRANCHES
@@ -262,7 +269,49 @@ function Click2Call() {
                     )
                 }
 
-                // Other roles: preserve logged-in branch behavior.
+                // // Other roles: preserve logged-in branch behavior.
+                // else {
+                //     console.log(
+                //         'Click2Call Loading branch:',
+                //         {
+                //             roleId,
+                //             regionCode: sessionRegionCode,
+                //             bpCode
+                //         }
+                //     )
+
+                //     data = bpCode
+                //         ? [{
+                //             bpCode,
+                //             branchName: bpCode
+                //         }]
+                //         : []
+                // }
+
+                // Role 5: load branches based on the selected region.
+                else if (roleId === 5) {
+                    // Wait until a region is selected.
+                    if (!region) {
+                        setBranches([])
+                        setBranch('')
+                        setFranchises([])
+                        setFranchise('')
+                        setBranchLoading(false)
+                        return
+                    }
+
+                    console.log('Click2Call Role 5 Loading branches:', {
+                        userId: sessionUserId,
+                        regionCode: region
+                    })
+
+                    data = await getBranches(
+                        sessionUserId,
+                        region
+                    )
+                }
+
+                // Other roles: preserve existing logged-in branch behavior.
                 else {
                     console.log(
                         'Click2Call Loading branch:',
@@ -391,9 +440,21 @@ function Click2Call() {
                     loginId
                 })
 
+                // const data = await getClick2CallFranchises(
+                //     roleId,
+                //     branch,
+                //     loginId
+                // )
+
+                // Role 5 uses the logged-in user's BPCode.
+                // All other roles keep the existing selected-branch behavior.
+                const franchiseBpCode = roleId === 5
+                    ? bpCode
+                    : branch
+
                 const data = await getClick2CallFranchises(
                     roleId,
-                    branch,
+                    franchiseBpCode,
                     loginId
                 )
 
@@ -414,8 +475,22 @@ function Click2Call() {
                         )
                 )
 
+                // setFranchises(sortedFranchises)
+                // setFranchise('')
+
                 setFranchises(sortedFranchises)
-                setFranchise('')
+
+                if (roleId === 5) {
+                    // Automatically select the first franchise for Role 5.
+                    setFranchise(
+                        sortedFranchises.length > 0
+                            ? getFranchiseCode(sortedFranchises[0])
+                            : ''
+                    )
+                } else {
+                    // Preserve existing behavior for all other roles.
+                    setFranchise('')
+                }
             } catch (error) {
                 if (cancelled) return
 
@@ -441,9 +516,17 @@ function Click2Call() {
             cancelled = true
         }
     }, [
+        // branch,
+        // roleId,
+        // loginId,
+        // isRole1Or3,
+        // isRole7,
+        // isBranchUser
+
         branch,
         roleId,
         loginId,
+        bpCode,
         isRole1Or3,
         isRole7,
         isBranchUser
@@ -658,7 +741,7 @@ function Click2Call() {
                     <div className="click2call-form">
 
                         {/* REGION */}
-                        {isRole1Or3 && (
+                        {(isRole1Or3 || roleId === 5) && (
                             <div className="click2call-field">
                                 <label>
                                     Select Region:
@@ -729,9 +812,15 @@ function Click2Call() {
                             <select
                                 value={franchise}
                                 onChange={handleFranchiseChange}
+                                // disabled={
+                                //     franchiseLoading ||
+                                //     !branch
+                                // }
+
                                 disabled={
                                     franchiseLoading ||
-                                    !branch
+                                    !branch ||
+                                    roleId === 5
                                 }
                             >
                                 <option value="">All</option>

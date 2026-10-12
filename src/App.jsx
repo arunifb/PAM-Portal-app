@@ -31,6 +31,7 @@ import AddFranchise from './pages/AddFranchise/AddFranchise'
 import FranchiseList from './pages/Franchise/FranchiseList'
 import TechnicianEdit from './pages/Technician/TechnicianEdit'
 import AddTechSkill from './pages/AddTechSkill/AddTechSkill'
+import EvidenceSearch from './pages/EvidenceSearch/EvidenceSearch'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -210,6 +211,11 @@ function App() {
                     <Route
                         path="/add-tech-skill"
                         element={<AddTechSkill />}
+                    />
+
+                    <Route
+                        path="/evidence-search"
+                        element={<EvidenceSearch />}
                     />
 
 

@@ -28,7 +28,7 @@ import ReportData from '../ReportData/ReportData'
 import AddFranchise from '../AddFranchise/AddFranchise'
 import FranchiseList from '../Franchise/FranchiseList'
 import AddTechSkill from '../AddTechSkill/AddTechSkill'
-
+import EvidenceSearch from '../EvidenceSearch/EvidenceSearch'
 
 function RouteKeyPage() {
 
@@ -128,6 +128,9 @@ function RouteKeyPage() {
 
         '/add-tech-skill':
                  AddTechSkill,
+
+        '/evidence-search':
+        EvidenceSearch,
 
         // =========================================
         // REPORT DATA
