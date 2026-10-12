@@ -1,3 +1,4 @@
+
 /* =========================================================
    TECHNICIAN PAGE
    ========================================================= */
@@ -58,8 +59,7 @@
     gap: 10px;
     align-items: end;
 
-    box-shadow:
-        0 1px 3px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 /* =========================================================
@@ -98,9 +98,7 @@
 .technician-filter-item input:focus,
 .technician-filter-item select:focus {
     border-color: #7f8c99;
-
-    box-shadow:
-        0 0 0 2px rgba(127, 140, 153, 0.08);
+    box-shadow: 0 0 0 2px rgba(127, 140, 153, 0.08);
 }
 
 .technician-filter-item select:disabled,
@@ -142,7 +140,8 @@
 
     transition:
         background 0.15s ease,
-        border-color 0.15s ease;
+        border-color 0.15s ease,
+        opacity 0.15s ease;
 }
 
 .technician-search-button:hover:not(:disabled) {
@@ -151,6 +150,42 @@
 }
 
 .technician-search-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* =========================================================
+   ADD TECHNICIAN BUTTON - ROLE ID 5
+   ========================================================= */
+
+.technician-add-button {
+    height: 37px;
+    padding: 0 15px;
+
+    border: 1px solid #198754;
+    border-radius: 5px;
+
+    background: #198754;
+    color: #ffffff;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+    white-space: nowrap;
+
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        opacity 0.15s ease;
+}
+
+.technician-add-button:hover:not(:disabled) {
+    background: #157347;
+    border-color: #157347;
+}
+
+.technician-add-button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
@@ -215,14 +250,10 @@
 .technician-loading-dots span {
     width: 6px;
     height: 6px;
-
     border-radius: 50%;
-
     background: #1f5f99;
 
-    animation:
-        technician-loading-bounce
-        1.2s infinite ease-in-out;
+    animation: technician-loading-bounce 1.2s infinite ease-in-out;
 }
 
 .technician-loading-dots span:nth-child(1) {
@@ -262,10 +293,8 @@
 
 .technician-record-count {
     margin: 10px 0;
-
     font-size: 15px;
     font-weight: 600;
-
     color: #333333;
 }
 
@@ -275,16 +304,12 @@
 
 .technician-report-section {
     width: 100%;
-
     background: #ffffff;
-
     border: 1px solid #e1e5e9;
     border-radius: 8px;
-
     overflow: hidden;
 
-    box-shadow:
-        0 1px 3px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 /* =========================================================
@@ -293,14 +318,11 @@
 
 .technician-section-header {
     padding: 12px 14px;
-
     background: #f7f8fa;
-
     border-bottom: 1px solid #e1e5e9;
 
     font-size: 14px;
     font-weight: 600;
-
     color: #333333;
 }
 
@@ -319,40 +341,29 @@
 
 .technician-table {
     width: 100%;
-
     border-collapse: collapse;
-
     font-size: 13px;
-
     min-width: 1050px;
 }
 
 .technician-table th {
     padding: 10px 9px;
-
     background: #f8f9fa;
-
     border-bottom: 1px solid #dfe3e7;
 
     color: #333333;
-
     font-size: 12px;
     font-weight: 700;
-
     text-align: left;
-
     white-space: nowrap;
 }
 
 .technician-table td {
     padding: 9px;
-
     border-bottom: 1px solid #eceff2;
 
     color: #333333;
-
     vertical-align: middle;
-
     white-space: nowrap;
 }
 
@@ -379,7 +390,6 @@
 .technician-edit-input {
     width: 130px;
     height: 34px;
-
     padding: 6px 8px;
 
     border: 1px solid #aeb6bf;
@@ -387,7 +397,6 @@
 
     background: #ffffff;
     color: #333333;
-
     font-size: 13px;
 
     box-sizing: border-box;
@@ -396,9 +405,7 @@
 
 .technician-edit-input:focus {
     border-color: #1f5f99;
-
-    box-shadow:
-        0 0 0 2px rgba(31, 95, 153, 0.08);
+    box-shadow: 0 0 0 2px rgba(31, 95, 153, 0.08);
 }
 
 .technician-edit-input:disabled {
@@ -426,7 +433,6 @@
 
     font-size: 12px;
     font-weight: 600;
-
     cursor: pointer;
 
     transition:
@@ -450,14 +456,11 @@
 
 .technician-status-badge {
     display: inline-block;
-
     padding: 4px 8px;
-
     border-radius: 12px;
 
     font-size: 11px;
     font-weight: 600;
-
     white-space: nowrap;
 }
 
@@ -506,7 +509,6 @@
 
     font-size: 12px;
     font-weight: 600;
-
     cursor: pointer;
 }
 
@@ -535,7 +537,6 @@
 
     font-size: 12px;
     font-weight: 600;
-
     cursor: pointer;
 }
 
@@ -564,7 +565,6 @@
 
     font-size: 12px;
     font-weight: 600;
-
     cursor: pointer;
 }
 
@@ -583,11 +583,8 @@
 
 .technician-no-record {
     padding: 35px 20px;
-
     text-align: center;
-
     color: #777777;
-
     font-size: 14px;
 }
 
@@ -596,7 +593,6 @@
    ========================================================= */
 
 @media (max-width: 1450px) {
-
     .technician-filter-box {
         grid-template-columns:
             minmax(105px, 1fr)
@@ -609,6 +605,7 @@
     }
 
     .technician-search-button,
+    .technician-add-button,
     .technician-download-button {
         padding-left: 12px;
         padding-right: 12px;
@@ -620,10 +617,8 @@
    ========================================================= */
 
 @media (max-width: 1150px) {
-
     .technician-filter-box {
-        grid-template-columns:
-            repeat(3, minmax(150px, 1fr));
+        grid-template-columns: repeat(3, minmax(150px, 1fr));
     }
 
     .technician-filter-actions {
@@ -637,7 +632,6 @@
    ========================================================= */
 
 @media (max-width: 700px) {
-
     .technician-page {
         padding: 7px;
     }
@@ -654,8 +648,11 @@
     }
 
     .technician-search-button,
+    .technician-add-button,
     .technician-download-button {
         flex: 1;
+        padding-left: 8px;
+        padding-right: 8px;
     }
 
     .technician-record-count {

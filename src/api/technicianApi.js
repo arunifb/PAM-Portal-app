@@ -200,3 +200,30 @@ export async function updateTechnician(technicianData) {
 
     return data
 }
+
+
+
+// =====================================================
+// ADD TECHNICIAN
+// POST /api/Technician
+// =====================================================
+
+export async function addTechnician(technicianData) {
+    const response = await authFetch(
+        `${API_BASE_URL}/api/Technician`,
+        {
+            method: 'POST',
+            body: technicianData
+        }
+    )
+
+    const data = await readResponse(response)
+
+    if (!response.ok || data.isSuccess === false) {
+        throw new Error(
+            data.message || 'Unable to register technician.'
+        )
+    }
+
+    return data
+}

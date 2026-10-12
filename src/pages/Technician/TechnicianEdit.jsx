@@ -1,6 +1,6 @@
+
 import { useEffect, useRef, useState } from 'react'
 import {
-    useParams,
     useNavigate,
     useLocation
 } from 'react-router-dom'
@@ -59,11 +59,12 @@ function getDateInputValue(value) {
 }
 
 function TechnicianEdit() {
-    const { techId } = useParams()
     const navigate = useNavigate()
     const location = useLocation()
 
-    // Preserve the original list URL and state passed from Technician.jsx.
+    // Read the technician ID from navigation state, not the URL.
+    const techId = location.state?.techId
+
     const returnUrl =
         location.state?.returnUrl || '/technician'
 
@@ -76,6 +77,13 @@ function TechnicianEdit() {
         0
     )
 
+    const isRole3 = roleId === 3
+    const isRole5 = roleId === 5
+
+    const pageTitle = isRole5
+        ? 'S.A Profile'
+        : 'Edit Technician'
+
     const [form, setForm] = useState(INITIAL_FORM)
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
@@ -84,21 +92,23 @@ function TechnicianEdit() {
 
     const messageRef = useRef(null)
 
-    // Load technician details.
+    // Load technician details for Role 3 and Role 5.
     useEffect(() => {
         let isMounted = true
 
         async function loadTechnician() {
-            if (roleId !== 3) {
+            if (!isRole3 && !isRole5) {
                 setError(
-                    'You are not authorized to edit technician details.'
+                    'You are not authorized to access this page.'
                 )
                 setLoading(false)
                 return
             }
 
             if (!techId) {
-                setError('Technician ID is missing.')
+                setError(
+                    'Technician ID is missing. Please return to the technician list and select a technician again.'
+                )
                 setLoading(false)
                 return
             }
@@ -116,7 +126,10 @@ function TechnicianEdit() {
                     response?.technician ??
                     response
 
-                if (!technician || typeof technician !== 'object') {
+                if (
+                    !technician ||
+                    typeof technician !== 'object'
+                ) {
                     throw new Error(
                         'Technician details were not found.'
                     )
@@ -153,10 +166,12 @@ function TechnicianEdit() {
                         'Name'
                     ),
 
-                    mobileNo: getValue(
-                        technician,
-                        'mobileNo',
-                        'MobileNo'
+                    mobileNo: String(
+                        getValue(
+                            technician,
+                            'mobileNo',
+                            'MobileNo'
+                        )
                     ),
 
                     qualification: getValue(
@@ -194,15 +209,18 @@ function TechnicianEdit() {
                         )
                     ),
 
-                    actionStatus: String(
-                        getValue(
-                            technician,
-                            'actionStatus',
-                            'ActionStatus',
-                            'statusCode',
-                            'StatusCode'
-                        )
-                    ),
+                    // Role 5 submits a deactivation request.
+                    actionStatus: isRole5
+                        ? '3'
+                        : String(
+                            getValue(
+                                technician,
+                                'actionStatus',
+                                'ActionStatus',
+                                'statusCode',
+                                'StatusCode'
+                            )
+                        ),
 
                     remark: getValue(
                         technician,
@@ -224,11 +242,19 @@ function TechnicianEdit() {
                     ),
 
                     dob: getDateInputValue(
-                        getValue(technician, 'dob', 'DOB')
+                        getValue(
+                            technician,
+                            'dob',
+                            'DOB'
+                        )
                     ),
 
                     doj: getDateInputValue(
-                        getValue(technician, 'doj', 'DOJ')
+                        getValue(
+                            technician,
+                            'doj',
+                            'DOJ'
+                        )
                     )
                 })
             } catch (err) {
@@ -250,7 +276,7 @@ function TechnicianEdit() {
         return () => {
             isMounted = false
         }
-    }, [techId, roleId])
+    }, [techId, isRole3, isRole5])
 
     // Scroll to the success message and hide it after 2 seconds.
     useEffect(() => {
@@ -297,9 +323,16 @@ function TechnicianEdit() {
     async function handleSubmit(event) {
         event.preventDefault()
 
-        if (roleId !== 3) {
+        if (!isRole3 && !isRole5) {
             setError(
                 'You are not authorized to update technician details.'
+            )
+            return
+        }
+
+        if (!techId || !form.techId) {
+            setError(
+                'Technician ID is missing. Please return to the technician list and select a technician again.'
             )
             return
         }
@@ -310,19 +343,44 @@ function TechnicianEdit() {
         }
 
         if (!/^\d{10}$/.test(form.mobileNo.trim())) {
-            setError('Please enter a valid 10-digit mobile number.')
+            setError(
+                'Please enter a valid 10-digit mobile number.'
+            )
             return
         }
 
         if (
             form.emailId.trim() &&
-            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.emailId.trim())
+            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+                form.emailId.trim()
+            )
         ) {
             setError('Please enter a valid email address.')
             return
         }
 
-        if (!form.actionStatus) {
+        // Additional validations for the S.A Profile workflow.
+        if (isRole5 && !form.type) {
+            setError('Please select service type.')
+            return
+        }
+
+        // if (isRole5 && !form.insurance) {
+        //     setError('Please select insurance option.')
+        //     return
+        // }
+
+        if (isRole5 && !form.remark.trim()) {
+            setError('Please enter a remark.')
+            return
+        }
+
+        if (form.remark.trim().length > 32) {
+            setError('Remark cannot exceed 32 characters.')
+            return
+        }
+
+        if (isRole3 && !form.actionStatus) {
             setError('Please select an action status.')
             return
         }
@@ -346,8 +404,16 @@ function TechnicianEdit() {
                 qualification: form.qualification.trim(),
                 address: form.address.trim(),
                 emailId: form.emailId.trim(),
-                maritalStatus: Number(form.maritalStatus || 0),
-                actionStatus: form.actionStatus,
+                maritalStatus: Number(
+                    form.maritalStatus || 0
+                ),
+
+                // Role 5 requests deactivation; Role 3 uses
+                // the action selected in the existing edit form.
+                actionStatus: isRole5
+                    ? '3'
+                    : form.actionStatus,
+
                 remark: form.remark.trim(),
                 insurance: form.insurance,
                 profileUrl: form.profileUrl || null,
@@ -364,8 +430,15 @@ function TechnicianEdit() {
             }
 
             setMessage(
-                response?.message ||
-                'Technician details updated successfully.'
+                isRole5
+                    ? (
+                        response?.message ||
+                        'Thanks! Your request has been submitted and is under review by the branch trainer.'
+                    )
+                    : (
+                        response?.message ||
+                        'Technician details updated successfully.'
+                    )
             )
         } catch (err) {
             setError(
@@ -377,7 +450,7 @@ function TechnicianEdit() {
         }
     }
 
-    // Return to the original dynamic URL and pass the list state back.
+    // Return to the original list URL and preserve its state.
     function handleCancel() {
         navigate(returnUrl, {
             state: {
@@ -388,9 +461,9 @@ function TechnicianEdit() {
         })
     }
 
-    if (roleId !== 3) {
+    if (!isRole3 && !isRole5) {
         return (
-            <DashboardLayout title="Edit Technician">
+            <DashboardLayout title={pageTitle}>
                 <div className="technician-edit-page">
                     <div className="technician-edit-card">
                         <div className="technician-edit-header">
@@ -406,9 +479,11 @@ function TechnicianEdit() {
                         </div>
 
                         <div className="technician-edit-body">
-                            <div className="alert alert-danger" role="alert">
-                                You are not authorized to edit technician
-                                details.
+                            <div
+                                className="alert alert-danger"
+                                role="alert"
+                            >
+                                You are not authorized to access this page.
                             </div>
                         </div>
                     </div>
@@ -418,13 +493,15 @@ function TechnicianEdit() {
     }
 
     return (
-        <DashboardLayout title="Edit Technician">
+        <DashboardLayout title={pageTitle}>
             <div className="technician-edit-page">
                 <div className="technician-edit-card">
 
                     {/* Page Header */}
                     <div className="technician-edit-header">
-                        <div></div>
+                        <h5 className="mb-0">
+                            {pageTitle}
+                        </h5>
 
                         <button
                             type="button"
@@ -446,7 +523,10 @@ function TechnicianEdit() {
                         )}
 
                         {!loading && error && (
-                            <div className="alert alert-danger" role="alert">
+                            <div
+                                className="alert alert-danger"
+                                role="alert"
+                            >
                                 {error}
                             </div>
                         )}
@@ -461,7 +541,7 @@ function TechnicianEdit() {
                             </div>
                         )}
 
-                        {!loading && (
+                        {!loading && techId && !error && (
                             <form onSubmit={handleSubmit}>
 
                                 {/* Technician Information */}
@@ -507,27 +587,46 @@ function TechnicianEdit() {
                                         <div className="col-md-4">
                                             <label className="form-label">
                                                 Service Type
+                                                {isRole5 && (
+                                                    <span className="text-danger">
+                                                        {' '}*
+                                                    </span>
+                                                )}
                                             </label>
                                             <select
                                                 name="type"
                                                 className="form-select"
                                                 value={form.type}
                                                 onChange={handleChange}
+                                                required={isRole5}
                                             >
                                                 <option value="">
                                                     Select Service Type
                                                 </option>
-                                                <option value="MJR">MJR</option>
-                                                <option value="MNR">MNR</option>
-                                                <option value="ACHLPR">AC</option>
-                                                <option value="IND">IND</option>
-                                                <option value="KA">KA</option>
+                                                <option value="MJR">
+                                                    MJR
+                                                </option>
+                                                <option value="MNR">
+                                                    MNR
+                                                </option>
+                                                <option value="ACHLPR">
+                                                    AC
+                                                </option>
+                                                <option value="IND">
+                                                    IND
+                                                </option>
+                                                <option value="KA">
+                                                    KA
+                                                </option>
                                             </select>
                                         </div>
 
                                         <div className="col-md-4">
                                             <label className="form-label">
-                                                Name <span className="text-danger">*</span>
+                                                Name
+                                                <span className="text-danger">
+                                                    {' '}*
+                                                </span>
                                             </label>
                                             <input
                                                 name="name"
@@ -541,7 +640,10 @@ function TechnicianEdit() {
 
                                         <div className="col-md-4">
                                             <label className="form-label">
-                                                Mobile Number <span className="text-danger">*</span>
+                                                Mobile Number
+                                                <span className="text-danger">
+                                                    {' '}*
+                                                </span>
                                             </label>
                                             <input
                                                 name="mobileNo"
@@ -581,27 +683,24 @@ function TechnicianEdit() {
                                             />
                                         </div>
 
-                                        <div className="col-md-4">
-                                            <label className="form-label">
-                                                Insurance
-                                            </label>
-                                            <select
-                                                name="insurance"
-                                                className="form-select"
-                                                value={form.insurance}
-                                                onChange={handleChange}
-                                            >
-                                                <option value="">
-                                                    Select Insurance Status
-                                                </option>
-                                                <option value="1">
-                                                    Pending
-                                                </option>
-                                                <option value="2">
-                                                    Completed
-                                                </option>
-                                            </select>
-                                        </div>
+                                        {isRole3 && (
+    <div className="col-md-4">
+        <label className="form-label">
+            Insurance
+        </label>
+
+        <select
+            name="insurance"
+            className="form-select"
+            value={form.insurance ?? ''}
+            onChange={handleChange}
+        >
+            <option value="">Select Insurance Status</option>
+            <option value="1">Pending</option>
+            <option value="2">Completed</option>
+        </select>
+    </div>
+)}
 
                                         <div className="col-md-4">
                                             <label className="form-label">
@@ -685,39 +784,59 @@ function TechnicianEdit() {
                                 {/* Approval and Status */}
                                 <div className="technician-edit-section">
                                     <h6 className="technician-edit-section-title">
-                                        Approval and Status
+                                        {isRole5
+                                            ? 'Request Details'
+                                            : 'Approval and Status'}
                                     </h6>
 
                                     <div className="row g-3">
                                         <div className="col-md-4">
                                             <label className="form-label">
-                                                Action Status{' '}
-                                                <span className="text-danger">*</span>
+                                                {isRole5
+                                                    ? 'Action'
+                                                    : 'Action Status'}
+                                                <span className="text-danger">
+                                                    {' '}*
+                                                </span>
                                             </label>
+
                                             <select
                                                 name="actionStatus"
                                                 className="form-select"
                                                 value={form.actionStatus}
                                                 onChange={handleChange}
                                                 required
+                                                disabled={isRole5}
                                             >
                                                 <option value="">
                                                     Select Action
                                                 </option>
-                                                <option value="1">
-                                                    Approved &amp; Activated By
-                                                    Trainer
-                                                </option>
-                                                <option value="0">
-                                                    De-Activated By Branch
-                                                    Trainer
-                                                </option>
+
+                                                {isRole5 ? (
+                                                    <option value="3">
+                                                        Request for deactivate
+                                                    </option>
+                                                ) : (
+                                                    <>
+                                                        <option value="1">
+                                                            Approved &amp; Activated By Trainer
+                                                        </option>
+                                                        <option value="0">
+                                                            De-Activated By Branch Trainer
+                                                        </option>
+                                                    </>
+                                                )}
                                             </select>
                                         </div>
 
                                         <div className="col-md-8">
                                             <label className="form-label">
                                                 Remark
+                                                {isRole5 && (
+                                                    <span className="text-danger">
+                                                        {' '}*
+                                                    </span>
+                                                )}
                                             </label>
                                             <textarea
                                                 name="remark"
@@ -726,6 +845,7 @@ function TechnicianEdit() {
                                                 onChange={handleChange}
                                                 maxLength={32}
                                                 rows={2}
+                                                required={isRole5}
                                             />
                                         </div>
 
@@ -760,11 +880,13 @@ function TechnicianEdit() {
                                     <button
                                         type="submit"
                                         className="btn btn-primary"
-                                        disabled={saving}
+                                        disabled={saving || loading}
                                     >
                                         {saving
-                                            ? 'Saving...'
-                                            : 'Save Changes'}
+                                            ? 'Submitting...'
+                                            : isRole5
+                                                ? 'Submit Request'
+                                                : 'Save Changes'}
                                     </button>
                                 </div>
                             </form>

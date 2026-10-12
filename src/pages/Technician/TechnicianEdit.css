@@ -188,6 +188,7 @@
 }
 
 .technician-edit-body .row > * {
+    display: block;
     width: auto;
     max-width: none;
     min-width: 0;

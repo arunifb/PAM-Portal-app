@@ -32,6 +32,7 @@ import FranchiseList from './pages/Franchise/FranchiseList'
 import TechnicianEdit from './pages/Technician/TechnicianEdit'
 import AddTechSkill from './pages/AddTechSkill/AddTechSkill'
 import EvidenceSearch from './pages/EvidenceSearch/EvidenceSearch'
+import TechnicianAdd from './pages/Technician/TechnicianAdd'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -148,9 +149,19 @@ function App() {
                         element={<Technician />}
                     />
 
-                    <Route
+                    {/* <Route
                         path="/technician/edit/:techId"
                         element={<TechnicianEdit />}
+                    /> */}
+
+                    <Route
+                        path="/technician/edit"
+                        element={<TechnicianEdit />}
+                    />
+
+                    <Route
+                        path="/technician/add"
+                        element={<TechnicianAdd />}
                     />
 
                     <Route

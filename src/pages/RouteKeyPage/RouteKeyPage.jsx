@@ -29,6 +29,7 @@ import AddFranchise from '../AddFranchise/AddFranchise'
 import FranchiseList from '../Franchise/FranchiseList'
 import AddTechSkill from '../AddTechSkill/AddTechSkill'
 import EvidenceSearch from '../EvidenceSearch/EvidenceSearch'
+import TechnicianAdd from '../Technician/TechnicianAdd'
 
 function RouteKeyPage() {
 
@@ -51,6 +52,10 @@ function RouteKeyPage() {
         useState(null)
 
     const [franchiseView, setFranchiseView] = useState('add')
+
+    const [technicianView, setTechnicianView] = useState('list')
+    const [technicianListState, setTechnicianListState] = useState(null)
+    const [refreshAfterAdd, setRefreshAfterAdd] = useState(0)
 
 
     // =========================================
@@ -97,6 +102,9 @@ function RouteKeyPage() {
 
         '/technician':
             Technician,
+
+        '/technician/add':
+            TechnicianAdd,
 
         '/spares-search':
             SparesSearch,
@@ -415,7 +423,43 @@ if (reactUrl === '/add-franchise') {
     )
 }
 
+
+
+if (reactUrl === '/technician') {
+    if (technicianView === 'add') {
+        return (
+            <TechnicianAdd
+                onBack={(result) => {
+                    setTechnicianView('list')
+
+                    if (result?.listState) {
+                        setTechnicianListState(result.listState)
+                    }
+
+                    if (result?.refreshTechnicians) {
+                        setRefreshAfterAdd((prev) => prev + 1)
+                    }
+                }}
+                listState={technicianListState}
+            />
+        )
+    }
+
+    return (
+        <Technician
+            onAddTechnician={(listState) => {
+                setTechnicianListState(listState)
+                setTechnicianView('add')
+            }}
+            restoreListState={technicianListState}
+            refreshAfterAdd={refreshAfterAdd}
+        />
+    )
+}
+
+
 return <PageComponent />
+
 }
 
 

@@ -49,7 +49,9 @@ function Click2Call() {
     // =========================================
 
     const [regions, setRegions] = useState([])
-    const [region, setRegion] = useState('')
+    const [region, setRegion] = useState(
+        roleId === 5 ? sessionRegionCode : ''
+    )
     const [regionLoading, setRegionLoading] = useState(false)
 
     // =========================================
@@ -185,7 +187,24 @@ function Click2Call() {
                 }
 
                 setRegions(data)
+
+            // Role 5: automatically select the logged-in user's region.
+            // All other roles retain their existing behavior.
+            if (roleId === 5) {
+                const matchingRegion = data.find(
+                    item =>
+                        String(getRegionCode(item)) ===
+                        String(sessionRegionCode)
+                )
+
+                setRegion(
+                    matchingRegion
+                        ? getRegionCode(matchingRegion)
+                        : ''
+                )
+            } else {
                 setRegion('')
+            }
             } catch (error) {
                 if (cancelled) return
 
@@ -211,7 +230,10 @@ function Click2Call() {
             cancelled = true
         }
     // }, [isRole1Or3, sessionUserId])
-    }, [isRole1Or3, roleId, sessionUserId])
+    }, [isRole1Or3,
+    roleId,
+    sessionUserId,
+    sessionRegionCode])
 
     // =========================================
     // LOAD BRANCHES
@@ -347,15 +369,31 @@ function Click2Call() {
 
                 setBranches(validBranches)
 
-                if (isRole1Or3 || isRole7) {
-                    // Require the user to select a branch.
-                    setBranch('')
-                } else if (isBranchUser) {
-                    setBranch(bpCode)
-                }
+// Role 5 only: select the logged-in user's branch if available.
+// Otherwise, select the first available branch.
+if (roleId === 5) {
+    const matchingBranch = validBranches.find(
+        item =>
+            String(getBranchCode(item)) === String(bpCode)
+    )
 
-                setFranchises([])
-                setFranchise('')
+    setBranch(
+        matchingBranch
+            ? getBranchCode(matchingBranch)
+            : validBranches.length > 0
+                ? getBranchCode(validBranches[0])
+                : ''
+    )
+} else if (isRole1Or3 || isRole7) {
+    // Preserve existing behavior for Roles 1, 3, and 7.
+    setBranch('')
+} else if (isBranchUser) {
+    // Preserve existing behavior for all other branch users.
+    setBranch(bpCode)
+}
+
+setFranchises([])
+setFranchise('')
             } catch (error) {
                 if (cancelled) return
 
