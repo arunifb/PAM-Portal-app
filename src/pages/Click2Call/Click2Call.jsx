@@ -159,7 +159,7 @@ function Click2Call() {
         //     return
         // }
 
-        if (!isRole1Or3 && roleId !== 5) {
+        if (!isRole1Or3 && roleId !== 5 && roleId !== 6) {
             setRegions([])
             setRegion('')
             return
@@ -190,7 +190,7 @@ function Click2Call() {
 
             // Role 5: automatically select the logged-in user's region.
             // All other roles retain their existing behavior.
-            if (roleId === 5) {
+            if (roleId === 5 || roleId === 6) {
                 const matchingRegion = data.find(
                     item =>
                         String(getRegionCode(item)) ===
@@ -333,6 +333,29 @@ function Click2Call() {
                     )
                 }
 
+                // Role 6: load branches based on the logged-in user's region.
+                // Role 6: load branches based on the selected region.
+                else if (roleId === 6) {
+                    if (!region) {
+                        setBranches([])
+                        setBranch('')
+                        setFranchises([])
+                        setFranchise('')
+                        setBranchLoading(false)
+                        return
+                    }
+
+                    console.log('Click2Call Role 6 Loading branches:', {
+                        userId: sessionUserId,
+                        regionCode: region
+                    })
+
+                    data = await getBranches(
+                        sessionUserId,
+                        region
+                    )
+                }
+
                 // Other roles: preserve existing logged-in branch behavior.
                 else {
                     console.log(
@@ -369,31 +392,31 @@ function Click2Call() {
 
                 setBranches(validBranches)
 
-// Role 5 only: select the logged-in user's branch if available.
-// Otherwise, select the first available branch.
-if (roleId === 5) {
-    const matchingBranch = validBranches.find(
-        item =>
-            String(getBranchCode(item)) === String(bpCode)
-    )
+                // Roles 5 and 6: select the logged-in user's branch if available.
+                // Otherwise, select the first available branch.
+                if (roleId === 5 || roleId === 6) {
+                    const matchingBranch = validBranches.find(
+                        item =>
+                            String(getBranchCode(item)) === String(bpCode)
+                    )
 
-    setBranch(
-        matchingBranch
-            ? getBranchCode(matchingBranch)
-            : validBranches.length > 0
-                ? getBranchCode(validBranches[0])
-                : ''
-    )
-} else if (isRole1Or3 || isRole7) {
-    // Preserve existing behavior for Roles 1, 3, and 7.
-    setBranch('')
-} else if (isBranchUser) {
-    // Preserve existing behavior for all other branch users.
-    setBranch(bpCode)
-}
+                    setBranch(
+                        matchingBranch
+                            ? getBranchCode(matchingBranch)
+                            : validBranches.length > 0
+                                ? getBranchCode(validBranches[0])
+                                : ''
+                    )
+                } else if (isRole1Or3 || isRole7) {
+                    // Preserve existing behavior for Roles 1, 3, and 7.
+                    setBranch('')
+                } else if (isBranchUser) {
+                    // Preserve existing behavior for other branch users.
+                    setBranch(bpCode)
+                }
 
-setFranchises([])
-setFranchise('')
+                setFranchises([])
+                setFranchise('')
             } catch (error) {
                 if (cancelled) return
 
@@ -486,9 +509,10 @@ setFranchise('')
 
                 // Role 5 uses the logged-in user's BPCode.
                 // All other roles keep the existing selected-branch behavior.
-                const franchiseBpCode = roleId === 5
-                    ? bpCode
-                    : branch
+                const franchiseBpCode =
+                    roleId === 5 || roleId === 6
+                        ? bpCode
+                        : branch
 
                 const data = await getClick2CallFranchises(
                     roleId,
@@ -518,17 +542,29 @@ setFranchise('')
 
                 setFranchises(sortedFranchises)
 
-                if (roleId === 5) {
-                    // Automatically select the first franchise for Role 5.
-                    setFranchise(
-                        sortedFranchises.length > 0
-                            ? getFranchiseCode(sortedFranchises[0])
-                            : ''
-                    )
-                } else {
-                    // Preserve existing behavior for all other roles.
-                    setFranchise('')
-                }
+if (roleId === 5) {
+    // Select the franchise belonging to the logged-in user.
+    const userFranchise = sortedFranchises.find(
+        item =>
+            String(getFranchiseCode(item)).toLowerCase() ===
+            String(loginId).toLowerCase()
+    )
+
+    setFranchise(
+        userFranchise
+            ? getFranchiseCode(userFranchise)
+            : ''
+    )
+} else if (roleId === 6) {
+    // Preserve automatic first-franchise selection for Role 6.
+    setFranchise(
+        sortedFranchises.length > 0
+            ? getFranchiseCode(sortedFranchises[0])
+            : ''
+    )
+} else {
+    setFranchise('')
+}
             } catch (error) {
                 if (cancelled) return
 
@@ -779,7 +815,7 @@ setFranchise('')
                     <div className="click2call-form">
 
                         {/* REGION */}
-                        {(isRole1Or3 || roleId === 5) && (
+                        {(isRole1Or3 || roleId === 5 || roleId === 6) && (
                             <div className="click2call-field">
                                 <label>
                                     Select Region:

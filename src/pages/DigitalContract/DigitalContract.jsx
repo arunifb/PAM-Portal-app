@@ -66,9 +66,10 @@ function DigitalContract() {
     //             : sessionRegionCode
     //     )
 
-    const [regionCode, setRegionCode] =
-    useState(
-        isNewDropdownRole
+    const [regionCode, setRegionCode] = useState(
+    roleId === '6'
+        ? sessionRegionCode
+        : isNewDropdownRole
             ? ''
             : sessionRegionCode
     )
@@ -397,70 +398,79 @@ function DigitalContract() {
             // =====================================
 
             if (isNewDropdownRole) {
+    if (!regionCode) {
+        setBranches([])
+        setBranchCode('')
+        setFranchises([])
+        setFranchiseCode('')
+        return
+    }
 
-                if (!regionCode) {
+    try {
+        setDropdownLoading(true)
 
-                    setBranches([])
+        const result = await getBranches(
+            Number(userId),
+            regionCode
+        )
 
-                    setBranchCode('')
+        const branchList = Array.isArray(result)
+            ? result
+            : result?.data || []
 
-                    setFranchises([])
+        setBranches(branchList)
 
-                    setFranchiseCode('')
+        if (roleId === '6') {
+            // Prefer the logged-in user's branch.
+            const matchingBranch = branchList.find(
+                item =>
+                    String(getValue(item, 'BpCode')) ===
+                    String(sessionBpCode)
+            )
 
-                    return
-                }
-
-                try {
-
-                    setDropdownLoading(true)
-
-                    const result =
-                        await getBranches(
-                            Number(userId),
-                            regionCode
-                        )
-
-                    const branchList =
-                        Array.isArray(result)
-                            ? result
-                            : result?.data || []
-
-                    setBranches(
-                        branchList
-                    )
-
-                    // Empty value means ALL branches
-                    setBranchCode('')
-
-                    // Franchise resets when branch changes
-                    setFranchises([])
-
-                    setFranchiseCode('')
-
-                } catch (error) {
-
-                    console.error(
-                        'Digital Contract branch error:',
-                        error
-                    )
-
-                    setBranches([])
-
-                    setMessage(
-                        error.message ||
-                        'Unable to load branches.'
-                    )
-
-                    setMessageType('error')
-
-                } finally {
-
-                    setDropdownLoading(false)
-                }
-
-                return
+            if (matchingBranch) {
+                setBranchCode(
+                    getValue(matchingBranch, 'BpCode')
+                )
+            } else if (branchList.length > 0) {
+                // Fallback to the first available branch.
+                setBranchCode(
+                    getValue(branchList[0], 'BpCode')
+                )
+            } else {
+                setBranchCode('')
             }
+
+            // Franchise effect will load the first franchise.
+            setFranchises([])
+            setFranchiseCode('')
+        } else {
+            // Preserve existing Role 1 and Role 9 behavior.
+            setBranchCode('')
+            setFranchises([])
+            setFranchiseCode('')
+        }
+    } catch (error) {
+        console.error(
+            'Digital Contract branch error:',
+            error
+        )
+
+        setBranches([])
+        setBranchCode('')
+        setFranchises([])
+        setFranchiseCode('')
+
+        setMessage(
+            error.message || 'Unable to load branches.'
+        )
+        setMessageType('error')
+    } finally {
+        setDropdownLoading(false)
+    }
+
+    return
+}
 
 
 
@@ -625,74 +635,75 @@ function DigitalContract() {
             // =====================================
 
             if (isNewDropdownRole) {
+    if (!regionCode || !branchCode) {
+        setFranchises([])
+        setFranchiseCode('')
+        return
+    }
 
-                // No Region selected
-                if (!regionCode) {
+    try {
+        setDropdownLoading(true)
 
-                    setFranchises([])
+        // Role 6 must use the logged-in user's branch and login.
+        const franchiseBranchCode =
+            roleId === '6'
+                ? sessionBpCode
+                : branchCode
 
-                    setFranchiseCode('')
+        const result = await getFranchises(
+            Number(roleId),
+            franchiseBranchCode,
+            loginId
+        )
 
-                    return
-                }
+        const franchiseList = Array.isArray(result)
+            ? result
+            : result?.data || []
 
-                // Region selected but Branch = ALL
-                // Do not load franchise list
-                if (!branchCode) {
+        setFranchises(franchiseList)
 
-                    setFranchises([])
+        if (roleId === '6') {
+            // Automatically select the first franchise.
+            if (franchiseList.length > 0) {
+                const firstFranchise = franchiseList[0]
 
-                    setFranchiseCode('')
+                const firstFranchiseCode =
+                    getValue(firstFranchise, 'frCode') ||
+                    getValue(firstFranchise, 'Frcode') ||
+                    getValue(firstFranchise, 'FRCode') ||
+                    getValue(firstFranchise, 'loginId') ||
+                    getValue(firstFranchise, 'LoginID')
 
-                    return
-                }
-
-                try {
-
-                    setDropdownLoading(true)
-
-                    const result =
-                        await getFranchises(
-                            Number(roleId),
-                            branchCode,
-                            loginId
-                        )
-
-                    const franchiseList =
-                        Array.isArray(result)
-                            ? result
-                            : result?.data || []
-
-                    setFranchises(
-                        franchiseList
-                    )
-
-                    // Empty value means ALL franchises
-                    setFranchiseCode('')
-
-                } catch (error) {
-
-                    console.error(
-                        'Digital Contract franchise error:',
-                        error
-                    )
-
-                    setFranchises([])
-
-                    setMessage(
-                        error.message ||
-                        'Unable to load franchises.'
-                    )
-
-                    setMessageType('error')
-
-                } finally {
-
-                    setDropdownLoading(false)
-                }
-
-                return
+                setFranchiseCode(
+                    String(firstFranchiseCode || '')
+                )
+            } else {
+                // Empty value represents All.
+                setFranchiseCode('')
             }
+        } else {
+            // Preserve existing Role 1 and Role 9 behavior.
+            setFranchiseCode('')
+        }
+    } catch (error) {
+        console.error(
+            'Digital Contract franchise error:',
+            error
+        )
+
+        setFranchises([])
+        setFranchiseCode('')
+
+        setMessage(
+            error.message || 'Unable to load franchises.'
+        )
+        setMessageType('error')
+    } finally {
+        setDropdownLoading(false)
+    }
+
+    return
+}
 
 
             // =====================================
