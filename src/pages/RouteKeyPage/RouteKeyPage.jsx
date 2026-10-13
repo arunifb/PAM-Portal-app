@@ -30,6 +30,8 @@ import FranchiseList from '../Franchise/FranchiseList'
 import AddTechSkill from '../AddTechSkill/AddTechSkill'
 import EvidenceSearch from '../EvidenceSearch/EvidenceSearch'
 import TechnicianAdd from '../Technician/TechnicianAdd'
+import UploadMSMEDoc from '../UploadMSMEDoc/UploadMSMEDoc'
+import SearchInvoice from '../SearchInvoice/SearchInvoice'
 
 function RouteKeyPage() {
 
@@ -138,7 +140,12 @@ function RouteKeyPage() {
                  AddTechSkill,
 
         '/evidence-search':
-        EvidenceSearch,
+                EvidenceSearch,
+
+        '/upload-msme-doc':
+                UploadMSMEDoc,
+                
+        '/search-invoice': SearchInvoice,
 
         // =========================================
         // REPORT DATA

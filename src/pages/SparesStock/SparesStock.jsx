@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react'
 import './SparesStock.css'
 
@@ -16,6 +17,22 @@ import {
 function SparesStock() {
 
     // =========================================
+    // LOGGED-IN USER DETAILS
+    // =========================================
+
+    const roleId =
+        sessionStorage.getItem('roleId') ||
+        sessionStorage.getItem('roleID') ||
+        ''
+
+    const sessionRegionCode =
+        sessionStorage.getItem('regionCode') || ''
+
+    const sessionBpCode =
+        sessionStorage.getItem('bpCode') || ''
+
+
+    // =========================================
     // GET VIEWER USER ID
     // =========================================
 
@@ -30,13 +47,11 @@ function SparesStock() {
 
         for (const key of possibleKeys) {
 
-            const value =
-                sessionStorage.getItem(key)
+            const value = sessionStorage.getItem(key)
 
             if (value) {
 
-                const parsedValue =
-                    Number(value)
+                const parsedValue = Number(value)
 
                 if (
                     Number.isInteger(parsedValue) &&
@@ -57,70 +72,64 @@ function SparesStock() {
     // FORM STATE
     // =========================================
 
-    const [regions, setRegions] =
-        useState([])
+    const [regions, setRegions] = useState([])
 
-    const [regionCode, setRegionCode] =
-        useState('')
+    // Role 6: preselect the logged-in user's region.
+    // Role 1: preserve the existing empty default.
 
-
-    // Branch initially contains "All"
-    const [branches, setBranches] =
-        useState([
-            {
-                bpCode: 'All',
-                branchName: 'All'
-            }
-        ])
-
-    const [branchCode, setBranchCode] =
-        useState('All')
+    const [regionCode, setRegionCode] = useState(
+        roleId === '6'
+            ? sessionRegionCode
+            : ''
+    )
 
 
-    const [matGrp, setMatGrp] =
-        useState('')
+    // Branch initially contains "All".
 
-    const [material, setMaterial] =
-        useState('')
+    const [branches, setBranches] = useState([
+        {
+            bpCode: 'All',
+            branchName: 'All'
+        }
+    ])
 
-    const [sloc, setSloc] =
-        useState('')
+    const [branchCode, setBranchCode] = useState('All')
 
-    const [partName, setPartName] =
-        useState('')
+
+    const [matGrp, setMatGrp] = useState('')
+
+    const [material, setMaterial] = useState('')
+
+    const [sloc, setSloc] = useState('')
+
+    const [partName, setPartName] = useState('')
 
 
     // =========================================
     // RESULT STATE
     // =========================================
 
-    const [records, setRecords] =
-        useState([])
+    const [records, setRecords] = useState([])
 
 
     // =========================================
     // LOADING STATE
     // =========================================
 
-    const [loadingRegions, setLoadingRegions] =
-        useState(false)
+    const [loadingRegions, setLoadingRegions] = useState(false)
 
-    const [loadingBranches, setLoadingBranches] =
-        useState(false)
+    const [loadingBranches, setLoadingBranches] = useState(false)
 
-    const [searching, setSearching] =
-        useState(false)
+    const [searching, setSearching] = useState(false)
 
 
     // =========================================
     // MESSAGE STATE
     // =========================================
 
-    const [error, setError] =
-        useState('')
+    const [error, setError] = useState('')
 
-    const [message, setMessage] =
-        useState('')
+    const [message, setMessage] = useState('')
 
 
     // =========================================
@@ -132,6 +141,7 @@ function SparesStock() {
         return (
             item.bpCode ??
             item.BPCode ??
+            item.BpCode ??
             item.branchCode ??
             item.BranchCode ??
             ''
@@ -165,7 +175,6 @@ function SparesStock() {
 
         let isMounted = true
 
-
         const loadRegions = async () => {
 
             try {
@@ -174,37 +183,26 @@ function SparesStock() {
 
                 setError('')
 
-
-                const viewerUserId =
-                    getViewerUserId()
-
+                const viewerUserId = getViewerUserId()
 
                 if (!viewerUserId) {
 
                     setRegions([])
 
-                    setError(
-                        'User ID is not available.'
-                    )
+                    setError('User ID is not available.')
 
                     return
 
                 }
 
-
-                const response =
-                    await getRegions(
-                        '',
-                        viewerUserId
-                    )
-
+                const response = await getRegions(
+                    '',
+                    viewerUserId
+                )
 
                 if (!isMounted) {
-
                     return
-
                 }
-
 
                 const regionData =
                     Array.isArray(response)
@@ -213,29 +211,21 @@ function SparesStock() {
                             ? response.data
                             : []
 
-
-                setRegions(
-                    regionData
-                )
+                setRegions(regionData)
 
             }
             catch (error) {
 
                 if (!isMounted) {
-
                     return
-
                 }
-
 
                 console.error(
                     'Spares Stock region error:',
                     error
                 )
 
-
                 setRegions([])
-
 
                 setError(
                     error.message ||
@@ -246,25 +236,17 @@ function SparesStock() {
             finally {
 
                 if (isMounted) {
-
-                    setLoadingRegions(
-                        false
-                    )
-
+                    setLoadingRegions(false)
                 }
 
             }
 
         }
 
-
         loadRegions()
 
-
         return () => {
-
             isMounted = false
-
         }
 
     }, [])
@@ -274,13 +256,10 @@ function SparesStock() {
     // LOAD BRANCHES
     // =========================================
 
-    const loadBranches = async (
-        selectedRegionCode
-    ) => {
+    const loadBranches = async (selectedRegionCode) => {
 
         if (!selectedRegionCode) {
 
-            // Keep "All" visible when no region
             setBranches([
                 {
                     bpCode: 'All',
@@ -294,17 +273,13 @@ function SparesStock() {
 
         }
 
-
         try {
 
             setLoadingBranches(true)
 
             setError('')
 
-
-            const viewerUserId =
-                getViewerUserId()
-
+            const viewerUserId = getViewerUserId()
 
             if (!viewerUserId) {
 
@@ -317,21 +292,16 @@ function SparesStock() {
 
                 setBranchCode('All')
 
-                setError(
-                    'User ID is not available.'
-                )
+                setError('User ID is not available.')
 
                 return
 
             }
 
-
-            const response =
-                await getBranches(
-                    viewerUserId,
-                    selectedRegionCode
-                )
-
+            const response = await getBranches(
+                viewerUserId,
+                selectedRegionCode
+            )
 
             const branchData =
                 Array.isArray(response)
@@ -340,52 +310,85 @@ function SparesStock() {
                         ? response.data
                         : []
 
+            // Remove any existing "All" entry from the API data.
 
-            // =====================================
-            // REMOVE ANY EXISTING "ALL"
-            // =====================================
+            const filteredBranches = branchData.filter(item => {
 
-            const filteredBranches =
-                branchData.filter(
-                    item => {
+                const code = String(
+                    getBranchCode(item)
+                ).trim().toLowerCase()
 
-                        const code =
-                            String(
-                                getBranchCode(item)
-                            )
-                                .trim()
-                                .toLowerCase()
+                return code !== 'all'
 
-                        return code !== 'all'
+            })
 
-                    }
-                )
+            // Add one "All" option to the dropdown.
 
-
-            // =====================================
-            // ADD ONLY ONE "ALL"
-            // =====================================
-
-            const branchList = [
-
+            setBranches([
                 {
                     bpCode: 'All',
                     branchName: 'All'
                 },
-
                 ...filteredBranches
-
-            ]
-
-
-            setBranches(
-                branchList
-            )
+            ])
 
 
-            setBranchCode(
-                'All'
-            )
+            // =====================================
+            // ROLE 6: AUTO-SELECT SESSION BRANCH
+            // =====================================
+
+            if (roleId === '6') {
+
+                const normalizedSessionBpCode =
+                    String(sessionBpCode).trim()
+
+                const matchingBranch = normalizedSessionBpCode
+                    ? filteredBranches.find(item => {
+
+                        const code = String(
+                            getBranchCode(item)
+                        ).trim()
+
+                        return code === normalizedSessionBpCode
+
+                    })
+                    : null
+
+                if (matchingBranch) {
+
+                    // Select the branch matching session BPCode.
+
+                    setBranchCode(
+                        String(getBranchCode(matchingBranch))
+                    )
+
+                }
+                else if (filteredBranches.length > 0) {
+
+                    // If the saved BPCode isn't returned,
+                    // select the first available branch.
+
+                    setBranchCode(
+                        String(getBranchCode(filteredBranches[0]))
+                    )
+
+                }
+                else {
+
+                    // No branches available.
+
+                    setBranchCode('All')
+
+                }
+
+            }
+            else {
+
+                // Preserve existing Role 1 behavior.
+
+                setBranchCode('All')
+
+            }
 
         }
         catch (error) {
@@ -395,7 +398,6 @@ function SparesStock() {
                 error
             )
 
-
             setBranches([
                 {
                     bpCode: 'All',
@@ -403,11 +405,7 @@ function SparesStock() {
                 }
             ])
 
-
-            setBranchCode(
-                'All'
-            )
-
+            setBranchCode('All')
 
             setError(
                 error.message ||
@@ -417,9 +415,7 @@ function SparesStock() {
         }
         finally {
 
-            setLoadingBranches(
-                false
-            )
+            setLoadingBranches(false)
 
         }
 
@@ -427,28 +423,34 @@ function SparesStock() {
 
 
     // =========================================
+    // ROLE 6: LOAD SESSION REGION BRANCHES
+    // =========================================
+
+    useEffect(() => {
+
+        if (roleId === '6' && sessionRegionCode) {
+
+            loadBranches(sessionRegionCode)
+
+        }
+
+    }, [])
+
+
+    // =========================================
     // REGION CHANGE
     // =========================================
 
-    const handleRegionChange = async (
-        event
-    ) => {
+    const handleRegionChange = async (event) => {
 
-        const value =
-            event.target.value
+        const value = event.target.value
 
+        setRegionCode(value)
 
-        setRegionCode(
-            value
-        )
+        setBranchCode('All')
 
-        setBranchCode(
-            'All'
-        )
+        // Keep "All" visible while branches load.
 
-
-        // Keep "All" visible while
-        // branches are loading
         setBranches([
             {
                 bpCode: 'All',
@@ -456,19 +458,15 @@ function SparesStock() {
             }
         ])
 
-
         setRecords([])
 
         setError('')
 
         setMessage('')
 
-
         if (value) {
 
-            await loadBranches(
-                value
-            )
+            await loadBranches(value)
 
         }
 
@@ -479,13 +477,9 @@ function SparesStock() {
     // BRANCH CHANGE
     // =========================================
 
-    const handleBranchChange = (
-        event
-    ) => {
+    const handleBranchChange = (event) => {
 
-        setBranchCode(
-            event.target.value
-        )
+        setBranchCode(event.target.value)
 
         setRecords([])
 
@@ -508,123 +502,81 @@ function SparesStock() {
 
         setRecords([])
 
-
-        // =====================================
         // REGION REQUIRED
-        // =====================================
 
         if (!regionCode) {
 
-            setError(
-                'Region is required.'
-            )
+            setError('Region is required.')
 
             return
 
         }
 
-
-        // =====================================
         // SEARCH DATA
-        // =====================================
 
         const searchData = {
 
-            RegionCode:
-                regionCode,
+            RegionCode: regionCode,
 
             BpCode:
                 branchCode === 'All'
                     ? ''
                     : branchCode || '',
 
-            Material:
-                material || '',
+            Material: material || '',
 
-            PartName:
-                partName || '',
+            PartName: partName || '',
 
-            MatGrp:
-                matGrp || '',
+            MatGrp: matGrp || '',
 
-            Sloc:
-                sloc || ''
+            Sloc: sloc || ''
 
         }
-
 
         console.log(
             'Spares Stock Search Request:',
             searchData
         )
 
-
         try {
 
-            setSearching(
-                true
-            )
+            setSearching(true)
 
-
-            // =====================================
             // API REQUEST
-            // =====================================
 
             const requestData = {
 
-                regionCode:
-                    searchData.RegionCode,
+                regionCode: searchData.RegionCode,
 
-                bpCode:
-                    searchData.BpCode,
+                bpCode: searchData.BpCode,
 
-                material:
-                    searchData.Material,
+                material: searchData.Material,
 
-                partName:
-                    searchData.PartName,
+                partName: searchData.PartName,
 
-                matGrp:
-                    searchData.MatGrp,
+                matGrp: searchData.MatGrp,
 
-                sloc:
-                    searchData.Sloc
+                sloc: searchData.Sloc
 
             }
 
-
-            const response =
-                await searchSpareStock(
-                    requestData
-                )
-
+            const response = await searchSpareStock(requestData)
 
             console.log(
                 'Spares Stock Search Response:',
                 response
             )
 
-
             const data =
-                Array.isArray(
-                    response?.data
-                )
+                Array.isArray(response?.data)
                     ? response.data
                     : []
 
+            setRecords(data)
 
-            setRecords(
-                data
-            )
+            if (data.length === 0) {
 
-
-            if (
-                data.length === 0
-            ) {
-
-                setMessage(
-                    'No Record Found'
-                )
+                setMessage('No Record Found')
 
             }
 
@@ -636,7 +588,6 @@ function SparesStock() {
                 error
             )
 
-
             setError(
                 error.message ||
                 'Unable to load Spares Stock data.'
@@ -645,9 +596,7 @@ function SparesStock() {
         }
         finally {
 
-            setSearching(
-                false
-            )
+            setSearching(false)
 
         }
 
@@ -658,31 +607,17 @@ function SparesStock() {
     // FORMAT DATE
     // =========================================
 
-    const formatStockDate = (
-        value
-    ) => {
+    const formatStockDate = (value) => {
 
         if (!value) {
-
             return ''
-
         }
 
+        const date = new Date(value)
 
-        const date =
-            new Date(value)
-
-
-        if (
-            Number.isNaN(
-                date.getTime()
-            )
-        ) {
-
+        if (Number.isNaN(date.getTime())) {
             return value
-
         }
-
 
         return date.toLocaleDateString(
             'en-GB',
@@ -702,30 +637,19 @@ function SparesStock() {
 
     return (
 
-        <DashboardLayout
-            title="Spares Stock"
-        >
+        <DashboardLayout title="Spares Stock">
 
             <div className="spares-stock-page">
 
-
-                {/* =================================
-                    FILTER CARD
-                ================================= */}
+                {/* FILTER CARD */}
 
                 <div className="spares-stock-card">
 
-
-                    {/* =================================
-                        FILTER GRID
-                    ================================= */}
+                    {/* FILTER GRID */}
 
                     <div className="spares-stock-filter-grid">
 
-
-                        {/* =============================
-                            REGION
-                        ============================= */}
+                        {/* REGION */}
 
                         <div className="spares-stock-field">
 
@@ -737,147 +661,93 @@ function SparesStock() {
                             </label>
 
                             <select
-                                value={
-                                    regionCode
-                                }
-                                onChange={
-                                    handleRegionChange
-                                }
-                                disabled={
-                                    loadingRegions
-                                }
+                                value={regionCode}
+                                onChange={handleRegionChange}
+                                disabled={loadingRegions}
                             >
 
                                 <option value="">
                                     Select Region
                                 </option>
 
+                                {regions.map((region, index) => {
 
-                                {regions.map(
-                                    (
-                                        region,
-                                        index
-                                    ) => {
+                                    const value =
+                                        region.regionCode ??
+                                        region.RegionCode ??
+                                        region.regioncode ??
+                                        ''
 
-                                        const value =
-                                            region.regionCode ??
-                                            region.RegionCode ??
-                                            region.regioncode ??
-                                            ''
+                                    const name =
+                                        region.regionName ??
+                                        region.RegionName ??
+                                        region.regionname ??
+                                        value
 
-                                        const name =
-                                            region.regionName ??
-                                            region.RegionName ??
-                                            region.regionname ??
-                                            value
-
-
-                                        if (!value) {
-
-                                            return null
-
-                                        }
-
-
-                                        return (
-
-                                            <option
-                                                key={
-                                                    `${value}-${index}`
-                                                }
-                                                value={
-                                                    value
-                                                }
-                                            >
-
-                                                {
-                                                    name
-                                                }
-
-                                            </option>
-
-                                        )
-
+                                    if (!value) {
+                                        return null
                                     }
-                                )}
+
+                                    return (
+
+                                        <option
+                                            key={`${value}-${index}`}
+                                            value={value}
+                                        >
+                                            {name}
+                                        </option>
+
+                                    )
+
+                                })}
 
                             </select>
 
                         </div>
 
 
-                        {/* =============================
-                            BRANCH
-                        ============================= */}
+                        {/* BRANCH */}
 
                         <div className="spares-stock-field">
 
-                            <label>
-                                Branch
-                            </label>
+                            <label>Branch</label>
 
                             <select
-                                value={
-                                    branchCode
-                                }
-                                onChange={
-                                    handleBranchChange
-                                }
+                                value={branchCode}
+                                onChange={handleBranchChange}
                                 disabled={
                                     !regionCode ||
                                     loadingBranches
                                 }
                             >
 
-                                {branches.map(
-                                    (
-                                        item,
-                                        index
-                                    ) => (
+                                {branches.map((item, index) => (
 
-                                        <option
-                                            key={
-                                                `${getBranchCode(item)}-${index}`
-                                            }
-                                            value={
-                                                getBranchCode(item)
-                                            }
-                                        >
+                                    <option
+                                        key={`${getBranchCode(item)}-${index}`}
+                                        value={getBranchCode(item)}
+                                    >
+                                        {getBranchName(item)}
+                                    </option>
 
-                                            {
-                                                getBranchName(item)
-                                            }
-
-                                        </option>
-
-                                    )
-                                )}
+                                ))}
 
                             </select>
 
                         </div>
 
 
-                        {/* =============================
-                            PART GROUP
-                        ============================= */}
+                        {/* PART GROUP */}
 
                         <div className="spares-stock-field">
 
-                            <label>
-                                Part Group
-                            </label>
+                            <label>Part Group</label>
 
                             <input
                                 type="text"
-                                value={
-                                    matGrp
-                                }
-                                onChange={
-                                    event =>
-                                        setMatGrp(
-                                            event.target.value
-                                        )
+                                value={matGrp}
+                                onChange={event =>
+                                    setMatGrp(event.target.value)
                                 }
                                 placeholder="type or copy here"
                             />
@@ -885,26 +755,17 @@ function SparesStock() {
                         </div>
 
 
-                        {/* =============================
-                            PART CODE
-                        ============================= */}
+                        {/* PART CODE */}
 
                         <div className="spares-stock-field">
 
-                            <label>
-                                Part Code
-                            </label>
+                            <label>Part Code</label>
 
                             <input
                                 type="text"
-                                value={
-                                    material
-                                }
-                                onChange={
-                                    event =>
-                                        setMaterial(
-                                            event.target.value
-                                        )
+                                value={material}
+                                onChange={event =>
+                                    setMaterial(event.target.value)
                                 }
                                 maxLength={16}
                             />
@@ -912,26 +773,17 @@ function SparesStock() {
                         </div>
 
 
-                        {/* =============================
-                            SLOC
-                        ============================= */}
+                        {/* SLOC */}
 
                         <div className="spares-stock-field">
 
-                            <label>
-                                Sloc
-                            </label>
+                            <label>Sloc</label>
 
                             <input
                                 type="text"
-                                value={
-                                    sloc
-                                }
-                                onChange={
-                                    event =>
-                                        setSloc(
-                                            event.target.value
-                                        )
+                                value={sloc}
+                                onChange={event =>
+                                    setSloc(event.target.value)
                                 }
                                 maxLength={10}
                             />
@@ -939,26 +791,17 @@ function SparesStock() {
                         </div>
 
 
-                        {/* =============================
-                            PART NAME
-                        ============================= */}
+                        {/* PART NAME */}
 
                         <div className="spares-stock-field">
 
-                            <label>
-                                Part Name
-                            </label>
+                            <label>Part Name</label>
 
                             <input
                                 type="text"
-                                value={
-                                    partName
-                                }
-                                onChange={
-                                    event =>
-                                        setPartName(
-                                            event.target.value
-                                        )
+                                value={partName}
+                                onChange={event =>
+                                    setPartName(event.target.value)
                                 }
                                 maxLength={64}
                             />
@@ -968,59 +811,39 @@ function SparesStock() {
                     </div>
 
 
-                    {/* =================================
-                        ERROR
-                    ================================= */}
+                    {/* ERROR */}
 
                     {error && (
 
                         <div className="spares-stock-error">
-
                             {error}
-
                         </div>
 
                     )}
 
 
-                    {/* =================================
-                        MESSAGE
-                    ================================= */}
+                    {/* MESSAGE */}
 
                     {message && (
 
                         <div className="spares-stock-message">
-
                             {message}
-
                         </div>
 
                     )}
 
 
-                    {/* =================================
-                        SEARCH BUTTON
-                    ================================= */}
+                    {/* SEARCH BUTTON */}
 
                     <div className="spares-stock-actions">
 
                         <button
                             type="button"
                             className="spares-stock-search-button"
-                            onClick={
-                                handleSearch
-                            }
-                            disabled={
-                                searching
-                            }
+                            onClick={handleSearch}
+                            disabled={searching}
                         >
-
-                            {
-                                searching
-                                    ? 'Searching...'
-                                    : 'Search'
-                            }
-
+                            {searching ? 'Searching...' : 'Search'}
                         </button>
 
                     </div>
@@ -1028,39 +851,26 @@ function SparesStock() {
                 </div>
 
 
-                {/* =================================
-                    RESULTS CARD
-                ================================= */}
+                {/* RESULTS CARD */}
 
                 <div className="spares-stock-card">
 
+                    {/* RECORD COUNT */}
 
-                    {/* =================================
-                        RECORD COUNT
-                    ================================= */}
+                    {records.length > 0 && !searching && (
 
-                    {records.length > 0 &&
-                        !searching && (
+                        <h3 className="spares-stock-record-count">
 
-                            <h3 className="spares-stock-record-count">
+                            {records.length} record
+                            {records.length !== 1 ? 's' : ''}
+                            {' '}found
 
-                                {records.length}
-                                {' '}
-                                record
-                                {records.length !== 1
-                                    ? 's'
-                                    : ''}
-                                {' '}
-                                found
+                        </h3>
 
-                            </h3>
-
-                        )}
+                    )}
 
 
-                    {/* =================================
-                        TABLE
-                    ================================= */}
+                    {/* TABLE */}
 
                     <div className="spares-stock-table-container">
 
@@ -1069,38 +879,23 @@ function SparesStock() {
                             <thead>
 
                                 <tr>
-
                                     <th>#</th>
-
                                     <th>Plant</th>
-
                                     <th>Name</th>
-
                                     <th>MatGrp</th>
-
                                     <th>Material</th>
-
                                     <th>Part</th>
-
                                     <th>Quantity</th>
-
                                     <th>Sloc</th>
-
                                     <th>Created Date</th>
-
                                     <th>Updated Date</th>
-
                                 </tr>
 
                             </thead>
 
-
                             <tbody>
 
-
-                                {/* =================================
-                                    LOADING
-                                ================================= */}
+                                {/* LOADING */}
 
                                 {searching ? (
 
@@ -1114,19 +909,13 @@ function SparesStock() {
                                             <div className="spares-stock-loading">
 
                                                 <div className="spares-stock-loading-dots">
-
                                                     <span></span>
-
                                                     <span></span>
-
                                                     <span></span>
-
                                                 </div>
 
                                                 <span className="spares-stock-loading-text">
-
                                                     Loading...
-
                                                 </span>
 
                                             </div>
@@ -1137,104 +926,47 @@ function SparesStock() {
 
                                 ) : records.length > 0 ? (
 
-                                    /* =================================
-                                       RESULTS
-                                    ================================= */
+                                    /* RESULTS */
 
-                                    records.map(
-                                        (
-                                            record,
-                                            index
-                                        ) => (
+                                    records.map((record, index) => (
 
-                                            <tr
-                                                key={
-                                                    `${record.rowIndex || index}-${index}`
-                                                }
-                                            >
+                                        <tr
+                                            key={`${record.rowIndex || index}-${index}`}
+                                        >
 
-                                                <td>
-                                                    {
-                                                        record.rowIndex ||
-                                                        index + 1
-                                                    }
-                                                </td>
+                                            <td>
+                                                {record.rowIndex || index + 1}
+                                            </td>
 
-                                                <td>
-                                                    {
-                                                        record.plant ||
-                                                        ''
-                                                    }
-                                                </td>
+                                            <td>{record.plant || ''}</td>
 
-                                                <td>
-                                                    {
-                                                        record.branch ||
-                                                        ''
-                                                    }
-                                                </td>
+                                            <td>{record.branch || ''}</td>
 
-                                                <td>
-                                                    {
-                                                        record.matGrp ||
-                                                        ''
-                                                    }
-                                                </td>
+                                            <td>{record.matGrp || ''}</td>
 
-                                                <td>
-                                                    {
-                                                        record.material ||
-                                                        ''
-                                                    }
-                                                </td>
+                                            <td>{record.material || ''}</td>
 
-                                                <td>
-                                                    {
-                                                        record.partName ||
-                                                        ''
-                                                    }
-                                                </td>
+                                            <td>{record.partName || ''}</td>
 
-                                                <td>
-                                                    {
-                                                        record.quantity ||
-                                                        ''
-                                                    }
-                                                </td>
+                                            <td>{record.quantity || ''}</td>
 
-                                                <td>
-                                                    {
-                                                        record.sloc ||
-                                                        ''
-                                                    }
-                                                </td>
+                                            <td>{record.sloc || ''}</td>
 
-                                                <td>
-                                                    {
-                                                        formatStockDate(
-                                                            record.createdDate
-                                                        )
-                                                    }
-                                                </td>
+                                            <td>
+                                                {formatStockDate(record.createdDate)}
+                                            </td>
 
-                                                <td>
-                                                    {
-                                                        formatStockDate(
-                                                            record.updatedDate
-                                                        )
-                                                    }
-                                                </td>
+                                            <td>
+                                                {formatStockDate(record.updatedDate)}
+                                            </td>
 
-                                            </tr>
+                                        </tr>
 
-                                        )
-                                    )
+                                    ))
 
                                 ) : (
 
-                                    /* =================================
-                                       EMPTY
-                                    ================================= */
+                                    /* EMPTY */
 
                                     <tr>
 
@@ -1242,9 +974,7 @@ function SparesStock() {
                                             colSpan="10"
                                             className="spares-stock-empty"
                                         >
-
                                             no record found change search criteria
-
                                         </td>
 
                                     </tr>

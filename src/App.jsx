@@ -33,7 +33,10 @@ import TechnicianEdit from './pages/Technician/TechnicianEdit'
 import AddTechSkill from './pages/AddTechSkill/AddTechSkill'
 import EvidenceSearch from './pages/EvidenceSearch/EvidenceSearch'
 import TechnicianAdd from './pages/Technician/TechnicianAdd'
+import UploadMSMEDoc from './pages/UploadMSMEDoc/UploadMSMEDoc'
+import SearchInvoice from './pages/SearchInvoice/SearchInvoice'
 import ProtectedRoute from './components/ProtectedRoute'
+
 
 function App() {
 
@@ -227,6 +230,16 @@ function App() {
                     <Route
                         path="/evidence-search"
                         element={<EvidenceSearch />}
+                    />
+
+                    <Route
+                        path="/upload-msme-doc"
+                        element={<UploadMSMEDoc />}
+                    />
+
+                    <Route
+                        path="/search-invoice"
+                        element={<SearchInvoice />}
                     />
 
 

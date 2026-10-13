@@ -1,0 +1,459 @@
+/* =========================================
+   PAGE
+========================================= */
+
+.msme-page {
+    padding: 20px;
+    color: #263445;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.msme-page-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.msme-page-heading h2 {
+    margin: 0;
+    color: #263445;
+    font-size: 23px;
+    font-weight: 700;
+}
+
+.msme-page-heading p {
+    margin: 7px 0 0;
+    color: #68778a;
+    font-size: 13px;
+}
+
+/* =========================================
+   CARDS
+========================================= */
+
+.msme-card {
+    margin-bottom: 22px;
+    padding: 22px;
+    background: #fff;
+    border: 1px solid #e1e7ef;
+    border-radius: 10px;
+    box-shadow: 0 3px 12px rgba(24, 43, 77, 0.06);
+}
+
+.msme-section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 13px;
+    border-bottom: 1px solid #e8edf3;
+    color: #263445;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.msme-record-count {
+    padding: 5px 10px;
+    border-radius: 20px;
+    background: #eaf3ff;
+    color: #1769aa;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* =========================================
+   SEARCH FORM
+========================================= */
+
+.msme-search-form {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 18px;
+}
+
+.msme-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    max-width: 380px;
+}
+
+.msme-field label {
+    color: #35445a;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.msme-required {
+    color: #dc3545;
+}
+
+.msme-field input {
+    box-sizing: border-box;
+    width: 100%;
+    height: 40px;
+    padding: 9px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 5px;
+    outline: none;
+    background: #fff;
+    color: #263445;
+    font-size: 13px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.msme-field input:focus,
+.msme-table-input:focus {
+    border-color: #337ab7;
+    box-shadow: 0 0 0 3px rgba(51, 122, 183, 0.12);
+}
+
+.msme-search-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* =========================================
+   BUTTONS
+========================================= */
+
+.msme-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 39px;
+    padding: 9px 20px;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition:
+        background-color 0.2s,
+        border-color 0.2s,
+        transform 0.15s;
+}
+
+.msme-button:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+.msme-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+.msme-button-primary {
+    border-color: #337ab7;
+    background: #337ab7;
+    color: #fff;
+}
+
+.msme-button-primary:hover:not(:disabled) {
+    border-color: #286090;
+    background: #286090;
+}
+
+.msme-button-secondary {
+    border-color: #cbd5e1;
+    background: #fff;
+    color: #475569;
+}
+
+.msme-button-secondary:hover:not(:disabled) {
+    background: #f1f5f9;
+}
+
+.msme-upload-button {
+    min-width: 86px;
+    padding: 8px 13px;
+}
+
+/* =========================================
+   ALERTS
+========================================= */
+
+.msme-alert {
+    margin-top: 16px;
+    padding: 11px 14px;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    font-size: 13px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.msme-alert-error {
+    border-color: #f1b8bd;
+    background: #fff0f1;
+    color: #a52834;
+}
+
+.msme-alert-success {
+    border-color: #b7dfc4;
+    background: #edf9f0;
+    color: #216e39;
+}
+
+.msme-alert-info {
+    border-color: #b8d8f5;
+    background: #eef7ff;
+    color: #175b91;
+}
+
+/* =========================================
+   RESULTS TABLE
+========================================= */
+
+.msme-results-card {
+    min-width: 0;
+}
+
+.msme-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid #e1e7ef;
+    border-radius: 7px;
+}
+
+.msme-table {
+    width: 100%;
+    min-width: 1120px;
+    border-collapse: collapse;
+    background: #fff;
+    font-family: Calibri, Arial, sans-serif;
+    font-size: 14px;
+}
+
+.msme-table thead {
+    background: #0078d7;
+    color: #fff;
+}
+
+.msme-table th {
+    padding: 13px 12px;
+    border: 1px solid #1685dc;
+    text-align: left;
+    vertical-align: middle;
+    white-space: nowrap;
+    font-weight: 700;
+}
+
+.msme-table td {
+    padding: 13px 12px;
+    border: 1px solid #e1e7ef;
+    color: #344256;
+    text-align: left;
+    vertical-align: top;
+    line-height: 1.5;
+}
+
+.msme-table tbody tr:nth-child(even) {
+    background: #f6f9fc;
+}
+
+.msme-table tbody tr:hover {
+    background: #edf5ff;
+}
+
+.msme-address {
+    min-width: 200px;
+    max-width: 280px;
+    overflow-wrap: anywhere;
+}
+
+/* =========================================
+   REGISTRATION INPUT
+========================================= */
+
+.msme-table-input {
+    box-sizing: border-box;
+    width: 205px;
+    min-height: 38px;
+    padding: 9px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 5px;
+    outline: none;
+    background: #fff;
+    color: #263445;
+    font-size: 12px;
+}
+
+.msme-table-input::placeholder {
+    color: #94a3b8;
+}
+
+/* =========================================
+   FILE INPUT
+========================================= */
+
+.msme-file-input {
+    display: block;
+    width: 230px;
+    max-width: 100%;
+    color: #475569;
+    font-size: 12px;
+}
+
+.msme-file-input::file-selector-button {
+    margin-right: 8px;
+    padding: 7px 9px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    background: #f8fafc;
+    color: #334155;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.msme-file-input::file-selector-button:hover {
+    background: #eaf0f7;
+}
+
+.msme-selected-file {
+    max-width: 230px;
+    margin-top: 8px;
+    color: #475569;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+.msme-file-help {
+    display: block;
+    margin-top: 7px;
+    color: #64748b;
+    font-size: 11px;
+}
+
+/* =========================================
+   ROW MESSAGES
+========================================= */
+
+.msme-row-error,
+.msme-row-success {
+    max-width: 210px;
+    margin-top: 9px;
+    font-size: 12px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.msme-row-error {
+    color: #c62828;
+}
+
+.msme-row-success {
+    color: #218344;
+}
+
+/* =========================================
+   LOADING
+========================================= */
+
+.msme-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 100px;
+    color: #526176;
+    font-size: 13px;
+}
+
+.msme-spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid #dbeafe;
+    border-top-color: #337ab7;
+    border-radius: 50%;
+    animation: msme-spin 0.8s linear infinite;
+}
+
+@keyframes msme-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* =========================================
+   NO RECORDS
+========================================= */
+
+.msme-no-records {
+    padding: 30px 15px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 6px;
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 768px) {
+    .msme-page {
+        padding: 12px;
+    }
+
+    .msme-page-heading h2 {
+        font-size: 20px;
+    }
+
+    .msme-card {
+        padding: 15px;
+    }
+
+    .msme-search-form {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .msme-field {
+        max-width: none;
+    }
+
+    .msme-search-buttons {
+        width: 100%;
+    }
+
+    .msme-search-buttons .msme-button {
+        flex: 1;
+    }
+
+    .msme-table {
+        min-width: 1050px;
+    }
+}
+
+@media (max-width: 480px) {
+    .msme-page {
+        padding: 8px;
+    }
+
+    .msme-card {
+        padding: 12px;
+        border-radius: 7px;
+    }
+
+    .msme-section-heading {
+        font-size: 15px;
+    }
+
+    .msme-search-buttons {
+        flex-direction: column;
+    }
+
+    .msme-search-buttons .msme-button {
+        width: 100%;
+    }
+}
