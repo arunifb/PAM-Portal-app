@@ -19,20 +19,15 @@ export async function getOAuthToken() {
     // =========================================
 
     if (!clientId) {
-
         throw new Error(
             'OAuth client ID is missing.'
         )
-
     }
 
-
     if (!clientSecret) {
-
         throw new Error(
             'OAuth client secret is missing.'
         )
-
     }
 
 
@@ -65,16 +60,10 @@ export async function getOAuthToken() {
     const contentType =
         response.headers.get('content-type') || ''
 
-
     let data = {}
 
-
-    if (
-        contentType.includes('application/json')
-    ) {
-
+    if (contentType.includes('application/json')) {
         data = await response.json()
-
     }
 
 
@@ -83,14 +72,12 @@ export async function getOAuthToken() {
     // =========================================
 
     if (!response.ok) {
-
         throw new Error(
             data.error_description ||
             data.message ||
             data.error ||
             'Unable to generate access token.'
         )
-
     }
 
 
@@ -99,29 +86,36 @@ export async function getOAuthToken() {
     // =========================================
 
     if (!data.access_token) {
-
         throw new Error(
             'Access token was not returned by the server.'
         )
-
     }
 
 
     // =========================================
-    // SAVE TOKEN
+    // SAVE TOKEN AND EXPIRY TIME
     // =========================================
+
+    const expiresIn = Number(data.expires_in || 0)
 
     sessionStorage.setItem(
         'accessToken',
         data.access_token
     )
 
-
     sessionStorage.setItem(
         'tokenExpiresIn',
-        String(data.expires_in || 0)
+        String(expiresIn)
     )
 
+    sessionStorage.setItem(
+        'accessTokenExpiresAt',
+        String(
+            expiresIn > 0
+                ? Date.now() + expiresIn * 1000
+                : 0
+        )
+    )
 
     sessionStorage.setItem(
         'tokenRole',
@@ -132,7 +126,6 @@ export async function getOAuthToken() {
     console.log(
         'OAuth access token generated successfully.'
     )
-
 
     return data
 }
@@ -145,19 +138,13 @@ export async function getOAuthToken() {
 function getStoredAccessToken() {
 
     const accessToken =
-        sessionStorage.getItem(
-            'accessToken'
-        )
-
+        sessionStorage.getItem('accessToken')
 
     if (!accessToken) {
-
         throw new Error(
             'Access token is missing.'
         )
-
     }
-
 
     return accessToken
 }
@@ -173,29 +160,12 @@ export async function login(
     recaptchaToken
 ) {
 
-    // =========================================
-    // GET EXISTING TOKEN
-    // =========================================
-
     let accessToken =
-        sessionStorage.getItem(
-            'accessToken'
-        )
-
-
-    // =========================================
-    // IF TOKEN DOES NOT EXIST,
-    // GENERATE IT FIRST
-    // =========================================
+        sessionStorage.getItem('accessToken')
 
     if (!accessToken) {
-
-        const tokenData =
-            await getOAuthToken()
-
-        accessToken =
-            tokenData.access_token
-
+        const tokenData = await getOAuthToken()
+        accessToken = tokenData.access_token
     }
 
 
@@ -210,11 +180,8 @@ export async function login(
 
             headers: {
                 'Content-Type': 'application/json',
-
                 'Accept': 'application/json',
-
-                'Authorization':
-                    `Bearer ${accessToken}`
+                'Authorization': `Bearer ${accessToken}`
             },
 
             body: JSON.stringify({
@@ -233,16 +200,10 @@ export async function login(
     const contentType =
         response.headers.get('content-type') || ''
 
-
     let data = {}
 
-
-    if (
-        contentType.includes('application/json')
-    ) {
-
+    if (contentType.includes('application/json')) {
         data = await response.json()
-
     }
 
 
@@ -251,21 +212,15 @@ export async function login(
     // =========================================
 
     if (!response.ok) {
-
         throw new Error(
             data.message ||
             data.error_description ||
             data.error ||
             'Login failed.'
         )
-
     }
 
-
-    console.log(
-        'Login API successful.'
-    )
-
+    console.log('Login API successful.')
 
     return data
 }
@@ -280,13 +235,7 @@ export async function verifyTwoFactor(
     code
 ) {
 
-    const accessToken =
-        getStoredAccessToken()
-
-
-    // =========================================
-    // CALL VERIFY 2FA API
-    // =========================================
+    const accessToken = getStoredAccessToken()
 
     const response = await fetch(
         `${API_BASE_URL}/api/Auth/verify-2fa`,
@@ -295,11 +244,8 @@ export async function verifyTwoFactor(
 
             headers: {
                 'Content-Type': 'application/json',
-
                 'Accept': 'application/json',
-
-                'Authorization':
-                    `Bearer ${accessToken}`
+                'Authorization': `Bearer ${accessToken}`
             },
 
             body: JSON.stringify({
@@ -317,16 +263,10 @@ export async function verifyTwoFactor(
     const contentType =
         response.headers.get('content-type') || ''
 
-
     let data = {}
 
-
-    if (
-        contentType.includes('application/json')
-    ) {
-
+    if (contentType.includes('application/json')) {
         data = await response.json()
-
     }
 
 
@@ -335,16 +275,13 @@ export async function verifyTwoFactor(
     // =========================================
 
     if (!response.ok) {
-
         throw new Error(
             data.message ||
             data.error_description ||
             data.error ||
             'Two-factor authentication failed.'
         )
-
     }
-
 
     return data
 }
@@ -354,17 +291,9 @@ export async function verifyTwoFactor(
 // LOGOUT
 // =========================================
 
-export async function logout(
-    userId
-) {
+export async function logout(userId) {
 
-    const accessToken =
-        getStoredAccessToken()
-
-
-    // =========================================
-    // CALL LOGOUT API
-    // =========================================
+    const accessToken = getStoredAccessToken()
 
     const response = await fetch(
         `${API_BASE_URL}/api/Auth/logout?userId=${encodeURIComponent(userId)}`,
@@ -373,9 +302,7 @@ export async function logout(
 
             headers: {
                 'Accept': 'application/json',
-
-                'Authorization':
-                    `Bearer ${accessToken}`
+                'Authorization': `Bearer ${accessToken}`
             }
         }
     )
@@ -388,16 +315,10 @@ export async function logout(
     const contentType =
         response.headers.get('content-type') || ''
 
-
     let data = {}
 
-
-    if (
-        contentType.includes('application/json')
-    ) {
-
+    if (contentType.includes('application/json')) {
         data = await response.json()
-
     }
 
 
@@ -406,14 +327,12 @@ export async function logout(
     // =========================================
 
     if (!response.ok) {
-
         throw new Error(
             data.message ||
             data.error_description ||
             data.error ||
             'Logout failed.'
         )
-
     }
 
 
@@ -421,43 +340,17 @@ export async function logout(
     // CLEAR AUTH SESSION
     // =========================================
 
-    sessionStorage.removeItem(
-        'accessToken'
-    )
+    sessionStorage.removeItem('accessToken')
+    sessionStorage.removeItem('tokenExpiresIn')
+    sessionStorage.removeItem('accessTokenExpiresAt')
+    sessionStorage.removeItem('tokenRole')
 
-    sessionStorage.removeItem(
-        'tokenExpiresIn'
-    )
-
-    sessionStorage.removeItem(
-        'tokenRole'
-    )
-
-
-    sessionStorage.removeItem(
-        'userId'
-    )
-
-    sessionStorage.removeItem(
-        'loginId'
-    )
-
-    sessionStorage.removeItem(
-        'username'
-    )
-
-    sessionStorage.removeItem(
-        'roleId'
-    )
-
-    sessionStorage.removeItem(
-        'bpCode'
-    )
-
-    sessionStorage.removeItem(
-        'regionCode'
-    )
-
+    sessionStorage.removeItem('userId')
+    sessionStorage.removeItem('loginId')
+    sessionStorage.removeItem('username')
+    sessionStorage.removeItem('roleId')
+    sessionStorage.removeItem('bpCode')
+    sessionStorage.removeItem('regionCode')
 
     return data
 }
