@@ -21,6 +21,18 @@ function ReportData({ onReportCountChange }) {
     const [selectedReport, setSelectedReport] =
         useState(null)
 
+    // =========================================
+    // UPDATE TAB TITLE FOR SELECTED REPORT
+    // =========================================
+
+    useEffect(() => {
+        if (selectedReport) {
+            document.title = `eTraining-${selectedReport.reportType}`
+        } else {
+            document.title = 'eTraining-Report Data'
+        }
+    }, [selectedReport])
+
         // =========================================
         // RESET REPORT DATA LIST
         // =========================================

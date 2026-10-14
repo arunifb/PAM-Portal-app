@@ -207,6 +207,9 @@ function RouteKeyPage() {
                 }
 
 
+                
+
+
                 // =========================================
                 // FIND MENU USING ROUTEKEY
                 // =========================================
@@ -269,6 +272,23 @@ function RouteKeyPage() {
     }, [
         routeKey
     ])
+
+
+    // =========================================
+// UPDATE BROWSER TAB TITLE FROM MENU NAME
+// =========================================
+
+useEffect(() => {
+    if (menuItem) {
+        const menuName =
+            menuItem.menuName ||
+            menuItem.MenuName
+
+        if (menuName) {
+            document.title = `eTraining-${menuName}`
+        }
+    }
+}, [menuItem])
 
 
     // =========================================
@@ -411,63 +431,63 @@ function RouteKeyPage() {
 
 
     // =========================================
-// RENDER FRANCHISE PAGES WITHOUT URL CHANGE
-// =========================================
+    // RENDER FRANCHISE PAGES WITHOUT URL CHANGE
+    // =========================================
 
-if (reactUrl === '/add-franchise') {
-    if (franchiseView === 'list') {
+    if (reactUrl === '/add-franchise') {
+        if (franchiseView === 'list') {
+            return (
+                <FranchiseList
+                    onAddFranchise={() => setFranchiseView('add')}
+                />
+            )
+        }
+
         return (
-            <FranchiseList
-                onAddFranchise={() => setFranchiseView('add')}
+            <AddFranchise
+                onBack={() => setFranchiseView('list')}
             />
         )
     }
 
-    return (
-        <AddFranchise
-            onBack={() => setFranchiseView('list')}
-        />
-    )
-}
 
 
+    if (reactUrl === '/technician') {
+        if (technicianView === 'add') {
+            return (
+                <TechnicianAdd
+                    onBack={(result) => {
+                        setTechnicianView('list')
 
-if (reactUrl === '/technician') {
-    if (technicianView === 'add') {
+                        if (result?.listState) {
+                            setTechnicianListState(result.listState)
+                        }
+
+                        if (result?.refreshTechnicians) {
+                            setRefreshAfterAdd((prev) => prev + 1)
+                        }
+                    }}
+                    listState={technicianListState}
+                />
+            )
+        }
+
         return (
-            <TechnicianAdd
-                onBack={(result) => {
-                    setTechnicianView('list')
-
-                    if (result?.listState) {
-                        setTechnicianListState(result.listState)
-                    }
-
-                    if (result?.refreshTechnicians) {
-                        setRefreshAfterAdd((prev) => prev + 1)
-                    }
+            <Technician
+                onAddTechnician={(listState) => {
+                    setTechnicianListState(listState)
+                    setTechnicianView('add')
                 }}
-                listState={technicianListState}
+                restoreListState={technicianListState}
+                refreshAfterAdd={refreshAfterAdd}
             />
         )
     }
 
-    return (
-        <Technician
-            onAddTechnician={(listState) => {
-                setTechnicianListState(listState)
-                setTechnicianView('add')
-            }}
-            restoreListState={technicianListState}
-            refreshAfterAdd={refreshAfterAdd}
-        />
-    )
-}
 
+    return <PageComponent />
 
-return <PageComponent />
-
-}
+    }
 
 
 export default RouteKeyPage

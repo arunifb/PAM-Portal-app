@@ -625,8 +625,9 @@ const report = reportProp || location.state?.report
     const [error, setError] = useState('')
 
     const [regions, setRegions] = useState([])
-    const [selectedRegion, setSelectedRegion] =
-        useState('')
+    // const [selectedRegion, setSelectedRegion] =
+    //     useState('')
+    const [selectedRegion, setSelectedRegion] = useState('')
     const [regionLoading, setRegionLoading] =
         useState(true)
     const [regionError, setRegionError] =
@@ -881,10 +882,23 @@ const isRegionOrFactoryUser =
                     ? data
                     : []
 
-            setRegions(regionData)
+            //setRegions(regionData)
 
             // User will select the Region manually.
-            setSelectedRegion('')
+            //setSelectedRegion('')
+
+
+            setRegions(regionData)
+
+            if (isFactoryUser) {
+                setSelectedRegion('All')
+            } else {
+                setSelectedRegion('')
+            }
+
+
+
+
         } catch (error) {
             console.error(
                 'Load region error:',
@@ -905,7 +919,8 @@ const isRegionOrFactoryUser =
 
     loadUserRegion()
 }, [
-    loggedInUserId
+    loggedInUserId,
+    isFactoryUser
 ])
 
     // =================================================
@@ -1241,7 +1256,7 @@ const isRegionOrFactoryUser =
                 setBranches([])
 
                 setSelectedBranch(
-                    isRegionUser
+                    isRegionOrFactoryUser
                         ? 'All'
                         : ''
                 )
@@ -1289,8 +1304,10 @@ const isRegionOrFactoryUser =
                     const data =
                         await getBranches(
                             loggedInUserId,
-                            selectedRegion
-                        )
+                            selectedRegion === 'All'
+                                ? ''
+                                : selectedRegion
+                    )
 
                     const branchData =
                         Array.isArray(data)
@@ -1349,7 +1366,7 @@ const isRegionOrFactoryUser =
                 setBranches([])
 
                 setSelectedBranch(
-                    isRegionUser
+                    isRegionOrFactoryUser
                         ? 'All'
                         : ''
                 )
@@ -1369,6 +1386,7 @@ const isRegionOrFactoryUser =
         loggedInRoleId,
         loggedInBpCode,
         isRegionUser,
+        isFactoryUser,
         isBranchUser,
         isFranchiseUser
     ])
@@ -1972,7 +1990,7 @@ const isRegionOrFactoryUser =
                         .toLowerCase() ===
                         'region'
             ) &&
-            !selectedRegion
+            !selectedRegion && !isFactoryUser
         ) {
             missingParameter = 'Region'
         }
@@ -2679,12 +2697,22 @@ const isRegionOrFactoryUser =
                                                     }
                                                 >
 
-                                                <option value="">
+                                                {/* <option value="">
                                                     {regionLoading
                                                         ? 'Loading region...'
                                                         : regionError
                                                             ? 'Unable to load region'
                                                             : 'Select Region'}
+                                                </option> */}
+
+                                                <option value={isFactoryUser ? 'All' : ''}>
+                                                    {regionLoading
+                                                        ? 'Loading region...'
+                                                        : regionError
+                                                            ? 'Unable to load region'
+                                                            : isFactoryUser
+                                                                ? 'All'
+                                                                : 'Select Region'}
                                                 </option>
 
                                                 {!regionLoading &&
@@ -3046,7 +3074,8 @@ const isRegionOrFactoryUser =
                                                 error={
                                                     statusError
                                                 }
-                                                maxSelections={5}
+                                                // maxSelections={5}
+                                                 maxSelections={statuses.length}
                                             />
                                         )}
 
