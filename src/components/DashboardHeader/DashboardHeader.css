@@ -1,3 +1,4 @@
+
 /* =========================================================
    DASHBOARD HEADER
 ========================================================= */
@@ -67,8 +68,7 @@
     cursor: pointer;
     font-size: 16px;
     line-height: 1;
-    box-shadow:
-        0 1px 3px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     transition:
         background 0.2s ease,
         color 0.2s ease,
@@ -78,27 +78,47 @@
 .collapsed-sidebar-toggle:hover {
     background: #f1f1f1;
     color: #222222;
-    box-shadow:
-        0 2px 5px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+}
+
+.collapsed-sidebar-toggle:focus-visible {
+    outline: 2px solid #337ab7;
+    outline-offset: 2px;
 }
 
 /* =========================================================
-   PAGE TITLE
+   PAGE TITLE / BREADCRUMB
 ========================================================= */
 
 .dashboard-breadcrumb {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     flex-wrap: wrap;
-    gap: 7px;
+    gap: 10px;
+    min-width: 0;
+    line-height: 1.2;
+}
+
+/* SQL MENU ICON */
+
+.dashboard-breadcrumb-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 23px;
+    color: #000000 !important;
     line-height: 1;
 }
+
+/* SQL MENU NAME */
 
 .dashboard-breadcrumb-current {
     font-size: 28px;
     font-weight: 700;
     color: #242424;
     letter-spacing: -0.4px;
+    overflow-wrap: anywhere;
 }
 
 /* =========================================================
@@ -106,7 +126,6 @@
 ========================================================= */
 
 @media (max-width: 800px) {
-
     .dashboard-header {
         min-height: 58px;
         margin-bottom: 12px;
@@ -116,10 +135,17 @@
         gap: 12px;
     }
 
+    .dashboard-breadcrumb {
+        gap: 8px;
+    }
+
+    .dashboard-breadcrumb-icon {
+        font-size: 21px;
+    }
+
     .dashboard-breadcrumb-current {
         font-size: 26px;
     }
-
 }
 
 /* =========================================================
@@ -127,12 +153,12 @@
 ========================================================= */
 
 @media (max-width: 650px) {
-
     .dashboard-header {
         min-height: 54px;
         margin-bottom: 10px;
         padding-left: 8px;
         padding-right: 8px;
+        gap: 10px;
     }
 
     .dashboard-header-left {
@@ -154,10 +180,18 @@
         font-size: 15px;
     }
 
-    .dashboard-breadcrumb-current {
-        font-size: 23px;
+    .dashboard-breadcrumb {
+        gap: 7px;
     }
 
+    .dashboard-breadcrumb-icon {
+        font-size: 19px;
+    }
+
+    .dashboard-breadcrumb-current {
+        font-size: 23px;
+        letter-spacing: -0.2px;
+    }
 }
 
 /* =========================================================
@@ -165,10 +199,10 @@
 ========================================================= */
 
 @media (max-width: 420px) {
-
     .dashboard-header {
         min-height: 50px;
         margin-bottom: 8px;
+        gap: 6px;
     }
 
     .dashboard-header-left {
@@ -186,10 +220,17 @@
         font-size: 14px;
     }
 
+    .dashboard-breadcrumb {
+        gap: 6px;
+    }
+
+    .dashboard-breadcrumb-icon {
+        font-size: 17px;
+    }
+
     .dashboard-breadcrumb-current {
         font-size: 21px;
     }
-
 }
 
 /* =========================================================
@@ -197,7 +238,6 @@
 ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
-
     .collapsed-sidebar-toggle {
         transition: none;
     }
