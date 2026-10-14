@@ -37,6 +37,9 @@ import EvidenceSearch from './pages/EvidenceSearch/EvidenceSearch'
 import TechnicianAdd from './pages/Technician/TechnicianAdd'
 import UploadMSMEDoc from './pages/UploadMSMEDoc/UploadMSMEDoc'
 import SearchInvoice from './pages/SearchInvoice/SearchInvoice'
+import TrainingManual from './pages/TrainingManual/TrainingManual'
+import SubDealerView from './pages/SubDealer/SubDealerView'
+import Creation from './pages/Vendor/Creation'
 import ProtectedRoute from './components/ProtectedRoute'
 
 
@@ -295,6 +298,20 @@ function App() {
                         path="/search-invoice"
                         element={<SearchInvoice />}
                     />
+
+                    <Route
+                        path="/training-manual"
+                        element={<TrainingManual />}
+                    />
+
+                    <Route
+                        path="/sub-dealer-view"
+                        element={<SubDealerView />}
+                    />
+
+                    <Route 
+                        path="/vendor/creation" 
+                        element={<Creation />} />
 
 
                     {/* =========================================

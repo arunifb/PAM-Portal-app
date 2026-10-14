@@ -1,158 +1,110 @@
+
 /* =========================================
    PAGE
 ========================================= */
 
 .subdealer-editview-page {
-    padding: 12px 18px;
+    width: 100%;
     min-width: 0;
+    padding: 12px 18px;
+    box-sizing: border-box;
 }
 
-
 /* =========================================
-   COMPACT TOP BAR
+   ROLE 1 - TOP BAR
 ========================================= */
 
 .subdealer-top-bar {
     width: 100%;
-
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     gap: 20px;
-
     margin-bottom: 10px;
-
     min-height: 38px;
 }
-
-
-/* =========================================
-   LEFT - STATUS FILTER
-========================================= */
 
 .subdealer-status-filter {
     display: flex;
     align-items: center;
-
     gap: 8px;
 }
-
 
 .subdealer-status-filter label {
     margin: 0;
-
     font-size: 13px;
     font-weight: 600;
-
     color: #444;
-
     white-space: nowrap;
 }
 
-
 .subdealer-status-filter select {
     min-width: 220px;
-
     height: 34px;
-
     padding: 5px 9px;
-
     border: 1px solid #ced4da;
     border-radius: 5px;
-
     background: #fff;
-
     color: #212529;
-
     font-size: 13px;
-
     outline: none;
-
     box-sizing: border-box;
 }
 
-
 .subdealer-status-filter select:focus {
     border-color: #86b7fe;
-
-    box-shadow:
-        0 0 0 3px
-        rgba(13, 110, 253, 0.1);
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
 }
-
-
-/* =========================================
-   RIGHT - PAGE ACTIONS
-========================================= */
 
 .subdealer-page-actions {
     display: flex;
-
     align-items: center;
-
     justify-content: flex-end;
-
     gap: 8px;
 }
-
-
-/* =========================================
-   SEARCH / DOWNLOAD BUTTONS
-========================================= */
 
 .subdealer-search-button,
 .subdealer-download-button {
     height: 34px;
-
     border: none;
     border-radius: 5px;
-
     padding: 5px 14px;
-
     display: inline-flex;
-
     align-items: center;
     justify-content: center;
-
     gap: 7px;
-
     cursor: pointer;
-
     font-size: 13px;
     font-weight: 500;
-
     white-space: nowrap;
-
-    transition:
-        background-color 0.2s ease,
-        opacity 0.2s ease;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
 }
-
 
 .subdealer-search-button {
     background: #0d6efd;
     color: #fff;
 }
 
-
 .subdealer-download-button {
     background: #198754;
     color: #fff;
 }
-
 
 .subdealer-search-button:hover,
 .subdealer-download-button:hover {
     opacity: 0.9;
 }
 
-
 .subdealer-search-button i,
 .subdealer-download-button i {
     font-size: 12px;
 }
 
+.subdealer-search-button:disabled,
+.subdealer-download-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
 
 /* =========================================
    MESSAGES
@@ -160,576 +112,1127 @@
 
 .subdealer-success-message {
     background: #d1e7dd;
-
     color: #0f5132;
-
     border: 1px solid #badbcc;
-
     border-radius: 6px;
-
     padding: 9px 12px;
-
     margin-bottom: 10px;
-
     font-size: 13px;
 }
-
 
 .subdealer-error-message {
     background: #f8d7da;
-
     color: #842029;
-
     border: 1px solid #f5c2c7;
-
     border-radius: 6px;
-
     padding: 9px 12px;
-
     margin-bottom: 10px;
-
     font-size: 13px;
 }
 
-
 /* =========================================
-   TABLE
+   ROLE 1 - TABLE
 ========================================= */
 
 .subdealer-table-wrapper {
     width: 100%;
-
     overflow-x: auto;
-
     background: #fff;
-
     border: 1px solid #dee2e6;
-
     border-radius: 7px;
 }
 
-
 .subdealer-table {
     width: 100%;
-
     min-width: 1500px;
-
     border-collapse: collapse;
-
     font-size: 13px;
 }
 
-
 .subdealer-table thead th {
     background: #f1f3f5;
-
     color: #343a40;
-
     font-weight: 600;
-
     padding: 10px 9px;
-
     border-bottom: 1px solid #dee2e6;
-
     border-right: 1px solid #e9ecef;
-
     white-space: nowrap;
-
     text-align: left;
 }
 
-
 .subdealer-table tbody td {
     padding: 9px;
-
     border-bottom: 1px solid #edf0f2;
-
     border-right: 1px solid #f1f3f5;
-
     color: #343a40;
-
     white-space: nowrap;
-
     vertical-align: middle;
 }
-
 
 .subdealer-table tbody tr:hover {
     background: #f8f9fa;
 }
 
-
-/* =========================================
-   CHECKBOX
-========================================= */
-
 .checkbox-column {
     width: 42px;
-
     text-align: center !important;
 }
-
 
 .checkbox-column input {
     cursor: pointer;
 }
 
-
-/* =========================================
-   TABLE MESSAGE
-========================================= */
-
 .subdealer-table-message {
     padding: 35px;
-
     text-align: center;
-
     color: #6c757d;
-
     font-size: 14px;
 }
 
-
 /* =========================================
-   STATUS
+   ROLE 1 - STATUS
 ========================================= */
 
 .subdealer-status {
     display: inline-block;
-
     padding: 4px 8px;
-
     border-radius: 12px;
-
     font-size: 12px;
-
     font-weight: 500;
-
     white-space: nowrap;
 }
-
 
 .status-pending {
     background: #fff3cd;
     color: #664d03;
 }
 
-
 .status-correction {
     background: #f8d7da;
     color: #842029;
 }
-
 
 .status-downloaded {
     background: #cff4fc;
     color: #055160;
 }
 
-
 .status-issued {
     background: #d1e7dd;
     color: #0f5132;
 }
-
 
 .status-closed {
     background: #e2e3e5;
     color: #41464b;
 }
 
-
 /* =========================================
-   ACTION BUTTONS
+   ROLE 1 - ACTION BUTTONS
 ========================================= */
 
 .subdealer-action-buttons {
     display: flex;
-
     align-items: center;
-
     gap: 6px;
 }
-
 
 .subdealer-edit-button,
 .subdealer-view-button {
     border: none;
-
     border-radius: 5px;
-
     padding: 6px 10px;
-
     font-size: 12px;
-
     cursor: pointer;
-
     display: inline-flex;
-
     align-items: center;
-
     gap: 5px;
 }
-
 
 .subdealer-edit-button {
     background: #0d6efd;
     color: #fff;
 }
 
-
 .subdealer-view-button {
     background: #6c757d;
     color: #fff;
 }
-
 
 .subdealer-edit-button:hover,
 .subdealer-view-button:hover {
     opacity: 0.9;
 }
 
-
 /* =========================================
-   MODAL OVERLAY
+   ROLE 1 - MODAL
 ========================================= */
 
 .subdealer-modal-overlay {
     position: fixed;
-
     inset: 0;
-
     background: rgba(0, 0, 0, 0.48);
-
     display: flex;
-
     align-items: center;
     justify-content: center;
-
     padding: 20px;
-
     z-index: 9999;
 }
 
-
-/* =========================================
-   MODAL
-========================================= */
-
 .subdealer-modal {
     width: 100%;
-
     max-width: 620px;
-
     max-height: 90vh;
-
     background: #fff;
-
     border-radius: 9px;
-
-    box-shadow:
-        0 12px 40px
-        rgba(0, 0, 0, 0.25);
-
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
     display: flex;
-
     flex-direction: column;
-
     overflow: hidden;
 }
 
-
-/* =========================================
-   MODAL HEADER
-========================================= */
-
 .subdealer-modal-header {
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
-
     padding: 15px 20px;
-
     background: #f8f9fa;
-
     border-bottom: 1px solid #dee2e6;
 }
 
-
 .subdealer-modal-header h3 {
     margin: 0;
-
     font-size: 19px;
-
     font-weight: 600;
-
     color: #212529;
 }
 
-
 .subdealer-modal-close {
     border: none;
-
     background: transparent;
-
     font-size: 28px;
-
     line-height: 1;
-
     color: #6c757d;
-
     cursor: pointer;
 }
-
 
 .subdealer-modal-close:hover {
     color: #212529;
 }
 
-
-/* =========================================
-   MODAL BODY
-========================================= */
-
 .subdealer-modal-body {
     padding: 20px;
-
     overflow-y: auto;
 }
 
-
 .subdealer-modal-loading {
     padding: 40px;
-
     text-align: center;
-
     color: #6c757d;
 }
 
-
-/* =========================================
-   FORM
-========================================= */
-
 .subdealer-form-group {
     display: grid;
-
     grid-template-columns: 180px 1fr;
-
     align-items: center;
-
     gap: 14px;
-
     margin-bottom: 14px;
 }
 
-
 .subdealer-form-group label {
     font-size: 14px;
-
     font-weight: 600;
-
     color: #495057;
 }
-
 
 .subdealer-form-group input,
 .subdealer-form-group select {
     width: 100%;
-
     height: 38px;
-
     padding: 7px 10px;
-
     border: 1px solid #ced4da;
-
     border-radius: 5px;
-
     font-size: 14px;
-
     color: #212529;
-
     background: #fff;
-
     box-sizing: border-box;
 }
 
-
-.subdealer-form-group input:disabled {
-    background: #e9ecef;
-
-    color: #495057;
-
-    cursor: not-allowed;
-}
-
-
+.subdealer-form-group input:disabled,
 .subdealer-form-group select:disabled {
     background: #e9ecef;
-
     color: #495057;
-
     cursor: not-allowed;
 }
-
 
 .subdealer-form-group input:focus,
 .subdealer-form-group select:focus {
     outline: none;
-
     border-color: #86b7fe;
-
-    box-shadow:
-        0 0 0 3px
-        rgba(13, 110, 253, 0.1);
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
 }
-
 
 .subdealer-hidden-id {
     display: none;
 }
 
-
-/* =========================================
-   MODAL ERROR
-========================================= */
-
 .subdealer-modal-error {
     margin-top: 12px;
-
     background: #f8d7da;
-
     color: #842029;
-
     border: 1px solid #f5c2c7;
-
     border-radius: 5px;
-
     padding: 10px 12px;
-
     font-size: 13px;
 }
 
-
-/* =========================================
-   MODAL FOOTER
-========================================= */
-
 .subdealer-modal-footer {
     display: flex;
-
     justify-content: flex-end;
-
     align-items: center;
-
     gap: 10px;
-
     padding: 14px 20px;
-
     border-top: 1px solid #dee2e6;
-
     background: #f8f9fa;
 }
-
 
 .subdealer-save-button,
 .subdealer-cancel-button {
     border: none;
-
     border-radius: 5px;
-
     padding: 8px 15px;
-
     font-size: 13px;
-
     cursor: pointer;
-
     display: inline-flex;
-
     align-items: center;
-
     gap: 7px;
 }
 
-
 .subdealer-save-button {
     background: #0d6efd;
-
     color: #fff;
 }
-
 
 .subdealer-cancel-button {
     background: #6c757d;
-
     color: #fff;
 }
-
 
 .subdealer-save-button:hover,
 .subdealer-cancel-button:hover {
     opacity: 0.9;
 }
 
+.subdealer-save-button:disabled,
+.subdealer-cancel-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
 
 /* =========================================
-   RESPONSIVE
+   ROLE 6 - CREATE PAGE
+========================================= */
+
+.subdealer-create-page {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.subdealer-create-card {
+    width: 100%;
+    background: #fff;
+    border: 1px solid #dce3eb;
+    border-radius: 10px;
+    overflow: visible;
+    box-sizing: border-box;
+    box-shadow: 0 3px 12px rgba(33, 47, 61, 0.04);
+}
+
+.subdealer-create-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px 22px;
+    background: linear-gradient(135deg, #f8fafc 0%, #eef4fb 100%);
+    border-bottom: 1px solid #dee6ef;
+    border-radius: 10px 10px 0 0;
+}
+
+.subdealer-create-header h2 {
+    margin: 0;
+    color: #1f2937;
+    font-size: 21px;
+    font-weight: 700;
+}
+
+.subdealer-create-header p {
+    margin: 5px 0 0;
+    color: #6b7280;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.subdealer-create-body {
+    padding: 22px;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+.subdealer-section {
+    width: 100%;
+    min-width: 0;
+    margin-bottom: 25px;
+}
+
+.subdealer-section:last-child {
+    margin-bottom: 0;
+}
+
+.subdealer-section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 17px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e5eaf0;
+    color: #263445;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.subdealer-section-title::before {
+    content: "";
+    display: inline-block;
+    width: 4px;
+    height: 17px;
+    flex-shrink: 0;
+    border-radius: 3px;
+    background: #0d6efd;
+}
+
+/* =========================================
+   ROLE 6 - ROWS 1 AND 2
+   SIX EQUAL-WIDTH COLUMNS
+========================================= */
+
+.subdealer-create-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    column-gap: 14px;
+    row-gap: 18px;
+    align-items: start;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin: 0 0 18px;
+    box-sizing: border-box;
+}
+
+/* =========================================
+   ROLE 6 - ROWS 3 AND 4
+   FOUR EQUAL-WIDTH COLUMNS
+   FULL AVAILABLE WIDTH
+========================================= */
+
+.subdealer-create-grid.four-column-layout,
+.subdealer-create-grid.subdealer-create-grid-four {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    column-gap: 14px;
+    row-gap: 18px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+/* =========================================
+   ROLE 6 - FIELDS
+========================================= */
+
+.subdealer-create-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.subdealer-create-field.full-width {
+    grid-column: 1 / -1;
+}
+
+.subdealer-create-field label {
+    display: block;
+    min-height: 17px;
+    margin: 0;
+    color: #465365;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.subdealer-create-field label .required {
+    color: #dc3545;
+    margin-left: 3px;
+}
+
+.subdealer-create-field input,
+.subdealer-create-field select,
+.subdealer-create-field textarea {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    min-height: 39px;
+    padding: 8px;
+    border: 1px solid #cfd8e3;
+    border-radius: 6px;
+    background: #fff;
+    color: #263445;
+    font-family: inherit;
+    font-size: 12px;
+    line-height: 1.4;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.subdealer-create-field select {
+    padding-right: 22px;
+    cursor: pointer;
+}
+
+.subdealer-create-field textarea {
+    min-height: 76px;
+    resize: vertical;
+}
+
+.subdealer-create-field input:hover,
+.subdealer-create-field select:hover,
+.subdealer-create-field textarea:hover {
+    border-color: #aebdce;
+}
+
+.subdealer-create-field input:focus,
+.subdealer-create-field select:focus,
+.subdealer-create-field textarea:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.11);
+}
+
+.subdealer-create-field input:disabled,
+.subdealer-create-field select:disabled,
+.subdealer-create-field textarea:disabled {
+    background: #f0f3f6;
+    color: #667085;
+    border-color: #e0e5eb;
+    cursor: not-allowed;
+    opacity: 1;
+}
+
+.subdealer-create-field input::placeholder,
+.subdealer-create-field textarea::placeholder {
+    color: #9aa5b1;
+    opacity: 1;
+}
+
+.subdealer-field-help {
+    color: #788596;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.subdealer-field-error {
+    color: #dc3545;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+/* =========================================
+   ROLE 6 - AUTOCOMPLETE
+   Supports current JSX button structure
+========================================= */
+
+.subdealer-create-field .subdealer-autocomplete {
+    position: absolute;
+    top: calc(100% + 2px);
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    width: 100%;
+    max-height: 230px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #d4dce6;
+    border-radius: 7px;
+    box-shadow: 0 8px 24px rgba(24, 39, 58, 0.16);
+}
+
+.subdealer-create-field .subdealer-autocomplete button {
+    display: block;
+    width: 100%;
+    padding: 10px 12px;
+    border: none;
+    border-bottom: 1px solid #edf0f4;
+    background: #fff;
+    color: #344054;
+    text-align: left;
+    font-family: inherit;
+    font-size: 12px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.subdealer-create-field .subdealer-autocomplete button:last-child {
+    border-bottom: none;
+}
+
+.subdealer-create-field .subdealer-autocomplete button:hover,
+.subdealer-create-field .subdealer-autocomplete button:focus {
+    background: #f0f6ff;
+    outline: none;
+}
+
+/* Keep compatibility with existing autocomplete classes */
+
+.subdealer-autocomplete-list {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    max-height: 230px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #d4dce6;
+    border-radius: 7px;
+    box-shadow: 0 8px 24px rgba(24, 39, 58, 0.16);
+}
+
+.subdealer-autocomplete-option {
+    display: block;
+    width: 100%;
+    padding: 10px 12px;
+    border: none;
+    border-bottom: 1px solid #edf0f4;
+    background: #fff;
+    color: #344054;
+    text-align: left;
+    font-size: 12px;
+    line-height: 1.45;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.subdealer-autocomplete-option:last-child {
+    border-bottom: none;
+}
+
+.subdealer-autocomplete-option:hover,
+.subdealer-autocomplete-option:focus {
+    background: #f0f6ff;
+    outline: none;
+}
+
+.subdealer-autocomplete-option strong {
+    display: block;
+    font-weight: 600;
+}
+
+.subdealer-autocomplete-option span {
+    display: block;
+    margin-top: 3px;
+    color: #667085;
+    font-size: 11px;
+}
+
+.subdealer-autocomplete-empty {
+    padding: 12px;
+    color: #667085;
+    font-size: 12px;
+}
+
+/* =========================================
+   ROLE 6 - PRODUCTS
+   HEADING AND SELECT ALL ON SAME LINE
+========================================= */
+
+.subdealer-product-box,
+.subdealer-products-section {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin-top: 22px;
+    border: 1px solid #d8e0e9;
+    border-radius: 8px;
+    background: #fff;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.subdealer-product-toolbar,
+.subdealer-products-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    gap: 16px;
+    padding: 12px 15px;
+    background: #f6f8fb;
+    border-bottom: 1px solid #e1e7ef;
+    box-sizing: border-box;
+}
+
+.subdealer-products-heading h3,
+.subdealer-product-toolbar h3 {
+    margin: 0;
+    color: #263445;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.subdealer-product-toolbar label,
+.subdealer-products-heading label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 7px;
+    margin: 0;
+    color: #344054;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.subdealer-product-toolbar input,
+.subdealer-products-heading input,
+.subdealer-product-option input {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    margin: 0;
+    accent-color: #0d6efd;
+    cursor: pointer;
+}
+
+.subdealer-product-count {
+    color: #667085;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+/* Six products per row on desktop */
+
+.subdealer-product-list,
+.subdealer-products-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 0;
+    width: 100%;
+    max-height: none;
+    overflow: visible;
+    padding: 8px 14px;
+    box-sizing: border-box;
+}
+
+.subdealer-product-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    min-width: 0;
+    padding: 10px 7px;
+    border-radius: 5px;
+    color: #344054;
+    font-size: 12px;
+    line-height: 1.5;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    box-sizing: border-box;
+}
+
+.subdealer-product-option:hover {
+    background: #f3f7fc;
+}
+
+.subdealer-product-option input {
+    margin-top: 2px;
+}
+
+.subdealer-product-option span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.subdealer-product-empty {
+    grid-column: 1 / -1;
+    padding: 22px 8px;
+    color: #667085;
+    font-size: 13px;
+    text-align: center;
+}
+
+.subdealer-products-section > p {
+    padding: 18px 14px;
+    margin: 0;
+    color: #667085;
+    font-size: 13px;
+}
+
+/* =========================================
+   ROLE 6 - FORM ACTIONS
+========================================= */
+
+.subdealer-create-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-top: 20px;
+    margin-top: 25px;
+    border-top: 1px solid #e5eaf0;
+}
+
+.subdealer-create-submit,
+.subdealer-create-reset,
+.subdealer-create-back {
+    min-height: 39px;
+    padding: 9px 18px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.subdealer-create-submit {
+    background: #0d6efd;
+    color: #fff;
+    box-shadow: 0 2px 5px rgba(13, 110, 253, 0.16);
+}
+
+.subdealer-create-submit:hover {
+    background: #0b5ed7;
+}
+
+.subdealer-create-reset {
+    background: #fff;
+    color: #495057;
+    border-color: #ced4da;
+}
+
+.subdealer-create-reset:hover {
+    background: #f1f3f5;
+}
+
+.subdealer-create-back {
+    background: #eef1f5;
+    color: #344054;
+    border-color: #e0e5eb;
+}
+
+.subdealer-create-back:hover {
+    background: #e2e7ee;
+}
+
+.subdealer-create-submit:disabled,
+.subdealer-create-reset:disabled,
+.subdealer-create-back:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* Preserve current JSX save and cancel button styling */
+
+.subdealer-create-actions .subdealer-save-button,
+.subdealer-create-actions .subdealer-cancel-button {
+    min-height: 39px;
+    padding: 9px 18px;
+    justify-content: center;
+    font-weight: 600;
+}
+
+/* =========================================
+   ROLE 6 - EXISTING RECORDS
+========================================= */
+
+.subdealer-existing-records {
+    width: 100%;
+    min-width: 0;
+    margin-top: 24px;
+}
+
+.subdealer-existing-records-title {
+    margin: 0 0 13px;
+    color: #263445;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.subdealer-existing-records .subdealer-table {
+    min-width: 900px;
+}
+
+/* =========================================
+   RESPONSIVE - DESKTOP / LAPTOP
+========================================= */
+
+@media (max-width: 1200px) and (min-width: 769px) {
+    .subdealer-create-grid {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        column-gap: 8px;
+        row-gap: 16px;
+    }
+
+    .subdealer-create-grid.four-column-layout,
+    .subdealer-create-grid.subdealer-create-grid-four {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .subdealer-product-list,
+    .subdealer-products-grid {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        padding: 7px 9px;
+    }
+
+    .subdealer-create-body {
+        padding: 16px;
+    }
+
+    .subdealer-create-field input,
+    .subdealer-create-field select,
+    .subdealer-create-field textarea {
+        padding: 7px 6px;
+        font-size: 11px;
+    }
+
+    .subdealer-create-field label {
+        font-size: 11px;
+    }
+
+    .subdealer-product-option {
+        padding: 9px 4px;
+        gap: 6px;
+    }
+}
+
+/* =========================================
+   RESPONSIVE - TABLET
 ========================================= */
 
 @media (max-width: 768px) {
-
     .subdealer-editview-page {
         padding: 10px;
     }
 
-
     .subdealer-top-bar {
         align-items: stretch;
-
         flex-direction: column;
-
         gap: 8px;
-
         margin-bottom: 10px;
     }
-
 
     .subdealer-status-filter {
         width: 100%;
     }
 
-
     .subdealer-status-filter select {
         flex: 1;
-
         min-width: 0;
-
         width: 100%;
     }
-
 
     .subdealer-page-actions {
         width: 100%;
     }
-
 
     .subdealer-search-button,
     .subdealer-download-button {
         flex: 1;
     }
 
-
     .subdealer-form-group {
         grid-template-columns: 1fr;
-
         gap: 6px;
     }
-
 
     .subdealer-modal {
         max-height: 95vh;
     }
 
+    .subdealer-create-header {
+        padding: 14px 16px;
+    }
+
+    .subdealer-create-header h2 {
+        font-size: 18px;
+    }
+
+    .subdealer-create-body {
+        padding: 15px;
+    }
+
+    .subdealer-create-grid,
+    .subdealer-create-grid.four-column-layout,
+    .subdealer-create-grid.subdealer-create-grid-four {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: 12px;
+        row-gap: 15px;
+    }
+
+    .subdealer-create-field.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .subdealer-product-list,
+    .subdealer-products-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        padding: 8px;
+    }
+
+    .subdealer-create-actions {
+        gap: 8px;
+    }
+}
+
+/* =========================================
+   RESPONSIVE - SMALL MOBILE
+========================================= */
+
+@media (max-width: 480px) {
+    .subdealer-editview-page {
+        padding: 8px;
+    }
+
+    .subdealer-create-card {
+        border-radius: 7px;
+    }
+
+    .subdealer-create-header {
+        padding: 13px;
+    }
+
+    .subdealer-create-header h2 {
+        font-size: 16px;
+    }
+
+    .subdealer-create-header p {
+        font-size: 12px;
+    }
+
+    .subdealer-create-body {
+        padding: 12px;
+    }
+
+    .subdealer-create-grid,
+    .subdealer-create-grid.four-column-layout,
+    .subdealer-create-grid.subdealer-create-grid-four {
+        grid-template-columns: minmax(0, 1fr);
+        row-gap: 14px;
+    }
+
+    .subdealer-create-field.full-width {
+        grid-column: auto;
+    }
+
+    .subdealer-create-field input,
+    .subdealer-create-field select,
+    .subdealer-create-field textarea {
+        font-size: 13px;
+    }
+
+    .subdealer-product-toolbar,
+    .subdealer-products-heading {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 10px 12px;
+    }
+
+    .subdealer-product-list,
+    .subdealer-products-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        padding: 6px;
+    }
+
+    .subdealer-product-option {
+        padding: 9px 5px;
+        gap: 6px;
+    }
+
+    .subdealer-create-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .subdealer-create-submit,
+    .subdealer-create-reset,
+    .subdealer-create-back,
+    .subdealer-create-actions .subdealer-save-button,
+    .subdealer-create-actions .subdealer-cancel-button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .subdealer-modal-overlay {
+        padding: 8px;
+    }
+
+    .subdealer-modal-header,
+    .subdealer-modal-body,
+    .subdealer-modal-footer {
+        padding: 12px;
+    }
+}
+
+.subdealer-create-header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0;
+    margin-bottom: 10px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+}
+
+.subdealer-view-page-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 5px 10px;
+    min-height: 30px;
+    border: 1px solid #0d6efd;
+    border-radius: 4px;
+    background: #0d6efd;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.subdealer-view-page-button i {
+    font-size: 12px;
+}
+
+.subdealer-view-page-button:hover {
+    background: #0b5ed7;
 }

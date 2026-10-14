@@ -1,0 +1,482 @@
+/* =========================================
+   PAGE
+========================================= */
+
+.training-manual-page {
+    width: 100%;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+/* =========================================
+   COMMON BOX
+========================================= */
+
+.tm-box {
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 5px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+/* =========================================
+   SECTION HEADING
+========================================= */
+
+.tm-section-heading {
+    padding: 10px 5px 5px;
+}
+
+.tm-section-heading h2 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+}
+
+.tm-section-heading h2 .fa {
+    margin-right: 5px;
+    color: #555;
+}
+
+/* =========================================
+   FILTER FORM
+========================================= */
+
+.tm-filter-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 5px;
+    padding: 5px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.tm-field {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.tm-field label {
+    margin-bottom: 5px;
+    font-size: 13px;
+    color: #444;
+    font-weight: 500;
+}
+
+.tm-field input,
+.tm-field select {
+    width: 100%;
+    height: 38px;
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+    font-size: 13px;
+    color: #333;
+    box-sizing: border-box;
+}
+
+.tm-field input:focus,
+.tm-field select:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+}
+
+.tm-field input:disabled,
+.tm-field select:disabled {
+    background: #eeeeee;
+    color: #777;
+    cursor: not-allowed;
+}
+
+.tm-field input::placeholder {
+    color: #999;
+}
+
+.tm-required {
+    color: red;
+    margin-left: 3px;
+}
+
+/* =========================================
+   BUTTON AREA
+========================================= */
+
+.tm-button-area {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 5px;
+    padding: 0 5px 5px;
+}
+
+.tm-search-button,
+.tm-clear-button,
+.tm-download-button {
+    border: none;
+    border-radius: 4px;
+    padding: 8px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+/* =========================================
+   SEARCH BUTTON - BLUE
+========================================= */
+
+.tm-search-button {
+    background: #2563eb;
+    border: 1px solid #2563eb;
+    color: #ffffff;
+}
+
+.tm-search-button:hover:not(:disabled) {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+}
+
+.tm-search-button:focus-visible {
+    outline: 2px solid #93c5fd;
+    outline-offset: 2px;
+}
+
+.tm-search-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* =========================================
+   CLEAR / RESET BUTTON - GREY
+========================================= */
+
+.tm-clear-button {
+    background: #e5e5e5;
+    border: 1px solid #d5d5d5;
+    color: #333333;
+}
+
+.tm-clear-button:hover:not(:disabled) {
+    background: #d5d5d5;
+}
+
+.tm-clear-button:focus-visible {
+    outline: 2px solid #9ca3af;
+    outline-offset: 2px;
+}
+
+.tm-clear-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* =========================================
+   ERROR AND INFORMATION MESSAGES
+========================================= */
+
+.tm-error,
+.tm-notice {
+    margin: 0 0 5px;
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 13px;
+    box-sizing: border-box;
+}
+
+.tm-error {
+    background: #f8d7da;
+    border: 1px solid #f1b0b7;
+    color: #842029;
+}
+
+.tm-notice {
+    background: #fff3cd;
+    border: 1px solid #ffecb5;
+    color: #664d03;
+}
+
+.tm-error .fa,
+.tm-notice .fa {
+    margin-right: 4px;
+}
+
+/* =========================================
+   RESULTS HEADING
+========================================= */
+
+.tm-results-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px;
+}
+
+.tm-results-heading h2 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+}
+
+.tm-result-count {
+    display: inline-block;
+    padding: 4px 10px;
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 12px;
+    color: #555;
+    white-space: nowrap;
+}
+
+/* =========================================
+   RESULTS TABLE
+========================================= */
+
+.tm-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.tm-table {
+    width: 100%;
+    min-width: 1000px;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.tm-table th {
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    padding: 10px 8px;
+    font-weight: 600;
+    color: #333;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.tm-table td {
+    border: 1px solid #ddd;
+    padding: 9px 8px;
+    color: #444;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.tm-table tbody tr:hover {
+    background: #fafafa;
+}
+
+.tm-table .tm-process-note {
+    text-align: left;
+    min-width: 180px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+/* =========================================
+   FILE TYPE
+========================================= */
+
+.tm-file-type {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    white-space: nowrap;
+    font-size: 12px;
+}
+
+.tm-file-type .fa {
+    font-size: 16px;
+}
+
+.tm-file-pdf {
+    color: #c9302c;
+}
+
+.tm-file-word {
+    color: #337ab7;
+}
+
+.tm-file-excel {
+    color: #398439;
+}
+
+.tm-file-image {
+    color: #8a6d3b;
+}
+
+.tm-file-default {
+    color: #666;
+}
+
+/* =========================================
+   STATUS
+========================================= */
+
+.tm-status {
+    display: inline-block;
+    padding: 4px 9px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.tm-status-active {
+    background: #dff0d8;
+    color: #3c763d;
+    border: 1px solid #d6e9c6;
+}
+
+.tm-status-inactive {
+    background: #f2dede;
+    color: #a94442;
+    border: 1px solid #ebccd1;
+}
+
+/* =========================================
+   DOWNLOAD BUTTON - GREEN
+========================================= */
+
+.tm-download-button {
+    padding: 7px 12px;
+    background: #198754;
+    border: 1px solid #198754;
+    color: #ffffff;
+    white-space: nowrap;
+}
+
+.tm-download-button:hover:not(:disabled) {
+    background: #146c43;
+    border-color: #146c43;
+}
+
+.tm-download-button:focus-visible {
+    outline: 2px solid #86efac;
+    outline-offset: 2px;
+}
+
+.tm-download-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* =========================================
+   EMPTY TABLE / LOADING
+========================================= */
+
+.tm-table-message {
+    padding: 30px 15px !important;
+    color: #777 !important;
+    text-align: center !important;
+}
+
+.tm-table-message > .fa {
+    margin-right: 5px;
+}
+
+.tm-loading {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.tm-loading-dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.tm-loading-dots span {
+    width: 8px;
+    height: 8px;
+    background: #555;
+    border-radius: 50%;
+    display: inline-block;
+    animation: tm-dot-loading 1.4s infinite ease-in-out;
+}
+
+.tm-loading-dots span:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.tm-loading-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.tm-loading-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+.tm-loading > span {
+    font-size: 13px;
+    color: #666;
+    text-align: center;
+}
+
+@keyframes tm-dot-loading {
+    0%,
+    60%,
+    100% {
+        transform: translateY(0);
+        opacity: 0.35;
+    }
+
+    30% {
+        transform: translateY(-5px);
+        opacity: 1;
+    }
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 1100px) {
+    .tm-filter-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .training-manual-page {
+        padding: 5px;
+    }
+
+    .tm-filter-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .tm-button-area {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .tm-results-heading {
+        align-items: flex-start;
+    }
+
+    .tm-table {
+        min-width: 1000px;
+    }
+
+    .tm-table-message {
+        padding: 30px 10px !important;
+        text-align: center !important;
+    }
+}

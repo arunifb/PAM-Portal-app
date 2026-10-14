@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+// import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 
 import { getDashboardMenu } from '../../api/dashboardApi'
 
@@ -32,12 +33,21 @@ import EvidenceSearch from '../EvidenceSearch/EvidenceSearch'
 import TechnicianAdd from '../Technician/TechnicianAdd'
 import UploadMSMEDoc from '../UploadMSMEDoc/UploadMSMEDoc'
 import SearchInvoice from '../SearchInvoice/SearchInvoice'
+import TrainingManual from '../TrainingManual/TrainingManual'
+import SubDealerView from '../SubDealer/SubDealerView'
+import VendorCreation from '../Vendor/Creation'
 
 function RouteKeyPage() {
 
     const { routeKey } = useParams()
 
     const navigate = useNavigate()
+
+
+    const location = useLocation()
+
+    const showSubDealerView =
+        location.state?.showSubDealerView === true
 
 
     // =========================================
@@ -146,6 +156,15 @@ function RouteKeyPage() {
                 UploadMSMEDoc,
                 
         '/search-invoice': SearchInvoice,
+
+        '/training-manual':
+            TrainingManual,
+
+        '/sub-dealer-view':
+            SubDealerView,
+
+        '/vendor/creation': 
+        VendorCreation,
 
         // =========================================
         // REPORT DATA
@@ -484,6 +503,13 @@ useEffect(() => {
         )
     }
 
+
+    if (
+        reactUrl === '/subdealer/editview' &&
+        showSubDealerView
+            ) {
+            return <SubDealerView />
+        }
 
     return <PageComponent />
 

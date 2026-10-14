@@ -302,3 +302,199 @@ export async function downloadSubDealerRelations(
     return await response.blob()
 
 }
+
+
+
+// =============================================
+// CREATE SUB-DEALER REQUISITION - ROLE ID 6
+// =============================================
+
+export async function createSubDealerRequisition(request) {
+    const response = await authFetch(
+        `${API_BASE_URL}/api/SubDealer`,
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(request)
+        }
+    )
+
+    const text = await response.text()
+    let data = null
+
+    if (text) {
+        try {
+            data = JSON.parse(text)
+        } catch {
+            if (!response.ok) {
+                throw new Error(
+                    'Unable to create sub-dealer requisition.'
+                )
+            }
+            data = text
+        }
+    }
+
+    if (!response.ok) {
+        throw new Error(
+            data?.message ||
+            data?.title ||
+            'Unable to create sub-dealer requisition.'
+        )
+    }
+
+    return data
+}
+
+
+// =============================================
+// SEARCH DEALERS - ROLE ID 6
+// =============================================
+
+export async function searchSubDealerDealers(term) {
+    const response = await authFetch(
+        `${API_BASE_URL}/api/SubDealer/dealers?term=${encodeURIComponent(term)}`
+    )
+
+    const text = await response.text()
+    let data = null
+
+    if (text) {
+        try {
+            data = JSON.parse(text)
+        } catch {
+            throw new Error(
+                'Invalid response received while searching dealers.'
+            )
+        }
+    }
+
+    if (!response.ok) {
+        throw new Error(
+            data?.message ||
+            'Unable to search dealers.'
+        )
+    }
+
+    return Array.isArray(data)
+        ? data
+        : data?.data || []
+}
+
+
+// =============================================
+// LOOK UP PIN CODE / AREA - ROLE ID 6
+// =============================================
+
+export async function getSubDealerArea(pincode) {
+    const response = await authFetch(
+        `${API_BASE_URL}/api/SubDealer/area?pincode=${encodeURIComponent(pincode)}`
+    )
+
+    const text = await response.text()
+    let data = null
+
+    if (text) {
+        try {
+            data = JSON.parse(text)
+        } catch {
+            throw new Error(
+                'Invalid response received for PIN code.'
+            )
+        }
+    }
+
+    if (!response.ok) {
+        throw new Error(
+            data?.message ||
+            'Unable to find PIN code details.'
+        )
+    }
+
+    return data
+}
+
+
+// =============================================
+// SEARCH SUB-DEALER NAMES - ROLE ID 6
+// =============================================
+
+export async function searchSubDealerNames(
+    term,
+    billToPartyCode
+) {
+    const params = new URLSearchParams({
+        term: term || '',
+        billToPartyCode: billToPartyCode || ''
+    })
+
+    const response = await authFetch(
+        `${API_BASE_URL}/api/SubDealer/subdealers?${params.toString()}`
+    )
+
+    const text = await response.text()
+    let data = null
+
+    if (text) {
+        try {
+            data = JSON.parse(text)
+        } catch {
+            throw new Error(
+                'Invalid response received while searching sub-dealers.'
+            )
+        }
+    }
+
+    if (!response.ok) {
+        throw new Error(
+            data?.message ||
+            'Unable to search sub-dealer names.'
+        )
+    }
+
+    return Array.isArray(data)
+        ? data
+        : data?.data || []
+}
+
+
+// =============================================
+// CHECK EXISTING SUB-DEALER REQUEST - ROLE ID 6
+// =============================================
+
+export async function searchExistingSubDealer(request) {
+    const response = await authFetch(
+        `${API_BASE_URL}/api/SubDealer/dealer-search`,
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(request)
+        }
+    )
+
+    const text = await response.text()
+    let data = null
+
+    if (text) {
+        try {
+            data = JSON.parse(text)
+        } catch {
+            throw new Error(
+                'Invalid response received while checking existing sub-dealers.'
+            )
+        }
+    }
+
+    if (!response.ok) {
+        throw new Error(
+            data?.message ||
+            'Unable to check existing sub-dealers.'
+        )
+    }
+
+    return data
+}
