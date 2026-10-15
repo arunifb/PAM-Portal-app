@@ -39,7 +39,7 @@ import UploadMSMEDoc from './pages/UploadMSMEDoc/UploadMSMEDoc'
 import SearchInvoice from './pages/SearchInvoice/SearchInvoice'
 import TrainingManual from './pages/TrainingManual/TrainingManual'
 import SubDealerView from './pages/SubDealer/SubDealerView'
-import Creation from './pages/Vendor/Creation'
+// import Creation from './pages/Vendor/Creation'
 import ProtectedRoute from './components/ProtectedRoute'
 
 
@@ -309,9 +309,9 @@ function App() {
                         element={<SubDealerView />}
                     />
 
-                    <Route 
+                    {/* <Route 
                         path="/vendor/creation" 
-                        element={<Creation />} />
+                        element={<Creation />} /> */}
 
 
                     {/* =========================================

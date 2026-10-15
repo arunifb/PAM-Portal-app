@@ -35,7 +35,7 @@ import UploadMSMEDoc from '../UploadMSMEDoc/UploadMSMEDoc'
 import SearchInvoice from '../SearchInvoice/SearchInvoice'
 import TrainingManual from '../TrainingManual/TrainingManual'
 import SubDealerView from '../SubDealer/SubDealerView'
-import VendorCreation from '../Vendor/Creation'
+// import VendorCreation from '../Vendor/Creation'
 
 function RouteKeyPage() {
 
@@ -163,8 +163,8 @@ function RouteKeyPage() {
         '/sub-dealer-view':
             SubDealerView,
 
-        '/vendor/creation': 
-        VendorCreation,
+        // '/vendor/creation': 
+        // VendorCreation,
 
         // =========================================
         // REPORT DATA
