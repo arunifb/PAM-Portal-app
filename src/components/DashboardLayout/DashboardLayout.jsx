@@ -10,7 +10,7 @@ import { getDashboardMenu } from '../../api/dashboardApi'
 
 import DashboardHeader from '../DashboardHeader/DashboardHeader'
 
-function DashboardLayout({ title, children }) {
+function DashboardLayout({ title, icon: pageIcon, children }) {
     const location = useLocation()
     const navigate = useNavigate()
 
@@ -198,9 +198,15 @@ function DashboardLayout({ title, children }) {
         return false
     })
 
-    const headerTitle = currentMenuItem?.name || title
-    const headerIcon = currentMenuItem?.icon || ''
+    const headerTitle = title || currentMenuItem?.name || 'Dashboard'
+    const headerIcon = pageIcon || currentMenuItem?.icon || ''
 
+// console.log('DashboardLayout DEBUG:', {
+//     pageTitleProp: title,
+//     currentPath,
+//     matchedMenu: currentMenuItem?.name,
+//     finalHeaderTitle: headerTitle
+// })
     // =========================================
     // LOGOUT
     // =========================================

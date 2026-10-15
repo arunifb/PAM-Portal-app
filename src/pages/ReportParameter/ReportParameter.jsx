@@ -2492,7 +2492,7 @@ const isRegionOrFactoryUser =
 
     if (!report) {
     return (
-        <DashboardLayout title="Report">
+        <DashboardLayout title="Report Parameter">
             <section className="report-parameter-section">
                 <div className="report-parameter-empty">
                     <i
@@ -2515,7 +2515,7 @@ const isRegionOrFactoryUser =
 
     if (loading) {
     return (
-        <DashboardLayout title="Report">
+        <DashboardLayout title="Report Parameter">
             <section className="report-parameter-section">
                 <div className="report-parameter-empty">
                     <i
@@ -2535,7 +2535,7 @@ const isRegionOrFactoryUser =
 
     if (error) {
     return (
-        <DashboardLayout title="Report">
+        <DashboardLayout title="Report Parameter">
             <section className="report-parameter-section">
                 <div className="report-parameter-empty">
                     <i
@@ -2555,7 +2555,10 @@ const isRegionOrFactoryUser =
     // =================================================
 
     return (
-    <DashboardLayout title={report?.reportType || 'Report'}>
+    <DashboardLayout
+    title={report?.reportType || 'Report Parameter'}
+    icon={report?.imageUrl || ''}
+>
             <section
                 className="report-parameter-section"
             >

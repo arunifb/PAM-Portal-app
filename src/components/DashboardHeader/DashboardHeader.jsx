@@ -40,7 +40,7 @@ function DashboardHeader({
                 <div className="dashboard-breadcrumb">
                     {icon && (
                         <i
-                            className={`dashboard-breadcrumb-icon ${icon}`}
+                            className={`dashboard-breadcrumb-icon fa ${icon}`}
                             aria-hidden="true"
                         />
                     )}
