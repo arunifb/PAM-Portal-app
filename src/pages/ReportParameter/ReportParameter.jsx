@@ -21,7 +21,9 @@ import {
 
 import './ReportParameter.css'
 import DashboardLayout from '../../components/DashboardLayout/DashboardLayout'
-
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
+import { CalendarDays } from 'lucide-react'
 
 
 // =================================================
@@ -609,6 +611,45 @@ function ColumnFilter({
             )}
         </div>
     )
+}
+
+// Add For Date Picker
+// =========================================
+// DATE PICKER HELPERS
+// =========================================
+
+const parseDate = (value) => {
+    if (!value) return null
+
+    const parts = value.split('-')
+
+    if (parts.length !== 3) return null
+
+    const [year, month, day] = parts.map(Number)
+
+    if (!year || !month || !day) return null
+
+    const date = new Date(year, month - 1, day)
+
+    if (
+        date.getFullYear() !== year ||
+        date.getMonth() !== month - 1 ||
+        date.getDate() !== day
+    ) {
+        return null
+    }
+
+    return date
+}
+
+const formatDate = (date) => {
+    if (!date) return ''
+
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+
+    return `${year}-${month}-${day}`
 }
 
 
@@ -3082,51 +3123,114 @@ const isRegionOrFactoryUser =
                                         {/* FROM DATE */}
 
                                         {isFromDate && (
-                                            <input
-                                                type="date"
-                                                className="report-filter-control"
-                                                value={
-                                                    selectedFromDate
-                                                }
-                                                min={
-                                                    calendarMinDate
-                                                }
-                                                max={
-                                                    calendarMaxDate
-                                                }
-                                                onChange={(
-                                                    event
-                                                ) =>
-                                                    setSelectedFromDate(
-                                                        event.target.value
-                                                    )
-                                                }
-                                            />
+                                            // <input
+                                            //     type="date"
+                                            //     className="report-filter-control"
+                                            //     value={
+                                            //         selectedFromDate
+                                            //     }
+                                            //     min={
+                                            //         calendarMinDate
+                                            //     }
+                                            //     max={
+                                            //         calendarMaxDate
+                                            //     }
+                                            //     onChange={(
+                                            //         event
+                                            //     ) =>
+                                            //         setSelectedFromDate(
+                                            //             event.target.value
+                                            //         )
+                                            //     }
+                                            // />
+
+
+                                            <div className="report-date-picker-container">
+                                                <DatePicker
+                                                    selected={parseDate(selectedFromDate)}
+                                                    onChange={(date) => {
+                                                        setSelectedFromDate(formatDate(date))
+                                                    }}
+                                                    minDate={parseDate(calendarMinDate)}
+                                                    maxDate={parseDate(calendarMaxDate)}
+                                                    dateFormat="dd/MM/yyyy"
+                                                    placeholderText="Select from date"
+                                                    className="report-filter-control report-date-control from-date-picker"
+                                                    wrapperClassName="report-date-picker-wrapper"
+                                                    showPopperArrow={false}
+                                                    autoComplete="off"
+                                                    isClearable
+                                                />
+
+                                                <button
+                                                    type="button"
+                                                    className="report-calendar-icon"
+                                                    aria-label="Open From Date calendar"
+                                                    onClick={() => {
+                                                        document
+                                                            .querySelector('.from-date-picker')
+                                                            ?.focus()
+                                                    }}
+                                                >
+                                                    <CalendarDays size={16} />
+                                                </button>
+                                            </div>
                                         )}
 
                                         {/* TO DATE */}
 
                                         {isToDate && (
-                                            <input
-                                                type="date"
-                                                className="report-filter-control"
-                                                value={
-                                                    selectedToDate
-                                                }
-                                                min={
-                                                    calendarMinDate
-                                                }
-                                                max={
-                                                    calendarMaxDate
-                                                }
-                                                onChange={(
-                                                    event
-                                                ) =>
-                                                    setSelectedToDate(
-                                                        event.target.value
-                                                    )
-                                                }
-                                            />
+                                            // <input
+                                            //     type="date"
+                                            //     className="report-filter-control"
+                                            //     value={
+                                            //         selectedToDate
+                                            //     }
+                                            //     min={
+                                            //         calendarMinDate
+                                            //     }
+                                            //     max={
+                                            //         calendarMaxDate
+                                            //     }
+                                            //     onChange={(
+                                            //         event
+                                            //     ) =>
+                                            //         setSelectedToDate(
+                                            //             event.target.value
+                                            //         )
+                                            //     }
+                                            // />
+
+                                            <div className="report-date-picker-container">
+                                                <DatePicker
+                                                    selected={parseDate(selectedToDate)}
+                                                    onChange={(date) => {
+                                                        setSelectedToDate(formatDate(date))
+                                                    }}
+                                                    minDate={parseDate(calendarMinDate)}
+                                                    maxDate={parseDate(calendarMaxDate)}
+                                                    dateFormat="dd/MM/yyyy"
+                                                    placeholderText="Select to date"
+                                                    className="report-filter-control report-date-control to-date-picker"
+                                                    wrapperClassName="report-date-picker-wrapper"
+                                                    showPopperArrow={false}
+                                                    autoComplete="off"
+                                                    isClearable
+                                                />
+
+                                                <button
+                                                    type="button"
+                                                    className="report-calendar-icon"
+                                                    aria-label="Open To Date calendar"
+                                                    onClick={() => {
+                                                        document
+                                                            .querySelector('.to-date-picker')
+                                                            ?.focus()
+                                                    }}
+                                                >
+                                                    <CalendarDays size={16} />
+                                                </button>
+                                            </div>
                                         )}
 
                                         {/* UNKNOWN / DYNAMIC PARAMETER */}

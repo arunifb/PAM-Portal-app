@@ -1788,3 +1788,104 @@ input[type="checkbox"]:checked::after {
     outline: 2px solid #86b7fe;
     outline-offset: 2px;
 }
+
+/* add for date picker */
+
+/* =========================================
+   CONSISTENT REACT DATE PICKER
+========================================= */
+
+.report-date-picker-wrapper {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.report-date-control {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    height: 34px;
+    box-sizing: border-box;
+    padding: 5px 30px 5px 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    background-color: #ffffff;
+    color: #374151;
+    font-family: inherit;
+    font-size: 12px;
+    line-height: normal;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.15s ease,
+                box-shadow 0.15s ease;
+}
+
+.report-date-control:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08);
+}
+
+.report-date-control::placeholder {
+    color: #777777;
+    opacity: 1;
+}
+
+.report-date-picker-wrapper .react-datepicker__input-container {
+    display: block;
+    width: 100%;
+}
+
+.react-datepicker-popper {
+    z-index: 9999 !important;
+}
+
+.react-datepicker {
+    font-family: inherit;
+    font-size: 12px;
+}
+
+.report-date-picker-wrapper .react-datepicker__close-icon {
+    right: 5px;
+}
+
+/* =========================================
+   DATE PICKER WITH CALENDAR ICON
+========================================= */
+
+.report-date-picker-container {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+}
+
+.report-date-picker-container .report-date-picker-wrapper {
+    display: block;
+    width: 100%;
+}
+
+.report-date-picker-container .report-date-control {
+    width: 100%;
+    padding-right: 34px;
+}
+
+.report-calendar-icon {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 2px;
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    cursor: pointer;
+}
+
+.report-calendar-icon:hover {
+    color: #2563eb;
+}
