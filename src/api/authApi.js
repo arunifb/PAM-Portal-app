@@ -1,4 +1,8 @@
-import API_BASE_URL from './api'
+import API_BASE_URL, {
+    startTokenExpiryTimer,
+    stopTokenExpiryTimer,
+    logoutAndRedirect
+} from './api'
 
 
 // =========================================
@@ -98,6 +102,8 @@ export async function getOAuthToken() {
 
     const expiresIn = Number(data.expires_in || 0)
 
+    stopTokenExpiryTimer()
+
     sessionStorage.setItem(
         'accessToken',
         data.access_token
@@ -121,6 +127,13 @@ export async function getOAuthToken() {
         'tokenRole',
         data.role || ''
     )
+
+
+    // =========================================
+    // START AUTOMATIC TOKEN EXPIRY TIMER
+    // =========================================
+
+    startTokenExpiryTimer()
 
 
     console.log(
@@ -163,7 +176,22 @@ export async function login(
     let accessToken =
         sessionStorage.getItem('accessToken')
 
-    if (!accessToken) {
+    const expiresAt = Number(
+        sessionStorage.getItem('accessTokenExpiresAt')
+    )
+
+    // Generate a new token if missing or expired.
+    if (
+        !accessToken ||
+        (expiresAt > 0 && Date.now() >= expiresAt)
+    ) {
+        stopTokenExpiryTimer()
+
+        sessionStorage.removeItem('accessToken')
+        sessionStorage.removeItem('tokenExpiresIn')
+        sessionStorage.removeItem('accessTokenExpiresAt')
+        sessionStorage.removeItem('tokenRole')
+
         const tokenData = await getOAuthToken()
         accessToken = tokenData.access_token
     }
@@ -237,6 +265,18 @@ export async function verifyTwoFactor(
 
     const accessToken = getStoredAccessToken()
 
+    const expiresAt = Number(
+        sessionStorage.getItem('accessTokenExpiresAt')
+    )
+
+    if (expiresAt > 0 && Date.now() >= expiresAt) {
+        await logoutAndRedirect()
+
+        throw new Error(
+            'Your session has expired. Please login again.'
+        )
+    }
+
     const response = await fetch(
         `${API_BASE_URL}/api/Auth/verify-2fa`,
         {
@@ -274,6 +314,14 @@ export async function verifyTwoFactor(
     // CHECK RESPONSE
     // =========================================
 
+    if (response.status === 401) {
+        await logoutAndRedirect()
+
+        throw new Error(
+            'Your session has expired. Please login again.'
+        )
+    }
+
     if (!response.ok) {
         throw new Error(
             data.message ||
@@ -293,64 +341,63 @@ export async function verifyTwoFactor(
 
 export async function logout(userId) {
 
-    const accessToken = getStoredAccessToken()
+    const accessToken =
+        sessionStorage.getItem('accessToken')
 
-    const response = await fetch(
-        `${API_BASE_URL}/api/Auth/logout?userId=${encodeURIComponent(userId)}`,
-        {
-            method: 'POST',
+    stopTokenExpiryTimer()
 
-            headers: {
-                'Accept': 'application/json',
-                'Authorization': `Bearer ${accessToken}`
-            }
+    try {
+
+        if (!accessToken) {
+            return {}
         }
-    )
 
+        const response = await fetch(
+            `${API_BASE_URL}/api/Auth/logout?userId=${encodeURIComponent(userId)}`,
+            {
+                method: 'POST',
 
-    // =========================================
-    // READ RESPONSE SAFELY
-    // =========================================
-
-    const contentType =
-        response.headers.get('content-type') || ''
-
-    let data = {}
-
-    if (contentType.includes('application/json')) {
-        data = await response.json()
-    }
-
-
-    // =========================================
-    // CHECK RESPONSE
-    // =========================================
-
-    if (!response.ok) {
-        throw new Error(
-            data.message ||
-            data.error_description ||
-            data.error ||
-            'Logout failed.'
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            }
         )
+
+
+        // =========================================
+        // READ RESPONSE SAFELY
+        // =========================================
+
+        const contentType =
+            response.headers.get('content-type') || ''
+
+        let data = {}
+
+        if (contentType.includes('application/json')) {
+            data = await response.json()
+        }
+
+
+        // =========================================
+        // CHECK RESPONSE
+        // =========================================
+
+        if (!response.ok) {
+            throw new Error(
+                data.message ||
+                data.error_description ||
+                data.error ||
+                'Logout failed.'
+            )
+        }
+
+        return data
+
+    } finally {
+
+        // Clear local session whether the request succeeds or fails.
+        sessionStorage.clear()
+
     }
-
-
-    // =========================================
-    // CLEAR AUTH SESSION
-    // =========================================
-
-    sessionStorage.removeItem('accessToken')
-    sessionStorage.removeItem('tokenExpiresIn')
-    sessionStorage.removeItem('accessTokenExpiresAt')
-    sessionStorage.removeItem('tokenRole')
-
-    sessionStorage.removeItem('userId')
-    sessionStorage.removeItem('loginId')
-    sessionStorage.removeItem('username')
-    sessionStorage.removeItem('roleId')
-    sessionStorage.removeItem('bpCode')
-    sessionStorage.removeItem('regionCode')
-
-    return data
 }

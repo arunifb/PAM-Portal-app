@@ -2,6 +2,8 @@ const API_BASE_URL =
     import.meta.env.VITE_API_BASE_URL
 
 let redirectingToLogin = false
+let expiryTimer = null
+let logoutInProgress = false
 
 
 // =========================================
@@ -54,11 +56,121 @@ export function isAccessTokenExpired() {
         )
     )
 
-    // If expiry time is not stored,
-    // let the API validate the token.
     if (!expiresAt) return false
 
     return Date.now() >= expiresAt
+
+}
+
+
+// =========================================
+// STOP TOKEN EXPIRY TIMER
+// =========================================
+
+export function stopTokenExpiryTimer() {
+
+    if (expiryTimer) {
+
+        clearTimeout(expiryTimer)
+        expiryTimer = null
+
+    }
+
+}
+
+
+// =========================================
+// LOGOUT API + REDIRECT
+// =========================================
+
+export async function logoutAndRedirect() {
+
+    if (logoutInProgress) return
+
+    logoutInProgress = true
+
+    stopTokenExpiryTimer()
+
+    const accessToken = getAccessToken()
+
+    const userId = sessionStorage.getItem(
+        'userId'
+    )
+
+    try {
+
+        if (accessToken && userId) {
+
+            const response = await fetch(
+                `${API_BASE_URL}/api/Auth/logout?userId=${encodeURIComponent(userId)}`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                }
+            )
+
+            if (!response.ok) {
+
+                console.warn(
+                    'Logout API returned:',
+                    response.status
+                )
+
+            }
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            'Logout API request failed:',
+            error
+        )
+
+    } finally {
+
+        redirectToLogin()
+
+    }
+
+}
+
+
+// =========================================
+// START AUTOMATIC TOKEN EXPIRY TIMER
+// =========================================
+
+export function startTokenExpiryTimer() {
+
+    stopTokenExpiryTimer()
+
+    const accessToken = getAccessToken()
+
+    const expiresAt = Number(
+        sessionStorage.getItem(
+            'accessTokenExpiresAt'
+        )
+    )
+
+    if (!accessToken || !expiresAt) return
+
+    const remainingTime = expiresAt - Date.now()
+
+    if (remainingTime <= 0) {
+
+        logoutAndRedirect()
+        return
+
+    }
+
+    expiryTimer = setTimeout(() => {
+
+        logoutAndRedirect()
+
+    }, remainingTime)
 
 }
 
@@ -72,11 +184,8 @@ export async function authFetch(
     options = {}
 ) {
 
-    const accessToken =
-        getAccessToken()
+    const accessToken = getAccessToken()
 
-
-    // Check whether token exists.
     if (!accessToken) {
 
         redirectToLogin()
@@ -87,18 +196,15 @@ export async function authFetch(
 
     }
 
-
-    // Check whether token has expired.
     if (isAccessTokenExpired()) {
 
-        redirectToLogin()
+        await logoutAndRedirect()
 
         throw new Error(
             'Your session has expired. Please login again.'
         )
 
     }
-
 
     const headers = {
 
@@ -111,7 +217,6 @@ export async function authFetch(
 
     }
 
-
     const response = await fetch(
         url,
         {
@@ -120,11 +225,9 @@ export async function authFetch(
         }
     )
 
-
-    // Redirect when the API returns 401.
     if (response.status === 401) {
 
-        redirectToLogin()
+        await logoutAndRedirect()
 
         throw new Error(
             'Your session has expired. Please login again.'
@@ -132,9 +235,50 @@ export async function authFetch(
 
     }
 
-
     return response
 
+}
+
+
+// =========================================
+// RESTORE TIMER AFTER PAGE REFRESH
+// =========================================
+
+if (getAccessToken()) {
+
+    startTokenExpiryTimer()
+
+}
+
+
+// =========================================
+// BEST-EFFORT LOGOUT WHEN TAB/BROWSER CLOSES
+// =========================================
+
+function handlePageExit() {
+    const accessToken = sessionStorage.getItem('accessToken')
+    const userId = sessionStorage.getItem('userId')
+
+    if (!accessToken || !userId) return
+
+    const logoutUrl =
+        `${API_BASE_URL}/api/Auth/logout?userId=${encodeURIComponent(userId)}`
+
+    fetch(logoutUrl, {
+        method: 'POST',
+        keepalive: true,
+        headers: {
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+        }
+    }).catch((error) => {
+        console.warn('Browser-exit logout request failed:', error)
+    })
+}
+
+if (typeof window !== 'undefined') {
+    window.addEventListener('pagehide', handlePageExit)
+    window.addEventListener('beforeunload', handlePageExit)
 }
 
 
