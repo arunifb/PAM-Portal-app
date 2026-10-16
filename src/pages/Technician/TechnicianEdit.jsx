@@ -1,9 +1,6 @@
 
 import { useEffect, useRef, useState } from 'react'
-import {
-    useNavigate,
-    useLocation
-} from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 
 import DashboardLayout from '../../components/DashboardLayout/DashboardLayout'
 import {
@@ -62,14 +59,9 @@ function TechnicianEdit() {
     const navigate = useNavigate()
     const location = useLocation()
 
-    // Read the technician ID from navigation state, not the URL.
     const techId = location.state?.techId
-
-    const returnUrl =
-        location.state?.returnUrl || '/technician'
-
-    const listState =
-        location.state?.listState ?? null
+    const returnUrl = location.state?.returnUrl || '/technician'
+    const listState = location.state?.listState ?? null
 
     const roleId = Number(
         sessionStorage.getItem('roleId') ||
@@ -80,27 +72,30 @@ function TechnicianEdit() {
     const isRole3 = roleId === 3
     const isRole5 = roleId === 5
 
-    const pageTitle = isRole5
-        ? 'S.A Profile'
-        : 'Edit Technician'
+    const pageTitle = isRole5 ? 'S.A Profile' : 'Edit Technician'
 
     const [form, setForm] = useState(INITIAL_FORM)
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [error, setError] = useState('')
     const [message, setMessage] = useState('')
+    const [photoError, setPhotoError] = useState(false)
+
+    // Temporary photo selection and preview.
+    // The existing update API does not yet upload this file.
+    const [selectedPhoto, setSelectedPhoto] = useState(null)
+    const [selectedPhotoPreview, setSelectedPhotoPreview] = useState('')
 
     const messageRef = useRef(null)
+    const photoInputRef = useRef(null)
 
-    // Load technician details for Role 3 and Role 5.
+    // Load technician details.
     useEffect(() => {
         let isMounted = true
 
         async function loadTechnician() {
             if (!isRole3 && !isRole5) {
-                setError(
-                    'You are not authorized to access this page.'
-                )
+                setError('You are not authorized to access this page.')
                 setLoading(false)
                 return
             }
@@ -126,16 +121,22 @@ function TechnicianEdit() {
                     response?.technician ??
                     response
 
-                if (
-                    !technician ||
-                    typeof technician !== 'object'
-                ) {
-                    throw new Error(
-                        'Technician details were not found.'
-                    )
+                if (!technician || typeof technician !== 'object') {
+                    throw new Error('Technician details were not found.')
                 }
 
                 if (!isMounted) return
+
+                const profileUrl = getValue(
+                    technician,
+                    'profileUrl',
+                    'ProfileUrl',
+                    'URL'
+                )
+
+                setPhotoError(false)
+                setSelectedPhoto(null)
+                setSelectedPhotoPreview('')
 
                 setForm({
                     techId:
@@ -154,24 +155,11 @@ function TechnicianEdit() {
                         'PARTNERID'
                     ),
 
-                    type: getValue(
-                        technician,
-                        'type',
-                        'Type'
-                    ),
-
-                    name: getValue(
-                        technician,
-                        'name',
-                        'Name'
-                    ),
+                    type: getValue(technician, 'type', 'Type'),
+                    name: getValue(technician, 'name', 'Name'),
 
                     mobileNo: String(
-                        getValue(
-                            technician,
-                            'mobileNo',
-                            'MobileNo'
-                        )
+                        getValue(technician, 'mobileNo', 'MobileNo')
                     ),
 
                     qualification: getValue(
@@ -209,7 +197,6 @@ function TechnicianEdit() {
                         )
                     ),
 
-                    // Role 5 submits a deactivation request.
                     actionStatus: isRole5
                         ? '3'
                         : String(
@@ -228,12 +215,7 @@ function TechnicianEdit() {
                         'Remark'
                     ),
 
-                    profileUrl: getValue(
-                        technician,
-                        'profileUrl',
-                        'ProfileUrl',
-                        'URL'
-                    ),
+                    profileUrl,
 
                     franchiseName: getValue(
                         technician,
@@ -242,19 +224,11 @@ function TechnicianEdit() {
                     ),
 
                     dob: getDateInputValue(
-                        getValue(
-                            technician,
-                            'dob',
-                            'DOB'
-                        )
+                        getValue(technician, 'dob', 'DOB')
                     ),
 
                     doj: getDateInputValue(
-                        getValue(
-                            technician,
-                            'doj',
-                            'DOJ'
-                        )
+                        getValue(technician, 'doj', 'DOJ')
                     )
                 })
             } catch (err) {
@@ -278,9 +252,25 @@ function TechnicianEdit() {
         }
     }, [techId, isRole3, isRole5])
 
-    // Scroll to the success message and hide it after 2 seconds.
+    // Clear the temporary browser URL when the selected file changes
+    // or when the component unmounts.
     useEffect(() => {
-        if (!message) return
+        if (!selectedPhoto) {
+            setSelectedPhotoPreview('')
+            return undefined
+        }
+
+        const previewUrl = URL.createObjectURL(selectedPhoto)
+        setSelectedPhotoPreview(previewUrl)
+
+        return () => {
+            URL.revokeObjectURL(previewUrl)
+        }
+    }, [selectedPhoto])
+
+    // Scroll to messages and clear them after two seconds.
+    useEffect(() => {
+        if (!message) return undefined
 
         messageRef.current?.scrollIntoView({
             behavior: 'smooth',
@@ -320,6 +310,37 @@ function TechnicianEdit() {
         setMessage('')
     }
 
+    // Select a new photo and display its local preview.
+    function handlePhotoChange(event) {
+        const file = event.target.files?.[0]
+
+        if (!file) return
+
+        if (!file.type.startsWith('image/')) {
+            setError('Please select a valid image file.')
+            event.target.value = ''
+            return
+        }
+
+        setSelectedPhoto(file)
+        setPhotoError(false)
+        setError('')
+        setMessage('')
+    }
+
+    // Clear the new selection and show the existing photo again.
+    function handleRemoveSelectedPhoto() {
+        setSelectedPhoto(null)
+        setSelectedPhotoPreview('')
+        setPhotoError(false)
+        setError('')
+        setMessage('')
+
+        if (photoInputRef.current) {
+            photoInputRef.current.value = ''
+        }
+    }
+
     async function handleSubmit(event) {
         event.preventDefault()
 
@@ -343,32 +364,22 @@ function TechnicianEdit() {
         }
 
         if (!/^\d{10}$/.test(form.mobileNo.trim())) {
-            setError(
-                'Please enter a valid 10-digit mobile number.'
-            )
+            setError('Please enter a valid 10-digit mobile number.')
             return
         }
 
         if (
             form.emailId.trim() &&
-            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
-                form.emailId.trim()
-            )
+            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.emailId.trim())
         ) {
             setError('Please enter a valid email address.')
             return
         }
 
-        // Additional validations for the S.A Profile workflow.
         if (isRole5 && !form.type) {
             setError('Please select service type.')
             return
         }
-
-        // if (isRole5 && !form.insurance) {
-        //     setError('Please select insurance option.')
-        //     return
-        // }
 
         if (isRole5 && !form.remark.trim()) {
             setError('Please enter a remark.')
@@ -404,22 +415,16 @@ function TechnicianEdit() {
                 qualification: form.qualification.trim(),
                 address: form.address.trim(),
                 emailId: form.emailId.trim(),
-                maritalStatus: Number(
-                    form.maritalStatus || 0
-                ),
-
-                // Role 5 requests deactivation; Role 3 uses
-                // the action selected in the existing edit form.
-                actionStatus: isRole5
-                    ? '3'
-                    : form.actionStatus,
-
+                maritalStatus: Number(form.maritalStatus || 0),
+                actionStatus: isRole5 ? '3' : form.actionStatus,
                 remark: form.remark.trim(),
                 insurance: form.insurance,
                 profileUrl: form.profileUrl || null,
                 updatedBy
             }
 
+            // Keep the current JSON update request unchanged until
+            // the backend developer enables photo uploads.
             const response = await updateTechnician(payload)
 
             if (response?.isSuccess === false) {
@@ -450,7 +455,6 @@ function TechnicianEdit() {
         }
     }
 
-    // Return to the original list URL and preserve its state.
     function handleCancel() {
         navigate(returnUrl, {
             state: {
@@ -467,22 +471,20 @@ function TechnicianEdit() {
                 <div className="technician-edit-page">
                     <div className="technician-edit-card">
                         <div className="technician-edit-header">
-                            <div></div>
+                            <div />
 
                             <button
                                 type="button"
-                                className="btn btn-light btn-sm"
+                                className="technician-edit-back-btn"
                                 onClick={handleCancel}
                             >
-                                Back to Technician List
+                                {/* Back to Technician List */}
+                                Back
                             </button>
                         </div>
 
                         <div className="technician-edit-body">
-                            <div
-                                className="alert alert-danger"
-                                role="alert"
-                            >
+                            <div className="alert alert-danger" role="alert">
                                 You are not authorized to access this page.
                             </div>
                         </div>
@@ -492,30 +494,27 @@ function TechnicianEdit() {
         )
     }
 
+    const displayedPhoto =
+        selectedPhotoPreview || form.profileUrl
+
     return (
         <DashboardLayout title={pageTitle}>
             <div className="technician-edit-page">
                 <div className="technician-edit-card">
 
-                    {/* Page Header */}
                     <div className="technician-edit-header">
-                        <h5 className="mb-0">
-                            {pageTitle}
-                        </h5>
-
                         <button
                             type="button"
-                            className="btn btn-light btn-sm"
+                            className="technician-edit-back-btn"
                             onClick={handleCancel}
                             disabled={saving}
                         >
-                            Back to Technician List
+                            {/* Back to Technician List */}
+                            Bcak
                         </button>
                     </div>
 
-                    {/* Page Body */}
                     <div className="technician-edit-body">
-
                         {loading && (
                             <div className="technician-edit-loading">
                                 Loading technician details...
@@ -523,10 +522,7 @@ function TechnicianEdit() {
                         )}
 
                         {!loading && error && (
-                            <div
-                                className="alert alert-danger"
-                                role="alert"
-                            >
+                            <div className="alert alert-danger" role="alert">
                                 {error}
                             </div>
                         )}
@@ -543,351 +539,396 @@ function TechnicianEdit() {
 
                         {!loading && techId && !error && (
                             <form onSubmit={handleSubmit}>
+                                <div className="technician-edit-sections-grid">
 
-                                {/* Technician Information */}
-                                <div className="technician-edit-section">
-                                    <h6 className="technician-edit-section-title">
-                                        Technician Information
-                                    </h6>
+                                    {/* LEFT COLUMN: Technician Information */}
+                                    <section className="technician-edit-section technician-information-section">
+                                        <h6 className="technician-edit-section-title">
+                                            Technician Information
+                                        </h6>
 
-                                    <div className="row g-3">
-                                        <div className="col-md-4">
-                                            <label className="form-label">
-                                                Technician ID
-                                            </label>
-                                            <input
-                                                className="form-control"
-                                                value={form.techId}
-                                                readOnly
-                                            />
-                                        </div>
+                                        <div className="technician-fields-grid technician-information-fields-grid">
 
-                                        <div className="col-md-4">
-                                            <label className="form-label">
-                                                Partner ID
-                                            </label>
-                                            <input
-                                                className="form-control"
-                                                value={form.partnerId}
-                                                readOnly
-                                            />
-                                        </div>
+                                            {/* Row 1: Technician ID, Partner ID, Service Type */}
+                                            <div className="technician-field">
+                                                <label className="form-label">
+                                                    Technician ID
+                                                </label>
+                                                <input
+                                                    className="form-control"
+                                                    value={form.techId}
+                                                    readOnly
+                                                />
+                                            </div>
 
-                                        <div className="col-md-4">
-                                            <label className="form-label">
-                                                Franchise Name
-                                            </label>
-                                            <input
-                                                className="form-control"
-                                                value={form.franchiseName}
-                                                readOnly
-                                            />
-                                        </div>
+                                            <div className="technician-field">
+                                                <label className="form-label">
+                                                    Partner ID
+                                                </label>
+                                                <input
+                                                    className="form-control"
+                                                    value={form.partnerId}
+                                                    readOnly
+                                                />
+                                            </div>
 
-                                        <div className="col-md-4">
-                                            <label className="form-label">
-                                                Service Type
-                                                {isRole5 && (
-                                                    <span className="text-danger">
-                                                        {' '}*
-                                                    </span>
-                                                )}
-                                            </label>
-                                            <select
-                                                name="type"
-                                                className="form-select"
-                                                value={form.type}
-                                                onChange={handleChange}
-                                                required={isRole5}
-                                            >
-                                                <option value="">
-                                                    Select Service Type
-                                                </option>
-                                                <option value="MJR">
-                                                    MJR
-                                                </option>
-                                                <option value="MNR">
-                                                    MNR
-                                                </option>
-                                                <option value="ACHLPR">
-                                                    AC
-                                                </option>
-                                                <option value="IND">
-                                                    IND
-                                                </option>
-                                                <option value="KA">
-                                                    KA
-                                                </option>
-                                            </select>
-                                        </div>
-
-                                        <div className="col-md-4">
-                                            <label className="form-label">
-                                                Name
-                                                <span className="text-danger">
-                                                    {' '}*
-                                                </span>
-                                            </label>
-                                            <input
-                                                name="name"
-                                                className="form-control"
-                                                value={form.name}
-                                                onChange={handleChange}
-                                                maxLength={16}
-                                                required
-                                            />
-                                        </div>
-
-                                        <div className="col-md-4">
-                                            <label className="form-label">
-                                                Mobile Number
-                                                <span className="text-danger">
-                                                    {' '}*
-                                                </span>
-                                            </label>
-                                            <input
-                                                name="mobileNo"
-                                                className="form-control"
-                                                value={form.mobileNo}
-                                                onChange={handleMobileChange}
-                                                inputMode="numeric"
-                                                maxLength={10}
-                                                required
-                                            />
-                                        </div>
-
-                                        <div className="col-md-4">
-                                            <label className="form-label">
-                                                Qualification
-                                            </label>
-                                            <input
-                                                name="qualification"
-                                                className="form-control"
-                                                value={form.qualification}
-                                                onChange={handleChange}
-                                                maxLength={10}
-                                            />
-                                        </div>
-
-                                        <div className="col-md-4">
-                                            <label className="form-label">
-                                                Email
-                                            </label>
-                                            <input
-                                                type="email"
-                                                name="emailId"
-                                                className="form-control"
-                                                value={form.emailId}
-                                                onChange={handleChange}
-                                                maxLength={32}
-                                            />
-                                        </div>
-
-                                        {isRole3 && (
-    <div className="col-md-4">
-        <label className="form-label">
-            Insurance
-        </label>
-
-        <select
-            name="insurance"
-            className="form-select"
-            value={form.insurance ?? ''}
-            onChange={handleChange}
-        >
-            <option value="">Select Insurance Status</option>
-            <option value="1">Pending</option>
-            <option value="2">Completed</option>
-        </select>
-    </div>
-)}
-
-                                        <div className="col-md-4">
-                                            <label className="form-label">
-                                                Marital Status
-                                            </label>
-                                            <select
-                                                name="maritalStatus"
-                                                className="form-select"
-                                                value={form.maritalStatus}
-                                                onChange={handleChange}
-                                            >
-                                                <option value="">
-                                                    Select Marital Status
-                                                </option>
-                                                <option value="1">
-                                                    Single
-                                                </option>
-                                                <option value="2">
-                                                    Married
-                                                </option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Additional Information */}
-                                <div className="technician-edit-section">
-                                    <h6 className="technician-edit-section-title">
-                                        Additional Information
-                                    </h6>
-
-                                    <div className="row g-3">
-                                        <div className="col-md-4">
-                                            <label className="form-label">
-                                                Date of Joining
-                                            </label>
-                                            <input
-                                                type="date"
-                                                className="form-control"
-                                                value={form.doj}
-                                                readOnly
-                                            />
-                                            <small className="field-help">
-                                                Display only; the current update
-                                                API does not save this field.
-                                            </small>
-                                        </div>
-
-                                        <div className="col-md-4">
-                                            <label className="form-label">
-                                                Date of Birth
-                                            </label>
-                                            <input
-                                                type="date"
-                                                className="form-control"
-                                                value={form.dob}
-                                                readOnly
-                                            />
-                                            <small className="field-help">
-                                                Display only; the current update
-                                                API does not save this field.
-                                            </small>
-                                        </div>
-
-                                        <div className="col-md-8">
-                                            <label className="form-label">
-                                                Address
-                                            </label>
-                                            <textarea
-                                                name="address"
-                                                className="form-control"
-                                                value={form.address}
-                                                onChange={handleChange}
-                                                maxLength={32}
-                                                rows={2}
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Approval and Status */}
-                                <div className="technician-edit-section">
-                                    <h6 className="technician-edit-section-title">
-                                        {isRole5
-                                            ? 'Request Details'
-                                            : 'Approval and Status'}
-                                    </h6>
-
-                                    <div className="row g-3">
-                                        <div className="col-md-4">
-                                            <label className="form-label">
-                                                {isRole5
-                                                    ? 'Action'
-                                                    : 'Action Status'}
-                                                <span className="text-danger">
-                                                    {' '}*
-                                                </span>
-                                            </label>
-
-                                            <select
-                                                name="actionStatus"
-                                                className="form-select"
-                                                value={form.actionStatus}
-                                                onChange={handleChange}
-                                                required
-                                                disabled={isRole5}
-                                            >
-                                                <option value="">
-                                                    Select Action
-                                                </option>
-
-                                                {isRole5 ? (
-                                                    <option value="3">
-                                                        Request for deactivate
+                                            <div className="technician-field">
+                                                <label className="form-label">
+                                                    Service Type
+                                                    {isRole5 && (
+                                                        <span className="text-danger"> *</span>
+                                                    )}
+                                                </label>
+                                                <select
+                                                    name="type"
+                                                    className="form-select"
+                                                    value={form.type}
+                                                    onChange={handleChange}
+                                                    required={isRole5}
+                                                >
+                                                    <option value="">
+                                                        Select Service Type
                                                     </option>
-                                                ) : (
-                                                    <>
-                                                        <option value="1">
-                                                            Approved &amp; Activated By Trainer
-                                                        </option>
-                                                        <option value="0">
-                                                            De-Activated By Branch Trainer
-                                                        </option>
-                                                    </>
-                                                )}
-                                            </select>
-                                        </div>
+                                                    <option value="MJR">MJR</option>
+                                                    <option value="MNR">MNR</option>
+                                                    <option value="ACHLPR">AC</option>
+                                                    <option value="IND">IND</option>
+                                                    <option value="KA">KA</option>
+                                                </select>
+                                            </div>
 
-                                        <div className="col-md-8">
-                                            <label className="form-label">
-                                                Remark
-                                                {isRole5 && (
-                                                    <span className="text-danger">
-                                                        {' '}*
-                                                    </span>
-                                                )}
-                                            </label>
-                                            <textarea
-                                                name="remark"
-                                                className="form-control"
-                                                value={form.remark}
-                                                onChange={handleChange}
-                                                maxLength={32}
-                                                rows={2}
-                                                required={isRole5}
-                                            />
-                                        </div>
+                                            {/* Row 2: Franchise Name and Email only */}
+                                            <div className="technician-field">
+                                                <label className="form-label">
+                                                    Franchise Name
+                                                </label>
+                                                <input
+                                                    className="form-control"
+                                                    value={form.franchiseName}
+                                                    readOnly
+                                                />
+                                            </div>
 
-                                        <div className="col-12">
-                                            <label className="form-label">
-                                                Existing Profile Photo URL
-                                            </label>
-                                            <input
-                                                className="form-control"
-                                                value={form.profileUrl}
-                                                readOnly
-                                            />
-                                            <small className="field-help">
-                                                Photo upload is not connected
-                                                to the current update API.
-                                            </small>
+                                            <div className="technician-field">
+                                                <label className="form-label">
+                                                    Email
+                                                </label>
+                                                <input
+                                                    type="email"
+                                                    name="emailId"
+                                                    className="form-control"
+                                                    value={form.emailId}
+                                                    onChange={handleChange}
+                                                    maxLength={32}
+                                                />
+                                            </div>
+
+                                            {/* Remaining fields continue in their existing order */}
+                                            <div className="technician-field">
+                                                <label className="form-label">
+                                                    Name <span className="text-danger">*</span>
+                                                </label>
+                                                <input
+                                                    name="name"
+                                                    className="form-control"
+                                                    value={form.name}
+                                                    onChange={handleChange}
+                                                    maxLength={16}
+                                                    required
+                                                />
+                                            </div>
+
+                                            <div className="technician-field">
+                                                <label className="form-label">
+                                                    Mobile Number <span className="text-danger">*</span>
+                                                </label>
+                                                <input
+                                                    name="mobileNo"
+                                                    className="form-control"
+                                                    value={form.mobileNo}
+                                                    onChange={handleMobileChange}
+                                                    inputMode="numeric"
+                                                    maxLength={10}
+                                                    required
+                                                />
+                                            </div>
+
+                                            <div className="technician-field">
+                                                <label className="form-label">
+                                                    Qualification
+                                                </label>
+                                                <input
+                                                    name="qualification"
+                                                    className="form-control"
+                                                    value={form.qualification}
+                                                    onChange={handleChange}
+                                                    maxLength={10}
+                                                />
+                                            </div>
+
+                                            {isRole3 && (
+                                                <div className="technician-field">
+                                                    <label className="form-label">
+                                                        Insurance
+                                                    </label>
+                                                    <select
+                                                        name="insurance"
+                                                        className="form-select"
+                                                        value={form.insurance ?? ''}
+                                                        onChange={handleChange}
+                                                    >
+                                                        <option value="">
+                                                            Select Insurance Status
+                                                        </option>
+                                                        <option value="1">Pending</option>
+                                                        <option value="2">Completed</option>
+                                                    </select>
+                                                </div>
+                                            )}
+
+                                            <div className="technician-field">
+                                                <label className="form-label">
+                                                    Marital Status
+                                                </label>
+                                                <select
+                                                    name="maritalStatus"
+                                                    className="form-select"
+                                                    value={form.maritalStatus}
+                                                    onChange={handleChange}
+                                                >
+                                                    <option value="">
+                                                        Select Marital Status
+                                                    </option>
+                                                    <option value="1">Single</option>
+                                                    <option value="2">Married</option>
+                                                </select>
+                                            </div>
+
+                                            {/* Date of Joining */}
+                                            <div className="technician-field">
+                                                <label className="form-label">
+                                                    Date of Joining
+                                                </label>
+                                                <input
+                                                    type="date"
+                                                    className="form-control"
+                                                    value={form.doj}
+                                                    readOnly
+                                                />
+                                            </div>
+
+                                            {/* Date of Birth */}
+                                            <div className="technician-field">
+                                                <label className="form-label">
+                                                    Date of Birth
+                                                </label>
+                                                <input
+                                                    type="date"
+                                                    className="form-control"
+                                                    value={form.dob}
+                                                    readOnly
+                                                />
+                                            </div>
+
+                                            {/* Address - Full Width */}
+                                            <div className="technician-field technician-field-full">
+                                                <label className="form-label">
+                                                    Address
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    name="address"
+                                                    className="form-control"
+                                                    value={form.address}
+                                                    onChange={handleChange}
+                                                    maxLength={32}
+                                                />
+                                            </div>
+                                        </div>
+                                    </section>
+
+                                    {/* RIGHT COLUMN */}
+                                    <div className="technician-edit-right-column">
+
+                                        {/* 1. Profile Photo */}
+                                        <section className="technician-edit-section profile-photo-section">
+                                            <h6 className="technician-edit-section-title">
+                                                Profile Photo
+                                            </h6>
+
+                                            <div className="profile-photo-content">
+                                                <div className="profile-photo-upload-controls">
+                                                    <div className="technician-field">
+                                                        <label
+                                                            htmlFor="technician-photo"
+                                                            className="form-label"
+                                                        >
+                                                            Choose New Photo
+                                                        </label>
+
+                                                        <input
+                                                            ref={photoInputRef}
+                                                            id="technician-photo"
+                                                            type="file"
+                                                            className="form-control"
+                                                            accept="image/*"
+                                                            onChange={handlePhotoChange}
+                                                            disabled={saving}
+                                                        />
+
+                                                        <small className="field-help">
+                                                            Select an image to preview it.
+                                                        </small>
+                                                    </div>
+
+                                                    <div className="technician-field">
+                                                        <label className="form-label">
+                                                            Existing Profile Photo URL
+                                                        </label>
+                                                        <input
+                                                            type="text"
+                                                            className="form-control"
+                                                            value={form.profileUrl || ''}
+                                                            readOnly
+                                                        />
+                                                    </div>
+
+                                                    {selectedPhoto && (
+                                                        <div className="photo-selected-info">
+                                                            <small className="photo-selected-message">
+                                                                Selected: {selectedPhoto.name}
+                                                            </small>
+
+                                                            <button
+                                                                type="button"
+                                                                className="photo-clear-btn"
+                                                                onClick={handleRemoveSelectedPhoto}
+                                                                disabled={saving}
+                                                            >
+                                                                Remove selection
+                                                            </button>
+                                                        </div>
+                                                    )}
+
+                                                    {selectedPhoto && (
+                                                        <small className="field-help">
+                                                            Preview only. The current API cannot save this new photo yet.
+                                                        </small>
+                                                    )}
+                                                </div>
+
+                                                <div className="profile-photo-preview-container">
+                                                    <label className="form-label">
+                                                        Photo Preview
+                                                    </label>
+
+                                                    {displayedPhoto && !photoError ? (
+                                                        <img
+                                                            key={displayedPhoto}
+                                                            src={displayedPhoto}
+                                                            alt="Technician profile preview"
+                                                            className="profile-photo-preview"
+                                                            onError={() => setPhotoError(true)}
+                                                        />
+                                                    ) : (
+                                                        <div className="profile-photo-placeholder">
+                                                            {photoError
+                                                                ? 'Photo unavailable'
+                                                                : 'No photo available'}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </section>
+
+                                        {/* 2. Approval and Status */}
+                                        <section className="technician-edit-section approval-status-section">
+                                            <h6 className="technician-edit-section-title">
+                                                {isRole5
+                                                    ? 'Request Details'
+                                                    : 'Approval and Status'}
+                                            </h6>
+
+                                            <div className="technician-fields-grid">
+                                                <div className="technician-field">
+                                                    <label className="form-label">
+                                                        {isRole5 ? 'Action' : 'Action Status'}
+                                                        <span className="text-danger"> *</span>
+                                                    </label>
+
+                                                    <select
+                                                        name="actionStatus"
+                                                        className="form-select"
+                                                        value={form.actionStatus}
+                                                        onChange={handleChange}
+                                                        required
+                                                        disabled={isRole5}
+                                                    >
+                                                        <option value="">
+                                                            Select Action
+                                                        </option>
+
+                                                        {isRole5 ? (
+                                                            <option value="3">
+                                                                Request for deactivate
+                                                            </option>
+                                                        ) : (
+                                                            <>
+                                                                <option value="1">
+                                                                    Approved &amp; Activated By Trainer
+                                                                </option>
+                                                                <option value="0">
+                                                                    De-Activated By Branch Trainer
+                                                                </option>
+                                                            </>
+                                                        )}
+                                                    </select>
+                                                </div>
+
+                                                <div className="technician-field">
+                                                    <label className="form-label">
+                                                        Remark
+                                                        {isRole5 && (
+                                                            <span className="text-danger"> *</span>
+                                                        )}
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        name="remark"
+                                                        className="form-control"
+                                                        value={form.remark}
+                                                        onChange={handleChange}
+                                                        maxLength={32}
+                                                        required={isRole5}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </section>
+
+                                        {/* Actions below Approval and Status */}
+                                        <div className="technician-edit-footer">
+                                            <button
+                                                type="button"
+                                                className="btn btn-secondary"
+                                                onClick={handleCancel}
+                                                disabled={saving}
+                                            >
+                                                Cancel
+                                            </button>
+
+                                            <button
+                                                type="submit"
+                                                className="btn btn-primary"
+                                                disabled={saving || loading}
+                                            >
+                                                {saving
+                                                    ? 'Submitting...'
+                                                    : isRole5
+                                                        ? 'Submit Request'
+                                                        : 'Save Changes'}
+                                            </button>
                                         </div>
                                     </div>
-                                </div>
-
-                                {/* Form Actions */}
-                                <div className="technician-edit-footer">
-                                    <button
-                                        type="button"
-                                        className="btn btn-secondary"
-                                        onClick={handleCancel}
-                                        disabled={saving}
-                                    >
-                                        Cancel
-                                    </button>
-
-                                    <button
-                                        type="submit"
-                                        className="btn btn-primary"
-                                        disabled={saving || loading}
-                                    >
-                                        {saving
-                                            ? 'Submitting...'
-                                            : isRole5
-                                                ? 'Submit Request'
-                                                : 'Save Changes'}
-                                    </button>
                                 </div>
                             </form>
                         )}
