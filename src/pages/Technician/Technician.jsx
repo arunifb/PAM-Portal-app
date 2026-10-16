@@ -114,19 +114,36 @@ function getFranchiseName(item) {
 function formatCreatedDate(value) {
     if (!value) return '-'
 
-    const date = new Date(value)
+    let date
+
+    // Handle API format: DD-MM-YYYY HH:mm:ss
+    if (
+        typeof value === 'string' &&
+        /^\d{2}-\d{2}-\d{4}/.test(value)
+    ) {
+        const [datePart] = value.split(' ')
+        const [day, month, year] = datePart.split('-')
+
+        date = new Date(
+            Number(year),
+            Number(month) - 1,
+            Number(day)
+        )
+    } else {
+        date = new Date(value)
+    }
 
     if (Number.isNaN(date.getTime())) return '-'
 
-    const day = String(date.getUTCDate()).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
 
     const month = [
         'Jan', 'Feb', 'Mar', 'Apr',
         'May', 'Jun', 'Jul', 'Aug',
         'Sep', 'Oct', 'Nov', 'Dec'
-    ][date.getUTCMonth()]
+    ][date.getMonth()]
 
-    return `${day}-${month}-${date.getUTCFullYear()}`
+    return `${day}-${month}-${date.getFullYear()}`
 }
 
 function getTechnicianCreatedDate(technician) {
@@ -268,7 +285,7 @@ function Technician({
 
     const [regionCode, setRegionCode] = useState(
         restoredListState?.regionCode ??
-        ((isRole5 || isRole6) ? sessionRegionCode : '')
+        ((isRole3 || isRole5 || isRole6) ? sessionRegionCode : '')
     )
 
     const [branchCode, setBranchCode] = useState(
@@ -328,172 +345,180 @@ function Technician({
     // Role 5 and Role 6: auto-select session region
     // =================================================
 
-    useEffect(() => {
-        let cancelled = false
+    
 
-        async function loadRegions() {
-            try {
-                const response = await getRegions('', sessionUserId)
+useEffect(() => {
+    let cancelled = false
 
-                if (cancelled) return
+    async function loadRegions() {
+        try {
+            const response = await getRegions('', sessionUserId)
 
-                const regionList = getArrayFromResponse(response)
+            if (cancelled) return
 
-                setRegions(regionList)
+            const regionList = getArrayFromResponse(response)
+            setRegions(regionList)
 
-                // Restore previous region when returning from Edit.
-                if (restoredListState) {
-                    setRegionCode(
-                        restoredListState.regionCode ?? ''
-                    )
-                    return
-                }
+            // If returning from Edit, restore the previous selection.
+            if (restoredListState) {
+                setRegionCode(restoredListState.regionCode ?? '')
+                return
+            }
 
-                // Role 5 and Role 6: select logged-in user's region.
-                if (isRole5 || isRole6) {
-                    const matchingRegion = regionList.find(
-                        item =>
-                            getRegionCode(item).trim() ===
-                            String(sessionRegionCode).trim()
-                    )
+            // Automatically select the logged-in user's region.
+            if (isRole3 || isRole5 || isRole6) {
+                const loggedInRegionCode = String(
+                    sessionRegionCode ?? ''
+                ).trim().toLowerCase()
 
-                    setRegionCode(
-                        matchingRegion
-                            ? getRegionCode(matchingRegion)
-                            : ''
-                    )
-                }
-            } catch (err) {
-                if (!cancelled) {
-                    setRegions([])
-                    setError(
-                        err?.message || 'Unable to load regions.'
-                    )
+                const matchingRegion = regionList.find(region =>
+                    getRegionCode(region).trim().toLowerCase() ===
+                    loggedInRegionCode
+                )
+
+                if (matchingRegion) {
+                    setRegionCode(getRegionCode(matchingRegion))
+                } else {
+                    console.warn('Region auto-selection failed:', {
+                        loggedInRegionCode,
+                        availableRegions: regionList.map(region => ({
+                            code: getRegionCode(region),
+                            name: getRegionName(region)
+                        }))
+                    })
+
+                    setRegionCode('')
                 }
             }
+        } catch (err) {
+            if (!cancelled) {
+                setRegions([])
+                setError(err?.message || 'Unable to load regions.')
+            }
         }
+    }
 
-        loadRegions()
+    loadRegions()
 
-        return () => {
-            cancelled = true
-        }
-    }, [
-        sessionUserId,
-        sessionRegionCode,
-        isRole5,
-        isRole6,
-        restoredListState
-    ])
-
+    return () => {
+        cancelled = true
+    }
+}, [
+    sessionUserId,
+    sessionRegionCode,
+    isRole3,
+    isRole5,
+    isRole6,
+    restoredListState
+])
     // =================================================
     // LOAD BRANCHES WHEN REGION CHANGES
     // Role 5 and Role 6: select session branch if available,
     // otherwise select the first available branch.
     // =================================================
 
-    useEffect(() => {
-        let cancelled = false
+  
 
-        async function loadBranches() {
-            if (!regionCode) {
+useEffect(() => {
+    let cancelled = false
+
+    async function loadBranches() {
+        if (!regionCode) {
+            setBranches([])
+            setBranchCode('')
+            setFranchises([])
+            setFranchiseCode('')
+            return
+        }
+
+        try {
+            const response = await getBranches(
+                sessionUserId,
+                regionCode
+            )
+
+            if (cancelled) return
+
+            const branchList = getArrayFromResponse(response)
+            setBranches(branchList)
+
+            // Restore the branch when returning from Edit.
+            if (
+                restoredListState &&
+                String(restoredListState.regionCode ?? '').trim().toLowerCase() ===
+                String(regionCode).trim().toLowerCase()
+            ) {
+                const restoredBranchCode = String(
+                    restoredListState.branchCode ?? ''
+                ).trim().toLowerCase()
+
+                const matchingRestoredBranch = branchList.find(
+                    branch =>
+                        getBranchCode(branch).trim().toLowerCase() ===
+                        restoredBranchCode
+                )
+
+                if (matchingRestoredBranch) {
+                    setBranchCode(getBranchCode(matchingRestoredBranch))
+                } else if (
+                    (isRole3 || isRole5 || isRole6) &&
+                    branchList.length > 0
+                ) {
+                    setBranchCode(getBranchCode(branchList[0]))
+                } else {
+                    setBranchCode('')
+                }
+            } else if (isRole3 || isRole5 || isRole6) {
+                // Match the logged-in user's branch.
+                const loggedInBranchCode = String(
+                    sessionBpCode ?? ''
+                ).trim().toLowerCase()
+
+                const matchingBranch = branchList.find(
+                    branch =>
+                        getBranchCode(branch).trim().toLowerCase() ===
+                        loggedInBranchCode
+                )
+
+                if (matchingBranch) {
+                    setBranchCode(getBranchCode(matchingBranch))
+                } else if (branchList.length > 0) {
+                    // Fallback when the session BPCode doesn't match.
+                    setBranchCode(getBranchCode(branchList[0]))
+                } else {
+                    setBranchCode('')
+                }
+            } else {
+                setBranchCode('')
+            }
+
+            setFranchises([])
+            setFranchiseCode('')
+        } catch (err) {
+            if (!cancelled) {
                 setBranches([])
                 setBranchCode('')
                 setFranchises([])
                 setFranchiseCode('')
-                return
-            }
-
-            try {
-                const response = await getBranches(
-                    sessionUserId,
-                    regionCode
-                )
-
-                if (cancelled) return
-
-                const branchList = getArrayFromResponse(response)
-
-                setBranches(branchList)
-
-                const restoredRegion = String(
-                    restoredListState?.regionCode ?? ''
-                )
-
-                const restoredBranch = String(
-                    restoredListState?.branchCode ?? ''
-                )
-
-                // Restore the previous branch when returning from Edit.
-                if (
-                    restoredListState &&
-                    restoredRegion === String(regionCode)
-                ) {
-                    const restoredBranchExists = branchList.some(
-                        branch =>
-                            getBranchCode(branch).trim() ===
-                            restoredBranch.trim()
-                    )
-
-                    if (restoredBranchExists) {
-                        setBranchCode(restoredBranch)
-                    } else if (
-                        (isRole5 || isRole6) &&
-                        branchList.length > 0
-                    ) {
-                        setBranchCode(
-                            getBranchCode(branchList[0])
-                        )
-                    } else {
-                        setBranchCode('')
-                    }
-                } else if (isRole5 || isRole6) {
-                    const matchingBranch = branchList.find(
-                        branch =>
-                            getBranchCode(branch).trim() ===
-                            String(sessionBpCode).trim()
-                    )
-
-                    setBranchCode(
-                        matchingBranch
-                            ? getBranchCode(matchingBranch)
-                            : branchList.length > 0
-                                ? getBranchCode(branchList[0])
-                                : ''
-                    )
-                } else {
-                    // Preserve existing behavior for other roles.
-                    setBranchCode('')
-                }
-
-                setFranchises([])
-                setFranchiseCode('')
-            } catch (err) {
-                if (!cancelled) {
-                    setBranches([])
-                    setBranchCode('')
-                    setFranchises([])
-                    setFranchiseCode('')
-                    setError(
-                        err?.message || 'Unable to load branches.'
-                    )
-                }
+                setError(err?.message || 'Unable to load branches.')
             }
         }
+    }
 
-        loadBranches()
+    loadBranches()
 
-        return () => {
-            cancelled = true
-        }
-    }, [
-        sessionUserId,
-        regionCode,
-        sessionBpCode,
-        isRole5,
-        isRole6,
-        restoredListState
-    ])
+    return () => {
+        cancelled = true
+    }
+}, [
+    sessionUserId,
+    regionCode,
+    sessionBpCode,
+    isRole3,
+    isRole5,
+    isRole6,
+    restoredListState
+])
 
     // =================================================
     // LOAD FRANCHISES
@@ -1325,19 +1350,26 @@ function Technician({
 
                 {/* RECORD COUNT */}
 
-                {!loading && technicians.length > 0 && (
+                {/* {!loading && technicians.length > 0 && (
                     <h3 className="technician-record-count">
                         {technicians.length}{' '}
                         record{technicians.length !== 1 ? 's' : ''} found
                     </h3>
-                )}
+                )} */}
 
                 {/* TABLE */}
 
                 {!loading && (
                     <div className="technician-report-section">
                         <div className="technician-section-header">
-                            Search Technician
+                            <span>Search Technician |</span>
+
+                           {technicians.length > 0 && (
+                                <span className="technician-header-record-count">
+                                    {technicians.length}{' '}
+                                    record{technicians.length !== 1 ? 's' : ''} found
+                                </span>
+                            )}
                         </div>
 
                         {technicians.length > 0 ? (
@@ -1346,10 +1378,11 @@ function Technician({
                                     <thead>
                                         <tr>
                                             <th>SNo</th>
-                                            <th>Franchise</th>
+                                            <th className="technician-franchise-column">Franchise</th>
                                             <th>BpExt.</th>
-                                            <th>PartnerID</th>
-                                            <th>Name</th>
+                                            {!isRole3 && <th>PartnerID</th>}
+                                            <th className="technician-name-column">Name</th>
+                                            {isRole3 && <th>Image</th>}
                                             <th>MobileNo</th>
                                             <th>Status</th>
 
@@ -1386,7 +1419,7 @@ function Technician({
                                                 <tr key={techId || index}>
                                                     <td>{index + 1}</td>
 
-                                                    <td className="technician-franchise-cell">
+                                                    <td className="technician-franchise-column technician-franchise-cell">
                                                         {isEditing ? (
                                                             <input
                                                                 type="text"
@@ -1410,7 +1443,7 @@ function Technician({
                                                     </td>
 
                                                     <td>{techId || '-'}</td>
-
+                                                    {!isRole3 && (
                                                     <td>
                                                         {partnerId &&
                                                         String(partnerId).length > 1 ? (
@@ -1433,12 +1466,57 @@ function Technician({
                                                             </button>
                                                         )}
                                                     </td>
+                                                    )}
 
-                                                    <td>
+                                                    <td className="technician-name-column">
                                                         {technician?.name ??
                                                             technician?.Name ??
                                                             '-'}
                                                     </td>
+
+                                                    {isRole3 && (
+                                                        <td className="technician-image-cell">
+                                                            {(() => {
+                                                                const imageUrl =
+                                                                    technician?.profileUrl ??
+                                                                    technician?.ProfileUrl ??
+                                                                    technician?.imageUrl ??
+                                                                    technician?.ImageUrl ??
+                                                                    technician?.imageURL ??
+                                                                    technician?.ImageURL ??
+                                                                    technician?.imagePath ??
+                                                                    technician?.ImagePath ??
+                                                                    technician?.photoUrl ??
+                                                                    technician?.PhotoUrl ??
+                                                                    technician?.photo ??
+                                                                    technician?.Photo ??
+                                                                    ''
+
+                                                                return imageUrl ? (
+                                                                    <img
+                                                                        src={imageUrl}
+                                                                        alt={
+                                                                            technician?.name ??
+                                                                            technician?.Name ??
+                                                                            'Technician'
+                                                                        }
+                                                                        className="technician-profile-image"
+                                                                        onError={(event) => {
+                                                                            console.error(
+                                                                                'Technician image failed to load:',
+                                                                                imageUrl
+                                                                            )
+                                                                            event.currentTarget.style.display = 'none'
+                                                                        }}
+                                                                    />
+                                                                ) : (
+                                                                    <div className="technician-profile-image-placeholder">
+                                                                        N/A
+                                                                    </div>
+                                                                )
+                                                            })()}
+                                                        </td>
+                                                    )}
 
                                                     <td>
                                                         {technician?.mobileNo ??
