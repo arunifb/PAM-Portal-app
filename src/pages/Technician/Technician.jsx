@@ -1382,7 +1382,7 @@ useEffect(() => {
                                             <th>BpExt.</th>
                                             {!isRole3 && <th>PartnerID</th>}
                                             <th className="technician-name-column">Name</th>
-                                            {isRole3 && <th>Image</th>}
+                                            {isRole3 && <th>Profile Image</th>}
                                             <th>MobileNo</th>
                                             <th>Status</th>
 
