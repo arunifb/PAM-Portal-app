@@ -1,3 +1,4 @@
+
 /* =========================================
    TECHNICIAN EDIT PAGE
 ========================================= */
@@ -219,10 +220,38 @@
 
 /* =========================================
    APPROVAL AND STATUS
+   Action Status: 35%
+   Remark: 65%
 ========================================= */
 
 .approval-status-section .technician-fields-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    display: grid;
+    grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
+    gap: 10px 12px;
+    align-items: start;
+}
+
+.approval-status-section .technician-field {
+    min-width: 0;
+    width: 100%;
+}
+
+/* Action Status field */
+
+.approval-status-section .technician-field:first-child {
+    min-width: 0;
+}
+
+/* Remark field */
+
+.approval-status-section .technician-field:nth-child(2) {
+    min-width: 0;
+    width: 100%;
+}
+
+.approval-status-section .technician-field:nth-child(2) .form-control {
+    width: 100%;
+    min-width: 0;
 }
 
 /* =========================================
@@ -305,12 +334,13 @@
 
 /* =========================================
    FIELD HELP TEXT
+   Red message below empty fields
 ========================================= */
 
 .technician-edit-section .field-help {
     display: block;
     margin-top: 4px;
-    color: #778292;
+    color: #dc3545;
     font-size: 11px;
     line-height: 1.4;
 }
@@ -351,6 +381,8 @@
     min-width: 0;
 }
 
+/* Image */
+
 .profile-photo-preview {
     display: block;
     width: 100px;
@@ -363,6 +395,8 @@
     border-radius: 6px;
     background: #f8f9fa;
 }
+
+/* Placeholder */
 
 .profile-photo-placeholder {
     display: flex;
@@ -379,6 +413,22 @@
     font-size: 11px;
     line-height: 1.4;
     text-align: center;
+    overflow-wrap: anywhere;
+}
+
+/* Partner ID immediately below the image */
+
+.partner-id-preview {
+    display: block;
+    width: 100px;
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: #333;
     overflow-wrap: anywhere;
 }
 
@@ -525,9 +575,13 @@
         padding: 9px 11px;
     }
 
-    .technician-information-section .technician-fields-grid,
-    .approval-status-section .technician-fields-grid {
+    .technician-information-section .technician-fields-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 9px;
+    }
+
+    .approval-status-section .technician-fields-grid {
+        grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
         gap: 9px;
     }
 
@@ -645,9 +699,13 @@
         font-size: 14px;
     }
 
-    .technician-information-section .technician-fields-grid,
-    .approval-status-section .technician-fields-grid {
+    .technician-information-section .technician-fields-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .approval-status-section .technician-fields-grid {
+        grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
         gap: 10px;
     }
 

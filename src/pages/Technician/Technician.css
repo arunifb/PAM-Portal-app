@@ -1,7 +1,7 @@
 
 /* =========================================================
    TECHNICIAN PAGE
-   ========================================================= */
+========================================================= */
 
 .technician-page {
     width: 100%;
@@ -11,7 +11,7 @@
 
 /* =========================================================
    ALERTS
-   ========================================================= */
+========================================================= */
 
 .technician-alert {
     width: 100%;
@@ -35,8 +35,8 @@
 }
 
 /* =========================================================
-   FILTER BOX
-   ========================================================= */
+   FILTER BOX - UNCHANGED
+========================================================= */
 
 .technician-filter-box {
     width: 100%;
@@ -60,8 +60,8 @@
 }
 
 /* =========================================================
-   FILTER ITEM
-   ========================================================= */
+   FILTER ITEM - UNCHANGED
+========================================================= */
 
 .technician-filter-item {
     min-width: 0;
@@ -103,8 +103,8 @@
 }
 
 /* =========================================================
-   FILTER ACTIONS
-   ========================================================= */
+   FILTER ACTIONS - UNCHANGED
+========================================================= */
 
 .technician-filter-actions {
     display: flex;
@@ -114,8 +114,8 @@
 }
 
 /* =========================================================
-   SEARCH BUTTON
-   ========================================================= */
+   SEARCH BUTTON - UNCHANGED
+========================================================= */
 
 .technician-search-button {
     height: 37px;
@@ -144,8 +144,8 @@
 }
 
 /* =========================================================
-   ADD TECHNICIAN BUTTON - ROLE ID 5
-   ========================================================= */
+   ADD TECHNICIAN BUTTON - ROLE ID 5 - UNCHANGED
+========================================================= */
 
 .technician-add-button {
     height: 37px;
@@ -175,8 +175,8 @@
 }
 
 /* =========================================================
-   DOWNLOAD BUTTON
-   ========================================================= */
+   DOWNLOAD BUTTON - UNCHANGED
+========================================================= */
 
 .technician-download-button {
     height: 37px;
@@ -205,8 +205,8 @@
 }
 
 /* =========================================================
-   LOADING
-   ========================================================= */
+   LOADING - UNCHANGED
+========================================================= */
 
 .technician-loading {
     display: flex;
@@ -264,8 +264,8 @@
 }
 
 /* =========================================================
-   RECORD COUNT
-   ========================================================= */
+   RECORD COUNT - UNCHANGED
+========================================================= */
 
 .technician-record-count {
     margin: 10px 0;
@@ -275,118 +275,142 @@
 }
 
 /* =========================================================
-   REPORT SECTION
-   ========================================================= */
+   REPORT SECTION - MATCH FRANCHISE LIST
+========================================================= */
 
 .technician-report-section {
     width: 100%;
     background: #ffffff;
-    border: 1px solid #e1e5e9;
-    border-radius: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 7px;
     overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    box-shadow: none;
 }
 
 /* =========================================================
-   SECTION HEADER
-   ========================================================= */
+   SECTION HEADER - MATCH FRANCHISE LIST
+========================================================= */
 
 .technician-section-header {
     display: flex;
+    justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 6px;
-    padding: 12px 14px;
-    background: #f7f8fa;
-    border-bottom: 1px solid #e1e5e9;
+    gap: 8px;
+    padding: 7px;
+    margin: 0;
+    background: #ffffff;
+    border-bottom: 1px solid #ddd;
+    color: #333;
     font-size: 14px;
     font-weight: 600;
-    color: #333333;
 }
 
 .technician-header-record-count {
-    font-weight: 500;
-    color: #5c6670;
+    color: #666;
+    font-size: 12px;
+    font-weight: 400;
+    white-space: nowrap;
 }
 
 /* =========================================================
    TABLE CONTAINER
-   ========================================================= */
+========================================================= */
 
 .technician-table-container {
     width: 100%;
+    max-width: 100%;
     overflow-x: auto;
+    overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
 }
 
 /* =========================================================
-   TABLE
-   ========================================================= */
+   TABLE - MATCH FRANCHISE LIST
+========================================================= */
 
 .technician-table {
     width: 100%;
     min-width: 1050px;
+    table-layout: fixed;
     border-collapse: collapse;
-    font-size: 13px;
+    border-spacing: 0;
+    font-size: 12px;
 }
 
 .technician-table th {
-    padding: 10px 9px;
-    background: #f8f9fa;
-    border-bottom: 1px solid #dfe3e7;
-    color: #333333;
+    padding: 8px 7px;
+    border: 1px solid #ddd;
+    background: #f5f5f5;
+    color: #333;
     font-size: 12px;
-    font-weight: 700;
-    text-align: left;
-    white-space: nowrap;
+    font-weight: 600;
+    text-align: center;
+    white-space: normal;
+    overflow-wrap: break-word;
     vertical-align: middle;
+    box-sizing: border-box;
 }
 
 .technician-table td {
-    padding: 9px;
-    border-bottom: 1px solid #eceff2;
-    color: #333333;
+    height: auto;
+    padding: 7px;
+    border: 1px solid #ddd;
+    color: #444;
+    font-size: 12px;
+    text-align: center;
     vertical-align: middle;
-    white-space: nowrap;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: normal;
+    box-sizing: border-box;
 }
 
-.technician-table tbody tr:hover {
-    background: #fafbfc;
+.technician-table tbody tr {
+    background: #ffffff;
 }
 
-.technician-table tbody tr:last-child td {
-    border-bottom: none;
+.technician-table tbody tr:hover td {
+    background: #fafafa;
+}
+
+.technician-table th:last-child,
+.technician-table td:last-child {
+    border-right: 1px solid #ddd;
 }
 
 /* =========================================================
-   SNO COLUMN
-   ========================================================= */
+   SERIAL NUMBER COLUMN
+========================================================= */
 
 .technician-table th.technician-sno-column,
-.technician-table td.technician-sno-column {
-    width: 45px;
-    min-width: 45px;
-    max-width: 45px;
-    padding: 8px 4px;
+.technician-table td.technician-sno-column,
+.technician-table th:first-child,
+.technician-table td:first-child {
+    width: 38px;
+    min-width: 38px;
+    max-width: 38px;
+    padding: 6px 3px;
     text-align: center;
     white-space: nowrap;
-    box-sizing: border-box;
+    font-size: 11px;
 }
 
 /* =========================================================
    FRANCHISE COLUMN
-   ========================================================= */
+========================================================= */
 
 .technician-table th.technician-franchise-column,
 .technician-table td.technician-franchise-column {
-    width: 130px;
-    min-width: 130px;
-    max-width: 130px;
+    width: 145px;
+    min-width: 145px;
+    max-width: 145px;
     box-sizing: border-box;
 }
 
 .technician-table th.technician-franchise-column {
-    white-space: nowrap;
+    white-space: normal;
 }
 
 .technician-table td.technician-franchise-column {
@@ -396,17 +420,18 @@
 
 .technician-franchise-cell {
     min-width: 0;
+    max-width: 100%;
 }
 
 /* =========================================================
    TECHNICIAN IMAGE COLUMN - ROLE ID 3 ONLY
-   ========================================================= */
+========================================================= */
 
 .technician-table th.technician-image-column,
 .technician-table td.technician-image-cell {
-    width: 80px;
-    min-width: 80px;
-    max-width: 80px;
+    width: 85px;
+    min-width: 85px;
+    max-width: 85px;
     padding: 6px;
     text-align: center;
     vertical-align: middle;
@@ -418,10 +443,10 @@
     width: 44px;
     height: 44px;
     margin: 0 auto;
-    border: 2px solid #e0e7ef;
+    border: 1px solid #ddd;
     border-radius: 50%;
     object-fit: cover;
-    background-color: #f4f6f9;
+    background-color: #f5f5f5;
 }
 
 .technician-profile-image-placeholder {
@@ -431,100 +456,156 @@
     width: 44px;
     height: 44px;
     margin: 0 auto;
-    border: 2px solid #e0e7ef;
+    border: 1px solid #ddd;
     border-radius: 50%;
-    background-color: #f4f6f9;
-    color: #667085;
+    background-color: #f5f5f5;
+    color: #666;
     font-size: 10px;
-    font-weight: 600;
+    font-weight: 500;
+    box-sizing: border-box;
+}
+
+/* =========================================================
+   TECHNICIAN NAME COLUMN
+========================================================= */
+
+.technician-table th.technician-name-column,
+.technician-table td.technician-name-column {
+    width: 150px;
+    min-width: 150px;
+    max-width: 150px;
+    box-sizing: border-box;
+    vertical-align: middle;
+}
+
+.technician-table th.technician-name-column {
+    white-space: normal;
+    overflow-wrap: break-word;
+}
+
+.technician-table td.technician-name-column {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: normal;
 }
 
 /* =========================================================
    EDIT INPUT
-   ========================================================= */
+========================================================= */
 
 .technician-edit-input {
-    width: 130px;
-    height: 34px;
-    padding: 6px 8px;
-    border: 1px solid #aeb6bf;
+    display: block;
+    width: 100%;
+    max-width: 150px;
+    min-width: 0;
+    height: 29px;
+    padding: 4px 7px;
+    border: 1px solid #ccc;
     border-radius: 4px;
     background: #ffffff;
-    color: #333333;
-    font-size: 13px;
+    color: #333;
+    font-family: inherit;
+    font-size: 12px;
     box-sizing: border-box;
     outline: none;
 }
 
 .technician-edit-input:focus {
-    border-color: #1f5f99;
-    box-shadow: 0 0 0 2px rgba(31, 95, 153, 0.08);
+    border-color: #888;
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 5%);
 }
 
 .technician-edit-input:disabled {
-    background: #f3f4f6;
+    background: #f3f3f3;
     cursor: not-allowed;
 }
 
 /* =========================================================
    PARTNER ID
-   ========================================================= */
+========================================================= */
 
 .technician-partner-id {
-    font-weight: 600;
-    color: #333333;
+    font-size: 12px;
+    font-weight: 500;
+    color: #444;
+    overflow-wrap: anywhere;
 }
 
 .technician-partner-button {
-    padding: 5px 9px;
-    border: 1px solid #1f5f99;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 25px;
+    max-width: 100%;
+    padding: 4px 9px;
+    border: 1px solid #343a40;
     border-radius: 4px;
-    background: #ffffff;
-    color: #1f5f99;
+    background: #343a40;
+    color: #ffffff;
+    font-family: inherit;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
-    transition:
-        background 0.15s ease,
-        color 0.15s ease;
+    white-space: nowrap;
+    box-sizing: border-box;
 }
 
 .technician-partner-button:hover:not(:disabled) {
-    background: #1f5f99;
-    color: #ffffff;
+    background: #23272b;
+    border-color: #23272b;
 }
 
 .technician-partner-button:disabled {
-    opacity: 0.55;
+    opacity: 0.6;
     cursor: not-allowed;
 }
 
 /* =========================================================
-   STATUS BADGES
-   ========================================================= */
+   STATUS COLUMN
+========================================================= */
+
+.technician-table th.technician-status-column,
+.technician-table td.technician-status-column {
+    width: 110px;
+    min-width: 110px;
+    max-width: 110px;
+    padding: 7px;
+    text-align: center;
+    vertical-align: middle;
+    box-sizing: border-box;
+}
+
+/* =========================================================
+   STATUS BADGES - MATCH FRANCHISE LIST
+========================================================= */
 
 .technician-status-badge {
     display: inline-block;
-    padding: 4px 8px;
-    border-radius: 12px;
+    max-width: 100%;
+    padding: 3px 7px;
+    border-radius: 10px;
     font-size: 11px;
-    font-weight: 600;
-    white-space: nowrap;
+    font-weight: 500;
+    line-height: 1.4;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: center;
+    box-sizing: border-box;
 }
 
 .technician-status-success {
-    background: #e8f7ee;
-    color: #177245;
+    background: #dff0d8;
+    color: #3c763d;
 }
 
 .technician-status-warning {
-    background: #fff7df;
-    color: #956500;
+    background: #fff3cd;
+    color: #856404;
 }
 
 .technician-status-danger {
-    background: #fdecec;
-    color: #b42318;
+    background: #f2dede;
+    color: #a94442;
 }
 
 .technician-status-default {
@@ -533,58 +614,74 @@
 }
 
 /* =========================================================
-   ACTIONS
-   ========================================================= */
+   ROW ACTIONS
+========================================================= */
 
 .technician-row-actions {
     display: flex;
     align-items: center;
-    gap: 5px;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 4px;
 }
 
 /* =========================================================
    EDIT BUTTON
-   ========================================================= */
+========================================================= */
 
 .technician-edit-button {
-    padding: 5px 10px;
-    border: 1px solid #1f5f99;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 25px;
+    padding: 4px 9px;
+    border: 1px solid #343a40;
     border-radius: 4px;
-    background: #ffffff;
-    color: #1f5f99;
+    background: #343a40;
+    color: #ffffff;
+    font-family: inherit;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
+    white-space: nowrap;
+    box-sizing: border-box;
 }
 
 .technician-edit-button:hover:not(:disabled) {
-    background: #1f5f99;
-    color: #ffffff;
+    background: #23272b;
+    border-color: #23272b;
 }
 
 .technician-edit-button:disabled {
-    opacity: 0.55;
+    opacity: 0.6;
     cursor: not-allowed;
 }
 
 /* =========================================================
    SAVE BUTTON
-   ========================================================= */
+========================================================= */
 
 .technician-save-button {
-    padding: 5px 10px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 25px;
+    padding: 4px 9px;
     border: 1px solid #198754;
     border-radius: 4px;
     background: #198754;
     color: #ffffff;
+    font-family: inherit;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
+    white-space: nowrap;
+    box-sizing: border-box;
 }
 
 .technician-save-button:hover:not(:disabled) {
     background: #157347;
-    border-color: #157347;
+    border-color: #146c43;
 }
 
 .technician-save-button:disabled {
@@ -594,17 +691,24 @@
 
 /* =========================================================
    CANCEL BUTTON
-   ========================================================= */
+========================================================= */
 
 .technician-cancel-button {
-    padding: 5px 10px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 25px;
+    padding: 4px 9px;
     border: 1px solid #adb5bd;
     border-radius: 4px;
     background: #ffffff;
-    color: #555555;
+    color: #343a40;
+    font-family: inherit;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
+    white-space: nowrap;
+    box-sizing: border-box;
 }
 
 .technician-cancel-button:hover:not(:disabled) {
@@ -617,19 +721,19 @@
 }
 
 /* =========================================================
-   NO RECORD
-   ========================================================= */
+   NO RECORD - MATCH FRANCHISE LIST
+========================================================= */
 
 .technician-no-record {
-    padding: 35px 20px;
+    padding: 18px 10px;
+    color: #777;
+    font-size: 12px;
     text-align: center;
-    color: #777777;
-    font-size: 14px;
 }
 
 /* =========================================================
-   LARGE DESKTOP
-   ========================================================= */
+   LARGE DESKTOP - FILTERS UNCHANGED
+========================================================= */
 
 @media (max-width: 1450px) {
     .technician-filter-box {
@@ -652,8 +756,8 @@
 }
 
 /* =========================================================
-   TABLET
-   ========================================================= */
+   TABLET - FILTERS UNCHANGED
+========================================================= */
 
 @media (max-width: 1150px) {
     .technician-filter-box {
@@ -667,8 +771,8 @@
 }
 
 /* =========================================================
-   MOBILE
-   ========================================================= */
+   MOBILE - FILTERS UNCHANGED
+========================================================= */
 
 @media (max-width: 700px) {
     .technician-page {
@@ -700,6 +804,7 @@
 
     .technician-section-header {
         font-size: 13px;
+        padding: 7px;
     }
 
     .technician-table th.technician-image-column,
@@ -714,23 +819,10 @@
         width: 40px;
         height: 40px;
     }
-}
 
-/* Reduce only the Name column width */
-.technician-table th.technician-name-column,
-.technician-table td.technician-name-column {
-    width: 150px;
-    min-width: 150px;
-    max-width: 150px;
-    box-sizing: border-box;
-    white-space: normal;
-    overflow-wrap: anywhere;
-    word-break: normal;
-    vertical-align: middle;
-}
-
-.technician-table td.technician-name-column {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    .technician-table .technician-edit-button,
+    .technician-table .technician-save-button,
+    .technician-table .technician-cancel-button {
+        padding: 4px 7px;
+    }
 }

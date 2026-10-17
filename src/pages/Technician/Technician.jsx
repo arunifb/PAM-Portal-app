@@ -1362,7 +1362,7 @@ useEffect(() => {
                 {!loading && (
                     <div className="technician-report-section">
                         <div className="technician-section-header">
-                            <span>Search Technician |</span>
+                            <span>Search Technician </span>
 
                            {technicians.length > 0 && (
                                 <span className="technician-header-record-count">

@@ -178,23 +178,44 @@ export async function getTechnicianById(techId) {
 // PUT /api/Technician
 // =====================================================
 
-export async function updateTechnician(technicianData) {
+// =====================================================
+// UPDATE TECHNICIAN
+// PUT /api/Technician
+// =====================================================
+
+export async function updateTechnician(technicianData, photoFile = null) {
+    const formData = new FormData()
+
+    Object.entries(technicianData).forEach(([key, value]) => {
+        formData.append(
+            key,
+            value === null || value === undefined
+                ? ''
+                : String(value)
+        )
+    })
+
+    // Attach the selected image file.
+    if (photoFile) {
+        formData.append('profilePhoto', photoFile)
+    }
+
     const response = await authFetch(
         `${API_BASE_URL}/api/Technician`,
         {
             method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(technicianData)
+            body: formData
         }
     )
 
     const data = await readResponse(response)
 
-    if (!response.ok) {
+    if (!response.ok || data.isSuccess === false) {
         throw new Error(
-            data.message || 'Unable to update technician details.'
+            data.message ||
+            (data.errors
+                ? Object.values(data.errors).flat().join(' ')
+                : 'Unable to update technician details.')
         )
     }
 
