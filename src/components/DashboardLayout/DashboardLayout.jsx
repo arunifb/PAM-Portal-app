@@ -249,19 +249,18 @@ function DashboardLayout({ title, icon: pageIcon, children }) {
             console.log('Menu Name:', item.name)
             console.log('ReactUrl:', item.reactUrl)
 
-            // Reset Report Data when opened from sidebar
-            if (
-                item.reactUrl &&
-                normalizePath(item.reactUrl) === '/report-data'
-            ) {
-                navigate(`/${item.routeKey}`, {
-                    state: {
-                        resetReportData: Date.now()
-                    }
-                })
+            // Reset the previous report selection when opening
+// Report Data from the sidebar.
+if (
+    item.reactUrl &&
+    normalizePath(item.reactUrl) === '/report-data'
+) {
+    sessionStorage.removeItem('selectedReport')
 
-                return
-            }
+    navigate(`/${item.routeKey}`)
+
+    return
+}
 
             // All other RouteKey pages
             navigate(`/${item.routeKey}`)

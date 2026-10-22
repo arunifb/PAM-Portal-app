@@ -1266,13 +1266,33 @@ useEffect(() => {
 
                         <select
                             value={status}
-                            onChange={event =>
-                                setStatus(event.target.value)
-                            }
+                            onChange={event => setStatus(event.target.value)}
                         >
                             <option value="">All</option>
 
-                            {isRole5 ? (
+                            {isRole3 ? (
+                                <>
+                                    <option value="5">
+                                        Ready for review &amp; skill set
+                                    </option>
+
+                                    <option value="1">
+                                        Approved &amp; Activated By Trainer
+                                    </option>
+
+                                    <option value="0">
+                                        De-Activated By Trainer
+                                    </option>
+
+                                    <option value="6">
+                                        Request for Profile Photo Change
+                                    </option>
+
+                                    <option value="7">
+                                        Request for change for Mobile
+                                    </option>
+                                </>
+                            ) : isRole5 ? (
                                 <>
                                     <option value="5">
                                         Ready for review &amp; skill set
@@ -1296,12 +1316,6 @@ useEffect(() => {
                                 </>
                             ) : (
                                 <>
-                                    {isRole3 && (
-                                        <option value="5">
-                                            Ready for review &amp; skill set
-                                        </option>
-                                    )}
-
                                     <option value="1">
                                         Approved &amp; Activated By Trainer
                                     </option>

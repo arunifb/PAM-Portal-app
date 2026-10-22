@@ -44,43 +44,71 @@ function Dashboard() {
     // ACTIVE SECTION
     // =========================================
 
-    const [activeSection, setActiveSection] =
-        useState('dashboard')
+    const [activeSection, setActiveSection] = useState(() => {
+        const navigationSection = location.state?.activeSection
 
+        // Explicit navigation state takes priority
+        if (navigationSection) {
+            return navigationSection
+        }
+
+        // If a report was selected, reopen Report Data.
+        // ReportData will restore the selected report.
+        const savedReport = sessionStorage.getItem('selectedReport')
+
+        if (savedReport) {
+            return 'report-data'
+        }
+
+        // Restore the previously selected dashboard section
+        const savedSection = sessionStorage.getItem('activeSection')
+
+        return savedSection || 'dashboard'
+    })
 
     // =========================================
-    // REPORT COUNT
+    // HANDLE NAVIGATION FROM OTHER PAGES
+    // Keep only ONE copy of this effect.
     // =========================================
 
-    const [reportCount, setReportCount] =
-        useState(0)
+    useEffect(() => {
+        const nextSection = location.state?.activeSection
+
+        if (nextSection) {
+            setActiveSection(nextSection)
+
+            navigate(location.pathname, {
+                replace: true,
+                state: {}
+            })
+        }
+    }, [location, navigate])
+
+    // =========================================
+    // SAVE ACTIVE SECTION
+    // Keep only ONE copy of this effect.
+    // =========================================
+
+    useEffect(() => {
+        sessionStorage.setItem('activeSection', activeSection)
+    }, [activeSection])
+        // =========================================
+        // REPORT COUNT
+        // =========================================
+
+        const [reportCount, setReportCount] =
+            useState(0)
 
 
     // =========================================
     // HANDLE NAVIGATION FROM OTHER PAGES
     // =========================================
 
-    useEffect(() => {
+    
 
-        if (location.state?.activeSection) {
-
-            setActiveSection(
-                location.state.activeSection
-            )
-
-            navigate(
-                location.pathname,
-                {
-                    replace: true,
-                    state: {}
-                }
-            )
-        }
-
-    }, [
-        location,
-        navigate
-    ])
+//     useEffect(() => {
+//     sessionStorage.setItem('activeSection', activeSection)
+// }, [activeSection])
 
 
     // =========================================
@@ -269,16 +297,11 @@ function Dashboard() {
         // DASHBOARD
         // =========================================
 
-        if (
-            menuName === 'dashboard'
-        ) {
-
-            setActiveSection(
-                'dashboard'
-            )
-
-            return
-        }
+        if (menuName === 'dashboard') {
+    sessionStorage.removeItem('selectedReport')
+    setActiveSection('dashboard')
+    return
+}
 
 
         // =========================================

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
+//import { useLocation, useNavigate } from 'react-router-dom'
 import { getReportList } from '../../api/reportsApi'
 import DashboardLayout from '../../components/DashboardLayout/DashboardLayout'
 import ReportParameter from '../ReportParameter/ReportParameter'
@@ -18,8 +19,15 @@ function ReportData({ onReportCountChange }) {
     // SELECTED REPORT
     // =========================================
 
-    const [selectedReport, setSelectedReport] =
-        useState(null)
+    const [selectedReport, setSelectedReport] = useState(() => {
+    try {
+        const savedReport = sessionStorage.getItem('selectedReport')
+        return savedReport ? JSON.parse(savedReport) : null
+        } catch (error) {
+            console.error('Failed to restore selected report:', error)
+            return null
+        }
+    })
 
     // =========================================
     // UPDATE TAB TITLE FOR SELECTED REPORT
@@ -38,14 +46,11 @@ function ReportData({ onReportCountChange }) {
         // =========================================
 
         useEffect(() => {
-
-            if (location.state?.resetReportData) {
-
-                setSelectedReport(null)
-
-            }
-
-        }, [location.state?.resetReportData])
+        if (location.state?.resetReportData) {
+            sessionStorage.removeItem('selectedReport')
+            setSelectedReport(null)
+        }
+    }, [location.state?.resetReportData])
 
 
     // =========================================
@@ -132,10 +137,9 @@ function ReportData({ onReportCountChange }) {
     // =========================================
 
     const handleReportClick = (report) => {
-
-        setSelectedReport(report)
-
-    }
+    sessionStorage.setItem('selectedReport', JSON.stringify(report))
+    setSelectedReport(report)
+}
 
 
     // =========================================
@@ -143,18 +147,16 @@ function ReportData({ onReportCountChange }) {
     // =========================================
 
     if (selectedReport) {
-
-        return (
-
-            <ReportParameter
-                report={selectedReport}
-                onBack={() =>
-                    setSelectedReport(null)
-                }
-            />
-
-        )
-    }
+    return (
+        <ReportParameter
+            report={selectedReport}
+            onBack={() => {
+                sessionStorage.removeItem('selectedReport')
+                setSelectedReport(null)
+            }}
+        />
+    )
+}
 
 
     // =========================================
