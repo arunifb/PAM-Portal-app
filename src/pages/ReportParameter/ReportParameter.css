@@ -1801,24 +1801,36 @@ input[type="checkbox"]:checked::after {
     min-width: 0;
 }
 
+.report-date-picker-wrapper .react-datepicker__input-container {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
 .report-date-control {
     display: block;
     width: 100%;
     min-width: 0;
     height: 34px;
     box-sizing: border-box;
-    padding: 5px 30px 5px 8px;
+    padding: 5px 36px 5px 8px;
+
     border: 1px solid #d1d5db;
     border-radius: 4px;
+
     background-color: #ffffff;
     color: #374151;
+
     font-family: inherit;
     font-size: 12px;
     line-height: normal;
+
     outline: none;
     cursor: pointer;
-    transition: border-color 0.15s ease,
-                box-shadow 0.15s ease;
+
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
 }
 
 .report-date-control:focus {
@@ -1831,26 +1843,8 @@ input[type="checkbox"]:checked::after {
     opacity: 1;
 }
 
-.report-date-picker-wrapper .react-datepicker__input-container {
-    display: block;
-    width: 100%;
-}
-
-.react-datepicker-popper {
-    z-index: 9999 !important;
-}
-
-.react-datepicker {
-    font-family: inherit;
-    font-size: 12px;
-}
-
-.report-date-picker-wrapper .react-datepicker__close-icon {
-    right: 5px;
-}
-
 /* =========================================
-   DATE PICKER WITH CALENDAR ICON
+   DATE PICKER CONTAINER
 ========================================= */
 
 .report-date-picker-container {
@@ -1862,12 +1856,17 @@ input[type="checkbox"]:checked::after {
 .report-date-picker-container .report-date-picker-wrapper {
     display: block;
     width: 100%;
+    min-width: 0;
 }
 
 .report-date-picker-container .report-date-control {
     width: 100%;
-    padding-right: 34px;
+    padding-right: 36px;
 }
+
+/* =========================================
+   CALENDAR ICON
+========================================= */
 
 .report-calendar-icon {
     position: absolute;
@@ -1879,13 +1878,84 @@ input[type="checkbox"]:checked::after {
     align-items: center;
     justify-content: center;
 
+    width: 22px;
+    height: 24px;
     padding: 2px;
+
     border: none;
+    border-radius: 3px;
+
     background: transparent;
     color: #6b7280;
+
     cursor: pointer;
+    z-index: 2;
 }
 
 .report-calendar-icon:hover {
     color: #2563eb;
+}
+
+.report-calendar-icon:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 1px;
+}
+
+/* =========================================
+   HIDE CLEAR / CROSS ICON
+========================================= */
+
+.report-date-picker-wrapper .react-datepicker__close-icon {
+    display: none !important;
+}
+
+.report-date-picker-wrapper .react-datepicker__close-icon::after {
+    display: none !important;
+}
+
+/* =========================================
+   DEFAULT DATE PICKER POPUP
+========================================= */
+
+.react-datepicker-popper {
+    z-index: 99999 !important;
+}
+
+.react-datepicker {
+    font-family: inherit;
+    font-size: 12px;
+    box-sizing: border-box;
+}
+
+/* =========================================
+   TO DATE POPUP ONLY
+========================================= */
+
+.to-date-picker-popper {
+    z-index: 99999 !important;
+    max-width: calc(100vw - 16px) !important;
+}
+
+.to-date-picker-popper .react-datepicker {
+    max-width: calc(100vw - 16px);
+    box-sizing: border-box;
+}
+
+/* Keep spacing consistent */
+
+.to-date-picker-popper[data-placement^="bottom"] {
+    margin-top: 4px;
+}
+
+.to-date-picker-popper[data-placement^="top"] {
+    margin-bottom: 4px;
+}
+
+/* Slightly reduce the To Date calendar on narrow screens */
+
+@media screen and (max-width: 600px) {
+    .to-date-picker-popper .react-datepicker {
+        transform: scale(0.9);
+        transform-origin: top right;
+    }
 }

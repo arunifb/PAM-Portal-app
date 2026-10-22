@@ -12,6 +12,9 @@ import {
 } from '../../api/click2CallApi'
 
 import DashboardLayout from '../../components/DashboardLayout/DashboardLayout'
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
+import { CalendarDays } from 'lucide-react'
 
 function Click2Call() {
     // =========================================
@@ -148,6 +151,28 @@ function Click2Call() {
         ''
     )
 
+// Date Picker
+
+    const parseDate = (value) => {
+    if (!value) return null
+
+    const [year, month, day] = value.split('-').map(Number)
+
+    if (!year || !month || !day) return null
+
+    return new Date(year, month - 1, day)
+}
+
+const formatInputDate = (date) => {
+    if (!date) return ''
+
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+
+    return `${year}-${month}-${day}`
+}
+
     // =========================================
     // LOAD REGIONS
     // =========================================
@@ -190,7 +215,7 @@ function Click2Call() {
 
             // Role 5: automatically select the logged-in user's region.
             // All other roles retain their existing behavior.
-            if (roleId === 5 || roleId === 6) {
+            if (roleId === 3 || roleId === 5 || roleId === 6) {
                 const matchingRegion = data.find(
                     item =>
                         String(getRegionCode(item)) ===
@@ -394,7 +419,7 @@ function Click2Call() {
 
                 // Roles 5 and 6: select the logged-in user's branch if available.
                 // Otherwise, select the first available branch.
-                if (roleId === 5 || roleId === 6) {
+                if (roleId === 3 || roleId === 5 || roleId === 6) {
                     const matchingBranch = validBranches.find(
                         item =>
                             String(getBranchCode(item)) === String(bpCode)
@@ -924,7 +949,7 @@ if (roleId === 5) {
                         </div>
 
                         {/* FROM DATE */}
-                        <div className="click2call-field">
+                        {/* <div className="click2call-field">
                             <label>
                                 From Date:
                                 <span className="required">*</span>
@@ -937,10 +962,45 @@ if (roleId === 5) {
                                     setFromDate(event.target.value)
                                 }
                             />
+                        </div> */}
+
+                        <div className="click2call-field">
+                            <label>
+                                From Date:
+                                <span className="required">*</span>
+                            </label>
+
+                            <div className="report-date-picker-container">
+                                <DatePicker
+                                    selected={parseDate(fromDate)}
+                                    onChange={(date) => setFromDate(formatInputDate(date))}
+                                    dateFormat="dd/MM/yyyy"
+                                    placeholderText="Select from date"
+                                    className="report-filter-control report-date-control"
+                                    wrapperClassName="report-date-picker-wrapper"
+                                    showPopperArrow={false}
+                                    autoComplete="off"
+                                    isClearable={false}
+                                />
+
+                                <button
+                                    type="button"
+                                    className="report-calendar-icon"
+                                    aria-label="Open From Date calendar"
+                                    onClick={(event) => {
+                                        event.currentTarget
+                                            .parentElement
+                                            ?.querySelector('input')
+                                            ?.focus()
+                                    }}
+                                >
+                                    <CalendarDays size={16} />
+                                </button>
+                            </div>
                         </div>
 
                         {/* TO DATE */}
-                        <div className="click2call-field">
+                        {/* <div className="click2call-field">
                             <label>
                                 To Date:
                                 <span className="required">*</span>
@@ -953,6 +1013,43 @@ if (roleId === 5) {
                                     setToDate(event.target.value)
                                 }
                             />
+                        </div> */}
+
+                        <div className="click2call-field">
+                            <label>
+                                To Date:
+                                <span className="required">*</span>
+                            </label>
+
+                            <div className="report-date-picker-container">
+                                <DatePicker
+                                    selected={parseDate(toDate)}
+                                    onChange={(date) => setToDate(formatInputDate(date))}
+                                    minDate={parseDate(fromDate)}
+                                    dateFormat="dd/MM/yyyy"
+                                    placeholderText="Select to date"
+                                    className="report-filter-control report-date-control"
+                                    wrapperClassName="report-date-picker-wrapper"
+                                    showPopperArrow={false}
+                                    autoComplete="off"
+                                    isClearable={false}
+                                    popperPlacement="bottom-end"
+                                />
+
+                                <button
+                                    type="button"
+                                    className="report-calendar-icon"
+                                    aria-label="Open To Date calendar"
+                                    onClick={(event) => {
+                                        event.currentTarget
+                                            .parentElement
+                                            ?.querySelector('input')
+                                            ?.focus()
+                                    }}
+                                >
+                                    <CalendarDays size={16} />
+                                </button>
+                            </div>
                         </div>
                     </div>
 

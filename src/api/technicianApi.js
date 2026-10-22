@@ -197,7 +197,8 @@ export async function updateTechnician(technicianData, photoFile = null) {
 
     // Attach the selected image file.
     if (photoFile) {
-        formData.append('profilePhoto', photoFile)
+        // formData.append('profilePhoto', photoFile)
+        formData.append('Photo', photoFile)
     }
 
     const response = await authFetch(

@@ -72,13 +72,35 @@ function getDateInputValue(value) {
     ].join('-')
 }
 
-function TechnicianEdit() {
+function getTechnicianPhotoUrl(photoUrl) {
+    if (!photoUrl) return ''
+
+    const url = String(photoUrl).trim()
+
+    // Keep existing absolute URLs unchanged.
+    if (/^https?:\/\//i.test(url)) {
+        return url
+    }
+
+    // Relative photo URLs must resolve against the API server.
+    const apiBaseUrl = 'https://localhost:7095'
+
+    return `${apiBaseUrl}/${url.replace(/^\/+/, '')}`
+}
+
+function TechnicianEdit({
+    techId: techIdProp,
+    profileMode: profileModeProp,
+    listState: listStateProp,
+    onBack
+}) {
     const navigate = useNavigate()
     const location = useLocation()
 
-    const techId = location.state?.techId
+    const techId = techIdProp ?? location.state?.techId
+    const profileMode = profileModeProp ?? location.state?.profileMode
     const returnUrl = location.state?.returnUrl || '/technician'
-    const listState = location.state?.listState ?? null
+    const listState = listStateProp ?? location.state?.listState ?? null
 
     const roleId = Number(
         sessionStorage.getItem('roleId') ||
@@ -96,7 +118,10 @@ function TechnicianEdit() {
     const [saving, setSaving] = useState(false)
     const [error, setError] = useState('')
     const [message, setMessage] = useState('')
+    //const [photoError, setPhotoError] = useState(false)
+
     const [photoError, setPhotoError] = useState(false)
+    const [photoValidationMessage, setPhotoValidationMessage] = useState('')
 
     // Temporary photo selection and preview.
     // The existing update API does not yet upload this file.
@@ -355,22 +380,50 @@ function TechnicianEdit() {
     }
 
     // Select a new photo and display its local preview.
+    // function handlePhotoChange(event) {
+    //     const file = event.target.files?.[0]
+
+    //     if (!file) return
+
+    //     if (!file.type.startsWith('image/')) {
+    //         setError('Please select a valid image file.')
+    //         event.target.value = ''
+    //         return
+    //     }
+
+    //     setSelectedPhoto(file)
+    //     setPhotoError(false)
+    //     setError('')
+    //     setMessage('')
+    // }
+
     function handlePhotoChange(event) {
-        const file = event.target.files?.[0]
+    const file = event.target.files?.[0]
 
-        if (!file) return
+    if (!file) return
 
-        if (!file.type.startsWith('image/')) {
-            setError('Please select a valid image file.')
-            event.target.value = ''
-            return
-        }
+    const allowedExtensions = ['jpg', 'jpeg']
+    const fileName = file.name.toLowerCase()
+    const fileExtension = fileName.split('.').pop()
 
-        setSelectedPhoto(file)
+    if (
+        !allowedExtensions.includes(fileExtension) ||
+        !['image/jpeg'].includes(file.type)
+    ) {
+        setPhotoValidationMessage('Please upload a JPG or JPEG image.')
+        setSelectedPhoto(null)
+        setSelectedPhotoPreview('')
         setPhotoError(false)
-        setError('')
-        setMessage('')
+        event.target.value = ''
+        return
     }
+
+    setSelectedPhoto(file)
+    setPhotoValidationMessage('')
+    setPhotoError(false)
+    setError('')
+    setMessage('')
+}
 
     // Clear the new selection and show the existing photo again.
     function handleRemoveSelectedPhoto() {
@@ -379,6 +432,7 @@ function TechnicianEdit() {
         setPhotoError(false)
         setError('')
         setMessage('')
+        setPhotoValidationMessage('')
 
         if (photoInputRef.current) {
             photoInputRef.current.value = ''
@@ -420,10 +474,17 @@ function TechnicianEdit() {
         if (
             !form.type?.trim() ||
             !form.remark?.trim() ||
+            !form.qualification?.trim() ||
+            !form.address?.trim() ||
             !form.insurance
         ) {
             return
         }
+
+        // if (!form.qualification?.trim()) {
+        //     setError('Please enter the qualification.')
+        //     return
+        // }
 
         if (!form.name.trim()) {
             setError('Please enter the technician name.')
@@ -516,14 +577,24 @@ function TechnicianEdit() {
     }
 
     function handleCancel() {
-        navigate(returnUrl, {
-            state: {
-                restoreListState: true,
-                refreshTechnicians: true,
-                listState
-            }
+    // When opened inside the dynamic URL, return to the list view.
+    if (typeof onBack === 'function') {
+        onBack({
+            listState,
+            refreshTechnicians: true
         })
+        return
     }
+
+    // Preserve the existing navigation for direct-route usage.
+    navigate(returnUrl, {
+        state: {
+            restoreListState: true,
+            refreshTechnicians: true,
+            listState
+        }
+    })
+}
 
     if (!isRole3 && !isRole5) {
         return (
@@ -553,8 +624,11 @@ function TechnicianEdit() {
         )
     }
 
+    // const displayedPhoto =
+    //     selectedPhotoPreview || form.profileUrl
+
     const displayedPhoto =
-        selectedPhotoPreview || form.profileUrl
+    selectedPhotoPreview || getTechnicianPhotoUrl(form.profileUrl)
 
     return (
         <DashboardLayout title={pageTitle}>
@@ -725,6 +799,10 @@ function TechnicianEdit() {
                                                     onChange={handleChange}
                                                     maxLength={10}
                                                 />
+
+                                                {!form.qualification?.trim() && (
+                                                    <span className="field-help">Please fill this</span>
+                                                )}
                                             </div>
 
                                             {/* Insurance: required for both Role 3 and Role 5 */}
@@ -814,6 +892,9 @@ function TechnicianEdit() {
                                                     onChange={handleChange}
                                                     maxLength={32}
                                                 />
+                                                {!form.address?.trim() && (
+                                                    <span className="field-help">Please fill this</span>
+                                                )}
                                             </div>
                                         </div>
                                     </section>
@@ -842,10 +923,16 @@ function TechnicianEdit() {
                                                             id="technician-photo"
                                                             type="file"
                                                             className="form-control"
-                                                            accept="image/*"
+                                                            accept=".jpg,.jpeg,image/jpeg"
                                                             onChange={handlePhotoChange}
                                                             disabled={saving}
                                                         />
+
+                                                        {photoValidationMessage && (
+                                                            <span className="field-help">
+                                                                {photoValidationMessage}
+                                                            </span>
+                                                        )}
 
                                                         <small className="field-help">
                                                             Select an image to preview it.
@@ -910,7 +997,8 @@ function TechnicianEdit() {
                                                 )}
 
                                                 <div className="partner-id-preview">
-                                                    Partner ID: {form.partnerId || ''}
+                                                    {/* Partner ID: */}
+                                                     {form.partnerId || ''}
                                                 </div>
                                             </div>
                                                 
@@ -963,24 +1051,24 @@ function TechnicianEdit() {
 
                                                 {/* Remark: required for both Role 3 and Role 5 */}
                                                 <div className="technician-field">
-    <label className="form-label">
-        Remark
-        <span className="text-danger"> *</span>
-    </label>
+                                                <label className="form-label">
+                                                    Remark
+                                                    <span className="text-danger"> *</span>
+                                                </label>
 
-    <input
-        type="text"
-        name="remark"
-        className="form-control"
-        value={form.remark}
-        onChange={handleChange}
-        maxLength={32}
-    />
+                                                <input
+                                                    type="text"
+                                                    name="remark"
+                                                    className="form-control"
+                                                    value={form.remark}
+                                                    onChange={handleChange}
+                                                    maxLength={32}
+                                                />
 
-    {!form.remark?.trim() && (
-        <span className="field-help">Please fill this</span>
-    )}
-</div>
+                                                {!form.remark?.trim() && (
+                                                    <span className="field-help">Please fill this</span>
+                                                )}
+                                            </div>
                                             </div>
                                         </section>
 

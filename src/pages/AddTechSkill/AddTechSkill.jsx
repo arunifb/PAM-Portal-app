@@ -31,6 +31,9 @@ function AddTechSkill() {
 
     const loginId = sessionStorage.getItem('loginId') || ''
 
+    const sessionRegionCode = sessionStorage.getItem('regionCode') || ''
+    const bpCode = sessionStorage.getItem('bpCode') || ''
+
     // =========================================
     // DROPDOWN STATE
     // =========================================
@@ -97,7 +100,8 @@ function AddTechSkill() {
 
     // =========================================
     // LOAD REGIONS
-    // All roles can select a region.
+    // Role 3: automatically select logged-in user's region.
+    // Other roles: retain manual region selection.
     // =========================================
 
     useEffect(() => {
@@ -117,11 +121,29 @@ function AddTechSkill() {
                 }
 
                 setRegions(data)
+
+                if (roleId === 3) {
+                    const matchingRegion = data.find(
+                        item =>
+                            String(getRegionCode(item)) ===
+                            String(sessionRegionCode)
+                    )
+
+                    setRegion(
+                        matchingRegion
+                            ? getRegionCode(matchingRegion)
+                            : ''
+                    )
+                }
             } catch (err) {
                 if (cancelled) return
 
                 setRegions([])
-                setError(err.message || 'Unable to load regions.')
+                setRegion('')
+
+                setError(
+                    err.message || 'Unable to load regions.'
+                )
             } finally {
                 if (!cancelled) {
                     setRegionLoading(false)
@@ -134,70 +156,90 @@ function AddTechSkill() {
         return () => {
             cancelled = true
         }
-    }, [sessionUserId])
+    }, [sessionUserId, roleId, sessionRegionCode])
 
     // =========================================
     // LOAD BRANCHES WHEN REGION CHANGES
+    // Role 3: automatically select logged-in user's branch.
+    // Other roles: retain manual branch selection.
     // =========================================
 
-    useEffect(() => {
-        let cancelled = false
+        useEffect(() => {
+            let cancelled = false
 
-        const loadBranches = async () => {
-            setBranches([])
-            setBranch('')
-            setFranchises([])
-            setFranchise('')
-            setProducts([])
-            setTechnicians([])
+            const loadBranches = async () => {
+                setBranches([])
+                setBranch('')
+                setFranchises([])
+                setFranchise('')
+                setProducts([])
+                setTechnicians([])
 
-            if (!region) {
-                setBranchLoading(false)
-                return
-            }
-
-            try {
-                setBranchLoading(true)
-                setError('')
-                setMessage('')
-
-                const data = await getBranches(
-                    sessionUserId,
-                    region
-                )
-
-                if (cancelled) return
-
-                if (!Array.isArray(data)) {
-                    throw new Error('Invalid branch response.')
+                if (!region) {
+                    setBranchLoading(false)
+                    return
                 }
 
-                setBranches(
-                    data.filter(
+                try {
+                    setBranchLoading(true)
+                    setError('')
+                    setMessage('')
+
+                    const data = await getBranches(
+                        sessionUserId,
+                        region
+                    )
+
+                    if (cancelled) return
+
+                    if (!Array.isArray(data)) {
+                        throw new Error('Invalid branch response.')
+                    }
+
+                    const validBranches = data.filter(
                         item =>
                             item &&
                             getBranchCode(item) &&
                             getBranchName(item)
                     )
-                )
-            } catch (err) {
-                if (cancelled) return
 
-                setBranches([])
-                setError(err.message || 'Unable to load branches.')
-            } finally {
-                if (!cancelled) {
-                    setBranchLoading(false)
+                    setBranches(validBranches)
+
+                    if (roleId === 3) {
+                        const matchingBranch = validBranches.find(
+                            item =>
+                                String(getBranchCode(item)) ===
+                                String(bpCode)
+                        )
+
+                        setBranch(
+                            matchingBranch
+                                ? getBranchCode(matchingBranch)
+                                : ''
+                        )
+                    }
+                } catch (err) {
+                    if (cancelled) return
+
+                    setBranches([])
+                    setBranch('')
+
+                    setError(
+                        err.message || 'Unable to load branches.'
+                    )
+                } finally {
+                    if (!cancelled) {
+                        setBranchLoading(false)
+                    }
                 }
             }
-        }
 
-        loadBranches()
+            loadBranches()
 
-        return () => {
-            cancelled = true
-        }
-    }, [region, sessionUserId])
+            return () => {
+                cancelled = true
+            }
+        }, [region, sessionUserId, roleId, bpCode])
 
     // =========================================
     // LOAD FRANCHISES WHEN BRANCH CHANGES

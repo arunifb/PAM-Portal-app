@@ -456,3 +456,72 @@
         text-align: center;
     }
 }
+
+/* =========================================
+   CLICK2CALL DATE PICKER
+========================================= */
+
+.click2call-page .report-date-picker-container {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+}
+
+.click2call-page .report-date-picker-wrapper,
+.click2call-page .report-date-picker-wrapper .react-datepicker__input-container {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.click2call-page .report-date-control {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    height: 34px;
+    box-sizing: border-box;
+    padding: 5px 36px 5px 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    background: #fff;
+    color: #374151;
+    font-family: inherit;
+    font-size: 12px;
+    outline: none;
+    cursor: pointer;
+}
+
+.click2call-page .report-date-control:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08);
+}
+
+.click2call-page .report-calendar-icon {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 24px;
+    padding: 2px;
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.click2call-page .report-calendar-icon:hover {
+    color: #2563eb;
+}
+
+.click2call-page .react-datepicker-popper {
+    z-index: 99999 !important;
+}
+
+.click2call-page .react-datepicker__close-icon {
+    display: none !important;
+}

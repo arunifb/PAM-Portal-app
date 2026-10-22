@@ -780,29 +780,40 @@ const report = reportProp || location.state?.report
     const loggedInBpCode =
         sessionStorage.getItem('bpCode') || ''
 
+    const loggedInFranchiseCode =
+    sessionStorage.getItem('frCode') ||
+    sessionStorage.getItem('franchiseCode') ||
+    sessionStorage.getItem('FrCode') ||
+    ''
+
     // =================================================
     // ROLE IDs
     // =================================================
 
     const REGION_ROLE_ID = '1'
-const FRANCHISE_ROLE_ID = '5'
-const BRANCH_ROLE_ID = '6'
-const FACTORY_ROLE_ID = '7'
+    const FRANCHISE_ROLE_ID = '5'
+    const BRANCH_ROLE_ID = '6'
+    const FACTORY_ROLE_ID = '7'
+    const ROLE_3_ID = '3'
 
-const isRegionUser =
-    String(loggedInRoleId) === REGION_ROLE_ID
 
-const isBranchUser =
-    String(loggedInRoleId) === BRANCH_ROLE_ID
+    const isRegionUser =
+        String(loggedInRoleId) === REGION_ROLE_ID
 
-const isFranchiseUser =
-    String(loggedInRoleId) === FRANCHISE_ROLE_ID
+    const isBranchUser =
+        String(loggedInRoleId) === BRANCH_ROLE_ID
 
-const isFactoryUser =
-    String(loggedInRoleId) === FACTORY_ROLE_ID
+    const isFranchiseUser =
+        String(loggedInRoleId) === FRANCHISE_ROLE_ID
 
-const isRegionOrFactoryUser =
-    isRegionUser || isFactoryUser
+    const isFactoryUser =
+        String(loggedInRoleId) === FACTORY_ROLE_ID
+
+    const isRole3 =
+    String(loggedInRoleId) === ROLE_3_ID
+
+    const isRegionOrFactoryUser =
+        isRegionUser || isFactoryUser
 
     // =================================================
     // DATE CALENDAR LIMITS
@@ -902,44 +913,131 @@ const isRegionOrFactoryUser =
         loadReportParameters()
     }, [report])
 
-    // =================================================
-    // LOAD USER REGION
-    // =================================================
 
-    useEffect(() => {
+
+
+
+// =================================================
+// LOAD USER REGION
+// =================================================
+
+// useEffect(() => {
+//     const loadUserRegion = async () => {
+//         try {
+//             setRegionLoading(true)
+//             setRegionError('')
+
+//             const data = await getRegions(
+//                 '',
+//                 loggedInUserId
+//             )
+
+//             const regionData = Array.isArray(data)
+//                 ? data
+//                 : []
+
+//             setRegions(regionData)
+
+//             if (isFactoryUser) {
+//                 setSelectedRegion('All')
+//             } else if (isRole3 || isFranchiseUser) {
+//                 const matchingRegion = regionData.find(
+//                     (region) =>
+//                         String(
+//                             region.regionCode ??
+//                             region.RegionCode ??
+//                             ''
+//                         ).trim() ===
+//                         String(loggedInRegionCode).trim()
+//                 )
+
+//                 setSelectedRegion(
+//                     matchingRegion
+//                         ? String(
+//                             matchingRegion.regionCode ??
+//                             matchingRegion.RegionCode
+//                         )
+//                         : ''
+//                 )
+//             } else {
+//                 setSelectedRegion('')
+//             }
+//         } catch (error) {
+//             console.error(
+//                 'Load region error:',
+//                 error
+//             )
+
+//             setRegions([])
+//             setSelectedRegion('')
+
+//             setRegionError(
+//                 error.message ||
+//                 'Unable to load region.'
+//             )
+//         } finally {
+//             setRegionLoading(false)
+//         }
+//     }
+
+//     loadUserRegion()
+// }, [
+//     loggedInUserId,
+//     loggedInRegionCode,
+//     isFactoryUser,
+//     isRole3,
+//     isFranchiseUser
+// ])
+
+// =================================================
+// LOAD USER REGION
+// =================================================
+
+useEffect(() => {
     const loadUserRegion = async () => {
         try {
             setRegionLoading(true)
             setRegionError('')
 
-            const data =
-                await getRegions(
-                    '',
-                    loggedInUserId
-                )
+            const data = await getRegions(
+                '',
+                loggedInUserId
+            )
 
-            const regionData =
-                Array.isArray(data)
-                    ? data
-                    : []
-
-            //setRegions(regionData)
-
-            // User will select the Region manually.
-            //setSelectedRegion('')
-
+            const regionData = Array.isArray(data)
+                ? data
+                : []
 
             setRegions(regionData)
 
             if (isFactoryUser) {
                 setSelectedRegion('All')
+            } else if (
+                isRole3 ||
+                isFranchiseUser ||
+                isBranchUser
+            ) {
+                const matchingRegion = regionData.find(
+                    (region) =>
+                        String(
+                            region.regionCode ??
+                            region.RegionCode ??
+                            ''
+                        ).trim() ===
+                        String(loggedInRegionCode).trim()
+                )
+
+                setSelectedRegion(
+                    matchingRegion
+                        ? String(
+                            matchingRegion.regionCode ??
+                            matchingRegion.RegionCode
+                        )
+                        : ''
+                )
             } else {
                 setSelectedRegion('')
             }
-
-
-
-
         } catch (error) {
             console.error(
                 'Load region error:',
@@ -961,7 +1059,11 @@ const isRegionOrFactoryUser =
     loadUserRegion()
 }, [
     loggedInUserId,
-    isFactoryUser
+    loggedInRegionCode,
+    isFactoryUser,
+    isRole3,
+    isFranchiseUser,
+    isBranchUser
 ])
 
     // =================================================
@@ -1286,350 +1388,289 @@ const isRegionOrFactoryUser =
         loadStatuses()
     }, [])
 
-    // =================================================
-    // LOAD USER BRANCHES
-    // =================================================
+    
 
-    useEffect(() => {
-        const loadUserBranch = async () => {
 
-            if (!selectedRegion) {
-                setBranches([])
+// =================================================
+// LOAD USER BRANCHES
+// =================================================
 
-                setSelectedBranch(
-                    isRegionOrFactoryUser
-                        ? 'All'
-                        : ''
-                )
+useEffect(() => {
+    const loadUserBranch = async () => {
+        setBranchError('')
 
-                return
-            }
+        if (!selectedRegion) {
+            setBranches([])
+            setSelectedBranch(
+                isRegionOrFactoryUser ? 'All' : ''
+            )
+            return
+        }
 
-            if (!loggedInRoleId) {
-                setBranches([])
+        if (!loggedInRoleId) {
+            setBranches([])
+            setSelectedBranch('')
+
+            setBranchError(
+                'Unable to determine logged-in role.'
+            )
+            return
+        }
+
+        if (
+            (isBranchUser || isFranchiseUser || isRole3) &&
+            !loggedInBpCode
+        ) {
+            setBranches([])
+            setSelectedBranch('')
+
+            setBranchError(
+                'Unable to determine logged-in branch.'
+            )
+            return
+        }
+
+        try {
+            setBranchLoading(true)
+
+            const data = await getBranches(
+                loggedInUserId,
+                selectedRegion === 'All'
+                    ? ''
+                    : selectedRegion
+            )
+
+            const branchData = Array.isArray(data)
+                ? data
+                : []
+
+            setBranches(branchData)
+
+            if (isRegionOrFactoryUser) {
                 setSelectedBranch('All')
-
-                setBranchError(
-                    'Unable to determine logged-in role.'
-                )
-
-                return
-            }
-
-            // Branch and Franchise users must have
-            // their logged-in BPCode.
-            if (
-                (isBranchUser ||
-                    isFranchiseUser) &&
-                !loggedInBpCode
+            } else if (
+                isBranchUser ||
+                isFranchiseUser ||
+                isRole3
             ) {
-                setBranches([])
-                setSelectedBranch('')
-
-                setBranchError(
-                    'Unable to determine logged-in branch.'
+                const matchingBranch = branchData.find(
+                    (branch) =>
+                        String(
+                            branch.bpCode ??
+                            branch.BPCode ??
+                            branch.branchCode ??
+                            branch.BranchCode ??
+                            ''
+                        ).trim() ===
+                        String(loggedInBpCode).trim()
                 )
-
-                return
-            }
-
-            try {
-                setBranchLoading(true)
-                setBranchError('')
-
-                // =========================================
-                // REGION USER - ROLE 1
-                // =========================================
-
-                if (isRegionOrFactoryUser) {
-                    const data =
-                        await getBranches(
-                            loggedInUserId,
-                            selectedRegion === 'All'
-                                ? ''
-                                : selectedRegion
-                    )
-
-                    const branchData =
-                        Array.isArray(data)
-                            ? data
-                            : []
-
-                    setBranches(
-                        branchData
-                    )
-
-                    // Region user can select All.
-                    setSelectedBranch('All')
-
-                    return
-                }
-
-                // =========================================
-                // BRANCH / FRANCHISE USER
-                // ROLE 6 / ROLE 5
-                // =========================================
-
-                // const data =
-                //     await getBranches(
-                //         loggedInRoleId,
-                //         selectedRegion,
-                //         loggedInBpCode
-                //     )
-
-                const data =
-                    await getBranches(
-                        loggedInUserId,
-                        selectedRegion
-                    )
-
-                const branchData =
-                    Array.isArray(data)
-                        ? data
-                        : []
-
-                setBranches(
-                    branchData
-                )
-
-                // Branch and Franchise users
-                // must use their logged-in branch.
-                setSelectedBranch(
-                    loggedInBpCode
-                )
-
-            } catch (error) {
-                console.error(
-                    'Load branches error:',
-                    error
-                )
-
-                setBranches([])
 
                 setSelectedBranch(
-                    isRegionOrFactoryUser
-                        ? 'All'
+                    matchingBranch
+                        ? String(
+                            matchingBranch.bpCode ??
+                            matchingBranch.BPCode ??
+                            matchingBranch.branchCode ??
+                            matchingBranch.BranchCode
+                        )
                         : ''
                 )
-
-                setBranchError(
-                    error.message ||
-                    'Unable to load branches.'
-                )
-            } finally {
-                setBranchLoading(false)
+            } else {
+                setSelectedBranch('')
             }
+        } catch (error) {
+            console.error(
+                'Load branches error:',
+                error
+            )
+
+            setBranches([])
+            setSelectedBranch(
+                isRegionOrFactoryUser ? 'All' : ''
+            )
+
+            setBranchError(
+                error.message ||
+                'Unable to load branches.'
+            )
+        } finally {
+            setBranchLoading(false)
+        }
+    }
+
+    loadUserBranch()
+}, [
+    selectedRegion,
+    loggedInUserId,
+    loggedInRoleId,
+    loggedInBpCode,
+    isRegionOrFactoryUser,
+    isBranchUser,
+    isFranchiseUser,
+    isRole3
+])
+    
+    // =================================================
+// LOAD FRANCHISES
+// =================================================
+
+useEffect(() => {
+    const loadFranchises = async () => {
+        if (
+            isRegionOrFactoryUser &&
+            (!selectedBranch || selectedBranch === 'All')
+        ) {
+            setFranchises([])
+            setSelectedFranchise('All')
+            setFranchiseError('')
+            setFranchiseLoading(false)
+            return
         }
 
-        loadUserBranch()
-    }, [
-        selectedRegion,
-        loggedInRoleId,
-        loggedInBpCode,
-        isRegionUser,
-        isFactoryUser,
-        isBranchUser,
-        isFranchiseUser
-    ])
-
-    // =================================================
-    // LOAD FRANCHISES
-    // =================================================
-
-    useEffect(() => {
-        const loadFranchises = async () => {
-
-            // =========================================
-            // REGION USER + ALL BRANCH
-            // =========================================
-            // No single branch is selected yet.
-            // Keep franchise as All.
-            // =========================================
-
-            if (
-                isRegionOrFactoryUser &&
-                (!selectedBranch ||
-                    selectedBranch === 'All')
-            ) {
-                setFranchises([])
-                setSelectedFranchise('All')
-                setFranchiseError('')
-                setFranchiseLoading(false)
-
-                return
-            }
-
-            if (!selectedBranch) {
-                setFranchises([])
-
-                setSelectedFranchise(
-                    isFranchiseUser
-                        ? ''
-                        : 'All'
-                )
-
-                setFranchiseError('')
-                setFranchiseLoading(false)
-
-                return
-            }
-
-            if (!loggedInRoleId) {
-                setFranchises([])
-                setSelectedFranchise('All')
-
-                setFranchiseError(
-                    'Unable to determine logged-in role.'
-                )
-
-                setFranchiseLoading(false)
-
-                return
-            }
-
-            if (!loggedInLoginId) {
-                setFranchises([])
-                setSelectedFranchise('All')
-
-                setFranchiseError(
-                    'Unable to determine logged-in Login ID.'
-                )
-
-                setFranchiseLoading(false)
-
-                return
-            }
-
-            try {
-                setFranchiseLoading(true)
-                setFranchiseError('')
-
-                const branchCode =
-                isRegionOrFactoryUser
-                    ? selectedBranch
-                    : loggedInBpCode
-
-                const data =
-                    await getFranchises(
-                        loggedInRoleId,
-                        branchCode,
-                        loggedInLoginId
-                    )
-
-                const franchiseData =
-                    Array.isArray(data)
-                        ? [...data]
-                        : []
-
-                franchiseData.sort(
-                    (a, b) => {
-                        const nameA =
-                            String(
-                                a.frName ??
-                                a.FrName ??
-                                a.franchiseName ??
-                                a.FranchiseName ??
-                                a.name ??
-                                a.Name ??
-                                ''
-                            )
-
-                        const nameB =
-                            String(
-                                b.frName ??
-                                b.FrName ??
-                                b.franchiseName ??
-                                b.FranchiseName ??
-                                b.name ??
-                                b.Name ??
-                                ''
-                            )
-
-                        return nameA.localeCompare(
-                            nameB
-                        )
-                    }
-                )
-
-                setFranchises(
-                    franchiseData
-                )
-
-                // =========================================
-                // FRANCHISE USER - ROLE 5
-                // =========================================
-                // The API is called with LoginID.
-                // The returned franchise is selected
-                // and the dropdown is frozen.
-                // =========================================
-
-                if (isFranchiseUser) {
-
-                    if (
-                        franchiseData.length > 0
-                    ) {
-                        const loggedInFranchise =
-                            franchiseData[0]
-
-                        const franchiseCode =
-                            loggedInFranchise.frCode ??
-                            loggedInFranchise.FrCode ??
-                            loggedInFranchise.franchiseCode ??
-                            loggedInFranchise.FranchiseCode ??
-                            ''
-
-                        setSelectedFranchise(
-                            String(
-                                franchiseCode
-                            )
-                        )
-                    } else {
-                        setSelectedFranchise('')
-                    }
-
-                    return
-                }
-
-                // =========================================
-                // REGION / BRANCH USER
-                // =========================================
-
-                setSelectedFranchise(
-                    'All'
-                )
-
-            } catch (error) {
-                console.error(
-                    'Load franchises error:',
-                    error
-                )
-
-                setFranchises([])
-
-                setSelectedFranchise(
-                    isFranchiseUser
-                        ? ''
-                        : 'All'
-                )
-
-                setFranchiseError(
-                    error.message ||
-                    'Unable to load franchises.'
-                )
-            } finally {
-                setFranchiseLoading(false)
-            }
+        if (!selectedBranch) {
+            setFranchises([])
+            setSelectedFranchise(
+                isFranchiseUser ? '' : 'All'
+            )
+            setFranchiseError('')
+            setFranchiseLoading(false)
+            return
         }
 
-        loadFranchises()
-    }, [
-        selectedBranch,
-        loggedInRoleId,
-        loggedInLoginId,
-        loggedInBpCode,
-        isRegionUser,
-        isFranchiseUser
-    ])
+        if (!loggedInRoleId) {
+            setFranchises([])
+            setSelectedFranchise('All')
+            setFranchiseError(
+                'Unable to determine logged-in role.'
+            )
+            setFranchiseLoading(false)
+            return
+        }
+
+        if (!loggedInLoginId) {
+            setFranchises([])
+            setSelectedFranchise(
+                isFranchiseUser ? '' : 'All'
+            )
+            setFranchiseError(
+                'Unable to determine logged-in Login ID.'
+            )
+            setFranchiseLoading(false)
+            return
+        }
+
+        try {
+            setFranchiseLoading(true)
+            setFranchiseError('')
+
+            const branchCode = isRegionOrFactoryUser
+                ? selectedBranch
+                : loggedInBpCode
+
+            const data = await getFranchises(
+                loggedInRoleId,
+                branchCode,
+                loggedInLoginId
+            )
+
+            const franchiseData = Array.isArray(data)
+                ? [...data]
+                : []
+
+            franchiseData.sort((a, b) => {
+                const nameA = String(
+                    a.frName ??
+                    a.FrName ??
+                    a.franchiseName ??
+                    a.FranchiseName ??
+                    a.name ??
+                    a.Name ??
+                    ''
+                )
+
+                const nameB = String(
+                    b.frName ??
+                    b.FrName ??
+                    b.franchiseName ??
+                    b.FranchiseName ??
+                    b.name ??
+                    b.Name ??
+                    ''
+                )
+
+                return nameA.localeCompare(nameB)
+            })
+
+            setFranchises(franchiseData)
+
+            if (isFranchiseUser) {
+                const matchingFranchise =
+                    loggedInFranchiseCode
+                        ? franchiseData.find(
+                            (franchise) =>
+                                String(
+                                    franchise.frCode ??
+                                    franchise.FrCode ??
+                                    franchise.franchiseCode ??
+                                    franchise.FranchiseCode ??
+                                    ''
+                                ).trim() ===
+                                String(
+                                    loggedInFranchiseCode
+                                ).trim()
+                        )
+                        : null
+
+                const selectedFranchiseData =
+                    matchingFranchise ||
+                    franchiseData[0]
+
+                const franchiseCode =
+                    selectedFranchiseData?.frCode ??
+                    selectedFranchiseData?.FrCode ??
+                    selectedFranchiseData?.franchiseCode ??
+                    selectedFranchiseData?.FranchiseCode ??
+                    ''
+
+                setSelectedFranchise(
+                    String(franchiseCode)
+                )
+
+                return
+            }
+
+            setSelectedFranchise('All')
+        } catch (error) {
+            console.error(
+                'Load franchises error:',
+                error
+            )
+
+            setFranchises([])
+            setSelectedFranchise(
+                isFranchiseUser ? '' : 'All'
+            )
+
+            setFranchiseError(
+                error.message ||
+                'Unable to load franchises.'
+            )
+        } finally {
+            setFranchiseLoading(false)
+        }
+    }
+
+    loadFranchises()
+}, [
+    selectedBranch,
+    loggedInUserId,
+    loggedInRoleId,
+    loggedInLoginId,
+    loggedInBpCode,
+    loggedInFranchiseCode,
+    isRegionOrFactoryUser,
+    isFranchiseUser
+])
 
     // =================================================
     // GET MULTI SELECT VALUE
@@ -3162,7 +3203,7 @@ const isRegionOrFactoryUser =
                                                     wrapperClassName="report-date-picker-wrapper"
                                                     showPopperArrow={false}
                                                     autoComplete="off"
-                                                    isClearable
+                                                    isClearable={false}
                                                 />
 
                                                 <button
@@ -3216,9 +3257,11 @@ const isRegionOrFactoryUser =
                                                     placeholderText="Select to date"
                                                     className="report-filter-control report-date-control to-date-picker"
                                                     wrapperClassName="report-date-picker-wrapper"
+                                                    popperClassName="to-date-picker-popper"
+                                                    popperPlacement="bottom-end"
                                                     showPopperArrow={false}
                                                     autoComplete="off"
-                                                    isClearable
+                                                    isClearable={false}
                                                 />
 
                                                 <button

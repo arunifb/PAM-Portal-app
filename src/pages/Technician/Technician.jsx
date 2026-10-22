@@ -235,8 +235,26 @@ function filterTechniciansByStatus(technicians, selectedStatus) {
 // COMPONENT
 // =====================================================
 
+function getTechnicianPhotoUrl(photoUrl) {
+    if (!photoUrl) return ''
+
+    const url = String(photoUrl).trim()
+
+    // Absolute URLs can be used directly.
+    if (/^https?:\/\//i.test(url)) {
+        return url
+    }
+
+    // Resolve relative image paths against the API server.
+    const apiBaseUrl = 'https://localhost:7095'
+
+    return `${apiBaseUrl}/${url.replace(/^\/+/, '')}`
+}
+
+
 function Technician({
     onAddTechnician,
+    onEditTechnician,
     restoreListState: savedListState,
     refreshAfterAdd = 0
 }) {
@@ -825,62 +843,120 @@ useEffect(() => {
     // EDIT
     // =================================================
 
-    function handleEdit(technician) {
-        if (isRole6) return
+    // function handleEdit(technician) {
+    //     if (isRole6) return
 
-        const techId = String(
-            technician?.techId ??
-            technician?.TechId ??
-            technician?.techID ??
-            technician?.TechID ??
+    //     const techId = String(
+    //         technician?.techId ??
+    //         technician?.TechId ??
+    //         technician?.techID ??
+    //         technician?.TechID ??
+    //         ''
+    //     )
+
+    //     if (!techId) {
+    //         setError('Technician ID is missing.')
+    //         return
+    //     }
+
+    //     setError('')
+    //     setSuccessMessage('')
+
+    //     // Role 3: Existing Technician Edit page.
+    //     // Role 5: S.A Profile page.
+    //     if (isRole3 || isRole5) {
+    //         const listState = {
+    //             regionCode,
+    //             branchCode,
+    //             franchiseCode,
+    //             status,
+    //             technicianName,
+    //             mobileNo,
+    //             technicians
+    //         }
+
+    //         navigate('/technician/edit', {
+    //             state: {
+    //                 techId,
+    //                 profileMode: isRole5 ? 'sa-profile' : 'edit',
+    //                 returnUrl: location.pathname + location.search,
+    //                 listState
+    //             }
+    //         })
+
+    //         return
+    //     }
+
+    //     setEditingTechId(techId)
+
+    //     setEditingFranchiseCode(
+    //         String(
+    //             technician?.franchiseCode ??
+    //             technician?.FranchiseCode ??
+    //             technician?.frCode ??
+    //             technician?.FrCode ??
+    //             ''
+    //         )
+    //     )
+    // }
+
+    function handleEdit(technician) {
+    if (isRole6) return
+
+    const techId = String(
+        technician?.techId ??
+        technician?.TechId ??
+        technician?.techID ??
+        technician?.TechID ??
+        ''
+    )
+
+    if (!techId) {
+        setError('Technician ID is missing.')
+        return
+    }
+
+    setError('')
+    setSuccessMessage('')
+
+    // Role 3: Existing Technician Edit page.
+    // Role 5: S.A Profile page.
+    // Open inside the same dynamic URL.
+    if (isRole3 || isRole5) {
+        const listState = {
+            regionCode,
+            branchCode,
+            franchiseCode,
+            status,
+            technicianName,
+            mobileNo,
+            technicians
+        }
+
+        if (typeof onEditTechnician === 'function') {
+            onEditTechnician({
+                techId,
+                profileMode: isRole5 ? 'sa-profile' : 'edit',
+                listState
+            })
+        }
+
+        return
+    }
+
+    // Keep existing behavior for other roles.
+    setEditingTechId(techId)
+
+    setEditingFranchiseCode(
+        String(
+            technician?.franchiseCode ??
+            technician?.FranchiseCode ??
+            technician?.frCode ??
+            technician?.FrCode ??
             ''
         )
-
-        if (!techId) {
-            setError('Technician ID is missing.')
-            return
-        }
-
-        setError('')
-        setSuccessMessage('')
-
-        // Role 3: Existing Technician Edit page.
-        // Role 5: S.A Profile page.
-        if (isRole3 || isRole5) {
-            const listState = {
-                regionCode,
-                branchCode,
-                franchiseCode,
-                status,
-                technicianName,
-                mobileNo,
-                technicians
-            }
-
-            navigate('/technician/edit', {
-                state: {
-                    techId,
-                    profileMode: isRole5 ? 'sa-profile' : 'edit',
-                    returnUrl: location.pathname + location.search,
-                    listState
-                }
-            })
-
-            return
-        }
-
-        setEditingTechId(techId)
-
-        setEditingFranchiseCode(
-            String(
-                technician?.franchiseCode ??
-                technician?.FranchiseCode ??
-                technician?.frCode ??
-                technician?.FrCode ??
-                ''
-            )
-        )
-    }
+    )
+}
 
     function handleCancelEdit() {
         setEditingTechId(null)
@@ -1477,24 +1553,47 @@ useEffect(() => {
                                                     {isRole3 && (
                                                         <td className="technician-image-cell">
                                                             {(() => {
-                                                                const imageUrl =
-                                                                    technician?.profileUrl ??
-                                                                    technician?.ProfileUrl ??
-                                                                    technician?.imageUrl ??
-                                                                    technician?.ImageUrl ??
-                                                                    technician?.imageURL ??
-                                                                    technician?.ImageURL ??
-                                                                    technician?.imagePath ??
-                                                                    technician?.ImagePath ??
-                                                                    technician?.photoUrl ??
-                                                                    technician?.PhotoUrl ??
-                                                                    technician?.photo ??
-                                                                    technician?.Photo ??
-                                                                    ''
+                                                                // const imageUrl =
+                                                                //     technician?.profileUrl ??
+                                                                //     technician?.ProfileUrl ??
+                                                                //     technician?.imageUrl ??
+                                                                //     technician?.ImageUrl ??
+                                                                //     technician?.imageURL ??
+                                                                //     technician?.ImageURL ??
+                                                                //     technician?.imagePath ??
+                                                                //     technician?.ImagePath ??
+                                                                //     technician?.photoUrl ??
+                                                                //     technician?.PhotoUrl ??
+                                                                //     technician?.photo ??
+                                                                //     technician?.Photo ??
+                                                                //     ''
 
-                                                                return imageUrl ? (
+                                                                // const defaultImage =
+                                                                //     '/images/default-male-profile.png'
+
+                                                                const imageUrl = getTechnicianPhotoUrl(
+                                                                technician?.profileUrl ??
+                                                                technician?.ProfileUrl ??
+                                                                technician?.url ??
+                                                                technician?.Url ??
+                                                                technician?.imageUrl ??
+                                                                technician?.ImageUrl ??
+                                                                technician?.imageURL ??
+                                                                technician?.ImageURL ??
+                                                                technician?.imagePath ??
+                                                                technician?.ImagePath ??
+                                                                technician?.photoUrl ??
+                                                                technician?.PhotoUrl ??
+                                                                technician?.photo ??
+                                                                technician?.Photo ??
+                                                                ''
+                                                            )
+
+                                                            const defaultImage = '/images/default-male-profile.png'
+
+                                                                return (
                                                                     <img
-                                                                        src={imageUrl}
+                                                                        src={imageUrl || defaultImage}
                                                                         alt={
                                                                             technician?.name ??
                                                                             technician?.Name ??
@@ -1502,17 +1601,18 @@ useEffect(() => {
                                                                         }
                                                                         className="technician-profile-image"
                                                                         onError={(event) => {
-                                                                            console.error(
-                                                                                'Technician image failed to load:',
-                                                                                imageUrl
-                                                                            )
-                                                                            event.currentTarget.style.display = 'none'
+                                                                            const img = event.currentTarget
+
+                                                                            // Show the default image if the API image
+                                                                            // is missing or cannot be loaded.
+                                                                            if (
+                                                                                img.getAttribute('src') !== defaultImage
+                                                                            ) {
+                                                                                img.onerror = null
+                                                                                img.src = defaultImage
+                                                                            }
                                                                         }}
                                                                     />
-                                                                ) : (
-                                                                    <div className="technician-profile-image-placeholder">
-                                                                        N/A
-                                                                    </div>
                                                                 )
                                                             })()}
                                                         </td>

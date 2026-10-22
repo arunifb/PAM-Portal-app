@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+//import { useEffect, useState, useRef } from 'react'
 // import { useParams, useNavigate } from 'react-router-dom'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
 
@@ -17,6 +18,7 @@ import DDRRegion from '../DDRRegion/DDRRegion'
 import DigitalICR from '../DigitalICR/DigitalICR'
 import SparesStock from '../SparesStock/SparesStock'
 import Technician from '../Technician/Technician'
+import TechnicianEdit from '../Technician/TechnicianEdit'
 import SparesSearch from '../SparesSearch/SparesSearch'
 import UserManagement from '../UserManagement/UserManagement'
 import CheckTicketStatus from '../CheckTicketStatus/CheckTicketStatus'
@@ -46,6 +48,8 @@ function RouteKeyPage() {
 
     const location = useLocation()
 
+    // const previousRouteKey = useRef(routeKey)
+
     const showSubDealerView =
         location.state?.showSubDealerView === true
 
@@ -68,6 +72,7 @@ function RouteKeyPage() {
     const [technicianView, setTechnicianView] = useState('list')
     const [technicianListState, setTechnicianListState] = useState(null)
     const [refreshAfterAdd, setRefreshAfterAdd] = useState(0)
+    const [technicianEditState, setTechnicianEditState] = useState(null)
 
 
     // =========================================
@@ -309,6 +314,16 @@ useEffect(() => {
     }
 }, [menuItem])
 
+useEffect(() => {
+    // Reset Technician Management to its default list view
+    setTechnicianView('list')
+    setTechnicianEditState(null)
+    setTechnicianListState(null)
+
+    // Reset Franchise Management to Add Franchise
+    setFranchiseView('add')
+}, [routeKey, location.pathname])
+
 
     // =========================================
     // LOADING
@@ -471,37 +486,88 @@ useEffect(() => {
 
 
 
+    // if (reactUrl === '/technician') {
+    //     if (technicianView === 'add') {
+    //         return (
+    //             <TechnicianAdd
+    //                 onBack={(result) => {
+    //                     setTechnicianView('list')
+
+    //                     if (result?.listState) {
+    //                         setTechnicianListState(result.listState)
+    //                     }
+
+    //                     if (result?.refreshTechnicians) {
+    //                         setRefreshAfterAdd((prev) => prev + 1)
+    //                     }
+    //                 }}
+    //                 listState={technicianListState}
+    //             />
+    //         )
+    //     }
+
+    //     return (
+    //         <Technician
+    //             onAddTechnician={(listState) => {
+    //                 setTechnicianListState(listState)
+    //                 setTechnicianView('add')
+    //             }}
+    //             restoreListState={technicianListState}
+    //             refreshAfterAdd={refreshAfterAdd}
+    //         />
+    //     )
+    // }
+
     if (reactUrl === '/technician') {
-        if (technicianView === 'add') {
-            return (
-                <TechnicianAdd
-                    onBack={(result) => {
-                        setTechnicianView('list')
-
-                        if (result?.listState) {
-                            setTechnicianListState(result.listState)
-                        }
-
-                        if (result?.refreshTechnicians) {
-                            setRefreshAfterAdd((prev) => prev + 1)
-                        }
-                    }}
-                    listState={technicianListState}
-                />
-            )
-        }
-
+    if (technicianView === 'add') {
         return (
-            <Technician
-                onAddTechnician={(listState) => {
-                    setTechnicianListState(listState)
-                    setTechnicianView('add')
+            <TechnicianAdd
+                onBack={(result) => {
+                    setTechnicianView('list')
+
+                    if (result?.listState) {
+                        setTechnicianListState(result.listState)
+                    }
+
+                    if (result?.refreshTechnicians) {
+                        setRefreshAfterAdd((prev) => prev + 1)
+                    }
                 }}
-                restoreListState={technicianListState}
-                refreshAfterAdd={refreshAfterAdd}
+                listState={technicianListState}
             />
         )
     }
+
+    // Show Technician Edit without changing the URL
+    if (technicianEditState) {
+        return (
+            <TechnicianEdit
+                techId={technicianEditState.techId}
+                profileMode={technicianEditState.profileMode}
+                listState={technicianEditState.listState}
+                onBack={() => {
+                    setTechnicianEditState(null)
+                }}
+            />
+        )
+    }
+
+    // Show Technician list
+    return (
+        <Technician
+            onAddTechnician={(listState) => {
+                setTechnicianListState(listState)
+                setTechnicianView('add')
+            }}
+            onEditTechnician={(editState) => {
+                setTechnicianListState(editState.listState)
+                setTechnicianEditState(editState)
+            }}
+            restoreListState={technicianListState}
+            refreshAfterAdd={refreshAfterAdd}
+        />
+    )
+}
 
 
     if (
