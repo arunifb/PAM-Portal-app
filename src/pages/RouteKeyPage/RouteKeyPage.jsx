@@ -1,7 +1,12 @@
 import { useEffect, useState } from 'react'
 //import { useEffect, useState, useRef } from 'react'
 // import { useParams, useNavigate } from 'react-router-dom'
-import { useParams, useNavigate, useLocation } from 'react-router-dom'
+import {
+    useParams,
+    useNavigate,
+    useLocation,
+    useSearchParams
+} from 'react-router-dom'
 
 import { getDashboardMenu } from '../../api/dashboardApi'
 
@@ -67,7 +72,19 @@ function RouteKeyPage() {
     const [menuItem, setMenuItem] =
         useState(null)
 
-    const [franchiseView, setFranchiseView] = useState('add')
+    const [searchParams, setSearchParams] = useSearchParams()
+
+// Default to Add Franchise; preserve the selected view on refresh.
+const franchiseView =
+    searchParams.get('view') === 'list' ? 'list' : 'add'
+
+const setFranchiseView = (view) => {
+    if (view === 'list') {
+        setSearchParams({ view: 'list' })
+    } else {
+        setSearchParams({})
+    }
+}
 
     const [technicianView, setTechnicianView] = useState('list')
     const [technicianListState, setTechnicianListState] = useState(null)
@@ -319,9 +336,6 @@ useEffect(() => {
     setTechnicianView('list')
     setTechnicianEditState(null)
     setTechnicianListState(null)
-
-    // Reset Franchise Management to Add Franchise
-    setFranchiseView('add')
 }, [routeKey, location.pathname])
 
 
