@@ -54,14 +54,14 @@
 /* Save Button */
 
 .af-button-primary {
-    background: #198754;
-    border-color: #198754;
+    background: #2563eb;
+    border-color: #2563eb;
     color: #fff;
 }
 
 .af-button-primary:hover:not(:disabled) {
-    background: #157347;
-    border-color: #146c43;
+    background: #1d4ed8;
+    border-color: #1d4ed8;
 }
 
 /* Back Button */
