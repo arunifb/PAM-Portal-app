@@ -1762,8 +1762,8 @@ input[type="checkbox"]:checked::after {
     min-height: 25px;
     padding: 3px 8px;
 
-    background: #198754;
-    border: 1px solid #198754;
+    background: #6b7280;
+    border: 1px solid #6b7280;
     border-radius: 4px;
 
     color: #ffffff;
@@ -1788,8 +1788,8 @@ input[type="checkbox"]:checked::after {
 
 /* Hover */
 .report-parameter-header .af-button-secondary:hover {
-    background: #157347;
-    border-color: #146c43;
+    background: #4b5563;
+    border-color: #4b5563;
 }
 
 /* Keyboard Focus */

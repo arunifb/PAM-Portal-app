@@ -9,7 +9,8 @@ import {
 
 import {
     getTechnicianSkillMatrix,
-    saveTechnicianSkillMatrix
+    saveTechnicianSkillMatrix,
+    downloadTechnicianSkillSet
 } from '../../api/technicianSkillApi'
 
 import DashboardLayout from '../../components/DashboardLayout/DashboardLayout'
@@ -58,6 +59,8 @@ function AddTechSkill() {
     const [technicians, setTechnicians] = useState([])
     const [matrixLoading, setMatrixLoading] = useState(false)
     const [saving, setSaving] = useState(false)
+
+    const [downloading, setDownloading] = useState(false)
 
     const [error, setError] = useState('')
     const [message, setMessage] = useState('')
@@ -509,6 +512,46 @@ function AddTechSkill() {
         }
     }
 
+
+
+    
+
+// =========================================
+// DOWNLOAD SKILL MATRIX USING BACKEND API
+// =========================================
+
+const handleDownload = async () => {
+    setError('')
+    setMessage('')
+
+    if (!region) {
+        setError('Please select a region.')
+        return
+    }
+
+    if (!branch) {
+        setError('Please select a branch.')
+        return
+    }
+
+    if (!franchise) {
+        setError('Please select a franchise.')
+        return
+    }
+
+    try {
+        setDownloading(true)
+
+        await downloadTechnicianSkillSet(branch, franchise)
+    } catch (err) {
+        setError(
+            err.message || 'Unable to download technician skill set.'
+        )
+    } finally {
+        setDownloading(false)
+    }
+}
+
     // =========================================
     // UI
     // =========================================
@@ -724,19 +767,29 @@ function AddTechSkill() {
                         </div>
                     )}
 
-                    {/* SAVE BUTTON */}
-                    {franchise && !matrixLoading && technicians.length > 0 && (
-                        <div className="add-tech-skill-actions">
-                            <button
-                                type="button"
-                                className="add-tech-skill-save"
-                                onClick={handleSave}
-                                disabled={saving}
-                            >
-                                {saving ? 'Saving...' : 'Save'}
-                            </button>
-                        </div>
-                    )}
+                    
+{/* SAVE AND DOWNLOAD BUTTONS */}
+{franchise && !matrixLoading && technicians.length > 0 && (
+    <div className="add-tech-skill-actions">
+        <button
+            type="button"
+            className="add-tech-skill-download"
+            onClick={handleDownload}
+            disabled={saving || downloading}
+        >
+            {downloading ? 'Downloading...' : 'Download'}
+        </button>
+
+        <button
+            type="button"
+            className="add-tech-skill-save"
+            onClick={handleSave}
+            disabled={saving || downloading}
+        >
+            {saving ? 'Saving...' : 'Save'}
+        </button>
+    </div>
+)}
                 </div>
             </div>
         </DashboardLayout>

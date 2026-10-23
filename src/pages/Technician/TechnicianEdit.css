@@ -56,9 +56,9 @@
     min-height: 32px;
     margin: 0;
     padding: 6px 14px;
-    background-color: #198754 !important;
+    background-color: #6b7280 !important;
     color: #ffffff !important;
-    border: 1px solid #198754 !important;
+    border: 1px solid #6b7280 !important;
     border-radius: 5px;
     font-size: 12px;
     font-weight: 600;
@@ -73,18 +73,18 @@
 }
 
 .technician-edit-header .technician-edit-back-btn:hover:not(:disabled) {
-    background-color: #146c43 !important;
-    border-color: #13653f !important;
+    background-color: #4b5563 !important;
+    border-color: #4b5563 !important;
     color: #ffffff !important;
 }
 
 .technician-edit-header .technician-edit-back-btn:active:not(:disabled) {
-    background-color: #115c39 !important;
-    border-color: #105735 !important;
+    background-color: #374151 !important;
+    border-color: #374151 !important;
 }
 
 .technician-edit-header .technician-edit-back-btn:focus-visible {
-    outline: 2px solid #198754;
+    outline: 2px solid #6b7280;
     outline-offset: 3px;
 }
 

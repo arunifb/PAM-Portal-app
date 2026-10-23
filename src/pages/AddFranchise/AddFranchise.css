@@ -69,15 +69,15 @@
 .af-button-secondary {
     min-height: 28px;
     padding: 4px 9px;
-    background: #198754;
-    border-color: #198754;
+    background: #6b7280;
+    border-color: #6b7280;
     color: #fff;
     font-size: 11px;
 }
 
 .af-button-secondary:hover:not(:disabled) {
-    background: #157347;
-    border-color: #146c43;
+    background: #4b5563;
+    border-color: #4b5563;
 }
 
 /* ================================
