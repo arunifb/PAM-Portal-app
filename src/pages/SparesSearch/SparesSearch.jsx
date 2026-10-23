@@ -756,8 +756,7 @@ function SparesSearch() {
                                 </span>
 
                                 <span className="spares-info-value">
-                                    {spareInfo.Spare_Description ||
-                                        'NA'}
+                                    {spareInfo.spare_Description || 'NA'}
                                 </span>
                             </div>
 
@@ -766,9 +765,9 @@ function SparesSearch() {
                                     Spare Code
                                 </span>
 
+                                
                                 <span className="spares-info-value">
-                                    {spareInfo.Spare_Code ||
-                                        'NA'}
+                                    {spareInfo.spare_Code || 'NA'}
                                 </span>
                             </div>
 
@@ -778,8 +777,7 @@ function SparesSearch() {
                                 </span>
 
                                 <span className="spares-info-value">
-                                    {spareInfo.Pricing ||
-                                        'NA'}
+                                    {spareInfo.pricing?.trim() || 'NA'}
                                 </span>
                             </div>
 
@@ -849,26 +847,35 @@ function SparesSearch() {
                     IMAGE
                 ================================================= */}
 
-                {spareInfo && (
-                <div className="spares-report-section">
-                    <div className="spares-section-header">
-                        Spare Image
-                    </div>
+                {/* =================================================
+                    IMAGE
+                ================================================= */}
 
-                    <div className="spares-image-container">
-                        {spareInfo.Image && (
-                            <img
-                                src={spareInfo.Image}
-                                alt={spareInfo.Spare_Description || 'Spare'}
-                                className="spares-image"
-                                onError={(event) => {
-                                    event.currentTarget.style.display = 'none'
-                                }}
-                            />
-                        )}
+                {spareInfo && (
+                    <div className="spares-report-section">
+                        <div className="spares-section-header">
+                            Spare Image
+                        </div>
+
+                        <div className="spares-image-container">
+                            {spareInfo.image ? (
+                                <img
+                                    src={spareInfo.image}
+                                    alt={spareInfo.spare_Description || 'Spare'}
+                                    className="spares-image"
+                                    onError={(event) => {
+                                        console.error(
+                                            'Failed to load spare image:',
+                                            event.currentTarget.src
+                                        )
+                                    }}
+                                />
+                            ) : (
+                                <p>Image not available.</p>
+                            )}
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
 
                 {/* =================================================
                     NO RESULT

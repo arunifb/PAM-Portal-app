@@ -135,7 +135,7 @@
 
 .technician-search-button:hover:not(:disabled) {
     background: #1d4ed8;
-    border-color: ;
+    border-color: #1d4ed8;
 }
 
 .technician-search-button:disabled {
