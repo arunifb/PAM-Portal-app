@@ -1482,7 +1482,7 @@ function FranchiseeInventory() {
 
                         <button
                             type="button"
-                            className="inventory-search-button"
+                            className="btn-search inventory-search-button"
                             disabled={loading}
                             onClick={handleSearch}
                         >

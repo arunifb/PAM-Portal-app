@@ -1288,7 +1288,7 @@ useEffect(() => {
                     <div className="franchise-search-actions">
                         <button
                             type="button"
-                            className="franchise-search-button"
+                            className="btn-search franchise-search-button"
                             onClick={handleSearch}
                             disabled={loading}
                         >

@@ -14,6 +14,10 @@ import {
     exportDigitalICR
 } from '../../api/digitalICRApi'
 
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
+import { CalendarDays } from 'lucide-react'
+
 function DigitalICR() {
     // =========================================
     // SESSION VALUES
@@ -747,6 +751,41 @@ function DigitalICR() {
         })
     }
 
+
+    // =========================================
+    // DATE PICKER HELPERS
+    // =========================================
+
+    const parseDate = (value) => {
+        if (!value) return null
+
+        const [year, month, day] = value.split('-').map(Number)
+
+        if (!year || !month || !day) return null
+
+        const date = new Date(year, month - 1, day)
+
+        if (
+            date.getFullYear() !== year ||
+            date.getMonth() !== month - 1 ||
+            date.getDate() !== day
+        ) {
+            return null
+        }
+
+        return date
+    }
+
+    const formatDate = (date) => {
+        if (!date) return ''
+
+        const year = date.getFullYear()
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const day = String(date.getDate()).padStart(2, '0')
+
+        return `${year}-${month}-${day}`
+    }
+
     // =========================================
     // UI
     // =========================================
@@ -868,13 +907,37 @@ function DigitalICR() {
                                 <span className="required">*</span>
                             </label>
 
-                            <input
-                                type="date"
-                                value={fromDate}
-                                onChange={(event) =>
-                                    setFromDate(event.target.value)
-                                }
-                            />
+                            <div className="digital-icr-date-picker-container">
+                                <div className="digital-icr-date-picker-wrapper">
+                                    <DatePicker
+                                        selected={parseDate(fromDate)}
+                                        onChange={(date) => setFromDate(formatDate(date))}
+                                        dateFormat="dd/MM/yyyy"
+                                        placeholderText="dd/mm/yyyy"
+                                        className="digital-icr-date-control"
+                                        calendarClassName="digital-icr-calendar"
+                                        showPopperArrow={false}
+                                        autoComplete="off"
+                                        isClearable={false}
+                                    />
+                                </div>
+
+                                <button
+                                    type="button"
+                                    className="digital-icr-calendar-icon"
+                                    aria-label="Open ICR From Date calendar"
+                                    onClick={(event) => {
+                                        const input = event.currentTarget
+                                            .parentElement
+                                            .querySelector('input')
+
+                                        input?.focus()
+                                        input?.click()
+                                    }}
+                                >
+                                    <CalendarDays size={18} />
+                                </button>
+                            </div>
                         </div>
 
                         {/* TO DATE */}
@@ -884,13 +947,42 @@ function DigitalICR() {
                                 <span className="required">*</span>
                             </label>
 
-                            <input
-                                type="date"
-                                value={toDate}
-                                onChange={(event) =>
-                                    setToDate(event.target.value)
-                                }
-                            />
+                            <div className="digital-icr-date-picker-container">
+                                <div className="digital-icr-date-picker-wrapper">
+                                    <DatePicker
+                                        selected={parseDate(toDate)}
+                                        onChange={(date) => setToDate(formatDate(date))}
+                                        dateFormat="dd/MM/yyyy"
+                                        placeholderText="dd/mm/yyyy"
+                                        className="digital-icr-date-control"
+                                        calendarClassName="digital-icr-calendar"
+                                        minDate={parseDate(fromDate)}
+                                        popperPlacement="bottom-end"
+                                        popperProps={{
+                                            strategy: 'fixed'
+                                        }}
+                                        showPopperArrow={false}
+                                        autoComplete="off"
+                                        isClearable={false}
+                                    />
+                                </div>
+
+                                <button
+                                    type="button"
+                                    className="digital-icr-calendar-icon"
+                                    aria-label="Open ICR To Date calendar"
+                                    onClick={(event) => {
+                                        const input = event.currentTarget
+                                            .parentElement
+                                            .querySelector('input')
+
+                                        input?.focus()
+                                        input?.click()
+                                    }}
+                                >
+                                    <CalendarDays size={18} />
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -909,7 +1001,7 @@ function DigitalICR() {
                     <div className="digital-icr-actions">
                         <button
                             type="button"
-                            className="digital-icr-search-button"
+                            className="btn-search digital-icr-search-button"
                             onClick={handleSearch}
                             disabled={searching}
                         >

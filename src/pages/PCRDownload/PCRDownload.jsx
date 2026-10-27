@@ -12,6 +12,42 @@ import {
 
 import './PCRDownload.css'
 
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
+import { CalendarDays } from 'lucide-react'
+
+//Date Picker
+
+function parsePCRDownloadDate(value) {
+    if (!value) return null
+
+    const [year, month, day] = value.split('-').map(Number)
+
+    if (!year || !month || !day) return null
+
+    const date = new Date(year, month - 1, day)
+
+    if (
+        date.getFullYear() !== year ||
+        date.getMonth() !== month - 1 ||
+        date.getDate() !== day
+    ) {
+        return null
+    }
+
+    return date
+}
+
+function formatPCRDownloadDate(date) {
+    if (!date) return ''
+
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+
+    return `${year}-${month}-${day}`
+}
+
 function PCRDownload({
     pcrState,
     onBack
@@ -421,43 +457,103 @@ useEffect(() => {
                         {/* FROM DATE */}
 
                         <div className="pcr-download-field">
-                            <label>
+                            <label htmlFor="pcr-download-from-date">
                                 From Date
-                                <span className="required-mark">
-                                    *
-                                </span>
+                                <span className="required-mark">*</span>
                             </label>
 
-                            <input
-                                type="date"
-                                value={fromDate}
-                                onChange={(e) => {
-                                    setFromDate(e.target.value)
-                                    setError('')
-                                }}
-                                disabled={loading || downloading}
-                            />
+                            <div className="pcr-download-date-picker">
+                                <DatePicker
+                                    id="pcr-download-from-date"
+                                    selected={parsePCRDownloadDate(fromDate)}
+                                    onChange={(date) => {
+                                        const value = formatPCRDownloadDate(date)
+
+                                        setFromDate(value)
+
+                                        if (value && toDate && toDate < value) {
+                                            setToDate(value)
+                                        }
+
+                                        setError('')
+                                    }}
+                                    dateFormat="dd/MM/yyyy"
+                                    placeholderText="dd/mm/yyyy"
+                                    className="pcr-download-date-control"
+                                    calendarClassName="pcr-download-calendar"
+                                    showPopperArrow={false}
+                                    autoComplete="off"
+                                    isClearable={false}
+                                    popperPlacement="bottom-start"
+                                    portalId="pcr-download-datepicker-portal"
+                                    disabled={loading || downloading}
+                                />
+
+                                <button
+                                    type="button"
+                                    className="pcr-download-calendar-icon"
+                                    aria-label="Open From Date calendar"
+                                    disabled={loading || downloading}
+                                    onClick={(event) => {
+                                        const input = event.currentTarget
+                                            .parentElement
+                                            .querySelector('input')
+
+                                        input?.focus()
+                                        input?.click()
+                                    }}
+                                >
+                                    <CalendarDays size={18} />
+                                </button>
+                            </div>
                         </div>
 
                         {/* TO DATE */}
 
                         <div className="pcr-download-field">
-                            <label>
+                            <label htmlFor="pcr-download-to-date">
                                 To Date
-                                <span className="required-mark">
-                                    *
-                                </span>
+                                <span className="required-mark">*</span>
                             </label>
 
-                            <input
-                                type="date"
-                                value={toDate}
-                                onChange={(e) => {
-                                    setToDate(e.target.value)
-                                    setError('')
-                                }}
-                                disabled={loading || downloading}
-                            />
+                            <div className="pcr-download-date-picker">
+                                <DatePicker
+                                    id="pcr-download-to-date"
+                                    selected={parsePCRDownloadDate(toDate)}
+                                    onChange={(date) => {
+                                        setToDate(formatPCRDownloadDate(date))
+                                        setError('')
+                                    }}
+                                    dateFormat="dd/MM/yyyy"
+                                    placeholderText="dd/mm/yyyy"
+                                    minDate={parsePCRDownloadDate(fromDate)}
+                                    className="pcr-download-date-control"
+                                    calendarClassName="pcr-download-calendar"
+                                    showPopperArrow={false}
+                                    autoComplete="off"
+                                    isClearable={false}
+                                    popperPlacement="bottom-start"
+                                    portalId="pcr-download-datepicker-portal"
+                                    disabled={loading || downloading}
+                                />
+
+                                <button
+                                    type="button"
+                                    className="pcr-download-calendar-icon"
+                                    aria-label="Open To Date calendar"
+                                    disabled={loading || downloading}
+                                    onClick={(event) => {
+                                        const input = event.currentTarget
+                                            .parentElement
+                                            .querySelector('input')
+
+                                        input?.focus()
+                                        input?.click()
+                                    }}
+                                >
+                                    <CalendarDays size={18} />
+                                </button>
+                            </div>
                         </div>
 
                         {/* BUTTONS */}
@@ -465,7 +561,7 @@ useEffect(() => {
                         <div className="pcr-download-actions">
                             <button
                                 type="button"
-                                className="pcr-download-search-btn"
+                                className="btn-search pcr-download-search-btn"
                                 onClick={handleSearch}
                                 disabled={loading || downloading}
                             >

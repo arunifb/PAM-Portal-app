@@ -196,9 +196,9 @@
 
 
 .digital-icr-search-button {
-    background: #dc3545;
+    /* background: #dc3545;
 
-    color: #ffffff;
+    color: #ffffff; */
 }
 
 
@@ -209,10 +209,10 @@
 }
 
 
-.digital-icr-search-button:hover:not(:disabled),
+/* .digital-icr-search-button:hover:not(:disabled),
 .digital-icr-download-button:hover:not(:disabled) {
     opacity: 0.9;
-}
+} */
 
 
 .digital-icr-search-button:disabled,
@@ -700,4 +700,95 @@
         font-size: 13px;
     }
 
+}
+
+/* =========================================
+   DIGITAL ICR DATE PICKER - FIX
+========================================= */
+
+.digital-icr-page .digital-icr-date-picker-container {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+}
+
+.digital-icr-page .digital-icr-date-picker-wrapper,
+.digital-icr-page .digital-icr-date-picker-wrapper .react-datepicker-wrapper,
+.digital-icr-page .digital-icr-date-picker-wrapper .react-datepicker__input-container {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+/* Date input */
+.digital-icr-page .digital-icr-date-control {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    height: 34px;
+    box-sizing: border-box;
+    padding: 5px 34px 5px 8px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    background: #fff;
+    color: #212529;
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+    cursor: pointer;
+}
+
+.digital-icr-page .digital-icr-date-control:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.08);
+}
+
+/* Calendar icon stays inside the right edge */
+.digital-icr-page .digital-icr-calendar-icon {
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 26px;
+    padding: 2px;
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.digital-icr-page .digital-icr-calendar-icon:hover {
+    color: #2563eb;
+}
+
+/* Keep calendar above surrounding elements */
+.digital-icr-page .react-datepicker-popper {
+    z-index: 99999 !important;
+}
+
+.digital-icr-page .react-datepicker {
+    font-size: 12px;
+}
+
+.digital-icr-page .react-datepicker__month-container {
+    float: none;
+}
+
+/* Hide the default clear icon */
+.digital-icr-page .react-datepicker__close-icon {
+    display: none !important;
+}
+
+/* Small screens */
+@media (max-width: 600px) {
+    .digital-icr-page .digital-icr-date-control {
+        height: 36px;
+        font-size: 13px;
+    }
 }

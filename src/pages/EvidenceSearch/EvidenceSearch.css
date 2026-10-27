@@ -90,14 +90,14 @@
     cursor: pointer;
 }
 
-.evidence-search-button {
+/* .evidence-search-button {
     background: #d9534f;
     color: #ffffff;
-}
+} */
 
-.evidence-search-button:hover {
+/* .evidence-search-button:hover {
     background: #c9302c;
-}
+} */
 
 .evidence-search-button:disabled,
 .evidence-clear-button:disabled {

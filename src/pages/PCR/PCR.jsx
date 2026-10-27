@@ -19,6 +19,43 @@ import {
 
 import './PCR.css'
 
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
+import { CalendarDays } from 'lucide-react'
+
+
+//Date Picker
+
+function parsePCRDate(value) {
+    if (!value) return null
+
+    const [year, month, day] = value.split('-').map(Number)
+
+    if (!year || !month || !day) return null
+
+    const date = new Date(year, month - 1, day)
+
+    if (
+        date.getFullYear() !== year ||
+        date.getMonth() !== month - 1 ||
+        date.getDate() !== day
+    ) {
+        return null
+    }
+
+    return date
+}
+
+function formatPCRInputDate(date) {
+    if (!date) return ''
+
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+
+    return `${year}-${month}-${day}`
+}
+
 function PCR() {
     const location = useLocation()
 
@@ -986,20 +1023,57 @@ useEffect(() => {
                                     />
                                 </div>
 
+                                
                                 {/* FROM DATE */}
                                 <div className="pcr-field">
                                     <label htmlFor="pcr-from-date">
                                         From Date
                                     </label>
 
-                                    <input
-                                        id="pcr-from-date"
-                                        type="date"
-                                        value={fromDate}
-                                        onChange={(event) =>
-                                            setFromDate(event.target.value)
-                                        }
-                                    />
+                                    <div className="pcr-date-picker-container">
+                                        <DatePicker
+                                            id="pcr-from-date"
+                                            selected={parsePCRDate(fromDate)}
+                                            onChange={date => {
+                                                const value = formatPCRInputDate(date)
+
+                                                setFromDate(value)
+
+                                                if (
+                                                    value &&
+                                                    toDate &&
+                                                    toDate < value
+                                                ) {
+                                                    setToDate(value)
+                                                }
+                                            }}
+                                            dateFormat="dd/MM/yyyy"
+                                            placeholderText="dd/mm/yyyy"
+                                            className="pcr-date-control"
+                                            calendarClassName="pcr-calendar"
+                                            showPopperArrow={false}
+                                            autoComplete="off"
+                                            isClearable={false}
+                                            popperPlacement="bottom-start"
+                                            portalId="pcr-datepicker-portal"
+                                        />
+
+                                        <button
+                                            type="button"
+                                            className="pcr-calendar-icon"
+                                            aria-label="Open From Date calendar"
+                                            onClick={event => {
+                                                const input = event.currentTarget
+                                                    .parentElement
+                                                    .querySelector('input')
+
+                                                input?.focus()
+                                                input?.click()
+                                            }}
+                                        >
+                                            <CalendarDays size={18} />
+                                        </button>
+                                    </div>
                                 </div>
 
                                 {/* TO DATE */}
@@ -1008,14 +1082,39 @@ useEffect(() => {
                                         To Date
                                     </label>
 
-                                    <input
-                                        id="pcr-to-date"
-                                        type="date"
-                                        value={toDate}
-                                        onChange={(event) =>
-                                            setToDate(event.target.value)
-                                        }
-                                    />
+                                    <div className="pcr-date-picker-container">
+                                        <DatePicker
+                                            id="pcr-to-date"
+                                            selected={parsePCRDate(toDate)}
+                                            onChange={date => setToDate(formatPCRInputDate(date))}
+                                            dateFormat="dd/MM/yyyy"
+                                            placeholderText="dd/mm/yyyy"
+                                            minDate={parsePCRDate(fromDate)}
+                                            className="pcr-date-control"
+                                            calendarClassName="pcr-calendar"
+                                            showPopperArrow={false}
+                                            autoComplete="off"
+                                            isClearable={false}
+                                            popperPlacement="bottom-start"
+                                            portalId="pcr-datepicker-portal"
+                                        />
+
+                                        <button
+                                            type="button"
+                                            className="pcr-calendar-icon"
+                                            aria-label="Open To Date calendar"
+                                            onClick={event => {
+                                                const input = event.currentTarget
+                                                    .parentElement
+                                                    .querySelector('input')
+
+                                                input?.focus()
+                                                input?.click()
+                                            }}
+                                        >
+                                            <CalendarDays size={18} />
+                                        </button>
+                                    </div>
                                 </div>
 
                                 {/* STATUS */}
@@ -1077,7 +1176,7 @@ useEffect(() => {
 
                                     <button
                                         type="button"
-                                        className="pcr-search-button"
+                                        className="btn-search pcr-search-button"
                                         onClick={handleSearch}
                                         disabled={loading}
                                     >

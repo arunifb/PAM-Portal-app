@@ -1,0 +1,589 @@
+/* =========================================
+   Vendor Creation Page
+========================================= */
+
+.vendor-creation-page {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 12px 18px 24px;
+  box-sizing: border-box;
+  color: #263445;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+}
+
+/* =========================================
+   Page Header and Top Actions
+========================================= */
+
+.vendor-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  width: 100%;
+  margin: 0 0 12px;
+  padding: 0 0 10px;
+  border-bottom: 1px solid #e2e8f0;
+  box-sizing: border-box;
+}
+
+.vendor-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.vendor-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 7px 16px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.vendor-btn:focus-visible {
+  outline: 2px solid #80bdff;
+  outline-offset: 2px;
+}
+
+.vendor-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.vendor-btn-primary {
+  color: #fff;
+  background-color: #337ab7;
+  border-color: #2e6da4;
+}
+
+.vendor-btn-primary:hover:not(:disabled) {
+  background-color: #286090;
+  border-color: #204d74;
+}
+
+.vendor-btn-secondary {
+  color: #334155;
+  background-color: #fff;
+  border-color: #cbd5e1;
+}
+
+.vendor-btn-secondary:hover:not(:disabled) {
+  background-color: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+/* =========================================
+   API Development Notice
+========================================= */
+
+.vendor-api-notice {
+  margin: 0 0 12px;
+  padding: 9px 12px;
+  border: 1px solid #f3d28a;
+  border-radius: 4px;
+  background: #fff9e8;
+  color: #795b14;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* =========================================
+   Validation and Information Messages
+========================================= */
+
+.vendor-alert {
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.vendor-alert-error {
+  color: #842029;
+  background-color: #f8d7da;
+  border-color: #f1aeb5;
+}
+
+.vendor-alert-info {
+  color: #084298;
+  background-color: #cfe2ff;
+  border-color: #9ec5fe;
+}
+
+.vendor-alert ul {
+  margin: 6px 0 0;
+  padding-left: 20px;
+}
+
+.vendor-alert li {
+  margin-bottom: 3px;
+}
+
+/* =========================================
+   Form Sections
+========================================= */
+
+.vendor-section {
+  width: 100%;
+  margin: 0 0 12px;
+  padding: 12px 14px 14px;
+  border: 1px solid #dbe3ec;
+  border-radius: 5px;
+  background: #fff;
+  box-sizing: border-box;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 4%);
+}
+
+.vendor-section h2 {
+  margin: 0 0 12px;
+  padding: 0 0 8px;
+  border-bottom: 1px solid #e5eaf0;
+  color: #245783;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+/* Purpose section */
+
+.vendor-section:first-of-type {
+  padding-top: 9px;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+
+.vendor-section:first-of-type h2 {
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+}
+
+/* =========================================
+   Responsive Grid Layouts
+========================================= */
+
+.vendor-grid {
+  display: grid;
+  width: 100%;
+  gap: 12px 14px;
+  align-items: start;
+}
+
+.vendor-grid-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* Personal Details: 6 fields per row */
+
+.vendor-section:nth-of-type(2) .vendor-grid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+/* =========================================
+   Contact Details
+   Row 1: 6 fields
+   Row 2: 7 fields
+========================================= */
+
+/* Address Line 1, Address Line 2, Address Line 3,
+   Postal Code, City and Country */
+
+.vendor-section:nth-of-type(3) .vendor-contact-row {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.7fr)  /* Address Line 1 */
+    minmax(0, 1.4fr)  /* Address Line 2 */
+    minmax(0, 1.2fr)  /* Address Line 3 */
+    minmax(0, 0.8fr)  /* Postal Code */
+    minmax(0, 1.1fr)  /* City */
+    minmax(0, 0.65fr); /* Country */
+
+  gap: 12px 14px;
+  align-items: start;
+  margin-bottom: 12px;
+}
+
+/* Mobile Number, Telephone Extension, Telephone,
+   Fax Extension, Fax, Region and Email */
+
+.vendor-section:nth-of-type(3) .vendor-contact-row-2 {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 0.85fr) /* Mobile Number - reduced */
+    minmax(0, 1.1fr)  /* Telephone Extension - increased */
+    minmax(0, 0.9fr)  /* Telephone */
+    minmax(0, 0.95fr) /* Fax Extension */
+    minmax(0, 0.8fr)  /* Fax */
+    minmax(0, 0.9fr)  /* Region */
+    minmax(0, 1.4fr); /* Email */
+
+  gap: 12px 14px;
+  align-items: start;
+  margin-bottom: 0;
+}
+
+/* Keep Contact Details labels on one line on desktop */
+
+.vendor-section:nth-of-type(3) .vendor-contact-row .vendor-field > span:first-child,
+.vendor-section:nth-of-type(3) .vendor-contact-row-2 .vendor-field > span:first-child {
+  white-space: nowrap;
+}
+
+/* Bank Details: 5 fields per row */
+
+.vendor-section:nth-of-type(4) .vendor-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+/* Other Details and GSTN/PAN: 4 fields per row */
+
+.vendor-section:nth-of-type(n + 5) .vendor-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+/* =========================================
+   Form Fields
+========================================= */
+
+.vendor-field {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  width: 100%;
+  gap: 5px;
+  color: #344256;
+  font-size: 12px;
+  font-weight: 600;
+  box-sizing: border-box;
+}
+
+.vendor-field > span:first-child {
+  display: block;
+  min-height: 15px;
+  overflow-wrap: anywhere;
+  line-height: 1.35;
+}
+
+.vendor-required {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.vendor-field input:not([type="file"]),
+.vendor-field select,
+.vendor-field textarea {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: 33px;
+  padding: 6px 9px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  outline: none;
+  background-color: #fff;
+  color: #263445;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  box-sizing: border-box;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.vendor-field input:not([type="file"]):focus,
+.vendor-field select:focus,
+.vendor-field textarea:focus {
+  border-color: #66afe9;
+  box-shadow: 0 0 0 2px rgb(51 122 183 / 12%);
+}
+
+.vendor-field input:disabled,
+.vendor-field select:disabled,
+.vendor-field textarea:disabled {
+  background-color: #f1f5f9;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+.vendor-field input::placeholder,
+.vendor-field textarea::placeholder {
+  color: #94a3b8;
+  opacity: 1;
+}
+
+.vendor-field select {
+  cursor: pointer;
+  padding-right: 25px;
+}
+
+.vendor-field select:disabled {
+  cursor: not-allowed;
+}
+
+/* =========================================
+   File Upload Fields
+========================================= */
+
+.vendor-file-field input[type="file"] {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 33px;
+  padding: 5px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  background-color: #fff;
+  color: #475569;
+  font-family: inherit;
+  font-size: 11px;
+  box-sizing: border-box;
+}
+
+.vendor-file-field input[type="file"]::file-selector-button {
+  margin-right: 7px;
+  padding: 4px 7px;
+  border: 1px solid #cbd5e1;
+  border-radius: 3px;
+  background: #f1f5f9;
+  color: #334155;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.vendor-file-name {
+  display: block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+/* =========================================
+   Uploaded File Previews
+========================================= */
+
+.vendor-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.vendor-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid #dbe3ec;
+  border-radius: 4px;
+  background: #f8fafc;
+  box-sizing: border-box;
+}
+
+.vendor-preview strong {
+  color: #245783;
+  font-size: 11px;
+}
+
+.vendor-preview span {
+  overflow-wrap: anywhere;
+  color: #475569;
+  font-size: 11px;
+}
+
+.vendor-preview img {
+  display: block;
+  width: 100%;
+  max-width: 150px;
+  max-height: 110px;
+  object-fit: contain;
+  object-position: left center;
+  border: 1px solid #e2e8f0;
+  border-radius: 3px;
+  background: #fff;
+}
+
+/* =========================================
+   Bottom Actions
+========================================= */
+
+.vendor-bottom-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0;
+  padding: 12px 0 0;
+  border-top: 1px solid #e2e8f0;
+}
+
+.vendor-dropdown-note {
+  margin: 10px 0 0;
+  color: #64748b;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+/* =========================================
+   Medium Screens
+========================================= */
+
+@media (max-width: 1200px) {
+  .vendor-section:nth-of-type(2) .vendor-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .vendor-section:nth-of-type(3) .vendor-contact-row,
+  .vendor-section:nth-of-type(3) .vendor-contact-row-2 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  /* Allow labels to wrap when the screen is narrower */
+
+  .vendor-section:nth-of-type(3) .vendor-contact-row .vendor-field > span:first-child,
+  .vendor-section:nth-of-type(3) .vendor-contact-row-2 .vendor-field > span:first-child {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .vendor-section:nth-of-type(4) .vendor-grid,
+  .vendor-section:nth-of-type(n + 5) .vendor-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .vendor-preview-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* =========================================
+   Tablets
+========================================= */
+
+@media (max-width: 768px) {
+  .vendor-creation-page {
+    padding: 10px;
+  }
+
+  .vendor-page-header {
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .vendor-section {
+    padding: 11px;
+    margin-bottom: 10px;
+  }
+
+  .vendor-section h2 {
+    font-size: 14px;
+  }
+
+  .vendor-section:nth-of-type(2) .vendor-grid,
+  .vendor-section:nth-of-type(3) .vendor-contact-row,
+  .vendor-section:nth-of-type(3) .vendor-contact-row-2,
+  .vendor-section:nth-of-type(4) .vendor-grid,
+  .vendor-section:nth-of-type(n + 5) .vendor-grid,
+  .vendor-grid-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .vendor-preview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .vendor-btn {
+    padding: 7px 12px;
+  }
+}
+
+/* =========================================
+   Mobile
+========================================= */
+
+@media (max-width: 480px) {
+  .vendor-creation-page {
+    padding: 8px;
+  }
+
+  .vendor-page-header {
+    justify-content: flex-end;
+    align-items: center;
+    padding-bottom: 9px;
+  }
+
+  .vendor-header-actions {
+    width: 100%;
+    gap: 7px;
+  }
+
+  .vendor-header-actions .vendor-btn {
+    flex: 1;
+  }
+
+  .vendor-section:nth-of-type(2) .vendor-grid,
+  .vendor-section:nth-of-type(3) .vendor-contact-row,
+  .vendor-section:nth-of-type(3) .vendor-contact-row-2,
+  .vendor-section:nth-of-type(4) .vendor-grid,
+  .vendor-section:nth-of-type(n + 5) .vendor-grid,
+  .vendor-grid-2 {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 11px;
+  }
+
+  .vendor-section {
+    padding: 10px;
+  }
+
+  .vendor-section h2 {
+    margin-bottom: 10px;
+  }
+
+  .vendor-field {
+    gap: 5px;
+  }
+
+  /* Keep labels readable on narrow screens */
+
+  .vendor-section:nth-of-type(3) .vendor-contact-row .vendor-field > span:first-child,
+  .vendor-section:nth-of-type(3) .vendor-contact-row-2 .vendor-field > span:first-child {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .vendor-preview-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .vendor-bottom-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .vendor-bottom-actions .vendor-btn:last-child {
+    grid-column: 1 / -1;
+  }
+}

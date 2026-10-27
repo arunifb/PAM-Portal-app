@@ -756,7 +756,7 @@ function FranchiseList({ onAddFranchise }) {
                             <div className="franchise-actions">
                                 <button
                                     type="submit"
-                                    className="franchise-btn franchise-btn-primary"
+                                    className="btn-search franchise-btn franchise-btn-primary"
                                     disabled={loading}
                                 >
                                     {loading ? 'Searching...' : 'Search'}

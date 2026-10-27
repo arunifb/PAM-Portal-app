@@ -11,6 +11,43 @@ import {
 
 import './SearchInvoice.css'
 
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
+import { CalendarDays } from 'lucide-react'
+
+
+//Date Picker
+
+function parseInvoiceDate(value) {
+    if (!value) return null
+
+    const [year, month, day] = value.split('-').map(Number)
+
+    if (!year || !month || !day) return null
+
+    const date = new Date(year, month - 1, day)
+
+    if (
+        date.getFullYear() !== year ||
+        date.getMonth() !== month - 1 ||
+        date.getDate() !== day
+    ) {
+        return null
+    }
+
+    return date
+}
+
+function formatInvoiceInputDate(date) {
+    if (!date) return ''
+
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+
+    return `${year}-${month}-${day}`
+}
+
 function SearchInvoice() {
     const userId = sessionStorage.getItem('userId')
 
@@ -388,35 +425,100 @@ function SearchInvoice() {
                         </div>
 
                         <div className="invoice-field">
-                            <label htmlFor="fromDate">
-                                Invoice From Date
-                            </label>
+                            <label htmlFor="fromDate">Invoice From Date</label>
 
-                            <input
-                                id="fromDate"
-                                name="fromDate"
-                                type="date"
-                                min={sixMonthsAgoString}
-                                max={todayString}
-                                value={filters.fromDate}
-                                onChange={handleFilterChange}
-                            />
+                            <div className="invoice-date-picker-container">
+                                <DatePicker
+                                    id="fromDate"
+                                    selected={parseInvoiceDate(filters.fromDate)}
+                                    onChange={date => {
+                                        const value = formatInvoiceInputDate(date)
+
+                                        setFilters(previous => ({
+                                            ...previous,
+                                            fromDate: value,
+                                            toDate:
+                                                value &&
+                                                previous.toDate &&
+                                                previous.toDate < value
+                                                    ? value
+                                                    : previous.toDate
+                                        }))
+                                    }}
+                                    dateFormat="dd/MM/yyyy"
+                                    placeholderText="dd/mm/yyyy"
+                                    minDate={parseInvoiceDate(sixMonthsAgoString)}
+                                    maxDate={parseInvoiceDate(todayString)}
+                                    className="invoice-date-control"
+                                    calendarClassName="invoice-calendar"
+                                    showPopperArrow={false}
+                                    autoComplete="off"
+                                    isClearable={false}
+                                    popperPlacement="bottom-start"
+                                />
+
+                                <button
+                                    type="button"
+                                    className="invoice-calendar-icon"
+                                    aria-label="Open Invoice From Date calendar"
+                                    onClick={event => {
+                                        const input = event.currentTarget
+                                            .parentElement
+                                            .querySelector('input')
+
+                                        input?.focus()
+                                        input?.click()
+                                    }}
+                                >
+                                    <CalendarDays size={18} />
+                                </button>
+                            </div>
                         </div>
 
                         <div className="invoice-field">
-                            <label htmlFor="toDate">
-                                Invoice To Date
-                            </label>
+                            <label htmlFor="toDate">Invoice To Date</label>
 
-                            <input
-                                id="toDate"
-                                name="toDate"
-                                type="date"
-                                min={sixMonthsAgoString}
-                                max={todayString}
-                                value={filters.toDate}
-                                onChange={handleFilterChange}
-                            />
+                            <div className="invoice-date-picker-container">
+                                <DatePicker
+                                    id="toDate"
+                                    selected={parseInvoiceDate(filters.toDate)}
+                                    onChange={date => {
+                                        setFilters(previous => ({
+                                            ...previous,
+                                            toDate: formatInvoiceInputDate(date)
+                                        }))
+                                    }}
+                                    dateFormat="dd/MM/yyyy"
+                                    placeholderText="dd/mm/yyyy"
+                                    minDate={
+                                        parseInvoiceDate(filters.fromDate) ||
+                                        parseInvoiceDate(sixMonthsAgoString)
+                                    }
+                                    maxDate={parseInvoiceDate(todayString)}
+                                    className="invoice-date-control"
+                                    calendarClassName="invoice-calendar"
+                                    showPopperArrow={false}
+                                    autoComplete="off"
+                                    isClearable={false}
+                                    popperPlacement="bottom-end"
+                                />
+
+                                <button
+                                    type="button"
+                                    className="invoice-calendar-icon"
+                                    aria-label="Open Invoice To Date calendar"
+                                    onClick={event => {
+                                        const input = event.currentTarget
+                                            .parentElement
+                                            .querySelector('input')
+
+                                        input?.focus()
+                                        input?.click()
+                                    }}
+                                >
+                                    <CalendarDays size={18} />
+                                </button>
+                            </div>
                         </div>
                     </div>
 

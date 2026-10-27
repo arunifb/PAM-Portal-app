@@ -729,7 +729,7 @@ function SparesStock() {
                     <div className="spares-stock-actions">
                         <button
                             type="button"
-                            className="spares-stock-search-button"
+                            className="btn-search spares-stock-search-button"
                             onClick={handleSearch}
                             disabled={searching}
                         >

@@ -1009,7 +1009,7 @@ function EditView() {
                             <div className="subdealer-page-actions">
                                 <button
                                     type="button"
-                                    className="subdealer-search-button"
+                                    className="btn-search subdealer-search-button"
                                     onClick={handleSearch}
                                     disabled={loading}
                                 >

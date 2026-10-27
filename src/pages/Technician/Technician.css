@@ -120,10 +120,11 @@
 .technician-search-button {
     height: 37px;
     padding: 0 17px;
-    border: 1px solid #2563eb;
+    /* border: 1px solid #2563eb; */
+    border: 1px solid ;
     border-radius: 5px;
-    background: #2563eb;
-    color: #ffffff;
+    /* background: #2563eb; */
+    /* color: #ffffff; */
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -133,10 +134,10 @@
         opacity 0.15s ease;
 }
 
-.technician-search-button:hover:not(:disabled) {
+/* .technician-search-button:hover:not(:disabled) {
     background: #1d4ed8;
     border-color: #1d4ed8;
-}
+} */
 
 .technician-search-button:disabled {
     opacity: 0.6;

@@ -292,15 +292,15 @@
    SEARCH BUTTON
 ========================================= */
 
-.inventory-search-button {
+/* .inventory-search-button {
     background: #2563eb;
     color: #ffffff;
     box-shadow: 0 1px 4px rgba(37, 99, 235, 0.18);
-}
+} */
 
-.inventory-search-button:hover:not(:disabled) {
+/* .inventory-search-button:hover:not(:disabled) {
     background: #1d4ed8;
-}
+} */
 
 
 /* =========================================

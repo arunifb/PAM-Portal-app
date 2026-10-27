@@ -9,6 +9,10 @@ import {
 
 import './TechnicianEdit.css'
 
+import DatePicker from 'react-datepicker'
+import { CalendarDays } from 'lucide-react'
+import 'react-datepicker/dist/react-datepicker.css'
+
 const INITIAL_FORM = {
     techId: '',
     partnerId: '',
@@ -70,6 +74,48 @@ function getDateInputValue(value) {
         String(date.getMonth() + 1).padStart(2, '0'),
         String(date.getDate()).padStart(2, '0')
     ].join('-')
+}
+
+// Date Picker
+
+function parseTechnicianDate(value) {
+    if (!value) return null
+
+    const match = String(value).match(
+        /^(\d{4})-(\d{2})-(\d{2})$/
+    )
+
+    if (!match) return null
+
+    const [, yearText, monthText, dayText] = match
+
+    const year = Number(yearText)
+    const month = Number(monthText)
+    const day = Number(dayText)
+
+    const date = new Date(year, month - 1, day)
+
+    // Reject invalid dates such as 2026-02-31.
+    if (
+        date.getFullYear() !== year ||
+        date.getMonth() !== month - 1 ||
+        date.getDate() !== day
+    ) {
+        return null
+    }
+
+    return date
+}
+
+function formatTechnicianDate(date) {
+    if (!date) return ''
+
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+
+    // Preserve the existing form/API state format.
+    return `${year}-${month}-${day}`
 }
 
 function getTechnicianPhotoUrl(photoUrl) {
@@ -172,6 +218,9 @@ const isRole5 = roleId === 5 || sessionRoles.includes(5)
 
     const messageRef = useRef(null)
     const photoInputRef = useRef(null)
+
+    const dojDatePickerRef = useRef(null)
+    const dobDatePickerRef = useRef(null)
 
     // Load technician details.
     useEffect(() => {
@@ -906,13 +955,40 @@ const isRole5 = roleId === 5 || sessionRoles.includes(5)
                                                     Date of Joining
                                                 </label>
 
-                                                <input
-                                                    type="date"
-                                                    name="doj"
-                                                    className="form-control"
-                                                    value={form.doj || ''}
-                                                    onChange={handleChange}
-                                                />
+                                                <div className="technician-date-picker-container">
+                                                    <DatePicker
+                                                        ref={dojDatePickerRef}
+                                                        selected={parseTechnicianDate(form.doj)}
+                                                        onChange={(date) => {
+                                                            setForm(previous => ({
+                                                                ...previous,
+                                                                doj: formatTechnicianDate(date)
+                                                            }))
+
+                                                            setError('')
+                                                            setMessage('')
+                                                        }}
+                                                        dateFormat="dd/MM/yyyy"
+                                                        placeholderText="dd/mm/yyyy"
+                                                        className="form-control technician-date-control"
+                                                        calendarClassName="technician-calendar"
+                                                        showPopperArrow={false}
+                                                        autoComplete="off"
+                                                        isClearable={false}
+                                                        popperPlacement="bottom-start"
+                                                        disabled={loading || saving}
+                                                    />
+
+                                                    <button
+                                                        type="button"
+                                                        className="technician-calendar-icon"
+                                                        aria-label="Open Date of Joining calendar"
+                                                        onClick={() => dojDatePickerRef.current?.setOpen(true)}
+                                                        disabled={loading || saving}
+                                                    >
+                                                        <CalendarDays size={17} />
+                                                    </button>
+                                                </div>
                                             </div>
 
                                             {/* Date of Birth */}
@@ -921,13 +997,40 @@ const isRole5 = roleId === 5 || sessionRoles.includes(5)
                                                     Date of Birth
                                                 </label>
 
-                                                <input
-                                                    type="date"
-                                                    name="dob"
-                                                    className="form-control"
-                                                    value={form.dob || ''}
-                                                    onChange={handleChange}
-                                                />
+                                                <div className="technician-date-picker-container">
+                                                    <DatePicker
+                                                        ref={dobDatePickerRef}
+                                                        selected={parseTechnicianDate(form.dob)}
+                                                        onChange={(date) => {
+                                                            setForm(previous => ({
+                                                                ...previous,
+                                                                dob: formatTechnicianDate(date)
+                                                            }))
+
+                                                            setError('')
+                                                            setMessage('')
+                                                        }}
+                                                        dateFormat="dd/MM/yyyy"
+                                                        placeholderText="dd/mm/yyyy"
+                                                        className="form-control technician-date-control"
+                                                        calendarClassName="technician-calendar"
+                                                        showPopperArrow={false}
+                                                        autoComplete="off"
+                                                        isClearable={false}
+                                                        popperPlacement="bottom-start"
+                                                        disabled={loading || saving}
+                                                    />
+
+                                                    <button
+                                                        type="button"
+                                                        className="technician-calendar-icon"
+                                                        aria-label="Open Date of Birth calendar"
+                                                        onClick={() => dobDatePickerRef.current?.setOpen(true)}
+                                                        disabled={loading || saving}
+                                                    >
+                                                        <CalendarDays size={17} />
+                                                    </button>
+                                                </div>
                                             </div>
 
                                             {/* Address */}

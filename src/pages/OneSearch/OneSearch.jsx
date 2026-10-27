@@ -381,7 +381,7 @@ function OneSearch() {
 
                                 <button
                                     type="submit"
-                                    className="one-search-button"
+                                    className="btn-search one-search-button"
                                     disabled={loading}
                                 >
 

@@ -476,3 +476,87 @@
         width: 100%;
     }
 }
+
+/* =========================================
+   DIGITAL CONTRACT DATE PICKER
+========================================= */
+
+.digital-contract-date-picker-container {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+}
+
+.digital-contract-date-picker-container .react-datepicker-wrapper,
+.digital-contract-date-picker-container .react-datepicker__input-container {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.digital-contract-date-control {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    height: 34px;
+    padding: 5px 34px 5px 9px;
+    border: 1px solid #d1d5db;
+    border-radius: 5px;
+    background: #ffffff;
+    color: #111827;
+    font-family: inherit;
+    font-size: 13px;
+    box-sizing: border-box;
+    outline: none;
+    cursor: pointer;
+}
+
+.digital-contract-date-control:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.10);
+}
+
+.digital-contract-calendar-icon {
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 26px;
+    padding: 2px;
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.digital-contract-calendar-icon:hover {
+    color: #2563eb;
+}
+
+.digital-contract-page .react-datepicker-popper {
+    z-index: 99999 !important;
+}
+
+.digital-contract-page .digital-contract-calendar {
+    font-size: 12px;
+}
+
+.digital-contract-page .digital-contract-calendar .react-datepicker__month-container {
+    float: none;
+}
+
+.digital-contract-page .react-datepicker__close-icon {
+    display: none !important;
+}
+
+@media (max-width: 650px) {
+    .digital-contract-date-control {
+        height: 36px;
+        font-size: 13px;
+    }
+}

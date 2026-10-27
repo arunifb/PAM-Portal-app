@@ -828,3 +828,121 @@
 .technician-edit-section .form-label .text-danger {
     color: #dc3545 !important;
 }
+
+
+/* =========================================
+   TECHNICIAN DATE PICKER
+   Display format: dd/MM/yyyy
+========================================= */
+
+.technician-date-picker-container {
+    position: relative;
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.technician-date-picker-container .react-datepicker-wrapper,
+.technician-date-picker-container .react-datepicker__input-container {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.technician-edit-section .technician-date-control {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    height: 34px;
+    min-height: 34px;
+    padding: 6px 34px 6px 8px;
+    border: 1px solid #cfd6df;
+    border-radius: 5px;
+    background-color: #ffffff;
+    color: #263445;
+    font-family: inherit;
+    font-size: 12px;
+    line-height: 1.4;
+    cursor: pointer;
+}
+
+.technician-edit-section .technician-date-control:focus {
+    border-color: #337ab7;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(51, 122, 183, 0.12);
+}
+
+.technician-edit-section .technician-date-control:disabled {
+    background-color: #f3f5f7;
+    cursor: not-allowed;
+}
+
+.technician-calendar-icon {
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 25px;
+    height: 27px;
+    padding: 0;
+    border: none;
+    border-radius: 3px;
+    background: transparent;
+    color: #667085;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.technician-calendar-icon:hover:not(:disabled) {
+    color: #337ab7;
+    background: #f1f5f9;
+}
+
+.technician-calendar-icon:focus-visible {
+    outline: 2px solid #337ab7;
+    outline-offset: 1px;
+}
+
+.technician-calendar-icon:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Calendar appearance */
+
+.technician-edit-page .react-datepicker-popper {
+    z-index: 99999 !important;
+}
+
+.technician-calendar {
+    font-family: inherit;
+    font-size: 12px;
+}
+
+.technician-calendar .react-datepicker__header {
+    background-color: #f1f3f5;
+    border-bottom-color: #dfe5ec;
+}
+
+.technician-calendar .react-datepicker__current-month,
+.technician-calendar .react-datepicker__day-name {
+    color: #263445;
+    font-size: 12px;
+}
+
+.technician-calendar .react-datepicker__day {
+    font-size: 12px;
+}
+
+.technician-calendar .react-datepicker__day--selected,
+.technician-calendar .react-datepicker__day--keyboard-selected {
+    background-color: #337ab7;
+    color: #ffffff;
+}
+
+.technician-calendar .react-datepicker__day:hover {
+    background-color: #dceaf7;
+}

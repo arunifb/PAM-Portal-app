@@ -1505,7 +1505,7 @@ useEffect(() => {
                     <div className="technician-filter-actions">
                         <button
                             type="button"
-                            className="technician-search-button"
+                            className="btn-search technician-search-button"
                             onClick={handleSearch}
                             disabled={
                                 loading ||

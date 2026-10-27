@@ -99,22 +99,22 @@
     padding: 5px 15px;
     border: none;
     border-radius: 5px;
-    background: #2563eb;
-    color: #ffffff;
+    /* background: #2563eb;
+    color: #ffffff; */
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     transition: background 0.2s ease;
 }
 
-.franchise-search-button:hover {
+/* .franchise-search-button:hover {
     background: #1d4ed8;
-}
+} */
 
-.franchise-search-button:disabled {
+/* .franchise-search-button:disabled {
     background: #93c5fd;
     cursor: not-allowed;
-}
+} */
 
 
 /* =========================================================

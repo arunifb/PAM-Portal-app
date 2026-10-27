@@ -64,7 +64,9 @@
     border-radius: 4px;
     margin-bottom: 5px;
     box-sizing: border-box;
-    overflow: hidden;
+    overflow: visible;
+    position: relative;
+    z-index: 10;
 }
 
 
@@ -213,14 +215,14 @@
    SEARCH BUTTON
    ===================================================== */
 
-.pcr-search-button {
+/* .pcr-search-button {
     background: #2563eb;
     color: #ffffff;
-}
+} */
 
-.pcr-search-button:hover {
-    background: ;
-}
+/* .pcr-search-button:hover {
+    background: #1d4ed8;
+} */
 
 .pcr-search-button:disabled {
     opacity: 0.6;
@@ -640,4 +642,133 @@
         width: 100%;
         flex: 1 1 100%;
     }
+}
+
+/* =========================================
+   PCR DATE PICKER
+========================================= */
+
+.pcr-date-picker-container {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+}
+
+.pcr-date-picker-container .react-datepicker-wrapper,
+.pcr-date-picker-container .react-datepicker__input-container {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.pcr-date-control {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    height: 38px;
+    padding: 6px 34px 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+    color: #333;
+    font-family: inherit;
+    font-size: 13px;
+    box-sizing: border-box;
+    outline: none;
+    cursor: pointer;
+}
+
+.pcr-date-control:focus {
+    border-color: #888;
+    box-shadow: none;
+}
+
+.pcr-calendar-icon {
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 28px;
+    padding: 2px;
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.pcr-calendar-icon:hover {
+    color: #2563eb;
+}
+
+.pcr-page .react-datepicker-popper {
+    z-index: 99999 !important;
+}
+
+.pcr-page .pcr-calendar {
+    font-size: 12px;
+}
+
+.pcr-page .pcr-calendar .react-datepicker__month-container {
+    float: none;
+}
+
+.pcr-page .react-datepicker__close-icon {
+    display: none !important;
+}
+
+/* =========================================
+   PCR CALENDAR POPPER FIX
+========================================= */
+
+.pcr-page {
+    overflow-x: clip;
+    overflow-y: visible;
+}
+
+.pcr-search-grid {
+    overflow: visible;
+}
+
+.pcr-field {
+    position: relative;
+    overflow: visible;
+}
+
+.pcr-date-picker-container {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+}
+
+.pcr-date-picker-container .react-datepicker-wrapper,
+.pcr-date-picker-container .react-datepicker__input-container {
+    display: block;
+    width: 100%;
+}
+
+.pcr-page .react-datepicker-popper {
+    z-index: 99999 !important;
+}
+
+.pcr-page .react-datepicker {
+    font-size: 12px;
+}
+
+.pcr-page .react-datepicker__month-container {
+    float: none;
+}
+
+/* Keep the calendar above nearby fields when opened */
+.pcr-page .react-datepicker-popper[data-placement^="bottom"] {
+    z-index: 99999 !important;
+}
+
+.pcr-page .react-datepicker-popper[data-placement^="top"] {
+    z-index: 99999 !important;
 }
