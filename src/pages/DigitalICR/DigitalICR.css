@@ -196,7 +196,7 @@
 
 
 /* .digital-icr-search-button { */
-    /* background: #dc3545;
+/* background: #dc3545;
 
     color: #ffffff; */
 /* } */
@@ -260,6 +260,11 @@
 }
 
 
+/* =========================================
+   GRID HEADER
+   ADDED: VERTICAL AND HORIZONTAL BORDERS
+========================================= */
+
 .digital-icr-table th {
     padding: 10px 9px;
 
@@ -267,7 +272,8 @@
 
     color: #343a40;
 
-    border-bottom: 1px solid #dee2e6;
+    /* ADDED: Border around each header cell */
+    border: 1px solid #dee2e6;
 
     font-size: 12px;
 
@@ -279,10 +285,16 @@
 }
 
 
+/* =========================================
+   GRID BODY
+   ADDED: VERTICAL AND HORIZONTAL BORDERS
+========================================= */
+
 .digital-icr-table td {
     padding: 9px;
 
-    border-bottom: 1px solid #eeeeee;
+    /* ADDED: Border around each body cell */
+    border: 1px solid #eeeeee;
 
     color: #343a40;
 
@@ -701,6 +713,7 @@
     }
 
 }
+
 
 /* =========================================
    DIGITAL ICR DATE PICKER - FIX
