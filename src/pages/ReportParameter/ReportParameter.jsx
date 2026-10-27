@@ -771,14 +771,37 @@ const report = reportProp || location.state?.report
     const loggedInRegionCode =
         sessionStorage.getItem('regionCode') || ''
 
-    const loggedInRoleId =
-        sessionStorage.getItem('roleId') || ''
+    const storedRoles = (() => {
+    try {
+        const roles = JSON.parse(
+            sessionStorage.getItem('roles') || '[]'
+        )
+
+        return Array.isArray(roles) ? roles : []
+    } catch {
+        return []
+    }
+})()
+
+const loggedInRoleId = String(
+    storedRoles.length > 0
+        ? storedRoles[0]
+        : sessionStorage.getItem('roleId') || ''
+)
+
 
     const loggedInLoginId =
         sessionStorage.getItem('loginId') || ''
 
     const loggedInBpCode =
         sessionStorage.getItem('bpCode') || ''
+
+
+        console.log({
+    roleId: loggedInRoleId,
+    regionCode: loggedInRegionCode,
+    bpCode: loggedInBpCode
+})
 
     const loggedInFranchiseCode =
     sessionStorage.getItem('frCode') ||
@@ -990,80 +1013,97 @@ const report = reportProp || location.state?.report
 // ])
 
 // =================================================
-// LOAD USER REGION
+// LOAD USER REGION — PRESELECT FOR ROLE 3 AND 6
 // =================================================
 
 useEffect(() => {
+    let cancelled = false
+
     const loadUserRegion = async () => {
         try {
             setRegionLoading(true)
             setRegionError('')
 
-            const data = await getRegions(
-                '',
-                loggedInUserId
-            )
+            const data = await getRegions('', loggedInUserId)
 
-            const regionData = Array.isArray(data)
-                ? data
-                : []
+            if (cancelled) return
 
+            const regionData = Array.isArray(data) ? data : []
             setRegions(regionData)
+
+            console.log('Region API data:', regionData)
+            console.log('Logged-in region code:', loggedInRegionCode)
+            console.log('Logged-in role ID:', loggedInRoleId)
 
             if (isFactoryUser) {
                 setSelectedRegion('All')
-            } else if (
-                isRole3 ||
-                isFranchiseUser ||
-                isBranchUser
-            ) {
-                const matchingRegion = regionData.find(
-                    (region) =>
-                        String(
-                            region.regionCode ??
-                            region.RegionCode ??
-                            ''
-                        ).trim() ===
-                        String(loggedInRegionCode).trim()
-                )
+                return
+            }
 
-                setSelectedRegion(
-                    matchingRegion
-                        ? String(
-                            matchingRegion.regionCode ??
-                            matchingRegion.RegionCode
-                        )
-                        : ''
-                )
+            if (isRole3 || isBranchUser || isFranchiseUser) {
+                const matchingRegion = regionData.find((region) => {
+                    const code =
+                        region.regionCode ??
+                        region.RegionCode ??
+                        region.region_Code ??
+                        region.Region_Code ??
+                        ''
+
+                    return (
+                        String(code).trim().toLowerCase() ===
+                        String(loggedInRegionCode).trim().toLowerCase()
+                    )
+                })
+
+                const code = matchingRegion
+                    ? String(
+                        matchingRegion.regionCode ??
+                        matchingRegion.RegionCode ??
+                        matchingRegion.region_Code ??
+                        matchingRegion.Region_Code ??
+                        ''
+                    )
+                    : ''
+
+                setSelectedRegion(code)
+
+                if (!code) {
+                    console.warn(
+                        'Region preselection failed. Check the region code and Region API response.'
+                    )
+                }
             } else {
                 setSelectedRegion('')
             }
         } catch (error) {
-            console.error(
-                'Load region error:',
-                error
-            )
+            if (cancelled) return
 
+            console.error('Load region error:', error)
             setRegions([])
             setSelectedRegion('')
-
             setRegionError(
-                error.message ||
-                'Unable to load region.'
+                error.message || 'Unable to load region.'
             )
         } finally {
-            setRegionLoading(false)
+            if (!cancelled) {
+                setRegionLoading(false)
+            }
         }
     }
 
     loadUserRegion()
+
+    return () => {
+        cancelled = true
+    }
 }, [
     loggedInUserId,
     loggedInRegionCode,
+    loggedInRoleId,
     isFactoryUser,
     isRole3,
-    isFranchiseUser,
-    isBranchUser
+    isBranchUser,
+    isFranchiseUser
 ])
 
     // =================================================
@@ -1392,41 +1432,39 @@ useEffect(() => {
 
 
 // =================================================
-// LOAD USER BRANCHES
+// LOAD USER BRANCHES — PRESELECT FOR ROLE 3 AND 6
 // =================================================
 
 useEffect(() => {
+    let cancelled = false
+
     const loadUserBranch = async () => {
         setBranchError('')
 
         if (!selectedRegion) {
             setBranches([])
-            setSelectedBranch(
-                isRegionOrFactoryUser ? 'All' : ''
-            )
+            setSelectedBranch('')
+            setBranchLoading(false)
             return
         }
 
         if (!loggedInRoleId) {
             setBranches([])
             setSelectedBranch('')
-
-            setBranchError(
-                'Unable to determine logged-in role.'
-            )
+            setBranchLoading(false)
+            setBranchError('Unable to determine logged-in role.')
             return
         }
 
         if (
-            (isBranchUser || isFranchiseUser || isRole3) &&
+            (isBranchUser || isRole3 || isFranchiseUser) &&
             !loggedInBpCode
         ) {
             setBranches([])
             setSelectedBranch('')
-
-            setBranchError(
-                'Unable to determine logged-in branch.'
-            )
+            setBranchLoading(false)
+            setBranchError('Unable to determine logged-in branch.')
+            console.warn('Missing logged-in bpCode in sessionStorage.')
             return
         }
 
@@ -1435,70 +1473,84 @@ useEffect(() => {
 
             const data = await getBranches(
                 loggedInUserId,
-                selectedRegion === 'All'
-                    ? ''
-                    : selectedRegion
+                selectedRegion === 'All' ? '' : selectedRegion
             )
 
-            const branchData = Array.isArray(data)
-                ? data
-                : []
+            if (cancelled) return
 
+            const branchData = Array.isArray(data) ? data : []
             setBranches(branchData)
+
+            console.log('Branch API data:', branchData)
+            console.log('Logged-in BP code:', loggedInBpCode)
+            console.log('Selected region:', selectedRegion)
 
             if (isRegionOrFactoryUser) {
                 setSelectedBranch('All')
-            } else if (
-                isBranchUser ||
-                isFranchiseUser ||
-                isRole3
-            ) {
-                const matchingBranch = branchData.find(
-                    (branch) =>
-                        String(
-                            branch.bpCode ??
-                            branch.BPCode ??
-                            branch.branchCode ??
-                            branch.BranchCode ??
-                            ''
-                        ).trim() ===
-                        String(loggedInBpCode).trim()
-                )
+                return
+            }
 
-                setSelectedBranch(
-                    matchingBranch
-                        ? String(
-                            matchingBranch.bpCode ??
-                            matchingBranch.BPCode ??
-                            matchingBranch.branchCode ??
-                            matchingBranch.BranchCode
-                        )
-                        : ''
-                )
+            if (isBranchUser || isRole3 || isFranchiseUser) {
+                const matchingBranch = branchData.find((branch) => {
+                    const code =
+                        branch.bpCode ??
+                        branch.BPCode ??
+                        branch.bpcode ??
+                        branch.branchCode ??
+                        branch.BranchCode ??
+                        branch.branch_code ??
+                        ''
+
+                    return (
+                        String(code).trim().toLowerCase() ===
+                        String(loggedInBpCode).trim().toLowerCase()
+                    )
+                })
+
+                const code = matchingBranch
+                    ? String(
+                        matchingBranch.bpCode ??
+                        matchingBranch.BPCode ??
+                        matchingBranch.bpcode ??
+                        matchingBranch.branchCode ??
+                        matchingBranch.BranchCode ??
+                        matchingBranch.branch_code ??
+                        ''
+                    )
+                    : ''
+
+                setSelectedBranch(code)
+
+                if (!code) {
+                    console.warn(
+                        'Branch preselection failed. Check the BPCode and Branch API response.'
+                    )
+                }
             } else {
-                setSelectedBranch('')
+                setSelectedBranch('All')
             }
         } catch (error) {
-            console.error(
-                'Load branches error:',
-                error
-            )
+            if (cancelled) return
+
+            console.error('Load branches error:', error)
 
             setBranches([])
-            setSelectedBranch(
-                isRegionOrFactoryUser ? 'All' : ''
-            )
-
+            setSelectedBranch('')
             setBranchError(
-                error.message ||
-                'Unable to load branches.'
+                error.message || 'Unable to load branches.'
             )
         } finally {
-            setBranchLoading(false)
+            if (!cancelled) {
+                setBranchLoading(false)
+            }
         }
     }
 
     loadUserBranch()
+
+    return () => {
+        cancelled = true
+    }
 }, [
     selectedRegion,
     loggedInUserId,
@@ -1506,8 +1558,8 @@ useEffect(() => {
     loggedInBpCode,
     isRegionOrFactoryUser,
     isBranchUser,
-    isFranchiseUser,
-    isRole3
+    isRole3,
+    isFranchiseUser
 ])
     
     // =================================================
@@ -1515,63 +1567,79 @@ useEffect(() => {
 // =================================================
 
 useEffect(() => {
+    let cancelled = false
+
     const loadFranchises = async () => {
+        setFranchiseError('')
+        setFranchises([])
+
+        // Region and Factory users must choose a specific branch.
         if (
             isRegionOrFactoryUser &&
             (!selectedBranch || selectedBranch === 'All')
         ) {
-            setFranchises([])
             setSelectedFranchise('All')
-            setFranchiseError('')
             setFranchiseLoading(false)
             return
         }
 
         if (!selectedBranch) {
-            setFranchises([])
             setSelectedFranchise(
                 isFranchiseUser ? '' : 'All'
-            )
-            setFranchiseError('')
-            setFranchiseLoading(false)
-            return
-        }
-
-        if (!loggedInRoleId) {
-            setFranchises([])
-            setSelectedFranchise('All')
-            setFranchiseError(
-                'Unable to determine logged-in role.'
             )
             setFranchiseLoading(false)
             return
         }
 
-        if (!loggedInLoginId) {
-            setFranchises([])
+        if (!loggedInRoleId || !loggedInLoginId) {
             setSelectedFranchise(
                 isFranchiseUser ? '' : 'All'
             )
+            setFranchiseLoading(false)
             setFranchiseError(
-                'Unable to determine logged-in Login ID.'
+                !loggedInRoleId
+                    ? 'Unable to determine logged-in role.'
+                    : 'Unable to determine logged-in Login ID.'
+            )
+            return
+        }
+
+        // Roles 3, 5, and 6 must use their logged-in BPCode.
+        // Roles 1 and 7 use the selected branch, which cannot be All here.
+        const branchCode = isRegionOrFactoryUser
+            ? selectedBranch
+            : loggedInBpCode
+
+        if (
+            !branchCode ||
+            String(branchCode).trim().toLowerCase() === 'all'
+        ) {
+            setSelectedFranchise(
+                isFranchiseUser ? '' : 'All'
             )
             setFranchiseLoading(false)
+            setFranchiseError(
+                'Please select a specific branch.'
+            )
             return
         }
 
         try {
             setFranchiseLoading(true)
-            setFranchiseError('')
 
-            const branchCode = isRegionOrFactoryUser
-                ? selectedBranch
-                : loggedInBpCode
+            console.log('Franchise API request:', {
+                roleId: loggedInRoleId,
+                bpCode: branchCode,
+                loginId: loggedInLoginId
+            })
 
             const data = await getFranchises(
-                loggedInRoleId,
                 branchCode,
                 loggedInLoginId
             )
+
+
+            if (cancelled) return
 
             const franchiseData = Array.isArray(data)
                 ? [...data]
@@ -1604,47 +1672,40 @@ useEffect(() => {
             setFranchises(franchiseData)
 
             if (isFranchiseUser) {
-                const matchingFranchise =
-                    loggedInFranchiseCode
-                        ? franchiseData.find(
-                            (franchise) =>
-                                String(
-                                    franchise.frCode ??
-                                    franchise.FrCode ??
-                                    franchise.franchiseCode ??
-                                    franchise.FranchiseCode ??
-                                    ''
-                                ).trim() ===
-                                String(
-                                    loggedInFranchiseCode
-                                ).trim()
+                const matchingFranchise = loggedInFranchiseCode
+                    ? franchiseData.find((franchise) => {
+                        const code =
+                            franchise.frCode ??
+                            franchise.FrCode ??
+                            franchise.franchiseCode ??
+                            franchise.FranchiseCode ??
+                            ''
+
+                        return (
+                            String(code).trim() ===
+                            String(loggedInFranchiseCode).trim()
                         )
-                        : null
+                    })
+                    : null
 
                 const selectedFranchiseData =
-                    matchingFranchise ||
-                    franchiseData[0]
+                    matchingFranchise || franchiseData[0]
 
-                const franchiseCode =
+                const code =
                     selectedFranchiseData?.frCode ??
                     selectedFranchiseData?.FrCode ??
                     selectedFranchiseData?.franchiseCode ??
                     selectedFranchiseData?.FranchiseCode ??
                     ''
 
-                setSelectedFranchise(
-                    String(franchiseCode)
-                )
-
-                return
+                setSelectedFranchise(String(code))
+            } else {
+                setSelectedFranchise('All')
             }
-
-            setSelectedFranchise('All')
         } catch (error) {
-            console.error(
-                'Load franchises error:',
-                error
-            )
+            if (cancelled) return
+
+            console.error('Load franchises error:', error)
 
             setFranchises([])
             setSelectedFranchise(
@@ -1652,18 +1713,22 @@ useEffect(() => {
             )
 
             setFranchiseError(
-                error.message ||
-                'Unable to load franchises.'
+                error.message || 'Unable to load franchises.'
             )
         } finally {
-            setFranchiseLoading(false)
+            if (!cancelled) {
+                setFranchiseLoading(false)
+            }
         }
     }
 
     loadFranchises()
+
+    return () => {
+        cancelled = true
+    }
 }, [
     selectedBranch,
-    loggedInUserId,
     loggedInRoleId,
     loggedInLoginId,
     loggedInBpCode,

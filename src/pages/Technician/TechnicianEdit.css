@@ -824,3 +824,7 @@
         max-width: 100%;
     }
 }
+
+.technician-edit-section .form-label .text-danger {
+    color: #dc3545 !important;
+}

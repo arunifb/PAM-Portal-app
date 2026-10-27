@@ -142,14 +142,47 @@ const emptyCreateForm = () => ({
 // =====================================================
 
 function EditView() {
-    const roleId = Number(
-        getSessionValue('roleId', 'RoleID', 'roleID') || '1'
-    )
+    // const roleId = Number(
+    //     getSessionValue('roleId', 'RoleID', 'roleID') || '1'
+    // )
+
+    // const navigate = useNavigate()
+
+    // const isRole1 = roleId === 1
+    // const isRole6 = roleId === 6
+
+    // const userId = getSessionValue('userId', 'UserID')
+    // const bpCode = getSessionValue('bpCode', 'BPCode')
+    // const sessionRegionCode = getSessionValue(
+    //     'regionCode',
+    //     'RegionCode'
+    // )
+
+    let storedRoles = []
+
+    try {
+        const parsedRoles = JSON.parse(
+            sessionStorage.getItem('roles') || '[]'
+        )
+
+        if (Array.isArray(parsedRoles)) {
+            storedRoles = parsedRoles.map(role =>
+                String(role).trim()
+            )
+        } else if (
+            parsedRoles !== null &&
+            parsedRoles !== undefined
+        ) {
+            storedRoles = [String(parsedRoles).trim()]
+        }
+    } catch (error) {
+        console.error('Unable to parse stored roles:', error)
+    }
 
     const navigate = useNavigate()
 
-    const isRole1 = roleId === 1
-    const isRole6 = roleId === 6
+    const isRole1 = storedRoles.includes('1')
+    const isRole6 = storedRoles.includes('6')
 
     const userId = getSessionValue('userId', 'UserID')
     const bpCode = getSessionValue('bpCode', 'BPCode')

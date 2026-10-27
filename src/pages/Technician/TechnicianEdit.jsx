@@ -88,6 +88,40 @@ function getTechnicianPhotoUrl(photoUrl) {
     return `${apiBaseUrl}/${url.replace(/^\/+/, '')}`
 }
 
+function getSessionRoles() {
+    try {
+        const storedRoles = sessionStorage.getItem('roles')
+
+        if (!storedRoles) return []
+
+        const parsedRoles = JSON.parse(storedRoles)
+
+        if (!Array.isArray(parsedRoles)) return []
+
+        return parsedRoles
+            .map(role => {
+                if (typeof role === 'object' && role !== null) {
+                    return Number(
+                        role.roleID ??
+                        role.RoleID ??
+                        role.roleId ??
+                        role.RoleId ??
+                        role.id ??
+                        role.Id
+                    )
+                }
+
+                return Number(role)
+            })
+            .filter(id => Number.isInteger(id) && id > 0)
+    } catch (error) {
+        console.error('Unable to read session roles:', error)
+        return []
+    }
+}
+
+
+
 function TechnicianEdit({
     techId: techIdProp,
     profileMode: profileModeProp,
@@ -102,14 +136,22 @@ function TechnicianEdit({
     const returnUrl = location.state?.returnUrl || '/technician'
     const listState = listStateProp ?? location.state?.listState ?? null
 
-    const roleId = Number(
-        sessionStorage.getItem('roleId') ||
-        sessionStorage.getItem('RoleID') ||
-        0
-    )
+    const sessionRoles = getSessionRoles()
 
-    const isRole3 = roleId === 3
-    const isRole5 = roleId === 5
+const storedRoleId = Number(
+    sessionStorage.getItem('roleId') ||
+    sessionStorage.getItem('RoleID') ||
+    0
+)
+
+const roleId = sessionRoles.includes(storedRoleId)
+    ? storedRoleId
+    : sessionRoles.length === 1
+        ? sessionRoles[0]
+        : storedRoleId
+
+const isRole3 = roleId === 3 || sessionRoles.includes(3)
+const isRole5 = roleId === 5 || sessionRoles.includes(5)
 
     const pageTitle = isRole5 ? 'S.A Profile' : 'Edit Technician'
 
@@ -476,6 +518,7 @@ function TechnicianEdit({
             !form.remark?.trim() ||
             !form.qualification?.trim() ||
             !form.address?.trim() ||
+            !form.emailId?.trim() ||
             !form.insurance
         ) {
             return
@@ -496,13 +539,18 @@ function TechnicianEdit({
             return
         }
 
-        if (
-            form.emailId.trim() &&
-            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.emailId.trim())
-        ) {
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.emailId.trim())) {
             setError('Please enter a valid email address.')
             return
         }
+
+        // if (
+        //     form.emailId.trim() &&
+        //     !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.emailId.trim())
+        // ) {
+        //     setError('Please enter a valid email address.')
+        //     return
+        // }
 
         if (form.remark.trim().length > 32) {
             setError('Remark cannot exceed 32 characters.')
@@ -744,7 +792,7 @@ function TechnicianEdit({
                                             {/* Email */}
                                             <div className="technician-field">
                                                 <label className="form-label">
-                                                    Email
+                                                    Email<span className="text-danger"> *</span>
                                                 </label>
                                                 <input
                                                     type="email"
@@ -754,6 +802,9 @@ function TechnicianEdit({
                                                     onChange={handleChange}
                                                     maxLength={32}
                                                 />
+                                                {!form.emailId?.trim() && (
+                                                    <span className="field-help">Please fill this</span>
+                                                )}
                                             </div>
 
                                             {/* Name */}

@@ -29,20 +29,42 @@ function FranchiseView() {
         sessionStorage.getItem('userId') || 0
     )
 
-    const roleId = Number(
-        sessionStorage.getItem('roleId') || 0
-    )
+    const storedRoleId = Number(
+    sessionStorage.getItem('roleId') || 0
+)
+
+const storedRoles = (() => {
+    try {
+        const value = JSON.parse(
+            sessionStorage.getItem('roles') || '[]'
+        )
+
+        return Array.isArray(value)
+            ? value.map(role => Number(role))
+            : []
+    } catch {
+        return []
+    }
+})()
+
+const roleId = storedRoleId || storedRoles[0] || 0
+
+const isRole6 = roleId === 6 || storedRoles.includes(6)
 
     const sessionBpCode =
-        sessionStorage.getItem('bpCode') || ''
+    sessionStorage.getItem('bpCode') ||
+    sessionStorage.getItem('BPCode') ||
+    ''
 
     const sessionLoginId =
         sessionStorage.getItem('loginId') || ''
 
     const sessionRegionCode =
-        sessionStorage.getItem('regionCode') || ''
+    sessionStorage.getItem('regionCode') ||
+    sessionStorage.getItem('RegionCode') ||
+    ''
 
-    const isRole6 = roleId === 6
+    //const isRole6 = roleId === 6
 
     // =========================================
     // REGION
@@ -64,7 +86,10 @@ function FranchiseView() {
         isRole6 ? sessionBpCode : ''
     )
 
-    const [franchiseCode, setFranchiseCode] = useState('')
+    //const [franchiseCode, setFranchiseCode] = useState('')
+    const [franchiseCode, setFranchiseCode] = useState(
+    roleId === 5 ? sessionLoginId : ''
+    )   
     const [frCode, setFrCode] = useState('')
     const [franchiseName, setFranchiseName] = useState('')
     const [mobileNo, setMobileNo] = useState('')
@@ -220,56 +245,72 @@ function FranchiseView() {
     // LOAD REGIONS
     // =========================================
 
-    useEffect(() => {
-        let cancelled = false
+useEffect(() => {
+    let cancelled = false
 
-        const loadRegions = async () => {
-            try {
-                setRegionLoading(true)
-                setError('')
+    const loadRegions = async () => {
+        try {
+            setRegionLoading(true)
 
-                const data = await getRegions('', sessionUserId)
+            const response = await getRegions('', sessionUserId)
 
-                if (cancelled) {
-                    return
-                }
+            if (cancelled) return
 
-                const regionList = getList(data)
+            const regionList = getList(response)
+            setRegions(regionList)
 
-                setRegions(regionList)
+            if (isRole6) {
+                const matchingRegion = regionList.find(item => {
+                    const code = getValue(
+                        item,
+                        'RegionCode',
+                        'regionCode',
+                        'Code',
+                        'code'
+                    )
 
-                if (isRole6) {
-                    setRegionCode(sessionRegionCode)
-                } else {
-                    setRegionCode('')
-                }
-            } catch (err) {
-                if (cancelled) {
-                    return
-                }
+                    return (
+                        String(code).trim().toLowerCase() ===
+                        String(sessionRegionCode).trim().toLowerCase()
+                    )
+                })
 
-                console.error('Franchise region error:', err)
+                setRegionCode(
+                    matchingRegion
+                        ? String(
+                              getValue(
+                                  matchingRegion,
+                                  'RegionCode',
+                                  'regionCode',
+                                  'Code',
+                                  'code'
+                              )
+                          )
+                        : sessionRegionCode
+                )
+            } else {
+                setRegionCode('')
+            }
+        } catch (err) {
+            if (cancelled) return
 
-                setRegions([])
+            console.error('Franchise region error:', err)
+            setRegions([])
 
-                if (!isRole6) {
-                    setRegionCode('')
-                }
-
-                setError(err.message || 'Unable to load regions.')
-            } finally {
-                if (!cancelled) {
-                    setRegionLoading(false)
-                }
+            setError(err.message || 'Unable to load regions.')
+        } finally {
+            if (!cancelled) {
+                setRegionLoading(false)
             }
         }
+    }
 
-        loadRegions()
+    loadRegions()
 
-        return () => {
-            cancelled = true
-        }
-    }, [sessionUserId, isRole6, sessionRegionCode])
+    return () => {
+        cancelled = true
+    }
+}, [sessionUserId, isRole6, sessionRegionCode])
 
     // =========================================
     // LOAD STATES FOR ROLE 6
@@ -375,17 +416,17 @@ function FranchiseView() {
         let cancelled = false
 
         const loadBranches = async () => {
-            if (!regionCode) {
-                setBranches([])
+            setBranches([])
+            setFranchisesList([])
+            setFranchiseCode(roleId === 5 ? sessionLoginId : '')
 
+            if (!regionCode) {
                 if (!isRole6) {
                     setBranch('')
                 }
 
-                setFranchisesList([])
-                setFranchiseCode('')
                 setBranchLoading(false)
-
+                setFranchiseLoading(false)
                 return
             }
 
@@ -393,33 +434,66 @@ function FranchiseView() {
                 setBranchLoading(true)
                 setError('')
 
-                const data = await getFranchiseViewBranches(
+                const response = await getFranchiseViewBranches(
                     sessionUserId,
                     regionCode
                 )
 
-                if (cancelled) {
-                    return
-                }
+                if (cancelled) return
 
-                if (!Array.isArray(data)) {
-                    throw new Error('Invalid branch response.')
-                }
+                const branchList = getList(response)
 
-                setBranches(data)
+                const validBranches = branchList.filter(item =>
+                    String(
+                        getValue(
+                            item,
+                            'BPCode',
+                            'BpCode',
+                            'bpCode',
+                            'BranchCode',
+                            'branchCode',
+                            'BrCode',
+                            'Brcode'
+                        )
+                    ).trim() !== ''
+                )
+
+                setBranches(validBranches)
 
                 if (isRole6) {
-                    setBranch(sessionBpCode)
-                } else {
-                    setBranch('')
-                }
+    const matchingBranch = validBranches.find(item => {
+        const code = getValue(
+            item,
+            'BPCode',
+            'BranchCode',
+            'BrCode',
+            'Brcode'
+        )
 
-                setFranchisesList([])
-                setFranchiseCode('')
+        return (
+            String(code).trim().toLowerCase() ===
+            String(sessionBpCode).trim().toLowerCase()
+        )
+    })
+
+    setBranch(
+        matchingBranch
+            ? String(
+                  getValue(
+                      matchingBranch,
+                      'BPCode',
+                      'BranchCode',
+                      'BrCode',
+                      'Brcode'
+                  )
+              )
+            : sessionBpCode
+    )
+} else {
+    setBranch('')
+}
             } catch (err) {
-                if (cancelled) {
-                    return
-                }
+                if (cancelled) return
 
                 console.error('Franchise branch error:', err)
 
@@ -430,7 +504,7 @@ function FranchiseView() {
                 }
 
                 setFranchisesList([])
-                setFranchiseCode('')
+                setFranchiseCode(roleId === 5 ? sessionLoginId : '')
 
                 setError(err.message || 'Unable to load branches.')
             } finally {
@@ -449,84 +523,171 @@ function FranchiseView() {
         regionCode,
         sessionUserId,
         isRole6,
-        sessionBpCode
-    ])
-
-    // =========================================
-    // LOAD FRANCHISE DROPDOWN
-    // =========================================
-
-    useEffect(() => {
-        let cancelled = false
-
-        const loadFranchises = async () => {
-            if (!regionCode || !branch) {
-                setFranchisesList([])
-                setFranchiseCode('')
-                setFranchiseLoading(false)
-                return
-            }
-
-            try {
-                setFranchiseLoading(true)
-                setError('')
-
-                let bpCodeForFranchise = branch
-                let loginIdForFranchise = ''
-
-                if (roleId === 5) {
-                    bpCodeForFranchise = sessionBpCode
-                    loginIdForFranchise = sessionLoginId
-                } else if (roleId === 6) {
-                    bpCodeForFranchise = sessionBpCode
-                }
-
-                const data = await getFranchises(
-                    roleId,
-                    bpCodeForFranchise,
-                    loginIdForFranchise
-                )
-
-                if (cancelled) {
-                    return
-                }
-
-                setFranchisesList(getList(data))
-
-                if (roleId === 5) {
-                    setFranchiseCode(sessionLoginId || '')
-                } else {
-                    setFranchiseCode('')
-                }
-            } catch (err) {
-                if (cancelled) {
-                    return
-                }
-
-                console.error('Franchise dropdown error:', err)
-
-                setFranchisesList([])
-                setFranchiseCode('')
-                setError(err.message || 'Unable to load franchises.')
-            } finally {
-                if (!cancelled) {
-                    setFranchiseLoading(false)
-                }
-            }
-        }
-
-        loadFranchises()
-
-        return () => {
-            cancelled = true
-        }
-    }, [
-        regionCode,
-        branch,
-        roleId,
         sessionBpCode,
+        roleId,
         sessionLoginId
     ])
+
+    // =========================================
+// LOAD FRANCHISE DROPDOWN
+// =========================================
+
+useEffect(() => {
+    let cancelled = false
+
+    const loadFranchises = async () => {
+        setFranchisesList([])
+        setFranchiseCode(roleId === 5 ? sessionLoginId : '')
+
+        if (!regionCode) {
+            setFranchiseLoading(false)
+            return
+        }
+
+        if (!branch && !isRole6 && roleId !== 5) {
+            setFranchiseLoading(false)
+            return
+        }
+
+        try {
+            setFranchiseLoading(true)
+            setError('')
+
+            let bpCodeForFranchise = branch
+            let loginIdForFranchise = sessionLoginId
+
+            if (roleId === 5) {
+                bpCodeForFranchise = sessionBpCode
+                loginIdForFranchise = sessionLoginId
+            } else if (isRole6) {
+                bpCodeForFranchise = sessionBpCode
+                loginIdForFranchise = sessionLoginId
+            }
+
+            if (!loginIdForFranchise.trim()) {
+                throw new Error(
+                    'Login ID is missing. Please check the logged-in user session.'
+                )
+            }
+
+            const response = await getFranchises(
+                bpCodeForFranchise,
+                loginIdForFranchise
+            )
+
+            if (cancelled) return
+
+            const franchiseList = getList(response)
+
+            const validFranchises = franchiseList
+                .filter(item =>
+                    String(
+                        getValue(
+                            item,
+                            'FrCode',
+                            'Frcode',
+                            'FRCode',
+                            'frCode',
+                            'LoginID',
+                            'LoginId',
+                            'loginId'
+                        )
+                    ).trim() !== ''
+                )
+                .sort((a, b) =>
+                    String(
+                        getValue(
+                            a,
+                            'FranchiseName',
+                            'franchiseName',
+                            'UserName',
+                            'userName',
+                            'Name',
+                            'name'
+                        )
+                    ).localeCompare(
+                        String(
+                            getValue(
+                                b,
+                                'FranchiseName',
+                                'franchiseName',
+                                'UserName',
+                                'userName',
+                                'Name',
+                                'name'
+                            )
+                        ),
+                        undefined,
+                        { sensitivity: 'base' }
+                    )
+                )
+
+            setFranchisesList(validFranchises)
+
+            if (roleId === 5) {
+                const matchingFranchise = validFranchises.find(item =>
+                    String(
+                        getValue(
+                            item,
+                            'LoginID',
+                            'LoginId',
+                            'loginId',
+                            'FrCode',
+                            'Frcode',
+                            'frCode'
+                        )
+                    ).trim().toLowerCase() ===
+                    String(sessionLoginId).trim().toLowerCase()
+                )
+
+                setFranchiseCode(
+                    matchingFranchise
+                        ? String(
+                              getValue(
+                                  matchingFranchise,
+                                  'LoginID',
+                                  'LoginId',
+                                  'loginId',
+                                  'FrCode',
+                                  'Frcode',
+                                  'frCode'
+                              )
+                          )
+                        : sessionLoginId
+                )
+            } else {
+                setFranchiseCode('')
+            }
+        } catch (err) {
+            if (cancelled) return
+
+            console.error('Franchise dropdown error:', err)
+
+            setFranchisesList([])
+            setFranchiseCode(roleId === 5 ? sessionLoginId : '')
+            setError(
+                err.message || 'Unable to load franchises.'
+            )
+        } finally {
+            if (!cancelled) {
+                setFranchiseLoading(false)
+            }
+        }
+    }
+
+    loadFranchises()
+
+    return () => {
+        cancelled = true
+    }
+}, [
+    regionCode,
+    branch,
+    roleId,
+    isRole6,
+    sessionBpCode,
+    sessionLoginId
+])
 
     // =========================================
     // SEARCH
@@ -714,7 +875,11 @@ function FranchiseView() {
     // RENDER
     // =========================================
 
+
+    
     return (
+
+        
         <DashboardLayout title="Franchise List">
             <div className="franchise-view-page">
 
@@ -824,57 +989,99 @@ function FranchiseView() {
                         </div>
 
                         {/* FRANCHISE DROPDOWN - OTHER ROLES */}
-                        {!isRole6 && (
-                            <div className="franchise-field">
-                                <label>Franchise</label>
+                        {/* FRANCHISE DROPDOWN */}
+<div className="franchise-field">
+    <label>Franchise</label>
 
-                                <select
-                                    value={franchiseCode}
-                                    onChange={(event) =>
-                                        setFranchiseCode(event.target.value)
-                                    }
-                                    disabled={
-                                        !regionCode ||
-                                        franchiseLoading ||
-                                        roleId === 5
-                                    }
-                                >
-                                    <option value="">All</option>
+    <select
+        value={franchiseCode}
+        onChange={(event) => setFranchiseCode(event.target.value)}
+        disabled={
+            !regionCode ||
+            franchiseLoading ||
+            (roleId === 5)
+        }
+    >
+        {roleId === 5 ? (
+            <>
+                {franchisesList.map((item, index) => {
+                    const code = getValue(
+                        item,
+                        'LoginID',
+                        'LoginId',
+                        'loginId',
+                        'FrCode',
+                        'Frcode',
+                        'frCode'
+                    )
 
-                                    {franchisesList.map((item, index) => {
-                                        const code = getValue(
-                                            item,
-                                            'loginId',
-                                            'LoginID',
-                                            'frCode',
-                                            'FrCode',
-                                            'frcode',
-                                            'BPCode',
-                                            'bpCode'
-                                        )
+                    const name = getValue(
+                        item,
+                        'FranchiseName',
+                        'franchiseName',
+                        'UserName',
+                        'userName',
+                        'Name',
+                        'name'
+                    )
 
-                                        const name = getValue(
-                                            item,
-                                            'franchiseName',
-                                            'FranchiseName',
-                                            'userName',
-                                            'UserName',
-                                            'name',
-                                            'Name'
-                                        )
+                    return (
+                        <option
+                            key={code || `franchise-${index}`}
+                            value={code}
+                        >
+                            {name || code}
+                        </option>
+                    )
+                })}
 
-                                        return (
-                                            <option
-                                                key={code || `franchise-${index}`}
-                                                value={code}
-                                            >
-                                                {name || code}
-                                            </option>
-                                        )
-                                    })}
-                                </select>
-                            </div>
-                        )}
+                {franchisesList.length === 0 && (
+                    <option value={sessionLoginId}>
+                        {sessionLoginId}
+                    </option>
+                )}
+            </>
+        ) : (
+            <>
+                <option value="">All</option>
+
+                {franchisesList.map((item, index) => {
+                    const code = getValue(
+                        item,
+                        'FrCode',
+                        'Frcode',
+                        'FRCode',
+                        'frCode',
+                        'LoginID',
+                        'LoginId',
+                        'loginId',
+                        'BPCode',
+                        'bpCode'
+                    )
+
+                    const name = getValue(
+                        item,
+                        'FranchiseName',
+                        'franchiseName',
+                        'UserName',
+                        'userName',
+                        'Name',
+                        'name'
+                    )
+
+                    return (
+                        <option
+                            key={code || `franchise-${index}`}
+                            value={code}
+                        >
+                            {name || code}
+                        </option>
+                    )
+                })}
+            </>
+        )}
+    </select>
+</div>
 
                         {/* FRANCHISE CODE */}
                         <div className="franchise-field">

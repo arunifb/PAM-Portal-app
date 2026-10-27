@@ -90,91 +90,89 @@ function PCRDownload({
     // LOAD BRANCHES
     // =====================================================
 
-    useEffect(() => {
-        const loadBranches = async () => {
-            try {
-                setError('')
+   
 
-                let response
+useEffect(() => {
+    let cancelled = false
 
-                if (isRole7) {
-                    // Role 7: use the logged-in user's ID,
-                    // matching the Click2Call branch-loading logic.
-                    response = await getBranches(
-                        sessionUserId,
+    const loadBranches = async () => {
+        try {
+            setError('')
+
+            // Load all branches for the logged-in user.
+            const response = await getBranches(
+                sessionUserId,
+                ''
+            )
+
+            if (cancelled) return
+
+            console.log(
+                'PCR Download branches response:',
+                response
+            )
+
+            // Support common API response formats.
+            const branchList = Array.isArray(response)
+                ? response
+                : Array.isArray(response?.data)
+                    ? response.data
+                    : Array.isArray(response?.data?.data)
+                        ? response.data.data
+                        : []
+
+            console.log(
+                'PCR Download branch list:',
+                branchList
+            )
+
+            setBranches(branchList)
+
+            // Preserve the existing selection if it exists.
+            const currentBranch =
+                originalPCRState.branchCode || 'All'
+
+            const branchExists =
+                currentBranch === 'All' ||
+                branchList.some((branch) => {
+                    const value =
+                        branch.bpCode ??
+                        branch.BPCode ??
+                        branch.branchCode ??
+                        branch.BrCode ??
                         ''
-                    )
-                } else {
-                    // Other roles: preserve the existing call.
-                    response = await getBranches(
-                        roleId,
-                        'All',
-                        bpCode
-                    )
-                }
 
-                console.log(
-                    'PCR Download branches response:',
-                    response
-                )
+                    return String(value) === String(currentBranch)
+                })
 
-                // Support common API response formats.
-                const branchList = Array.isArray(response)
-                    ? response
-                    : Array.isArray(response?.data)
-                        ? response.data
-                        : Array.isArray(response?.data?.data)
-                            ? response.data.data
-                            : []
+            setBranchCode(
+                branchExists ? currentBranch : 'All'
+            )
+        } catch (err) {
+            if (cancelled) return
 
-                console.log(
-                    'PCR Download branch list:',
-                    branchList
-                )
+            console.error(
+                'Unable to load PCR Download branches:',
+                err
+            )
 
-                setBranches(branchList)
+            setBranches([])
+            setBranchCode('All')
 
-                // Preserve the existing selection when available.
-                const currentBranch =
-                    originalPCRState.branchCode || 'All'
-
-                const branchExists =
-                    currentBranch === 'All' ||
-                    branchList.some((branch) => {
-                        const value =
-                            branch.bpCode ??
-                            branch.BPCode ??
-                            branch.branchCode ??
-                            branch.BrCode ??
-                            ''
-
-                        return String(value) === String(currentBranch)
-                    })
-
-                if (!branchExists) {
-                    setBranchCode('All')
-                }
-            } catch (err) {
-                console.error(
-                    'Unable to load PCR Download branches:',
-                    err
-                )
-
-                setBranches([])
-
-                setError(
-                    err.message || 'Unable to load branches.'
-                )
-            }
+            setError(
+                err.message || 'Unable to load branches.'
+            )
         }
+    }
 
-        loadBranches()
-    }, [
-        roleId,
-        bpCode,
-        isRole7,
-        sessionUserId
-    ])
+    loadBranches()
+
+    return () => {
+        cancelled = true
+    }
+}, [
+    sessionUserId
+])
 
     // =====================================================
     // GET SELECTED BRANCH NAME

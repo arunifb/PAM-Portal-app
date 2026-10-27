@@ -62,8 +62,52 @@ function getErrorMessage(error) {
     return error?.message || 'Unable to complete the request.'
 }
 
+function getSessionRoles() {
+    try {
+        const storedRoles = sessionStorage.getItem('roles')
+
+        if (!storedRoles) return []
+
+        const parsedRoles = JSON.parse(storedRoles)
+
+        if (!Array.isArray(parsedRoles)) return []
+
+        return parsedRoles
+            .map(role => {
+                if (typeof role === 'number' || typeof role === 'string') {
+                    return Number(role)
+                }
+
+                return Number(
+                    role?.roleID ??
+                    role?.RoleID ??
+                    role?.roleId ??
+                    role?.RoleId ??
+                    role?.id ??
+                    role?.Id
+                )
+            })
+            .filter(role => Number.isInteger(role) && role > 0)
+    } catch {
+        return []
+    }
+}
+
 function TechnicianAdd({ onBack, listState }) {
-    const roleId = Number(getSessionValue('roleId', 'RoleID') || 0)
+    const sessionRoles = getSessionRoles()
+
+    const storedRoleId = Number(
+        getSessionValue('roleId', 'RoleID') || 0
+    )
+
+    const roleId = sessionRoles.includes(storedRoleId)
+        ? storedRoleId
+        : sessionRoles.length === 1
+            ? sessionRoles[0]
+            : storedRoleId
+
+    const isRole5 = roleId === 5 || sessionRoles.includes(5)
+
     const loginId = getSessionValue('loginId', 'LoginID')
     const bpCode = getSessionValue('bpCode', 'BPCode')
     const userId = getSessionValue('userId', 'UserID')
@@ -100,7 +144,7 @@ function TechnicianAdd({ onBack, listState }) {
 
             try {
                 const response = await getFranchises(
-                    roleId,
+                    
                     bpCode,
                     loginId
                 )
@@ -136,7 +180,7 @@ function TechnicianAdd({ onBack, listState }) {
             }
         }
 
-        if (roleId !== 5) {
+        if (!isRole5) {
             setError('You are not authorized to add a technician.')
             setFranchiseLoading(false)
             return
@@ -155,7 +199,7 @@ function TechnicianAdd({ onBack, listState }) {
         return () => {
             cancelled = true
         }
-    }, [roleId, bpCode, loginId])
+    }, [roleId, isRole5, bpCode, loginId])
 
     useEffect(() => {
         if (!photo) {
@@ -198,7 +242,7 @@ function TechnicianAdd({ onBack, listState }) {
     }
 
     function validateForm() {
-        if (roleId !== 5) {
+        if (!isRole5) {
             return 'You are not authorized to add a technician.'
         }
 

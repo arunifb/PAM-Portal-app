@@ -207,36 +207,52 @@ export async function getBranches(
 // GET FRANCHISES
 // =========================================
 
-export async function getFranchises(
-    roleId,
-    bpCode,
-    loginId
-) {
+// export async function getFranchises(
+//     roleId,
+//     bpCode,
+//     loginId
+// ) {
 
+//     const url =
+//         `${API_BASE_URL}/api/Reports/franchises` +
+//         `?roleId=${encodeURIComponent(roleId)}` +
+//         `&bpCode=${encodeURIComponent(bpCode)}` +
+//         `&loginId=${encodeURIComponent(loginId)}`
+
+
+//     const response =
+//         await authFetch(url)
+
+
+//     const data =
+//         await readResponse(response)
+
+
+//     if (!response.ok) {
+
+//         throw new Error(
+//             data.message ||
+//             'Unable to load franchises.'
+//         )
+
+//     }
+
+
+//     return data
+// }
+
+export async function getFranchises(bpCode, loginId) {
     const url =
         `${API_BASE_URL}/api/Reports/franchises` +
-        `?roleId=${encodeURIComponent(roleId)}` +
-        `&bpCode=${encodeURIComponent(bpCode)}` +
+        `?bpCode=${encodeURIComponent(bpCode)}` +
         `&loginId=${encodeURIComponent(loginId)}`
 
-
-    const response =
-        await authFetch(url)
-
-
-    const data =
-        await readResponse(response)
-
+    const response = await authFetch(url)
+    const data = await readResponse(response)
 
     if (!response.ok) {
-
-        throw new Error(
-            data.message ||
-            'Unable to load franchises.'
-        )
-
+        throw new Error(data.message || 'Unable to load franchises.')
     }
-
 
     return data
 }

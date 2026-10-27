@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react'
 import './Click2Call.css'
 
@@ -25,36 +26,69 @@ function Click2Call() {
         sessionStorage.getItem('userId') || 0
     )
 
-    const roleId = Number(
+    let storedRoles = []
+
+    try {
+        storedRoles = JSON.parse(
+            sessionStorage.getItem('roles') || '[]'
+        )
+    } catch {
+        storedRoles = []
+    }
+
+    const storedRoleId = Number(
         sessionStorage.getItem('roleId') ||
-        sessionStorage.getItem('roleID')
-    ) || 0
+        sessionStorage.getItem('roleID') ||
+        0
+    )
+
+    const roleId =
+        storedRoleId > 0
+            ? storedRoleId
+            : Number(storedRoles[0] || 0)
 
     const sessionRegionCode =
-        sessionStorage.getItem('regionCode') || ''
+        sessionStorage.getItem('regionCode') ||
+        sessionStorage.getItem('RegionCode') ||
+        sessionStorage.getItem('regions') ||
+        ''
 
     const bpCode =
-        sessionStorage.getItem('bpCode') || ''
+        sessionStorage.getItem('bpCode') ||
+        sessionStorage.getItem('BPCode') ||
+        sessionStorage.getItem('branches') ||
+        ''
 
-    const loginId =
-        sessionStorage.getItem('loginId') || ''
+    const loginId = sessionStorage.getItem('loginId') || ''
 
     // =========================================
     // USER TYPE
     // =========================================
 
     const isRole1Or3 = roleId === 1 || roleId === 3
+    const isRole3 = roleId === 3
+    const isRole5 = roleId === 5
+    const isRole6 = roleId === 6
     const isRole7 = roleId === 7
-    const isBranchUser = !isRole1Or3 && !isRole7
+
+    const isBranchUser =
+        !isRole1Or3 &&
+        !isRole5 &&
+        !isRole6 &&
+        !isRole7
 
     // =========================================
     // REGION STATE
     // =========================================
 
     const [regions, setRegions] = useState([])
+
     const [region, setRegion] = useState(
-        roleId === 5 ? sessionRegionCode : ''
+        isRole3 || isRole5 || isRole6
+            ? sessionRegionCode
+            : ''
     )
+
     const [regionLoading, setRegionLoading] = useState(false)
 
     // =========================================
@@ -64,8 +98,8 @@ function Click2Call() {
     const [ticketNumber, setTicketNumber] = useState('')
 
     const [branch, setBranch] = useState(
-        isRole7
-            ? ''
+        isRole3 || isRole5 || isRole6
+            ? bpCode
             : isBranchUser
                 ? bpCode
                 : ''
@@ -81,6 +115,7 @@ function Click2Call() {
 
     const [branches, setBranches] = useState([])
     const [franchises, setFranchises] = useState([])
+
     const [branchLoading, setBranchLoading] = useState(false)
     const [franchiseLoading, setFranchiseLoading] = useState(false)
 
@@ -151,45 +186,35 @@ function Click2Call() {
         ''
     )
 
-// Date Picker
+    // =========================================
+    // DATE HELPERS
+    // =========================================
 
     const parseDate = (value) => {
-    if (!value) return null
+        if (!value) return null
 
-    const [year, month, day] = value.split('-').map(Number)
+        const [year, month, day] = value.split('-').map(Number)
 
-    if (!year || !month || !day) return null
+        if (!year || !month || !day) return null
 
-    return new Date(year, month - 1, day)
-}
+        return new Date(year, month - 1, day)
+    }
 
-const formatInputDate = (date) => {
-    if (!date) return ''
+    const formatInputDate = (date) => {
+        if (!date) return ''
 
-    const year = date.getFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
+        const year = date.getFullYear()
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const day = String(date.getDate()).padStart(2, '0')
 
-    return `${year}-${month}-${day}`
-}
+        return `${year}-${month}-${day}`
+    }
 
     // =========================================
     // LOAD REGIONS
     // =========================================
 
     useEffect(() => {
-        // if (!isRole1Or3) {
-        //     setRegions([])
-        //     setRegion('')
-        //     return
-        // }
-
-        if (!isRole1Or3 && roleId !== 5 && roleId !== 6) {
-            setRegions([])
-            setRegion('')
-            return
-        }
-
         let cancelled = false
 
         const loadRegions = async () => {
@@ -198,7 +223,8 @@ const formatInputDate = (date) => {
                 setError('')
 
                 console.log('Click2Call Loading regions:', {
-                    userId: sessionUserId
+                    userId: sessionUserId,
+                    roleId
                 })
 
                 const data = await getRegions('', sessionUserId)
@@ -213,23 +239,25 @@ const formatInputDate = (date) => {
 
                 setRegions(data)
 
-            // Role 5: automatically select the logged-in user's region.
-            // All other roles retain their existing behavior.
-            if (roleId === 3 || roleId === 5 || roleId === 6) {
-                const matchingRegion = data.find(
-                    item =>
-                        String(getRegionCode(item)) ===
-                        String(sessionRegionCode)
-                )
+                // Roles 3, 5 and 6:
+                // Select the logged-in user's region.
+                if (isRole3 || isRole5 || isRole6) {
+                    const matchingRegion = data.find(
+                        item =>
+                            String(getRegionCode(item)).trim().toLowerCase() ===
+                            String(sessionRegionCode).trim().toLowerCase()
+                    )
 
-                setRegion(
-                    matchingRegion
-                        ? getRegionCode(matchingRegion)
-                        : ''
-                )
-            } else {
-                setRegion('')
-            }
+                    setRegion(
+                        matchingRegion
+                            ? String(getRegionCode(matchingRegion))
+                            : ''
+                    )
+                } else {
+                    // Roles 1 and 7:
+                    // Show all regions and let the user select.
+                    setRegion('')
+                }
             } catch (error) {
                 if (cancelled) return
 
@@ -239,8 +267,7 @@ const formatInputDate = (date) => {
                 setRegion('')
 
                 setError(
-                    error.message ||
-                    'Unable to load regions.'
+                    error.message || 'Unable to load regions.'
                 )
             } finally {
                 if (!cancelled) {
@@ -254,11 +281,14 @@ const formatInputDate = (date) => {
         return () => {
             cancelled = true
         }
-    // }, [isRole1Or3, sessionUserId])
-    }, [isRole1Or3,
-    roleId,
-    sessionUserId,
-    sessionRegionCode])
+    }, [
+        roleId,
+        sessionUserId,
+        sessionRegionCode,
+        isRole3,
+        isRole5,
+        isRole6
+    ])
 
     // =========================================
     // LOAD BRANCHES
@@ -268,8 +298,18 @@ const formatInputDate = (date) => {
         let cancelled = false
 
         const loadBranches = async () => {
-            // Role 1 / 3 must select a region first.
+            // Roles 1 and 3 require a selected region.
             if (isRole1Or3 && !region) {
+                setBranches([])
+                setBranch('')
+                setFranchises([])
+                setFranchise('')
+                setBranchLoading(false)
+                return
+            }
+
+            // Roles 5 and 6 require their region.
+            if ((isRole5 || isRole6) && !region) {
                 setBranches([])
                 setBranch('')
                 setFranchises([])
@@ -284,71 +324,11 @@ const formatInputDate = (date) => {
 
                 let data = []
 
-                // Role 1 / 3: branches for selected region.
-                if (isRole1Or3) {
-                    console.log(
-                        'Click2Call Role 1/3 Loading branches:',
-                        {
-                            userId: sessionUserId,
-                            regionCode: region
-                        }
-                    )
-
-                    data = await getBranches(
-                        sessionUserId,
-                        region
-                    )
-                }
-
-                // Role 7: load available branches.
-                else if (isRole7) {
-                    console.log(
-                        'Click2Call Role 7 Loading branches:',
-                        {
-                            userId: sessionUserId,
-                            regionCode: ''
-                        }
-                    )
-
-                    data = await getBranches(
-                        sessionUserId,
-                        ''
-                    )
-                }
-
-                // // Other roles: preserve logged-in branch behavior.
-                // else {
-                //     console.log(
-                //         'Click2Call Loading branch:',
-                //         {
-                //             roleId,
-                //             regionCode: sessionRegionCode,
-                //             bpCode
-                //         }
-                //     )
-
-                //     data = bpCode
-                //         ? [{
-                //             bpCode,
-                //             branchName: bpCode
-                //         }]
-                //         : []
-                // }
-
-                // Role 5: load branches based on the selected region.
-                else if (roleId === 5) {
-                    // Wait until a region is selected.
-                    if (!region) {
-                        setBranches([])
-                        setBranch('')
-                        setFranchises([])
-                        setFranchise('')
-                        setBranchLoading(false)
-                        return
-                    }
-
-                    console.log('Click2Call Role 5 Loading branches:', {
+                if (isRole1Or3 || isRole5 || isRole6) {
+                    // Load branches for the selected region.
+                    console.log('Click2Call Loading regional branches:', {
                         userId: sessionUserId,
+                        roleId,
                         regionCode: region
                     })
 
@@ -356,42 +336,21 @@ const formatInputDate = (date) => {
                         sessionUserId,
                         region
                     )
-                }
-
-                // Role 6: load branches based on the logged-in user's region.
-                // Role 6: load branches based on the selected region.
-                else if (roleId === 6) {
-                    if (!region) {
-                        setBranches([])
-                        setBranch('')
-                        setFranchises([])
-                        setFranchise('')
-                        setBranchLoading(false)
-                        return
-                    }
-
-                    console.log('Click2Call Role 6 Loading branches:', {
+                } else if (isRole7) {
+                    // Role 7:
+                    // Blank region loads all branches.
+                    // Selected region loads only its branches.
+                    console.log('Click2Call Role 7 Loading branches:', {
                         userId: sessionUserId,
-                        regionCode: region
+                        regionCode: region || ''
                     })
 
                     data = await getBranches(
                         sessionUserId,
-                        region
+                        region || ''
                     )
-                }
-
-                // Other roles: preserve existing logged-in branch behavior.
-                else {
-                    console.log(
-                        'Click2Call Loading branch:',
-                        {
-                            roleId,
-                            regionCode: sessionRegionCode,
-                            bpCode
-                        }
-                    )
-
+                } else {
+                    // Preserve existing logged-in branch behavior.
                     data = bpCode
                         ? [{
                             bpCode,
@@ -417,27 +376,23 @@ const formatInputDate = (date) => {
 
                 setBranches(validBranches)
 
-                // Roles 5 and 6: select the logged-in user's branch if available.
-                // Otherwise, select the first available branch.
-                if (roleId === 3 || roleId === 5 || roleId === 6) {
+                // Roles 3, 5 and 6:
+                // Select the logged-in user's branch when available.
+                if (isRole3 || isRole5 || isRole6) {
                     const matchingBranch = validBranches.find(
                         item =>
-                            String(getBranchCode(item)) === String(bpCode)
+                            String(getBranchCode(item)).trim().toLowerCase() ===
+                            String(bpCode).trim().toLowerCase()
                     )
 
                     setBranch(
                         matchingBranch
-                            ? getBranchCode(matchingBranch)
-                            : validBranches.length > 0
-                                ? getBranchCode(validBranches[0])
-                                : ''
+                            ? String(getBranchCode(matchingBranch))
+                            : ''
                     )
-                } else if (isRole1Or3 || isRole7) {
-                    // Preserve existing behavior for Roles 1, 3, and 7.
+                } else {
+                    // Roles 1 and 7 select their branch manually.
                     setBranch('')
-                } else if (isBranchUser) {
-                    // Preserve existing behavior for other branch users.
-                    setBranch(bpCode)
                 }
 
                 setFranchises([])
@@ -451,15 +406,12 @@ const formatInputDate = (date) => {
                 setFranchises([])
                 setFranchise('')
 
-                if (isBranchUser) {
-                    setBranch(bpCode)
-                } else {
-                    setBranch('')
-                }
+                setBranch(
+                    isBranchUser ? bpCode : ''
+                )
 
                 setError(
-                    error.message ||
-                    'Unable to load branches.'
+                    error.message || 'Unable to load branches.'
                 )
             } finally {
                 if (!cancelled) {
@@ -480,6 +432,9 @@ const formatInputDate = (date) => {
         sessionRegionCode,
         bpCode,
         isRole1Or3,
+        isRole3,
+        isRole5,
+        isRole6,
         isRole7,
         isBranchUser
     ])
@@ -492,23 +447,15 @@ const formatInputDate = (date) => {
         let cancelled = false
 
         const loadFranchises = async () => {
-            // Role 1 / 3: wait until a branch is selected.
-            if (isRole1Or3 && !branch) {
+            // Wait for branch selection for Roles 1, 3 and 7.
+            if ((isRole1Or3 || isRole7) && !branch) {
                 setFranchises([])
                 setFranchise('')
                 setFranchiseLoading(false)
                 return
             }
 
-            // Role 7: wait until a branch is selected.
-            if (isRole7 && !branch) {
-                setFranchises([])
-                setFranchise('')
-                setFranchiseLoading(false)
-                return
-            }
-
-            // Other branch users: preserve existing behavior.
+            // Other branch users also need a branch.
             if (isBranchUser && !branch) {
                 setFranchises([])
                 setFranchise('')
@@ -526,16 +473,9 @@ const formatInputDate = (date) => {
                     loginId
                 })
 
-                // const data = await getClick2CallFranchises(
-                //     roleId,
-                //     branch,
-                //     loginId
-                // )
-
-                // Role 5 uses the logged-in user's BPCode.
-                // All other roles keep the existing selected-branch behavior.
+                // Roles 5 and 6 retain the existing BPCode behavior.
                 const franchiseBpCode =
-                    roleId === 5 || roleId === 6
+                    isRole5 || isRole6
                         ? bpCode
                         : branch
 
@@ -562,34 +502,31 @@ const formatInputDate = (date) => {
                         )
                 )
 
-                // setFranchises(sortedFranchises)
-                // setFranchise('')
-
                 setFranchises(sortedFranchises)
 
-if (roleId === 5) {
-    // Select the franchise belonging to the logged-in user.
-    const userFranchise = sortedFranchises.find(
-        item =>
-            String(getFranchiseCode(item)).toLowerCase() ===
-            String(loginId).toLowerCase()
-    )
+                if (isRole5) {
+                    // Select the logged-in user's franchise.
+                    const userFranchise = sortedFranchises.find(
+                        item =>
+                            String(getFranchiseCode(item)).trim().toLowerCase() ===
+                            String(loginId).trim().toLowerCase()
+                    )
 
-    setFranchise(
-        userFranchise
-            ? getFranchiseCode(userFranchise)
-            : ''
-    )
-} else if (roleId === 6) {
-    // Preserve automatic first-franchise selection for Role 6.
-    setFranchise(
-        sortedFranchises.length > 0
-            ? getFranchiseCode(sortedFranchises[0])
-            : ''
-    )
-} else {
-    setFranchise('')
-}
+                    setFranchise(
+                        userFranchise
+                            ? getFranchiseCode(userFranchise)
+                            : ''
+                    )
+                } else if (isRole6) {
+                    // Preserve first-franchise selection for Role 6.
+                    setFranchise(
+                        sortedFranchises.length > 0
+                            ? getFranchiseCode(sortedFranchises[0])
+                            : ''
+                    )
+                } else {
+                    setFranchise('')
+                }
             } catch (error) {
                 if (cancelled) return
 
@@ -599,8 +536,7 @@ if (roleId === 5) {
                 setFranchise('')
 
                 setError(
-                    error.message ||
-                    'Unable to load franchises.'
+                    error.message || 'Unable to load franchises.'
                 )
             } finally {
                 if (!cancelled) {
@@ -615,18 +551,13 @@ if (roleId === 5) {
             cancelled = true
         }
     }, [
-        // branch,
-        // roleId,
-        // loginId,
-        // isRole1Or3,
-        // isRole7,
-        // isBranchUser
-
         branch,
         roleId,
         loginId,
         bpCode,
         isRole1Or3,
+        isRole5,
+        isRole6,
         isRole7,
         isBranchUser
     ])
@@ -657,10 +588,7 @@ if (roleId === 5) {
     const handleBranchChange = (event) => {
         const selectedBranch = event.target.value
 
-        console.log(
-            'Selected Click2Call Branch:',
-            selectedBranch
-        )
+        console.log('Selected Click2Call Branch:', selectedBranch)
 
         setBranch(selectedBranch)
         setFranchise('')
@@ -669,6 +597,7 @@ if (roleId === 5) {
         setError('')
         setMessage('')
         setShowResults(false)
+        setIsTicketSearch(false)
     }
 
     // =========================================
@@ -695,8 +624,8 @@ if (roleId === 5) {
 
         setIsTicketSearch(isTicket)
 
-        // Role 1 / 3 region validation.
-        if (isRole1Or3 && !region) {
+        // Roles 1, 3 and 7 require a selected region.
+        if ((isRole1Or3 || isRole7) && !region) {
             setError('Please select a region.')
             return
         }
@@ -707,7 +636,7 @@ if (roleId === 5) {
             return
         }
 
-        // Require dates when no ticket number is provided.
+        // Dates are required when no ticket number is provided.
         if (!ticketNumber.trim()) {
             if (!fromDate || !toDate) {
                 setError(
@@ -724,9 +653,8 @@ if (roleId === 5) {
             }
         }
 
-        const searchRegionCode = isRole7
-            ? ''
-            : isRole1Or3
+        const searchRegionCode =
+            isRole1Or3 || isRole7
                 ? region
                 : sessionRegionCode
 
@@ -762,8 +690,7 @@ if (roleId === 5) {
             console.error('Click2Call error:', error)
 
             setError(
-                error.message ||
-                'Unable to search Click 2 Call.'
+                error.message || 'Unable to search Click 2 Call.'
             )
         } finally {
             setLoading(false)
@@ -786,15 +713,16 @@ if (roleId === 5) {
         setShowResults(false)
         setIsTicketSearch(false)
 
-        if (isRole1Or3) {
+        if (isRole1Or3 || isRole7) {
             setRegion('')
             setBranch('')
             setBranches([])
             return
         }
 
-        if (isRole7) {
-            setBranch('')
+        if (isRole5 || isRole6) {
+            setRegion(sessionRegionCode)
+            setBranch(bpCode)
             return
         }
 
@@ -840,7 +768,7 @@ if (roleId === 5) {
                     <div className="click2call-form">
 
                         {/* REGION */}
-                        {(isRole1Or3 || roleId === 5 || roleId === 6) && (
+                        {(isRole1Or3 || isRole5 || isRole6 || isRole7) && (
                             <div className="click2call-field">
                                 <label>
                                     Select Region:
@@ -885,7 +813,7 @@ if (roleId === 5) {
                                 onChange={handleBranchChange}
                                 disabled={
                                     branchLoading ||
-                                    (isRole1Or3 && !region) ||
+                                    ((isRole1Or3 || isRole5 || isRole6) && !region) ||
                                     isBranchUser
                                 }
                             >
@@ -911,15 +839,10 @@ if (roleId === 5) {
                             <select
                                 value={franchise}
                                 onChange={handleFranchiseChange}
-                                // disabled={
-                                //     franchiseLoading ||
-                                //     !branch
-                                // }
-
                                 disabled={
                                     franchiseLoading ||
                                     !branch ||
-                                    roleId === 5
+                                    isRole5
                                 }
                             >
                                 <option value="">All</option>
@@ -949,21 +872,6 @@ if (roleId === 5) {
                         </div>
 
                         {/* FROM DATE */}
-                        {/* <div className="click2call-field">
-                            <label>
-                                From Date:
-                                <span className="required">*</span>
-                            </label>
-
-                            <input
-                                type="date"
-                                value={fromDate}
-                                onChange={(event) =>
-                                    setFromDate(event.target.value)
-                                }
-                            />
-                        </div> */}
-
                         <div className="click2call-field">
                             <label>
                                 From Date:
@@ -973,7 +881,9 @@ if (roleId === 5) {
                             <div className="report-date-picker-container">
                                 <DatePicker
                                     selected={parseDate(fromDate)}
-                                    onChange={(date) => setFromDate(formatInputDate(date))}
+                                    onChange={(date) =>
+                                        setFromDate(formatInputDate(date))
+                                    }
                                     dateFormat="dd/MM/yyyy"
                                     placeholderText="Select from date"
                                     className="report-filter-control report-date-control"
@@ -1000,21 +910,6 @@ if (roleId === 5) {
                         </div>
 
                         {/* TO DATE */}
-                        {/* <div className="click2call-field">
-                            <label>
-                                To Date:
-                                <span className="required">*</span>
-                            </label>
-
-                            <input
-                                type="date"
-                                value={toDate}
-                                onChange={(event) =>
-                                    setToDate(event.target.value)
-                                }
-                            />
-                        </div> */}
-
                         <div className="click2call-field">
                             <label>
                                 To Date:
@@ -1024,7 +919,9 @@ if (roleId === 5) {
                             <div className="report-date-picker-container">
                                 <DatePicker
                                     selected={parseDate(toDate)}
-                                    onChange={(date) => setToDate(formatInputDate(date))}
+                                    onChange={(date) =>
+                                        setToDate(formatInputDate(date))
+                                    }
                                     minDate={parseDate(fromDate)}
                                     dateFormat="dd/MM/yyyy"
                                     placeholderText="Select to date"

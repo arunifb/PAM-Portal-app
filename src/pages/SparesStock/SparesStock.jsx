@@ -18,12 +18,32 @@ function SparesStock() {
 
     // =========================================
     // LOGGED-IN USER DETAILS
+    // Read roles from sessionStorage.roles
     // =========================================
 
-    const roleId =
-        sessionStorage.getItem('roleId') ||
-        sessionStorage.getItem('roleID') ||
-        ''
+    let storedRoles = []
+
+    try {
+        const parsedRoles = JSON.parse(
+            sessionStorage.getItem('roles') || '[]'
+        )
+
+        if (Array.isArray(parsedRoles)) {
+            storedRoles = parsedRoles.map(role =>
+                String(role).trim()
+            )
+        } else if (
+            parsedRoles !== null &&
+            parsedRoles !== undefined
+        ) {
+            storedRoles = [String(parsedRoles).trim()]
+        }
+    } catch (error) {
+        console.error('Unable to parse stored roles:', error)
+    }
+
+    const isRegionRole = storedRoles.includes('1')
+    const isBranchRole = storedRoles.includes('6')
 
     const sessionRegionCode =
         sessionStorage.getItem('regionCode') || ''
@@ -37,7 +57,6 @@ function SparesStock() {
     // =========================================
 
     const getViewerUserId = () => {
-
         const possibleKeys = [
             'userId',
             'UserId',
@@ -46,11 +65,9 @@ function SparesStock() {
         ]
 
         for (const key of possibleKeys) {
-
             const value = sessionStorage.getItem(key)
 
             if (value) {
-
                 const parsedValue = Number(value)
 
                 if (
@@ -59,9 +76,7 @@ function SparesStock() {
                 ) {
                     return parsedValue
                 }
-
             }
-
         }
 
         return 0
@@ -75,16 +90,13 @@ function SparesStock() {
     const [regions, setRegions] = useState([])
 
     // Role 6: preselect the logged-in user's region.
-    // Role 1: preserve the existing empty default.
+    // Other roles: preserve the empty default.
 
     const [regionCode, setRegionCode] = useState(
-        roleId === '6'
-            ? sessionRegionCode
-            : ''
+        isBranchRole ? sessionRegionCode : ''
     )
 
-
-    // Branch initially contains "All".
+    // Branch initially contains All.
 
     const [branches, setBranches] = useState([
         {
@@ -95,13 +107,9 @@ function SparesStock() {
 
     const [branchCode, setBranchCode] = useState('All')
 
-
     const [matGrp, setMatGrp] = useState('')
-
     const [material, setMaterial] = useState('')
-
     const [sloc, setSloc] = useState('')
-
     const [partName, setPartName] = useState('')
 
 
@@ -117,9 +125,7 @@ function SparesStock() {
     // =========================================
 
     const [loadingRegions, setLoadingRegions] = useState(false)
-
     const [loadingBranches, setLoadingBranches] = useState(false)
-
     const [searching, setSearching] = useState(false)
 
 
@@ -128,8 +134,21 @@ function SparesStock() {
     // =========================================
 
     const [error, setError] = useState('')
-
     const [message, setMessage] = useState('')
+
+
+    // =========================================
+    // GET REGION CODE
+    // =========================================
+
+    const getRegionCode = (item) => {
+        return (
+            item.regionCode ??
+            item.RegionCode ??
+            item.regioncode ??
+            ''
+        )
+    }
 
 
     // =========================================
@@ -137,7 +156,6 @@ function SparesStock() {
     // =========================================
 
     const getBranchCode = (item) => {
-
         return (
             item.bpCode ??
             item.BPCode ??
@@ -146,7 +164,6 @@ function SparesStock() {
             item.BranchCode ??
             ''
         )
-
     }
 
 
@@ -155,7 +172,6 @@ function SparesStock() {
     // =========================================
 
     const getBranchName = (item) => {
-
         return (
             item.branchName ??
             item.BranchName ??
@@ -163,7 +179,6 @@ function SparesStock() {
             item.Name ??
             ''
         )
-
     }
 
 
@@ -172,27 +187,19 @@ function SparesStock() {
     // =========================================
 
     useEffect(() => {
-
         let isMounted = true
 
         const loadRegions = async () => {
-
             try {
-
                 setLoadingRegions(true)
-
                 setError('')
 
                 const viewerUserId = getViewerUserId()
 
                 if (!viewerUserId) {
-
                     setRegions([])
-
                     setError('User ID is not available.')
-
                     return
-
                 }
 
                 const response = await getRegions(
@@ -204,18 +211,41 @@ function SparesStock() {
                     return
                 }
 
-                const regionData =
-                    Array.isArray(response)
-                        ? response
-                        : Array.isArray(response?.data)
-                            ? response.data
-                            : []
+                const regionData = Array.isArray(response)
+                    ? response
+                    : Array.isArray(response?.data)
+                        ? response.data
+                        : []
 
                 setRegions(regionData)
 
-            }
-            catch (error) {
+                // Role 6: match the session region against
+                // the returned region list, ignoring case.
 
+                if (isBranchRole && sessionRegionCode) {
+                    const matchingRegion = regionData.find(region =>
+                        String(getRegionCode(region))
+                            .trim()
+                            .toLowerCase() ===
+                        String(sessionRegionCode)
+                            .trim()
+                            .toLowerCase()
+                    )
+
+                    if (matchingRegion) {
+                        const matchedRegionCode = String(
+                            getRegionCode(matchingRegion)
+                        ).trim()
+
+                        setRegionCode(matchedRegionCode)
+                    } else {
+                        setRegionCode(sessionRegionCode)
+                        setError(
+                            'The logged-in user region was not found in the region list.'
+                        )
+                    }
+                }
+            } catch (error) {
                 if (!isMounted) {
                     return
                 }
@@ -226,21 +256,15 @@ function SparesStock() {
                 )
 
                 setRegions([])
-
                 setError(
                     error.message ||
                     'Unable to load regions.'
                 )
-
-            }
-            finally {
-
+            } finally {
                 if (isMounted) {
                     setLoadingRegions(false)
                 }
-
             }
-
         }
 
         loadRegions()
@@ -248,7 +272,6 @@ function SparesStock() {
         return () => {
             isMounted = false
         }
-
     }, [])
 
 
@@ -257,9 +280,7 @@ function SparesStock() {
     // =========================================
 
     const loadBranches = async (selectedRegionCode) => {
-
         if (!selectedRegionCode) {
-
             setBranches([
                 {
                     bpCode: 'All',
@@ -268,21 +289,16 @@ function SparesStock() {
             ])
 
             setBranchCode('All')
-
             return
-
         }
 
         try {
-
             setLoadingBranches(true)
-
             setError('')
 
             const viewerUserId = getViewerUserId()
 
             if (!viewerUserId) {
-
                 setBranches([
                     {
                         bpCode: 'All',
@@ -291,11 +307,8 @@ function SparesStock() {
                 ])
 
                 setBranchCode('All')
-
                 setError('User ID is not available.')
-
                 return
-
             }
 
             const response = await getBranches(
@@ -303,26 +316,23 @@ function SparesStock() {
                 selectedRegionCode
             )
 
-            const branchData =
-                Array.isArray(response)
-                    ? response
-                    : Array.isArray(response?.data)
-                        ? response.data
-                        : []
+            const branchData = Array.isArray(response)
+                ? response
+                : Array.isArray(response?.data)
+                    ? response.data
+                    : []
 
-            // Remove any existing "All" entry from the API data.
+            // Remove any existing All entries from API data.
 
             const filteredBranches = branchData.filter(item => {
-
                 const code = String(
                     getBranchCode(item)
                 ).trim().toLowerCase()
 
                 return code !== 'all'
-
             })
 
-            // Add one "All" option to the dropdown.
+            // Add exactly one All option.
 
             setBranches([
                 {
@@ -332,67 +342,38 @@ function SparesStock() {
                 ...filteredBranches
             ])
 
-
             // =====================================
             // ROLE 6: AUTO-SELECT SESSION BRANCH
             // =====================================
 
-            if (roleId === '6') {
-
+            if (isBranchRole) {
                 const normalizedSessionBpCode =
-                    String(sessionBpCode).trim()
+                    String(sessionBpCode).trim().toLowerCase()
 
                 const matchingBranch = normalizedSessionBpCode
-                    ? filteredBranches.find(item => {
-
-                        const code = String(
-                            getBranchCode(item)
-                        ).trim()
-
-                        return code === normalizedSessionBpCode
-
-                    })
+                    ? filteredBranches.find(item =>
+                        String(getBranchCode(item))
+                            .trim()
+                            .toLowerCase() === normalizedSessionBpCode
+                    )
                     : null
 
                 if (matchingBranch) {
-
-                    // Select the branch matching session BPCode.
-
                     setBranchCode(
-                        String(getBranchCode(matchingBranch))
+                        String(getBranchCode(matchingBranch)).trim()
                     )
-
-                }
-                else if (filteredBranches.length > 0) {
-
-                    // If the saved BPCode isn't returned,
-                    // select the first available branch.
-
+                } else if (filteredBranches.length > 0) {
                     setBranchCode(
-                        String(getBranchCode(filteredBranches[0]))
+                        String(getBranchCode(filteredBranches[0])).trim()
                     )
-
-                }
-                else {
-
-                    // No branches available.
-
+                } else {
                     setBranchCode('All')
-
                 }
-
-            }
-            else {
-
-                // Preserve existing Role 1 behavior.
-
+            } else {
+                // Preserve Role 1's existing default.
                 setBranchCode('All')
-
             }
-
-        }
-        catch (error) {
-
+        } catch (error) {
             console.error(
                 'Spares Stock branch error:',
                 error
@@ -411,30 +392,25 @@ function SparesStock() {
                 error.message ||
                 'Unable to load branches.'
             )
-
-        }
-        finally {
-
+        } finally {
             setLoadingBranches(false)
-
         }
-
     }
 
 
     // =========================================
-    // ROLE 6: LOAD SESSION REGION BRANCHES
+    // ROLE 6: LOAD BRANCHES AFTER REGION LOADS
     // =========================================
 
     useEffect(() => {
-
-        if (roleId === '6' && sessionRegionCode) {
-
-            loadBranches(sessionRegionCode)
-
+        if (
+            isBranchRole &&
+            !loadingRegions &&
+            regionCode
+        ) {
+            loadBranches(regionCode)
         }
-
-    }, [])
+    }, [isBranchRole, loadingRegions, regionCode])
 
 
     // =========================================
@@ -442,14 +418,10 @@ function SparesStock() {
     // =========================================
 
     const handleRegionChange = async (event) => {
-
         const value = event.target.value
 
         setRegionCode(value)
-
         setBranchCode('All')
-
-        // Keep "All" visible while branches load.
 
         setBranches([
             {
@@ -459,17 +431,12 @@ function SparesStock() {
         ])
 
         setRecords([])
-
         setError('')
-
         setMessage('')
 
         if (value) {
-
             await loadBranches(value)
-
         }
-
     }
 
 
@@ -478,15 +445,10 @@ function SparesStock() {
     // =========================================
 
     const handleBranchChange = (event) => {
-
         setBranchCode(event.target.value)
-
         setRecords([])
-
         setError('')
-
         setMessage('')
-
     }
 
 
@@ -495,27 +457,16 @@ function SparesStock() {
     // =========================================
 
     const handleSearch = async () => {
-
         setError('')
-
         setMessage('')
-
         setRecords([])
 
-        // REGION REQUIRED
-
         if (!regionCode) {
-
             setError('Region is required.')
-
             return
-
         }
 
-        // SEARCH DATA
-
         const searchData = {
-
             RegionCode: regionCode,
 
             BpCode:
@@ -524,13 +475,9 @@ function SparesStock() {
                     : branchCode || '',
 
             Material: material || '',
-
             PartName: partName || '',
-
             MatGrp: matGrp || '',
-
             Sloc: sloc || ''
-
         }
 
         console.log(
@@ -539,25 +486,15 @@ function SparesStock() {
         )
 
         try {
-
             setSearching(true)
 
-            // API REQUEST
-
             const requestData = {
-
                 regionCode: searchData.RegionCode,
-
                 bpCode: searchData.BpCode,
-
                 material: searchData.Material,
-
                 partName: searchData.PartName,
-
                 matGrp: searchData.MatGrp,
-
                 sloc: searchData.Sloc
-
             }
 
             const response = await searchSpareStock(requestData)
@@ -567,22 +504,16 @@ function SparesStock() {
                 response
             )
 
-            const data =
-                Array.isArray(response?.data)
-                    ? response.data
-                    : []
+            const data = Array.isArray(response?.data)
+                ? response.data
+                : []
 
             setRecords(data)
 
             if (data.length === 0) {
-
                 setMessage('No Record Found')
-
             }
-
-        }
-        catch (error) {
-
+        } catch (error) {
             console.error(
                 'Spares Stock search error:',
                 error
@@ -592,14 +523,9 @@ function SparesStock() {
                 error.message ||
                 'Unable to load Spares Stock data.'
             )
-
-        }
-        finally {
-
+        } finally {
             setSearching(false)
-
         }
-
     }
 
 
@@ -608,7 +534,6 @@ function SparesStock() {
     // =========================================
 
     const formatStockDate = (value) => {
-
         if (!value) {
             return ''
         }
@@ -627,7 +552,6 @@ function SparesStock() {
                 year: 'numeric'
             }
         )
-
     }
 
 
@@ -636,47 +560,36 @@ function SparesStock() {
     // =========================================
 
     return (
-
         <DashboardLayout title="Spares Stock">
-
             <div className="spares-stock-page">
 
                 {/* FILTER CARD */}
 
                 <div className="spares-stock-card">
-
-                    {/* FILTER GRID */}
-
                     <div className="spares-stock-filter-grid">
 
                         {/* REGION */}
 
                         <div className="spares-stock-field">
-
                             <label>
                                 Region
-                                <span className="required">
-                                    *
-                                </span>
+                                <span className="required">*</span>
                             </label>
 
                             <select
                                 value={regionCode}
                                 onChange={handleRegionChange}
-                                disabled={loadingRegions}
+                                disabled={
+                                    loadingRegions ||
+                                    isBranchRole
+                                }
                             >
-
                                 <option value="">
                                     Select Region
                                 </option>
 
                                 {regions.map((region, index) => {
-
-                                    const value =
-                                        region.regionCode ??
-                                        region.RegionCode ??
-                                        region.regioncode ??
-                                        ''
+                                    const value = getRegionCode(region)
 
                                     const name =
                                         region.regionName ??
@@ -689,58 +602,47 @@ function SparesStock() {
                                     }
 
                                     return (
-
                                         <option
                                             key={`${value}-${index}`}
                                             value={value}
                                         >
                                             {name}
                                         </option>
-
                                     )
-
                                 })}
-
                             </select>
-
                         </div>
 
 
                         {/* BRANCH */}
 
                         <div className="spares-stock-field">
-
                             <label>Branch</label>
 
                             <select
                                 value={branchCode}
                                 onChange={handleBranchChange}
                                 disabled={
+                                    isBranchRole ||
                                     !regionCode ||
                                     loadingBranches
                                 }
                             >
-
                                 {branches.map((item, index) => (
-
                                     <option
                                         key={`${getBranchCode(item)}-${index}`}
                                         value={getBranchCode(item)}
                                     >
                                         {getBranchName(item)}
                                     </option>
-
                                 ))}
-
                             </select>
-
                         </div>
 
 
                         {/* PART GROUP */}
 
                         <div className="spares-stock-field">
-
                             <label>Part Group</label>
 
                             <input
@@ -751,14 +653,12 @@ function SparesStock() {
                                 }
                                 placeholder="type or copy here"
                             />
-
                         </div>
 
 
                         {/* PART CODE */}
 
                         <div className="spares-stock-field">
-
                             <label>Part Code</label>
 
                             <input
@@ -769,14 +669,12 @@ function SparesStock() {
                                 }
                                 maxLength={16}
                             />
-
                         </div>
 
 
                         {/* SLOC */}
 
                         <div className="spares-stock-field">
-
                             <label>Sloc</label>
 
                             <input
@@ -787,14 +685,12 @@ function SparesStock() {
                                 }
                                 maxLength={10}
                             />
-
                         </div>
 
 
                         {/* PART NAME */}
 
                         <div className="spares-stock-field">
-
                             <label>Part Name</label>
 
                             <input
@@ -805,7 +701,6 @@ function SparesStock() {
                                 }
                                 maxLength={64}
                             />
-
                         </div>
 
                     </div>
@@ -814,29 +709,24 @@ function SparesStock() {
                     {/* ERROR */}
 
                     {error && (
-
                         <div className="spares-stock-error">
                             {error}
                         </div>
-
                     )}
 
 
                     {/* MESSAGE */}
 
                     {message && (
-
                         <div className="spares-stock-message">
                             {message}
                         </div>
-
                     )}
 
 
                     {/* SEARCH BUTTON */}
 
                     <div className="spares-stock-actions">
-
                         <button
                             type="button"
                             className="spares-stock-search-button"
@@ -845,9 +735,7 @@ function SparesStock() {
                         >
                             {searching ? 'Searching...' : 'Search'}
                         </button>
-
                     </div>
-
                 </div>
 
 
@@ -855,29 +743,20 @@ function SparesStock() {
 
                 <div className="spares-stock-card">
 
-                    {/* RECORD COUNT */}
-
                     {records.length > 0 && !searching && (
-
                         <h3 className="spares-stock-record-count">
-
                             {records.length} record
                             {records.length !== 1 ? 's' : ''}
                             {' '}found
-
                         </h3>
-
                     )}
 
 
                     {/* TABLE */}
 
                     <div className="spares-stock-table-container">
-
                         <table className="spares-stock-table">
-
                             <thead>
-
                                 <tr>
                                     <th>#</th>
                                     <th>Plant</th>
@@ -890,24 +769,16 @@ function SparesStock() {
                                     <th>Created Date</th>
                                     <th>Updated Date</th>
                                 </tr>
-
                             </thead>
 
                             <tbody>
-
-                                {/* LOADING */}
-
                                 {searching ? (
-
                                     <tr>
-
                                         <td
                                             colSpan="10"
                                             className="spares-stock-loading-cell"
                                         >
-
                                             <div className="spares-stock-loading">
-
                                                 <div className="spares-stock-loading-dots">
                                                     <span></span>
                                                     <span></span>
@@ -917,39 +788,24 @@ function SparesStock() {
                                                 <span className="spares-stock-loading-text">
                                                     Loading...
                                                 </span>
-
                                             </div>
-
                                         </td>
-
                                     </tr>
-
                                 ) : records.length > 0 ? (
-
-                                    /* RESULTS */
-
                                     records.map((record, index) => (
-
                                         <tr
                                             key={`${record.rowIndex || index}-${index}`}
                                         >
-
                                             <td>
                                                 {record.rowIndex || index + 1}
                                             </td>
 
                                             <td>{record.plant || ''}</td>
-
                                             <td>{record.branch || ''}</td>
-
                                             <td>{record.matGrp || ''}</td>
-
                                             <td>{record.material || ''}</td>
-
                                             <td>{record.partName || ''}</td>
-
                                             <td>{record.quantity || ''}</td>
-
                                             <td>{record.sloc || ''}</td>
 
                                             <td>
@@ -959,43 +815,25 @@ function SparesStock() {
                                             <td>
                                                 {formatStockDate(record.updatedDate)}
                                             </td>
-
                                         </tr>
-
                                     ))
-
                                 ) : (
-
-                                    /* EMPTY */
-
                                     <tr>
-
                                         <td
                                             colSpan="10"
                                             className="spares-stock-empty"
                                         >
                                             no record found change search criteria
                                         </td>
-
                                     </tr>
-
                                 )}
-
                             </tbody>
-
                         </table>
-
                     </div>
-
                 </div>
-
             </div>
-
         </DashboardLayout>
-
     )
-
 }
-
 
 export default SparesStock

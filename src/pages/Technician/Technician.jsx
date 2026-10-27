@@ -33,6 +33,42 @@ function getSessionValue(...keys) {
     return ''
 }
 
+function getSessionRoles() {
+    try {
+        const storedRoles = sessionStorage.getItem('roles')
+
+        if (!storedRoles) return []
+
+        const parsedRoles = JSON.parse(storedRoles)
+
+        if (Array.isArray(parsedRoles)) {
+            return parsedRoles
+                .map(role => {
+                    if (typeof role === 'object' && role !== null) {
+                        return Number(
+                            role.roleID ??
+                            role.RoleID ??
+                            role.roleId ??
+                            role.RoleId ??
+                            role.id ??
+                            role.Id
+                        )
+                    }
+
+                    return Number(role)
+                })
+                .filter(roleId =>
+                    Number.isInteger(roleId) && roleId > 0
+                )
+        }
+
+        return []
+    } catch (error) {
+        console.error('Unable to read session roles:', error)
+        return []
+    }
+}
+
 function getArrayFromResponse(response) {
     if (Array.isArray(response)) return response
     if (Array.isArray(response?.data)) return response.data
@@ -90,6 +126,10 @@ function getFranchiseCode(item) {
         item?.FrCode ??
         item?.franchiseCode ??
         item?.FranchiseCode ??
+        item?.loginId ??
+        item?.LoginId ??
+        item?.LoginID ??
+        item?.loginID ??
         item?.code ??
         item?.Code ??
         ''
@@ -106,6 +146,17 @@ function getFranchiseName(item) {
         ''
     )
 }
+
+// function getFranchiseName(item) {
+//     return String(
+//         item?.franchiseName ??
+//         item?.Franchisename ??
+//         item?.FranchiseName ??
+//         item?.name ??
+//         item?.Name ??
+//         ''
+//     )
+// }
 
 // =====================================================
 // DATE FORMAT
@@ -275,27 +326,56 @@ function Technician({
     // SESSION VALUES
     // =================================================
 
-    const roleId = Number(
-        getSessionValue('roleId', 'RoleID') || 1
-    )
-
     const sessionUserId = getSessionValue('userId', 'UserID')
-    const sessionBpCode = getSessionValue('bpCode', 'BPCode')
-    const sessionLoginId = getSessionValue('loginId', 'LoginID')
+
+    const sessionBpCode = (
+        getSessionValue('bpCode', 'BPCode')
+    ).trim()
+
+    const sessionLoginId = (
+    sessionStorage.getItem('loginId') ||
+    sessionStorage.getItem('LoginID') ||
+    ''
+).trim()
 
     const sessionRegionCode = getSessionValue(
         'regionCode',
         'RegionCode'
-    )
+    ).trim()
 
+
+// =====================================================
+// ROLES
+// Read the roles stored during login.
+// =====================================================
+
+const sessionRoles = getSessionRoles()
+
+const isRole1 = sessionRoles.includes(1)
+const isRole3 = sessionRoles.includes(3)
+const isRole5 = sessionRoles.includes(5)
+const isRole6 = sessionRoles.includes(6)
+
+const storedRoleId = Number(
+    getSessionValue('roleId', 'RoleID')
+)
+
+const roleId = sessionRoles.includes(storedRoleId)
+    ? storedRoleId
+    : sessionRoles.length === 1
+        ? sessionRoles[0]
+        : 0
+
+// Stable dependency value for effects.
+const sessionRolesKey = sessionRoles.join(',')
     // =================================================
     // ROLE FLAGS
     // =================================================
 
-    const isRole1 = roleId === 1
-    const isRole3 = roleId === 3
-    const isRole5 = roleId === 5
-    const isRole6 = roleId === 6
+    // const isRole1 = roleId === 1
+    // const isRole3 = roleId === 3
+    // const isRole5 = roleId === 5
+    // const isRole6 = roleId === 6
 
     // =================================================
     // FILTER STATES
@@ -332,8 +412,9 @@ function Technician({
     // =================================================
 
     const [regions, setRegions] = useState([])
-    const [branches, setBranches] = useState([])
-    const [franchises, setFranchises] = useState([])
+const [branches, setBranches] = useState([])
+const [franchises, setFranchises] = useState([])
+const [loadingFranchises, setLoadingFranchises] = useState(false)
 
     // =================================================
     // TABLE DATA
@@ -543,128 +624,191 @@ useEffect(() => {
     // Role 5 and Role 6: auto-select first franchise
     // =================================================
 
-    useEffect(() => {
-        let cancelled = false
+    
 
-        async function loadFranchises() {
-            if (!regionCode) {
-                setFranchises([])
-                setFranchiseCode('')
-                return
-            }
 
-            // Roles 1 and 3 must select a branch first.
-            if ((isRole1 || isRole3) && !branchCode) {
-                setFranchises([])
-                setFranchiseCode('')
-                return
-            }
 
-            // Role 5 must also have a branch selected.
-            if (isRole5 && !branchCode) {
-                setFranchises([])
-                setFranchiseCode('')
-                return
-            }
+// =====================================================
+// LOAD FRANCHISES
+// =====================================================
 
-            try {
-                let bpCodeForFranchise = ''
-                let loginIdForFranchise = ''
+useEffect(() => {
+    let cancelled = false
 
-                if (isRole5) {
-                    bpCodeForFranchise = sessionBpCode
-                    loginIdForFranchise = sessionLoginId
-                } else if (isRole6) {
-                    // Preserve the existing Role 6 API parameters.
-                    bpCodeForFranchise = sessionBpCode
-                    loginIdForFranchise = ''
-                } else {
-                    bpCodeForFranchise = branchCode
-                    loginIdForFranchise = ''
-                }
+    async function loadFranchises() {
+        setFranchises([])
+        setError('')
 
-                if (!bpCodeForFranchise) {
-                    setFranchises([])
-                    setFranchiseCode('')
-                    return
-                }
+        if (!regionCode) {
+            setFranchiseCode('')
+            setLoadingFranchises(false)
+            return
+        }
 
-                const response = await getFranchises(
-                    roleId,
-                    bpCodeForFranchise,
-                    loginIdForFranchise
+        // Roles 1 and 3 require a selected branch.
+        if ((isRole1 || isRole3) && !branchCode) {
+            setFranchiseCode('')
+            setLoadingFranchises(false)
+            return
+        }
+
+        // Roles 5 and 6 use the logged-in user's BPCode.
+        if ((isRole5 || isRole6) && !sessionBpCode) {
+            setFranchiseCode('')
+            setLoadingFranchises(false)
+            setError('BP Code is missing from the session.')
+            return
+        }
+
+        // Declare API parameters ONCE, before using them.
+        const bpCodeForFranchise =
+            (isRole5 || isRole6)
+                ? sessionBpCode
+                : branchCode
+
+        const loginIdForFranchise = sessionLoginId
+
+        if (!bpCodeForFranchise) {
+            setFranchiseCode('')
+            setLoadingFranchises(false)
+            return
+        }
+
+        // The API requires LoginID for roles 5 and 6.
+        if (
+            (isRole5 || isRole6) &&
+            !loginIdForFranchise
+        ) {
+            setFranchiseCode('')
+            setFranchises([])
+            setLoadingFranchises(false)
+
+            setError(
+                'Login ID is missing from the session. Please sign in again.'
+            )
+
+            console.error('Franchise API: Login ID is missing.', {
+                bpCode: bpCodeForFranchise,
+                roles: sessionRoles
+            })
+
+            return
+        }
+
+        try {
+            setLoadingFranchises(true)
+
+            console.log('Technician franchise API parameters:', {
+                roles: sessionRoles,
+                bpCode: bpCodeForFranchise,
+                loginId: loginIdForFranchise
+            })
+
+            // Use the existing reportsApi.js function.
+            const response = await getFranchises(
+                bpCodeForFranchise,
+                loginIdForFranchise
+            )
+
+            if (cancelled) return
+
+            const franchiseList = getArrayFromResponse(response)
+
+            console.log(
+                'Technician franchise API response:',
+                franchiseList
+            )
+
+            setFranchises(franchiseList)
+
+            // Restore the previous selection when returning from Edit.
+            if (restoredListState) {
+                const restoredCode = String(
+                    restoredListState.franchiseCode ?? ''
+                ).trim().toLowerCase()
+
+                const restoredFranchise = franchiseList.find(item =>
+                    getFranchiseCode(item)
+                        .trim()
+                        .toLowerCase() === restoredCode
                 )
 
-                if (cancelled) return
-
-                const franchiseList = getArrayFromResponse(response)
-
-                setFranchises(franchiseList)
-
-                if (restoredListState) {
-                    const restoredFranchiseCode = String(
-                        restoredListState.franchiseCode ?? ''
-                    )
-
-                    const restoredFranchiseExists =
-                        franchiseList.some(
-                            franchise =>
-                                getFranchiseCode(franchise).trim() ===
-                                restoredFranchiseCode.trim()
-                        )
-
-                    if (restoredFranchiseExists) {
-                        setFranchiseCode(restoredFranchiseCode)
-                    } else if (
-                        (isRole5 || isRole6) &&
-                        franchiseList.length > 0
-                    ) {
-                        setFranchiseCode(
-                            getFranchiseCode(franchiseList[0])
-                        )
-                    } else {
-                        setFranchiseCode('')
-                    }
-                } else if (isRole5 || isRole6) {
-                    // Automatically select the first franchise.
-                    const firstFranchise = franchiseList[0]
-
+                if (restoredFranchise) {
                     setFranchiseCode(
-                        firstFranchise
-                            ? getFranchiseCode(firstFranchise)
-                            : ''
+                        getFranchiseCode(restoredFranchise)
                     )
-                } else {
-                    setFranchiseCode('')
-                }
-            } catch (err) {
-                if (!cancelled) {
-                    setFranchises([])
-                    setFranchiseCode('')
-                    setError(
-                        err?.message || 'Unable to load franchises.'
-                    )
+                    return
                 }
             }
-        }
 
-        loadFranchises()
+            // Role 5: select the franchise matching LoginID.
+            if (isRole5) {
+                const matchingFranchise = franchiseList.find(item =>
+                    getFranchiseCode(item)
+                        .trim()
+                        .toLowerCase() ===
+                    sessionLoginId.trim().toLowerCase()
+                )
 
-        return () => {
-            cancelled = true
+                const selectedFranchise =
+                    matchingFranchise || franchiseList[0]
+
+                setFranchiseCode(
+                    selectedFranchise
+                        ? getFranchiseCode(selectedFranchise)
+                        : ''
+                )
+            }
+            // Role 6: select the first available franchise.
+            else if (isRole6) {
+                const firstFranchise = franchiseList[0]
+
+                setFranchiseCode(
+                    firstFranchise
+                        ? getFranchiseCode(firstFranchise)
+                        : ''
+                )
+            }
+            // Other roles: allow the user to select a franchise.
+            else {
+                setFranchiseCode('')
+            }
+        } catch (err) {
+            if (!cancelled) {
+                console.error('Franchise API failed:', err)
+
+                setFranchises([])
+                setFranchiseCode('')
+
+                setError(
+                    err?.message ||
+                    'Unable to load franchises. Please check the API.'
+                )
+            }
+        } finally {
+            if (!cancelled) {
+                setLoadingFranchises(false)
+            }
         }
-    }, [
-        roleId,
-        regionCode,
-        branchCode,
-        sessionBpCode,
-        sessionLoginId,
-        isRole1,
-        isRole3,
-        isRole5,
-        isRole6,
-        restoredListState
-    ])
+    }
+
+    loadFranchises()
+
+    return () => {
+        cancelled = true
+    }
+}, [
+    regionCode,
+    branchCode,
+    sessionBpCode,
+    sessionLoginId,
+    sessionRolesKey,
+    isRole1,
+    isRole3,
+    isRole5,
+    isRole6,
+    restoredListState
+])
 
     // =================================================
     // SEARCH
@@ -1227,37 +1371,35 @@ useEffect(() => {
 
                     {/* FRANCHISE */}
 
-                    <div className="technician-filter-item">
-                        <label>Franchise</label>
+<div className="technician-filter-item">
+    <label>Franchise</label>
 
-                        <select
-                            value={franchiseCode}
-                            onChange={event =>
-                                setFranchiseCode(event.target.value)
-                            }
-                            disabled={
-                                !regionCode ||
-                                isRole5 ||
-                                ((isRole1 || isRole3) && !branchCode)
-                            }
-                        >
-                            <option value="">All</option>
+    <select
+        value={franchiseCode}
+        onChange={event => setFranchiseCode(event.target.value)}
+        disabled={
+            !regionCode ||
+            isRole5 ||
+            ((isRole1 || isRole3) && !branchCode)
+        }
+    >
+        <option value="">All</option>
 
-                            {franchises.map((franchise, index) => {
-                                const code = getFranchiseCode(franchise)
-                                const name = getFranchiseName(franchise)
+        {franchises.map((franchise, index) => {
+            const code = getFranchiseCode(franchise)
+            const name = getFranchiseName(franchise)
 
-                                return (
-                                    <option
-                                        key={`${code}-${index}`}
-                                        value={code}
-                                    >
-                                        {name || code}
-                                    </option>
-                                )
-                            })}
-                        </select>
-                    </div>
+            return (
+                <option
+                    key={`${code}-${index}`}
+                    value={code}
+                >
+                    {name || code}
+                </option>
+            )
+        })}
+    </select>
+</div>
 
                     {/* STATUS */}
 

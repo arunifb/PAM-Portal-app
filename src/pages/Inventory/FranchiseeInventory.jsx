@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import {
@@ -21,7 +20,7 @@ import './FranchiseeInventory.css'
 function FranchiseeInventory() {
 
     // =========================================
-    // CONSTANT
+    // CONSTANTS
     // =========================================
 
     const MAX_FRANCHISE_SELECTION = 10
@@ -29,12 +28,9 @@ function FranchiseeInventory() {
 
     // =========================================
     // LOGGED-IN USER DETAILS
+    // Roles are read from sessionStorage.roles,
+    // matching the working DigitalICR.jsx.
     // =========================================
-
-    const roleId =
-        sessionStorage.getItem('roleId') ||
-        sessionStorage.getItem('roleID') ||
-        ''
 
     const loginId =
         sessionStorage.getItem('loginId') || ''
@@ -45,12 +41,40 @@ function FranchiseeInventory() {
     const sessionBpCode =
         sessionStorage.getItem('bpCode') || ''
 
+    let storedRoles = []
+
+    try {
+        const parsedRoles = JSON.parse(
+            sessionStorage.getItem('roles') || '[]'
+        )
+
+        if (Array.isArray(parsedRoles)) {
+            storedRoles = parsedRoles.map(role =>
+                String(role).trim()
+            )
+        } else if (
+            parsedRoles !== null &&
+            parsedRoles !== undefined
+        ) {
+            storedRoles = [String(parsedRoles).trim()]
+        }
+    } catch (error) {
+        console.error(
+            'Unable to parse stored roles:',
+            error
+        )
+    }
+
+    const isRegionRole = storedRoles.includes('1')
+    const isFranchiseRole = storedRoles.includes('5')
+    const isBranchRole = storedRoles.includes('6')
+
 
     // =========================================
     // GET LOGGED-IN USER ID
     // =========================================
 
-    const getViewerUserId = () => {
+    function getViewerUserId() {
 
         const possibleKeys = [
             'userId',
@@ -81,29 +105,94 @@ function FranchiseeInventory() {
 
 
     // =========================================
+    // API FIELD HELPERS
+    // =========================================
+
+    function getApiField(item, fieldNames) {
+
+        if (!item || typeof item !== 'object') {
+            return ''
+        }
+
+        for (const fieldName of fieldNames) {
+
+            const matchingKey = Object.keys(item).find(
+                key =>
+                    key.toLowerCase() ===
+                    fieldName.toLowerCase()
+            )
+
+            if (
+                matchingKey &&
+                item[matchingKey] !== null &&
+                item[matchingKey] !== undefined
+            ) {
+                return String(
+                    item[matchingKey]
+                ).trim()
+            }
+        }
+
+        return ''
+    }
+
+
+    function getResponseArray(response, propertyName = '') {
+
+        if (Array.isArray(response)) {
+            return response
+        }
+
+        if (Array.isArray(response?.data)) {
+            return response.data
+        }
+
+        if (Array.isArray(response?.data?.data)) {
+            return response.data.data
+        }
+
+        if (
+            propertyName &&
+            Array.isArray(response?.[propertyName])
+        ) {
+            return response[propertyName]
+        }
+
+        if (
+            propertyName &&
+            Array.isArray(response?.data?.[propertyName])
+        ) {
+            return response.data[propertyName]
+        }
+
+        return []
+    }
+
+
+    // =========================================
     // STATE
     // =========================================
 
     const [regions, setRegions] = useState([])
 
-    // Role 6: select the logged-in user's region.
-    // Other roles retain the existing default.
-
     const [regionCode, setRegionCode] = useState(
-        roleId === '6'
+        isBranchRole || isFranchiseRole
             ? sessionRegionCode
             : ''
     )
 
-    const [branches, setBranches] = useState([
-        {
-            bpCode: 'All',
-            branchName: 'All'
-        }
-    ])
+    const [branches, setBranches] = useState(
+        isBranchRole
+            ? []
+            : [{ bpCode: 'All', branchName: 'All' }]
+    )
 
     const [selectedBranch, setSelectedBranch] =
-        useState('All')
+        useState(
+            isBranchRole
+                ? sessionBpCode
+                : 'All'
+        )
 
     const [franchises, setFranchises] = useState([])
 
@@ -166,18 +255,14 @@ function FranchiseeInventory() {
     // =========================================
 
     function openModal(messageText) {
-
         setModalMessage(messageText)
         setShowModal(true)
-
     }
 
 
     function closeModal() {
-
         setShowModal(false)
         setModalMessage('')
-
     }
 
 
@@ -197,7 +282,6 @@ function FranchiseeInventory() {
             ) {
                 setFranchiseDropdownOpen(false)
             }
-
         }
 
         document.addEventListener(
@@ -206,37 +290,234 @@ function FranchiseeInventory() {
         )
 
         return () => {
-
             document.removeEventListener(
                 'mousedown',
                 handleClickOutside
             )
-
         }
 
     }, [])
 
 
     // =========================================
+    // LOAD BRANCHES
+    // Role 6 preselects the logged-in user's branch.
+    // =========================================
+
+    async function loadBranches(
+        selectedRegionCode,
+        isCurrent = () => true
+    ) {
+
+        if (!selectedRegionCode) {
+
+            if (!isCurrent()) return
+
+            setBranches(
+                isBranchRole
+                    ? []
+                    : [{ bpCode: 'All', branchName: 'All' }]
+            )
+
+            setSelectedBranch(
+                isBranchRole ? '' : 'All'
+            )
+
+            return
+        }
+
+        try {
+
+            setLoadingBranches(true)
+
+            const viewerUserId = getViewerUserId()
+
+            if (!viewerUserId) {
+
+                if (!isCurrent()) return
+
+                setBranches(
+                    isBranchRole
+                        ? []
+                        : [{ bpCode: 'All', branchName: 'All' }]
+                )
+
+                setSelectedBranch(
+                    isBranchRole ? '' : 'All'
+                )
+
+                setMessage('User ID is not available.')
+                setMessageType('error')
+
+                return
+            }
+
+            const response = await getBranches(
+                viewerUserId,
+                selectedRegionCode
+            )
+
+            if (!isCurrent()) return
+
+            const branchData = getResponseArray(
+                response,
+                'branches'
+            )
+
+            const validBranches = branchData.filter(branch => {
+
+                const code = getApiField(branch, [
+                    'bpCode',
+                    'BPCode',
+                    'BpCode',
+                    'branchCode',
+                    'BranchCode'
+                ])
+
+                const name = getApiField(branch, [
+                    'branchName',
+                    'BranchName',
+                    'name',
+                    'Name'
+                ])
+
+                return (
+                    Boolean(code) &&
+                    Boolean(name) &&
+                    code.toLowerCase() !== 'all'
+                )
+            })
+
+
+            // =========================================
+            // ROLE 6: MATCH SESSION BP CODE
+            // =========================================
+
+            if (isBranchRole) {
+
+                setBranches(validBranches)
+
+                const normalizedSessionBpCode =
+                    String(sessionBpCode)
+                        .trim()
+                        .toLowerCase()
+
+                const matchingBranch = validBranches.find(
+                    branch => {
+
+                        const code = getApiField(branch, [
+                            'bpCode',
+                            'BPCode',
+                            'BpCode',
+                            'branchCode',
+                            'BranchCode'
+                        ])
+
+                        return (
+                            code.toLowerCase() ===
+                            normalizedSessionBpCode
+                        )
+                    }
+                )
+
+                if (matchingBranch) {
+
+                    const matchedBranchCode = getApiField(
+                        matchingBranch,
+                        [
+                            'bpCode',
+                            'BPCode',
+                            'BpCode',
+                            'branchCode',
+                            'BranchCode'
+                        ]
+                    )
+
+                    setSelectedBranch(matchedBranchCode)
+
+                } else {
+
+                    setSelectedBranch(sessionBpCode)
+
+                    console.warn(
+                        'Role 6 branch could not be matched.',
+                        {
+                            sessionBpCode,
+                            selectedRegionCode,
+                            availableBranches: validBranches
+                        }
+                    )
+                }
+
+            } else {
+
+                // Preserve existing behavior for other roles.
+                setBranches([
+                    {
+                        bpCode: 'All',
+                        branchName: 'All'
+                    },
+                    ...validBranches
+                ])
+
+                setSelectedBranch('All')
+            }
+
+        } catch (error) {
+
+            if (!isCurrent()) return
+
+            console.error(
+                'Inventory branch error:',
+                error
+            )
+
+            setBranches(
+                isBranchRole
+                    ? []
+                    : [{ bpCode: 'All', branchName: 'All' }]
+            )
+
+            setSelectedBranch(
+                isBranchRole ? '' : 'All'
+            )
+
+            setMessage(
+                error.message || 'Unable to load branches.'
+            )
+
+            setMessageType('error')
+
+        } finally {
+
+            if (isCurrent()) {
+                setLoadingBranches(false)
+            }
+        }
+    }
+
+
+    // =========================================
     // LOAD REGIONS
+    // Role 6 matches the session region before
+    // loading its branch list.
     // =========================================
 
     useEffect(() => {
 
         let isMounted = true
 
-        async function loadRegions() {
+        async function loadInitialRegions() {
 
             try {
 
                 setLoadingRegions(true)
 
-                setMessage('')
-                setMessageType('')
-
                 const viewerUserId = getViewerUserId()
 
                 if (!viewerUserId) {
+
+                    if (!isMounted) return
 
                     setRegions([])
 
@@ -244,7 +525,6 @@ function FranchiseeInventory() {
                     setMessageType('error')
 
                     return
-
                 }
 
                 const response = await getRegions(
@@ -252,25 +532,97 @@ function FranchiseeInventory() {
                     viewerUserId
                 )
 
-                if (!isMounted) {
-                    return
-                }
+                if (!isMounted) return
 
-                const regionData =
-                    Array.isArray(response)
-                        ? response
-                        : Array.isArray(response?.data)
-                            ? response.data
-                            : []
+                const regionData = getResponseArray(
+                    response,
+                    'regions'
+                )
 
                 setRegions(regionData)
 
-            }
-            catch (error) {
+                if (isBranchRole || isFranchiseRole) {
 
-                if (!isMounted) {
-                    return
+                    const normalizedSessionRegion =
+                        String(sessionRegionCode)
+                            .trim()
+                            .toLowerCase()
+
+                    const matchingRegion = regionData.find(
+                        region => {
+
+                            const code = getApiField(region, [
+                                'regionCode',
+                                'RegionCode',
+                                'code',
+                                'Code'
+                            ])
+
+                            return (
+                                code.toLowerCase() ===
+                                normalizedSessionRegion
+                            )
+                        }
+                    )
+
+                    if (!matchingRegion) {
+
+                        setRegionCode('')
+
+                        setBranches(
+                            isBranchRole
+                                ? []
+                                : [{
+                                    bpCode: 'All',
+                                    branchName: 'All'
+                                }]
+                        )
+
+                        setSelectedBranch(
+                            isBranchRole ? '' : 'All'
+                        )
+
+                        console.warn(
+                            'Logged-in user region could not be matched.',
+                            {
+                                sessionRegionCode,
+                                availableRegions: regionData
+                            }
+                        )
+
+                        setMessage(
+                            'Your region could not be matched. Please check the logged-in user region code.'
+                        )
+
+                        setMessageType('error')
+
+                        return
+                    }
+
+                    const matchedRegionCode = getApiField(
+                        matchingRegion,
+                        [
+                            'regionCode',
+                            'RegionCode',
+                            'code',
+                            'Code'
+                        ]
+                    )
+
+                    setRegionCode(matchedRegionCode)
+
+                    if (isBranchRole) {
+
+                        await loadBranches(
+                            matchedRegionCode,
+                            () => isMounted
+                        )
+                    }
                 }
+
+            } catch (error) {
+
+                if (!isMounted) return
 
                 console.error(
                     'Inventory region error:',
@@ -280,241 +632,23 @@ function FranchiseeInventory() {
                 setRegions([])
 
                 setMessage(
-                    error.message ||
-                    'Unable to load regions.'
+                    error.message || 'Unable to load regions.'
                 )
 
                 setMessageType('error')
 
-            }
-            finally {
+            } finally {
 
                 if (isMounted) {
                     setLoadingRegions(false)
                 }
-
             }
-
         }
 
-        loadRegions()
+        loadInitialRegions()
 
         return () => {
             isMounted = false
-        }
-
-    }, [])
-
-
-    // =========================================
-    // LOAD BRANCHES
-    // =========================================
-
-    async function loadBranches(selectedRegionCode) {
-
-        // No region selected.
-        // Do not reference filteredBranches here because
-        // it is created only after the API response.
-
-        if (!selectedRegionCode) {
-
-            setBranches([
-                {
-                    bpCode: 'All',
-                    branchName: 'All'
-                }
-            ])
-
-            setSelectedBranch('All')
-
-            return
-
-        }
-
-        try {
-
-            setLoadingBranches(true)
-
-            setMessage('')
-            setMessageType('')
-
-            const viewerUserId = getViewerUserId()
-
-            if (!viewerUserId) {
-
-                setBranches([
-                    {
-                        bpCode: 'All',
-                        branchName: 'All'
-                    }
-                ])
-
-                setSelectedBranch('All')
-
-                setMessage('User ID is not available.')
-                setMessageType('error')
-
-                return
-
-            }
-
-            const data = await getBranches(
-                viewerUserId,
-                selectedRegionCode
-            )
-
-            const branchData =
-                Array.isArray(data)
-                    ? data
-                    : Array.isArray(data?.data)
-                        ? data.data
-                        : []
-
-            // Remove any existing "All" option from the API data.
-
-            const filteredBranches = branchData.filter(
-                branch => {
-
-                    const code = String(
-                        branch.BPCode ??
-                        branch.bpCode ??
-                        branch.BpCode ??
-                        branch.branchCode ??
-                        branch.BranchCode ??
-                        ''
-                    ).trim().toLowerCase()
-
-                    return code !== 'all'
-
-                }
-            )
-
-            // Set the dropdown options.
-
-            setBranches([
-                {
-                    bpCode: 'All',
-                    branchName: 'All'
-                },
-                ...filteredBranches
-            ])
-
-            // =========================================
-            // ROLE 6: AUTO-SELECT LOGGED-IN BRANCH
-            // =========================================
-
-            if (roleId === '6') {
-
-                const normalizedSessionBpCode =
-                    String(sessionBpCode).trim()
-
-                const matchingBranch =
-                    normalizedSessionBpCode
-                        ? filteredBranches.find(branch => {
-
-                            const code = String(
-                                branch.BPCode ??
-                                branch.bpCode ??
-                                branch.BpCode ??
-                                branch.branchCode ??
-                                branch.BranchCode ??
-                                ''
-                            ).trim()
-
-                            return code === normalizedSessionBpCode
-
-                        })
-                        : null
-
-                if (matchingBranch) {
-
-                    const matchingCode =
-                        matchingBranch.BPCode ??
-                        matchingBranch.bpCode ??
-                        matchingBranch.BpCode ??
-                        matchingBranch.branchCode ??
-                        matchingBranch.BranchCode
-
-                    setSelectedBranch(String(matchingCode))
-
-                }
-                else if (filteredBranches.length > 0) {
-
-                    // Fallback if the session BPCode is not
-                    // present in the returned branch list.
-
-                    const firstBranch = filteredBranches[0]
-
-                    const firstCode =
-                        firstBranch.BPCode ??
-                        firstBranch.bpCode ??
-                        firstBranch.BpCode ??
-                        firstBranch.branchCode ??
-                        firstBranch.BranchCode
-
-                    setSelectedBranch(String(firstCode))
-
-                }
-                else {
-
-                    setSelectedBranch('All')
-
-                }
-
-            }
-            else {
-
-                // Preserve the existing default for Role 1
-                // and other roles.
-
-                setSelectedBranch('All')
-
-            }
-
-        }
-        catch (error) {
-
-            console.error(
-                'Inventory branch error:',
-                error
-            )
-
-            setBranches([
-                {
-                    bpCode: 'All',
-                    branchName: 'All'
-                }
-            ])
-
-            setSelectedBranch('All')
-
-            setMessage(
-                error.message ||
-                'Unable to load branch.'
-            )
-
-            setMessageType('error')
-
-        }
-        finally {
-
-            setLoadingBranches(false)
-
-        }
-
-    }
-
-
-    // =========================================
-    // ROLE 6: LOAD SESSION REGION'S BRANCHES
-    // =========================================
-
-    useEffect(() => {
-
-        if (roleId === '6' && sessionRegionCode) {
-
-            loadBranches(sessionRegionCode)
-
         }
 
     }, [])
@@ -539,15 +673,9 @@ function FranchiseeInventory() {
             }
         ])
 
-        // Clear franchise data.
-
         setFranchises([])
-
         setSelectedFranchises([])
-
         setFranchiseDropdownOpen(false)
-
-        // Clear inventory results.
 
         setInventoryData([])
 
@@ -555,11 +683,8 @@ function FranchiseeInventory() {
         setMessageType('')
 
         if (value) {
-
             await loadBranches(value)
-
         }
-
     }
 
 
@@ -572,13 +697,10 @@ function FranchiseeInventory() {
         if (!regionCode || !selectedBranch) {
 
             setFranchises([])
-
             setSelectedFranchises([])
-
             setFranchiseDropdownOpen(false)
 
             return
-
         }
 
         loadFranchises()
@@ -589,6 +711,10 @@ function FranchiseeInventory() {
     ])
 
 
+    // =========================================
+    // LOAD FRANCHISES
+    // =========================================
+
     async function loadFranchises() {
 
         try {
@@ -596,66 +722,53 @@ function FranchiseeInventory() {
             setFranchiseLoading(true)
 
             setFranchises([])
-
             setSelectedFranchises([])
-
             setFranchiseDropdownOpen(false)
 
             if (
-                !roleId ||
                 !selectedBranch ||
                 !loginId
             ) {
-
                 throw new Error(
                     'Logged-in user details are missing. Please login again.'
                 )
-
             }
 
-            const data = await getFranchises(
-                roleId,
-                selectedBranch,
+            const franchiseBpCode = isBranchRole
+                ? sessionBpCode || '0'
+                : selectedBranch
+
+            const response = await getFranchises(
+                franchiseBpCode,
                 loginId
             )
 
-            let franchiseList = []
-
-            if (Array.isArray(data)) {
-
-                franchiseList = data
-
-            }
-            else if (Array.isArray(data?.data)) {
-
-                franchiseList = data.data
-
-            }
+            const franchiseList = getResponseArray(
+                response,
+                'franchises'
+            )
 
             setFranchises(franchiseList)
 
-        }
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 'Inventory franchise error:',
                 error
             )
 
+            setFranchises([])
+
             setMessage(
-                error.message ||
-                'Unable to load franchises.'
+                error.message || 'Unable to load franchises.'
             )
 
             setMessageType('error')
 
-        }
-        finally {
+        } finally {
 
             setFranchiseLoading(false)
-
         }
-
     }
 
 
@@ -667,18 +780,18 @@ function FranchiseeInventory() {
 
         return franchises.map(franchise => ({
 
-            code:
-                franchise.Frcode ??
-                franchise.frCode ??
-                franchise.frcode ??
-                franchise.FrCode ??
-                '',
+            code: getApiField(franchise, [
+                'Frcode',
+                'frCode',
+                'frcode',
+                'FrCode'
+            ]),
 
-            name:
-                franchise.FranchiseName ??
-                franchise.franchiseName ??
-                franchise.Franchise ??
-                ''
+            name: getApiField(franchise, [
+                'FranchiseName',
+                'franchiseName',
+                'Franchise'
+            ])
 
         }))
 
@@ -699,12 +812,9 @@ function FranchiseeInventory() {
 
         if (event.target.checked) {
 
-            const availableCodes =
-                normalizedFranchises
-                    .map(franchise => franchise.code)
-                    .filter(Boolean)
-
-            // Select up to 10 franchises.
+            const availableCodes = normalizedFranchises
+                .map(franchise => franchise.code)
+                .filter(Boolean)
 
             setSelectedFranchises(
                 availableCodes.slice(
@@ -713,13 +823,11 @@ function FranchiseeInventory() {
                 )
             )
 
-        }
-        else {
+        } else {
 
             setSelectedFranchises([])
 
         }
-
     }
 
 
@@ -731,35 +839,29 @@ function FranchiseeInventory() {
 
         setSelectedFranchises(current => {
 
-            // Unselect an existing franchise.
-
             if (current.includes(franchiseCode)) {
 
                 return current.filter(
                     code => code !== franchiseCode
                 )
-
             }
 
-            // Prevent selecting more than 10.
-
-            if (current.length >= MAX_FRANCHISE_SELECTION) {
+            if (
+                current.length >= MAX_FRANCHISE_SELECTION
+            ) {
 
                 openModal(
                     'You can select maximum 10 franchises.'
                 )
 
                 return current
-
             }
 
             return [
                 ...current,
                 franchiseCode
             ]
-
         })
-
     }
 
 
@@ -768,9 +870,7 @@ function FranchiseeInventory() {
     // =========================================
 
     function getFormattedFranchiseCodes() {
-
         return selectedFranchises.join(',')
-
     }
 
 
@@ -784,60 +884,35 @@ function FranchiseeInventory() {
         setMessageType('')
         setInventoryData([])
 
-        // REGION VALIDATION
-
         if (!regionCode) {
-
             setMessage('Region is required.')
             setMessageType('error')
-
             return
-
         }
-
-        // BRANCH VALIDATION
 
         if (!selectedBranch || selectedBranch === 'All') {
-
             setMessage('Branch is required.')
             setMessageType('error')
-
             return
-
         }
 
-        // FG CATEGORY VALIDATION
-
         if (!selectedCategory) {
-
             setMessage('FG Category is required.')
             setMessageType('error')
-
             return
-
         }
 
         try {
 
             setLoading(true)
 
-            const franchiseCodes =
-                getFormattedFranchiseCodes()
-
             const request = {
-
                 branchCode: selectedBranch,
-
                 materialCategory: selectedCategory,
-
-                franchiseCodes: franchiseCodes,
-
-                fgDescription: fgDescription,
-
-                component: component,
-
-                componentDescription: componentDescription
-
+                franchiseCodes: getFormattedFranchiseCodes(),
+                fgDescription,
+                component,
+                componentDescription
             }
 
             console.log(
@@ -863,15 +938,13 @@ function FranchiseeInventory() {
                 )
 
                 return
-
             }
 
-            const rows =
-                Array.isArray(data)
-                    ? data
-                    : Array.isArray(data?.data)
-                        ? data.data
-                        : []
+            const rows = Array.isArray(data)
+                ? data
+                : Array.isArray(data?.data)
+                    ? data.data
+                    : []
 
             setInventoryData(rows)
 
@@ -882,8 +955,7 @@ function FranchiseeInventory() {
 
             setMessageType('success')
 
-        }
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 'Inventory search error:',
@@ -891,19 +963,15 @@ function FranchiseeInventory() {
             )
 
             setMessage(
-                error.message ||
-                'Unable to search inventory.'
+                error.message || 'Unable to search inventory.'
             )
 
             setMessageType('error')
 
-        }
-        finally {
+        } finally {
 
             setLoading(false)
-
         }
-
     }
 
 
@@ -913,37 +981,22 @@ function FranchiseeInventory() {
 
     async function handleExport() {
 
-        // REGION VALIDATION
-
         if (!regionCode) {
-
             setMessage('Region is required.')
             setMessageType('error')
-
             return
-
         }
-
-        // BRANCH VALIDATION
 
         if (!selectedBranch || selectedBranch === 'All') {
-
             setMessage('Branch is required.')
             setMessageType('error')
-
             return
-
         }
 
-        // FG CATEGORY VALIDATION
-
         if (!selectedCategory) {
-
             setMessage('FG Category is required.')
             setMessageType('error')
-
             return
-
         }
 
         if (inventoryData.length === 0) {
@@ -953,32 +1006,20 @@ function FranchiseeInventory() {
             )
 
             setMessageType('error')
-
             return
-
         }
 
         try {
 
             setExportLoading(true)
 
-            const franchiseCodes =
-                getFormattedFranchiseCodes()
-
             const request = {
-
                 branchCode: selectedBranch,
-
                 materialCategory: selectedCategory,
-
-                franchiseCodes: franchiseCodes,
-
-                fgDescription: fgDescription,
-
-                component: component,
-
-                componentDescription: componentDescription
-
+                franchiseCodes: getFormattedFranchiseCodes(),
+                fgDescription,
+                component,
+                componentDescription
             }
 
             console.log(
@@ -993,19 +1034,16 @@ function FranchiseeInventory() {
             const link = document.createElement('a')
 
             link.href = url
-
             link.download = 'Inventory.xlsx'
 
             document.body.appendChild(link)
 
             link.click()
-
             link.remove()
 
             window.URL.revokeObjectURL(url)
 
-        }
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 'Inventory export error:',
@@ -1013,19 +1051,15 @@ function FranchiseeInventory() {
             )
 
             setMessage(
-                error.message ||
-                'Unable to download inventory.'
+                error.message || 'Unable to download inventory.'
             )
 
             setMessageType('error')
 
-        }
-        finally {
+        } finally {
 
             setExportLoading(false)
-
         }
-
     }
 
 
@@ -1063,8 +1097,6 @@ function FranchiseeInventory() {
 
             <div className="inventory-page">
 
-                {/* SEARCH CARD */}
-
                 <div className="inventory-card">
 
                     <div className="inventory-form-grid">
@@ -1088,7 +1120,11 @@ function FranchiseeInventory() {
                             <select
                                 value={regionCode}
                                 onChange={handleRegionChange}
-                                disabled={loadingRegions}
+                                disabled={
+                                    isBranchRole ||
+                                    isFranchiseRole ||
+                                    loadingRegions
+                                }
                             >
 
                                 <option value="">
@@ -1097,19 +1133,19 @@ function FranchiseeInventory() {
 
                                 {regions.map((region, index) => {
 
-                                    const code =
-                                        region.RegionCode ??
-                                        region.regionCode ??
-                                        region.Code ??
-                                        region.code ??
-                                        ''
+                                    const code = getApiField(region, [
+                                        'RegionCode',
+                                        'regionCode',
+                                        'Code',
+                                        'code'
+                                    ])
 
-                                    const name =
-                                        region.RegionName ??
-                                        region.regionName ??
-                                        region.Name ??
-                                        region.name ??
-                                        ''
+                                    const name = getApiField(region, [
+                                        'RegionName',
+                                        'regionName',
+                                        'Name',
+                                        'name'
+                                    ])
 
                                     return (
 
@@ -1121,7 +1157,6 @@ function FranchiseeInventory() {
                                         </option>
 
                                     )
-
                                 })}
 
                             </select>
@@ -1148,6 +1183,8 @@ function FranchiseeInventory() {
                             <select
                                 value={selectedBranch}
                                 disabled={
+                                    isBranchRole ||
+                                    isFranchiseRole ||
                                     !regionCode ||
                                     loadingBranches
                                 }
@@ -1157,6 +1194,9 @@ function FranchiseeInventory() {
                                         event.target.value
                                     )
 
+                                    setFranchises([])
+                                    setSelectedFranchises([])
+
                                     setInventoryData([])
 
                                     setMessage('')
@@ -1165,22 +1205,30 @@ function FranchiseeInventory() {
                                 }}
                             >
 
+                                {/* {!isBranchRole &&
+                                    !isFranchiseRole && (
+                                        <option value="All">
+                                            All
+                                        </option>
+                                    )
+                                } */}
+
                                 {branches.map((branch, index) => {
 
-                                    const code =
-                                        branch.BPCode ??
-                                        branch.bpCode ??
-                                        branch.BpCode ??
-                                        branch.branchCode ??
-                                        branch.BranchCode ??
-                                        ''
+                                    const code = getApiField(branch, [
+                                        'BPCode',
+                                        'BpCode',
+                                        'bpCode',
+                                        'BranchCode',
+                                        'branchCode'
+                                    ])
 
-                                    const name =
-                                        branch.BranchName ??
-                                        branch.branchName ??
-                                        branch.Name ??
-                                        branch.name ??
-                                        ''
+                                    const name = getApiField(branch, [
+                                        'BranchName',
+                                        'branchName',
+                                        'Name',
+                                        'name'
+                                    ])
 
                                     return (
 
@@ -1192,7 +1240,6 @@ function FranchiseeInventory() {
                                         </option>
 
                                     )
-
                                 })}
 
                             </select>
@@ -1225,10 +1272,8 @@ function FranchiseeInventory() {
                                     )
 
                                     if (event.target.value) {
-
                                         setMessage('')
                                         setMessageType('')
-
                                     }
 
                                 }}
@@ -1238,41 +1283,15 @@ function FranchiseeInventory() {
                                     Select FG Category
                                 </option>
 
-                                <option value="WM">
-                                    Washing Machine
-                                </option>
-
-                                <option value="DW">
-                                    Dish Washer
-                                </option>
-
-                                <option value="AC">
-                                    Air Conditioner
-                                </option>
-
-                                <option value="MW">
-                                    Micro Wave
-                                </option>
-
-                                <option value="CD">
-                                    Cloth Dryer
-                                </option>
-
-                                <option value="KA">
-                                    Kitchen Appliances
-                                </option>
-
-                                <option value="ACC">
-                                    Accessories
-                                </option>
-
-                                <option value="ADD">
-                                    Additive
-                                </option>
-
-                                <option value="WP">
-                                    Water Purifier
-                                </option>
+                                <option value="WM">Washing Machine</option>
+                                <option value="DW">Dish Washer</option>
+                                <option value="AC">Air Conditioner</option>
+                                <option value="MW">Micro Wave</option>
+                                <option value="CD">Cloth Dryer</option>
+                                <option value="KA">Kitchen Appliances</option>
+                                <option value="ACC">Accessories</option>
+                                <option value="ADD">Additive</option>
+                                <option value="WP">Water Purifier</option>
 
                             </select>
 
@@ -1327,20 +1346,16 @@ function FranchiseeInventory() {
                                 <div className="franchise-options">
 
                                     {franchiseLoading && (
-
                                         <div className="franchise-loading">
                                             Loading...
                                         </div>
-
                                     )}
 
                                     {!franchiseLoading &&
                                         normalizedFranchises.length === 0 && (
-
                                             <div className="franchise-empty">
                                                 No franchises available
                                             </div>
-
                                         )
                                     }
 
@@ -1357,42 +1372,38 @@ function FranchiseeInventory() {
                                                         onChange={handleSelectAll}
                                                     />
 
-                                                    <span>
-                                                        Select All
-                                                    </span>
+                                                    <span>Select All</span>
 
                                                 </label>
 
-                                                {normalizedFranchises.map(
-                                                    franchise => (
+                                                {normalizedFranchises.map(franchise => (
 
-                                                        <label
-                                                            className="franchise-option"
-                                                            key={franchise.code}
-                                                        >
+                                                    <label
+                                                        className="franchise-option"
+                                                        key={franchise.code}
+                                                    >
 
-                                                            <input
-                                                                type="checkbox"
-                                                                checked={
-                                                                    selectedFranchises.includes(
-                                                                        franchise.code
-                                                                    )
-                                                                }
-                                                                onChange={() =>
-                                                                    handleFranchiseChange(
-                                                                        franchise.code
-                                                                    )
-                                                                }
-                                                            />
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={
+                                                                selectedFranchises.includes(
+                                                                    franchise.code
+                                                                )
+                                                            }
+                                                            onChange={() =>
+                                                                handleFranchiseChange(
+                                                                    franchise.code
+                                                                )
+                                                            }
+                                                        />
 
-                                                            <span>
-                                                                {franchise.name}
-                                                            </span>
+                                                        <span>
+                                                            {franchise.name}
+                                                        </span>
 
-                                                        </label>
+                                                    </label>
 
-                                                    )
-                                                )}
+                                                ))}
 
                                             </>
 
@@ -1418,9 +1429,7 @@ function FranchiseeInventory() {
                                 maxLength={164}
                                 placeholder="Enter FG description"
                                 onChange={event =>
-                                    setFgDescription(
-                                        event.target.value
-                                    )
+                                    setFgDescription(event.target.value)
                                 }
                             />
 
@@ -1439,9 +1448,7 @@ function FranchiseeInventory() {
                                 maxLength={50}
                                 placeholder="Enter component"
                                 onChange={event =>
-                                    setComponent(
-                                        event.target.value
-                                    )
+                                    setComponent(event.target.value)
                                 }
                             />
 
@@ -1460,9 +1467,7 @@ function FranchiseeInventory() {
                                 maxLength={164}
                                 placeholder="Enter component description"
                                 onChange={event =>
-                                    setComponentDescription(
-                                        event.target.value
-                                    )
+                                    setComponentDescription(event.target.value)
                                 }
                             />
 
@@ -1526,13 +1531,11 @@ function FranchiseeInventory() {
                         <div className="inventory-results-header">
 
                             <div>
-
                                 <h2>Search Results</h2>
 
                                 <span>
                                     {inventoryData.length} records
                                 </span>
-
                             </div>
 
                         </div>
@@ -1544,15 +1547,12 @@ function FranchiseeInventory() {
                                 <thead>
 
                                     <tr>
-
                                         <th>S.No.</th>
 
                                         {columns.map(column => (
-
                                             <th key={column}>
                                                 {column}
                                             </th>
-
                                         ))}
 
                                     </tr>
@@ -1561,29 +1561,21 @@ function FranchiseeInventory() {
 
                                 <tbody>
 
-                                    {inventoryData.map(
-                                        (row, rowIndex) => (
+                                    {inventoryData.map((row, rowIndex) => (
 
-                                            <tr key={rowIndex}>
+                                        <tr key={rowIndex}>
 
-                                                <td>
-                                                    {rowIndex + 1}
+                                            <td>{rowIndex + 1}</td>
+
+                                            {columns.map(column => (
+                                                <td key={`${rowIndex}-${column}`}>
+                                                    {row[column] ?? ''}
                                                 </td>
+                                            ))}
 
-                                                {columns.map(column => (
+                                        </tr>
 
-                                                    <td
-                                                        key={`${rowIndex}-${column}`}
-                                                    >
-                                                        {row[column] ?? ''}
-                                                    </td>
-
-                                                ))}
-
-                                            </tr>
-
-                                        )
-                                    )}
+                                    ))}
 
                                 </tbody>
 
@@ -1628,8 +1620,6 @@ function FranchiseeInventory() {
                             onClick={event => event.stopPropagation()}
                         >
 
-                            {/* MODAL HEADER */}
-
                             <div
                                 style={{
                                     padding: '16px 20px',
@@ -1668,8 +1658,6 @@ function FranchiseeInventory() {
                             </div>
 
 
-                            {/* MODAL BODY */}
-
                             <div
                                 style={{
                                     padding: '24px 20px',
@@ -1680,8 +1668,6 @@ function FranchiseeInventory() {
                                 {modalMessage}
                             </div>
 
-
-                            {/* MODAL FOOTER */}
 
                             <div
                                 style={{
@@ -1721,8 +1707,6 @@ function FranchiseeInventory() {
         </DashboardLayout>
 
     )
-
 }
-
 
 export default FranchiseeInventory
