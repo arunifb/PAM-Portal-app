@@ -145,10 +145,11 @@ export async function searchFranchises(
 
 export async function updateFranchise(request) {
     const payload = {
-        FrCode: request.FrCode,
-        Status: request.Status,
-        UpdatedBy: request.UpdatedBy
-    }
+    FrCode: request.FrCode,
+    Status: request.Status,
+    UpdatedBy: request.UpdatedBy,
+    RoleId: String(request.RoleId)
+}
 
     // Include contact details only when they are provided.
     // Role ID 6 sends only FrCode, Status and UpdatedBy.

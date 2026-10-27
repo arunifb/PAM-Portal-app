@@ -834,7 +834,8 @@ useEffect(() => {
             const request = {
                 FrCode: editingFrCode,
                 Status: editStatus,
-                UpdatedBy: sessionUserId
+                UpdatedBy: sessionUserId,
+                RoleId: String(roleId)
             }
 
             // Preserve existing full-edit behavior for other roles.
