@@ -382,7 +382,7 @@ function TechnicianAdd({ onBack, listState }) {
         <DashboardLayout title="Add Technician">
             <div className="technician-add-page">
                 <div className="technician-add-header">
-                    <h2>Add Technician</h2>
+                    {/* <h2>Add Technician</h2> */}
 
                     <button
                         type="button"
