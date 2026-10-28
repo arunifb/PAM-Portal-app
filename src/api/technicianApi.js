@@ -249,3 +249,31 @@ export async function addTechnician(technicianData) {
 
     return data
 }
+
+
+// =====================================================
+// GET TECHNICIAN STATUSES
+// GET /api/Technician/statuses?roleId=...
+// =====================================================
+
+export async function getTechnicianStatuses(roleId = 1) {
+    const params = new URLSearchParams()
+    params.append('roleId', String(roleId))
+
+    const response = await authFetch(
+        `${API_BASE_URL}/api/Technician/statuses?${params.toString()}`,
+        {
+            method: 'GET'
+        }
+    )
+
+    const data = await readResponse(response)
+
+    if (!response.ok || data.isSuccess === false) {
+        throw new Error(
+            data.message || 'Unable to load technician statuses.'
+        )
+    }
+
+    return Array.isArray(data.data) ? data.data : []
+}

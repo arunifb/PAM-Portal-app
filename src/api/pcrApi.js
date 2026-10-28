@@ -350,3 +350,209 @@ export async function addPartCategory(
 
     return data
 }
+
+
+
+// PCR Vendor Details
+
+// =========================================
+// SHARED PCR API HELPERS
+// Append below the existing functions
+// =========================================
+
+async function readPCRFileResponse(response) {
+    if (!response.ok) {
+        let message = 'Unable to download the PCR file.';
+
+        try {
+            const data = await response.clone().json();
+            message = data.message || message;
+        } catch {
+            // The response may not contain JSON.
+        }
+
+        throw new Error(message);
+    }
+
+    return response.blob();
+}
+
+async function postPCRRequest(endpoint, payload) {
+    const response = await authFetch(
+        `${API_BASE_URL}/api/PCRSegregation/${endpoint}`,
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        }
+    );
+
+    const data = await readResponse(response);
+
+    if (!response.ok) {
+        throw new Error(data.message || 'PCR request failed.');
+    }
+
+    return data;
+}
+
+// =========================================
+// GET PLANTS
+// =========================================
+
+export async function getPCRPlants(bpCode) {
+    const response = await authFetch(
+        `${API_BASE_URL}/api/PCRSegregation/plants/${encodeURIComponent(bpCode || '')}`
+    );
+
+    const data = await readResponse(response);
+
+    if (!response.ok) {
+        throw new Error(data.message || 'Unable to load plants.');
+    }
+
+    return data;
+}
+
+// =========================================
+// GET VENDORS
+// =========================================
+
+export async function getPCRVendors() {
+    const response = await authFetch(
+        `${API_BASE_URL}/api/PCRSegregation/vendors`
+    );
+
+    const data = await readResponse(response);
+
+    if (!response.ok) {
+        throw new Error(data.message || 'Unable to load vendors.');
+    }
+
+    return data;
+}
+
+// =========================================
+// GET FRANCHISES BY PLANT
+// =========================================
+
+export async function getPCRFranchises(plantCode) {
+    const response = await authFetch(
+        `${API_BASE_URL}/api/PCRSegregation/franchises/${encodeURIComponent(plantCode || '')}`
+    );
+
+    const data = await readResponse(response);
+
+    if (!response.ok) {
+        throw new Error(data.message || 'Unable to load franchises.');
+    }
+
+    return data;
+}
+
+// =========================================
+// SEARCH PCR COMPONENTS
+// =========================================
+
+export async function searchPCRComponents(searchData) {
+    return postPCRRequest('component-search', searchData);
+}
+
+// =========================================
+// GET MONTHLY COUNT
+// =========================================
+
+export async function getPCRCount(countData) {
+    return postPCRRequest('count', countData);
+}
+
+// =========================================
+// GET VENDOR COUNT
+// =========================================
+
+export async function getPCRVendorCount(countData) {
+    return postPCRRequest('vendor-count', countData);
+}
+
+// =========================================
+// SAVE AS DRAFT
+// =========================================
+
+export async function savePCRDraft(draftData) {
+    return postPCRRequest('save-draft', draftData);
+}
+
+// =========================================
+// SAVE AND SUBMIT
+// =========================================
+
+export async function savePCRSubmit(submitData) {
+    return postPCRRequest('save-submit', submitData);
+}
+
+// =========================================
+// PCR DISPATCH
+// =========================================
+
+export async function dispatchPCR(dispatchData) {
+    return postPCRRequest('dispatch', dispatchData);
+}
+
+// =========================================
+// EXPORT NEW FORMAT
+// =========================================
+
+export async function exportPCRNew(exportData) {
+    const response = await authFetch(
+        `${API_BASE_URL}/api/PCRSegregation/export-new`,
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(exportData)
+        }
+    );
+
+    return readPCRFileResponse(response);
+}
+
+// =========================================
+// EXPORT OLD FORMAT
+// =========================================
+
+export async function exportPCROld(exportData, branchName = '') {
+    const response = await authFetch(
+        `${API_BASE_URL}/api/PCRSegregation/export-old?branchName=${encodeURIComponent(branchName)}`,
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(exportData)
+        }
+    );
+
+    return readPCRFileResponse(response);
+}
+
+// =========================================
+// PRINT PCR
+// =========================================
+
+export async function printPCR(printData) {
+    const response = await authFetch(
+        `${API_BASE_URL}/api/PCRSegregation/print`,
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(printData)
+        }
+    );
+
+    return readPCRFileResponse(response);
+}

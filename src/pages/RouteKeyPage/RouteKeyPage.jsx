@@ -42,6 +42,7 @@ import UploadMSMEDoc from '../UploadMSMEDoc/UploadMSMEDoc'
 import SearchInvoice from '../SearchInvoice/SearchInvoice'
 import TrainingManual from '../TrainingManual/TrainingManual'
 import SubDealerView from '../SubDealer/SubDealerView'
+import PCRVendorDetails from '../PCRVendorDetails/PCRVendorDetails'
 // import VendorCreation from '../Vendor/Creation'
 
 function RouteKeyPage() {
@@ -184,6 +185,9 @@ const setFranchiseView = (view) => {
 
         '/sub-dealer-view':
             SubDealerView,
+
+        '/pcr-vendor-details':
+            PCRVendorDetails,
 
         // '/vendor/creation': 
         // VendorCreation,

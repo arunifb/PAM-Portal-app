@@ -39,6 +39,7 @@ import UploadMSMEDoc from './pages/UploadMSMEDoc/UploadMSMEDoc'
 import SearchInvoice from './pages/SearchInvoice/SearchInvoice'
 import TrainingManual from './pages/TrainingManual/TrainingManual'
 import SubDealerView from './pages/SubDealer/SubDealerView'
+import PCRVendorDetails from './pages/PCRVendorDetails/PCRVendorDetails'
 // import Creation from './pages/Vendor/Creation'
 import ProtectedRoute from './components/ProtectedRoute'
 
@@ -307,6 +308,11 @@ function App() {
                     <Route
                         path="/sub-dealer-view"
                         element={<SubDealerView />}
+                    />
+
+                    <Route
+                        path="/pcr-vendor-details"
+                        element={<PCRVendorDetails />}
                     />
 
                     {/* <Route 

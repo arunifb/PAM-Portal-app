@@ -6,7 +6,8 @@ import {
     searchTechnicians,
     exportTechnicians,
     reallocateTechnician,
-    generatePartnerId
+    generatePartnerId,
+    getTechnicianStatuses
 } from '../../api/technicianApi'
 
 import {
@@ -412,9 +413,12 @@ const sessionRolesKey = sessionRoles.join(',')
     // =================================================
 
     const [regions, setRegions] = useState([])
-const [branches, setBranches] = useState([])
-const [franchises, setFranchises] = useState([])
-const [loadingFranchises, setLoadingFranchises] = useState(false)
+    const [branches, setBranches] = useState([])
+    const [franchises, setFranchises] = useState([])
+    const [loadingFranchises, setLoadingFranchises] = useState(false)
+
+    const [statuses, setStatuses] = useState([])
+    const [loadingStatuses, setLoadingStatuses] = useState(false)
 
     // =================================================
     // TABLE DATA
@@ -809,6 +813,57 @@ useEffect(() => {
     isRole6,
     restoredListState
 ])
+
+
+// =====================================================
+// LOAD TECHNICIAN STATUSES FROM API
+// =====================================================
+
+useEffect(() => {
+    let cancelled = false
+
+    async function loadStatuses() {
+        setLoadingStatuses(true)
+
+        try {
+            const response = await getTechnicianStatuses(roleId)
+
+            if (cancelled) return
+
+            const activeStatuses = response
+                .filter(item => item.isActive === true || item.IsActive === true)
+                .sort(
+                    (a, b) =>
+                        Number(a.sortOrder ?? a.SortOrder ?? 0) -
+                        Number(b.sortOrder ?? b.SortOrder ?? 0)
+                )
+
+            setStatuses(activeStatuses)
+        } catch (err) {
+            if (!cancelled) {
+                setStatuses([])
+                setError(
+                    err?.message || 'Unable to load technician statuses.'
+                )
+            }
+        } finally {
+            if (!cancelled) {
+                setLoadingStatuses(false)
+            }
+        }
+    }
+
+    if (roleId > 0) {
+        loadStatuses()
+    } else {
+        setStatuses([])
+    }
+
+    return () => {
+        cancelled = true
+    }
+}, [roleId])
+
 
     // =================================================
     // SEARCH
@@ -1371,35 +1426,35 @@ useEffect(() => {
 
                     {/* FRANCHISE */}
 
-<div className="technician-filter-item">
-    <label>Franchise</label>
+                    <div className="technician-filter-item">
+                        <label>Franchise</label>
 
-    <select
-        value={franchiseCode}
-        onChange={event => setFranchiseCode(event.target.value)}
-        disabled={
-            !regionCode ||
-            isRole5 ||
-            ((isRole1 || isRole3) && !branchCode)
-        }
-    >
-        <option value="">All</option>
+                        <select
+                            value={franchiseCode}
+                            onChange={event => setFranchiseCode(event.target.value)}
+                            disabled={
+                                !regionCode ||
+                                isRole5 ||
+                                ((isRole1 || isRole3) && !branchCode)
+                            }
+                        >
+                            <option value="">All</option>
 
-        {franchises.map((franchise, index) => {
-            const code = getFranchiseCode(franchise)
-            const name = getFranchiseName(franchise)
+                            {franchises.map((franchise, index) => {
+                                const code = getFranchiseCode(franchise)
+                                const name = getFranchiseName(franchise)
 
-            return (
-                <option
-                    key={`${code}-${index}`}
-                    value={code}
-                >
-                    {name || code}
-                </option>
-            )
-        })}
-    </select>
-</div>
+                                return (
+                                    <option
+                                        key={`${code}-${index}`}
+                                        value={code}
+                                    >
+                                        {name || code}
+                                    </option>
+                                )
+                            })}
+                        </select>
+                    </div>
 
                     {/* STATUS */}
 
@@ -1409,64 +1464,31 @@ useEffect(() => {
                         <select
                             value={status}
                             onChange={event => setStatus(event.target.value)}
+                            disabled={loadingStatuses}
                         >
-                            <option value="">All</option>
+                            <option value="">
+                                {loadingStatuses ? 'Loading statuses...' : 'All'}
+                            </option>
 
-                            {isRole3 ? (
-                                <>
-                                    <option value="5">
-                                        Ready for review &amp; skill set
-                                    </option>
+                            {statuses.map((item, index) => {
+                                const statusId = String(
+                                    item.statusId ?? item.StatusId ?? ''
+                                )
 
-                                    <option value="1">
-                                        Approved &amp; Activated By Trainer
-                                    </option>
+                                const statusName =
+                                    item.statusName ?? item.StatusName ?? ''
 
-                                    <option value="0">
-                                        De-Activated By Trainer
-                                    </option>
+                                if (!statusId || !statusName) return null
 
-                                    <option value="6">
-                                        Request for Profile Photo Change
+                                return (
+                                    <option
+                                        key={`${statusId}-${index}`}
+                                        value={statusId}
+                                    >
+                                        {statusName}
                                     </option>
-
-                                    <option value="7">
-                                        Request for change for Mobile
-                                    </option>
-                                </>
-                            ) : isRole5 ? (
-                                <>
-                                    <option value="5">
-                                        Ready for review &amp; skill set
-                                    </option>
-
-                                    <option value="1">
-                                        Approved &amp; Activated By Trainer
-                                    </option>
-
-                                    <option value="0">
-                                        De-Activated By Branch Trainer
-                                    </option>
-
-                                    <option value="6">
-                                        Correction Required
-                                    </option>
-
-                                    <option value="7">
-                                        Request for change
-                                    </option>
-                                </>
-                            ) : (
-                                <>
-                                    <option value="1">
-                                        Approved &amp; Activated By Trainer
-                                    </option>
-
-                                    <option value="0">
-                                        De-Activated By Trainer
-                                    </option>
-                                </>
-                            )}
+                                )
+                            })}
                         </select>
                     </div>
 
