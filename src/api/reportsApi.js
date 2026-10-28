@@ -158,48 +158,28 @@ export async function getRegions(
 // GET BRANCHES
 // =========================================
 
-export async function getBranches(
-    userId,
-    regionCode = ''
-) {
+export async function getBranches(userId, regionCode = '') {
+    const params = new URLSearchParams();
 
-    const params = new URLSearchParams()
-
-    params.append(
-        'userId',
-        userId
-    )
+    params.append('userId', userId);
 
     if (regionCode) {
-        params.append(
-            'regionCode',
-            regionCode
-        )
+        params.append('regionCode', regionCode);
     }
 
-    const url =
+    const response = await authFetch(
         `${API_BASE_URL}/api/Reports/branches?${params.toString()}`
+    );
 
-
-    const response =
-        await authFetch(url)
-
-
-    const data =
-        await readResponse(response)
-
+    const data = await readResponse(response);
 
     if (!response.ok) {
-
         throw new Error(
-            data.message ||
-            'Unable to load branches.'
-        )
-
+            data.message || 'Unable to load branches.'
+        );
     }
 
-
-    return data
+    return data;
 }
 
 

@@ -365,3 +365,86 @@ export async function saveApproverMapping(
 
     return data
 }
+
+export async function saveUserMatrix(userId, payload) {
+
+    const response =
+        await authFetch(
+            `${API_BASE_URL}/api/UserManagement/users/${encodeURIComponent(userId)}/matrix`,
+            {
+                method: 'POST',
+
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+
+                body: JSON.stringify(payload)
+            }
+        )
+
+    const data =
+        await readResponse(response)
+
+    if (!response.ok) {
+        throw new Error(
+            data.message ||
+            data.error ||
+            `Unable to save user matrix. Status: ${response.status}`
+        )
+    }
+
+    return data
+}
+
+export async function getUserMatrix(userId) {
+
+    const response =
+        await authFetch(
+            `${API_BASE_URL}/api/UserManagement/users/${encodeURIComponent(userId)}/matrix`,
+            {
+                method: 'GET'
+            }
+        )
+
+    const data =
+        await readResponse(response)
+
+    if (!response.ok) {
+        throw new Error(
+            data.message ||
+            data.error ||
+            `Unable to load user matrix. Status: ${response.status}`
+        )
+    }
+
+    return data
+}
+
+export async function getRoles(roleId = '') {
+
+    const query =
+        roleId
+            ? `?roleId=${encodeURIComponent(roleId)}`
+            : ''
+
+    const response =
+        await authFetch(
+            `${API_BASE_URL}/api/UserManagement/roles${query}`,
+            {
+                method: 'GET'
+            }
+        )
+
+    const data =
+        await readResponse(response)
+
+    if (!response.ok) {
+        throw new Error(
+            data.message ||
+            data.error ||
+            `Unable to load roles. Status: ${response.status}`
+        )
+    }
+
+    return data
+}

@@ -12,7 +12,10 @@ import {
     checkLoginId,
     checkPhone,
     getApproverMapping,
-    saveApproverMapping
+    saveApproverMapping,
+    saveUserMatrix,
+    getUserMatrix,
+    getRoles
 } from '../../api/userManagementApi'
 
 import './UserManagement.css'
@@ -35,6 +38,27 @@ const ROLES = [
 // =========================================================
 
 const APPROVER_ROLE_IDS = [32, 33, 34, 35]
+
+// =========================================================
+// USER MATRIX ROLE NAMES
+// =========================================================
+
+const MATRIX_ROLE_NAMES = {
+    1: 'National',
+    2: 'Region',
+    5: 'Franchise',
+    6: 'Branch',
+    7: 'Factory',
+    9: 'Admin'
+}
+
+function getMatrixRoleLabel(roleId) {
+    const name = MATRIX_ROLE_NAMES[Number(roleId)]
+
+    return name
+        ? `${roleId} - ${name}`
+        : String(roleId)
+}
 
 // =========================================================
 // INITIAL CREATE FORM
@@ -239,16 +263,21 @@ function UserManagement() {
     // SESSION
     // =====================================================
 
-    const sessionRegionCode =
-        sessionStorage.getItem('regionCode') || ''
+const readList = (key) => {
+    const raw = sessionStorage.getItem(key)
+    if (!raw || raw === 'null' || raw === 'undefined') return ''
+    if (raw.trim().startsWith('[')) {
+        try { return JSON.parse(raw).join(',') } catch { return '' }
+    }
+    return raw
+}
 
-    const sessionRoleId =
-        Number(
-            sessionStorage.getItem('roleId') || 0
-        )
+const sessionUserId = readList('userId');
+const sessionRegionCode = readList('regions');
+const sessionBpCode = readList('branches');
+const sessionRoleId = readList('roles');
 
-    const sessionBpCode =
-        sessionStorage.getItem('bpCode') || ''
+
 
     // =====================================================
     // CREATE USER
@@ -339,12 +368,34 @@ function UserManagement() {
     const [savingApprovers, setSavingApprovers] =
         useState(false)
 
+    // USER MATRIX
+    const [showUserMatrixModal, setShowUserMatrixModal] = useState(false)
+    const [selectedMatrixUser, setSelectedMatrixUser] = useState(null)
+    const [matrixForm, setMatrixForm] = useState({ roleID: '', bpCode: '', isActive: true })
+    const [savingUserMatrix, setSavingUserMatrix] = useState(false)
+    const [matrixRows, setMatrixRows] = useState([])
+    const [loadingMatrix, setLoadingMatrix] = useState(false)
+    const [showMatrixForm, setShowMatrixForm] = useState(false)
+    const [editingMatrix, setEditingMatrix] = useState(null)
+    const [matrixError, setMatrixError] = useState('')
+    const [matrixMessage, setMatrixMessage] = useState('')
+    const [roleLookup, setRoleLookup] = useState([])
+    const [loadingRoles, setLoadingRoles] = useState(false)
+
     // =====================================================
     // LOAD REGIONS
     // =====================================================
 
     useEffect(() => {
         loadRegions()
+    }, [])
+
+    // =====================================================
+    // LOAD ROLE LOOKUP (USER MATRIX)
+    // =====================================================
+
+    useEffect(() => {
+        loadRoleLookup()
     }, [])
 
     // =====================================================
@@ -431,44 +482,30 @@ function UserManagement() {
     // LOAD BRANCHES
     // =====================================================
 
-    async function loadBranches(regionCode) {
-        try {
-            setLoadingBranches(true)
+async function loadBranches(regionCode) {
+    try {
+        setLoadingBranches(true);
 
-            const response =
-                await getBranches(
-                    sessionRoleId,
-                    regionCode,
-                    sessionBpCode
-                )
+        const response = await getBranches(
+            sessionUserId,
+            regionCode
+        );
 
-            const data =
-                response?.data ||
-                response?.Data ||
-                response ||
-                []
+        console.log('Branch API response:', response);
 
-            setBranches(
-                Array.isArray(data)
-                    ? data
-                    : []
-            )
+        const data = Array.isArray(response)
+            ? response
+            : response?.data ?? response?.Data ?? [];
 
-        } catch (error) {
-            console.error(
-                'Error loading branches:',
-                error
-            )
+        setBranches(Array.isArray(data) ? data : []);
 
-            setErrorMessage(
-                error.message ||
-                'Unable to load branches.'
-            )
-
-        } finally {
-            setLoadingBranches(false)
-        }
+    } catch (error) {
+        console.error('Error loading branches:', error);
+        setErrorMessage(error.message || 'Unable to load branches.');
+    } finally {
+        setLoadingBranches(false);
     }
+}
 
     // =====================================================
     // LOAD USERS
@@ -516,6 +553,281 @@ function UserManagement() {
             setLoadingUsers(false)
         }
     }
+
+    
+// =====================================================
+// ROLE LOOKUP
+// =====================================================
+
+async function loadRoleLookup() {
+    try {
+        setLoadingRoles(true);
+
+        const response = await getRoles(sessionRoleId);
+
+        const data = Array.isArray(response)
+            ? response
+            : response?.data ?? response?.Data ?? [];
+
+        setRoleLookup(Array.isArray(data) ? data : []);
+
+    } catch (error) {
+        console.error('Error loading roles:', error);
+        setRoleLookup([]);
+    } finally {
+        setLoadingRoles(false);
+    }
+}
+
+function getRoleLabel(roleId) {
+    const role = roleLookup.find(item =>
+        Number(getValue(item, 'roleID', 'RoleID', 0)) === Number(roleId)
+    );
+
+    return role
+        ? `${roleId} - ${getValue(role, 'roleName', 'RoleName', '')}`
+        : getMatrixRoleLabel(roleId);
+}
+
+// Role name from the roles lookup API (falls back to the
+// built-in short list, then to the given fallback).
+function getRoleName(roleId, fallback = String(roleId)) {
+    const lookupRole = roleLookup.find(item =>
+        Number(getValue(item, 'roleID', 'RoleID', 0)) === Number(roleId)
+    );
+
+    if (lookupRole) {
+        return getValue(lookupRole, 'roleName', 'RoleName', fallback);
+    }
+
+    const builtIn = ROLES.find(item => item.roleId === Number(roleId));
+
+    return builtIn ? builtIn.roleName : fallback;
+}
+
+// =====================================================
+// USER MATRIX - LOAD
+// =====================================================
+
+async function loadUserMatrix(userId) {
+    try {
+        setLoadingMatrix(true);
+        setMatrixError('');
+
+        const response = await getUserMatrix(userId);
+
+        const data = Array.isArray(response)
+            ? response
+            : response?.data ?? response?.Data ?? [];
+
+        setMatrixRows(Array.isArray(data) ? data : []);
+
+    } catch (error) {
+        console.error('Error loading user matrix:', error);
+        setMatrixRows([]);
+        setMatrixError(error.message || 'Unable to load user matrix.');
+    } finally {
+        setLoadingMatrix(false);
+    }
+}
+
+// =====================================================
+// USER MATRIX - OPEN MODAL (SHOWS EXISTING MATRIX FIRST)
+// =====================================================
+
+async function handleOpenUserMatrix(user) {
+    const userId = Number(
+        getValue(user, 'userID', 'UserID', 0)
+    );
+
+    if (!userId) {
+        return;
+    }
+
+    setSelectedMatrixUser(user);
+    setMatrixRows([]);
+    setShowMatrixForm(false);
+    setEditingMatrix(null);
+    setMatrixError('');
+    setMatrixMessage('');
+    setErrorMessage('');
+    setSuccessMessage('');
+    setShowUserMatrixModal(true);
+
+    await loadUserMatrix(userId);
+}
+
+// =====================================================
+// USER MATRIX - ADD NEW
+// =====================================================
+
+function handleAddMatrix() {
+    setEditingMatrix(null);
+
+    setMatrixForm({
+        roleID: '',
+        bpCode: '',
+        isActive: true
+    });
+
+    setMatrixError('');
+    setMatrixMessage('');
+    setShowMatrixForm(true);
+}
+
+// =====================================================
+// USER MATRIX - EDIT EXISTING ROW
+// Role, Branch and Status can all be changed. The row is
+// identified by its MatrixID, which is sent on save.
+// =====================================================
+
+function handleEditMatrix(row) {
+    setEditingMatrix(row);
+
+    setMatrixForm({
+        roleID: String(
+            getValue(row, 'roleID', 'RoleID', '')
+        ),
+        bpCode: String(
+            getValue(row, 'bpCode', 'BPCode', '')
+        ),
+        isActive: getBooleanValue(
+            row,
+            'isActive',
+            'IsActive',
+            true
+        )
+    });
+
+    setMatrixError('');
+    setMatrixMessage('');
+    setShowMatrixForm(true);
+}
+
+function handleCancelMatrixForm() {
+    setShowMatrixForm(false);
+    setEditingMatrix(null);
+    setMatrixError('');
+}
+
+// =====================================================
+// USER MATRIX - CLOSE MODAL
+// =====================================================
+
+function closeUserMatrixModal() {
+    setShowUserMatrixModal(false);
+    setSelectedMatrixUser(null);
+    setMatrixRows([]);
+    setShowMatrixForm(false);
+    setEditingMatrix(null);
+
+    setMatrixForm({
+        roleID: '',
+        bpCode: '',
+        isActive: true
+    });
+
+    setMatrixError('');
+    setMatrixMessage('');
+}
+
+// =====================================================
+// USER MATRIX - SAVE (INSERT OR UPDATE STATUS)
+// =====================================================
+
+async function handleSaveUserMatrix(event) {
+    event.preventDefault();
+
+    if (!selectedMatrixUser) {
+        return;
+    }
+
+    const userId = Number(
+        getValue(selectedMatrixUser, 'userID', 'UserID', 0)
+    );
+    const roleId = Number(matrixForm.roleID);
+
+    if (!userId || !roleId) {
+        setMatrixError('User and Role are required.');
+        return;
+    }
+
+    if ([5, 6].includes(roleId) && !matrixForm.bpCode) {
+        setMatrixError('Branch is required for Franchise and Branch roles.');
+        return;
+    }
+
+    try {
+        setSavingUserMatrix(true);
+        setMatrixError('');
+        setMatrixMessage('');
+
+        const payload = {
+            userID: userId,
+            roleID: roleId,
+            bpCode: matrixForm.bpCode,
+            isActive: Boolean(matrixForm.isActive),
+            createdBy: Number(sessionUserId) || 0,
+            matrixID: editingMatrix
+                ? Number(getValue(editingMatrix, 'matrixID', 'MatrixID', 0)) || null
+                : null
+        };
+
+        const response = await saveUserMatrix(userId, payload);
+
+        const isSuccess =
+            response?.isSuccess ?? response?.IsSuccess ?? true;
+
+        if (isSuccess === false) {
+            throw new Error(
+                response?.message ||
+                response?.Message ||
+                'Unable to save user matrix.'
+            );
+        }
+
+        setMatrixMessage(
+            response?.message ||
+            response?.Message ||
+            'User matrix saved successfully.'
+        );
+
+        setShowMatrixForm(false);
+        setEditingMatrix(null);
+
+        await loadUserMatrix(userId);
+
+        await loadUsers(
+            sessionRegionCode,
+            selectedBranch,
+            phoneFilter
+        );
+
+    } catch (error) {
+        console.error('Error saving user matrix:', error);
+        setMatrixError(error.message || 'Unable to save user matrix.');
+    } finally {
+        setSavingUserMatrix(false);
+    }
+}
+
+// =====================================================
+// USER MATRIX - BRANCH LABEL
+// =====================================================
+
+function getBranchLabel(code) {
+    if (!code) {
+        return 'All branches';
+    }
+
+    const branch = branches.find(item =>
+        String(getValue(item, 'bpCode', 'BPCode', '')) === String(code)
+    );
+
+    return branch
+        ? getValue(branch, 'branchName', 'BranchName', code)
+        : code;
+}
 
     // =====================================================
     // CREATE FORM CHANGE
@@ -1752,7 +2064,13 @@ function UserManagement() {
                                         Select Role
                                     </option>
 
-                                    {ROLES.map(role => (
+                                    {(roleLookup.length > 0
+                                        ? roleLookup.map(item => ({
+                                            roleId: getValue(item, 'roleID', 'RoleID', ''),
+                                            roleName: getValue(item, 'roleName', 'RoleName', '')
+                                        }))
+                                        : ROLES
+                                    ).map(role => (
                                         <option
                                             key={role.roleId}
                                             value={role.roleId}
@@ -2128,13 +2446,6 @@ function UserManagement() {
                                                         )
                                                     )
 
-                                                const role =
-                                                    ROLES.find(
-                                                        item =>
-                                                            item.roleId ===
-                                                            roleId
-                                                    )
-
                                                 const isActive =
                                                     getBooleanValue(
                                                         user,
@@ -2198,8 +2509,7 @@ function UserManagement() {
                                                         </td>
 
                                                         <td>
-                                                            {role?.roleName ||
-                                                                roleId}
+                                                            {getRoleName(roleId)}
                                                         </td>
 
                                                         <td>
@@ -2237,6 +2547,16 @@ function UserManagement() {
                                                         <td>
 
                                                             <div className="um-action-buttons">
+
+                                                                {/* USER MATRIX */}
+                                                                <button
+                                                                    type="button"
+                                                                    className="um-btn um-btn-small um-btn-matrix"
+                                                                    onClick={() => handleOpenUserMatrix(user)}
+                                                                    title="Manage this user's role and branch matrix"
+                                                                >
+                                                                    User Matrix
+                                                                </button>
 
                                                                 {/* EDIT */}
 
@@ -2310,6 +2630,324 @@ function UserManagement() {
                         )}
 
                 </section>
+
+                {/* =================================================
+                    USER MATRIX MODAL
+                ================================================= */}
+                {showUserMatrixModal && selectedMatrixUser && (
+                    <div
+                        className="um-modal-overlay"
+                        onMouseDown={(event) => {
+                            if (event.target === event.currentTarget) {
+                                closeUserMatrixModal()
+                            }
+                        }}
+                    >
+                        <div
+                            className="um-modal um-matrix-modal"
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="um-matrix-title"
+                        >
+
+                            {/* HEADER */}
+
+                            <div className="um-modal-header">
+                                <div>
+                                    <h3 id="um-matrix-title">User Matrix</h3>
+                                    <p>View and manage the roles and branches assigned to this user.</p>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    className="um-modal-close"
+                                    onClick={closeUserMatrixModal}
+                                    aria-label="Close"
+                                >
+                                    ×
+                                </button>
+                            </div>
+
+                            <div className="um-modal-body">
+
+                                {/* USER SUMMARY */}
+
+                                <div className="um-matrix-user-summary">
+                                    <div>
+                                        <span>Login ID</span>
+                                        <strong>{getValue(selectedMatrixUser, 'loginID', 'LoginID', '-')}</strong>
+                                    </div>
+                                    <div>
+                                        <span>User Name</span>
+                                        <strong>{getValue(selectedMatrixUser, 'userName', 'UserName', '-')}</strong>
+                                    </div>
+                                </div>
+
+                                {/* MESSAGES */}
+
+                                {matrixError && (
+                                    <div className="um-alert um-alert-error">
+                                        {matrixError}
+                                        <button type="button" onClick={() => setMatrixError('')}>×</button>
+                                    </div>
+                                )}
+
+                                {matrixMessage && (
+                                    <div className="um-alert um-alert-success">
+                                        {matrixMessage}
+                                        <button type="button" onClick={() => setMatrixMessage('')}>×</button>
+                                    </div>
+                                )}
+
+                                {/* TOOLBAR */}
+
+                                <div className="um-matrix-toolbar">
+                                    <h4>Assigned Matrix</h4>
+
+                                    <button
+                                        type="button"
+                                        className="um-btn um-btn-small um-btn-primary"
+                                        onClick={handleAddMatrix}
+                                        disabled={showMatrixForm}
+                                    >
+                                        + Add New
+                                    </button>
+                                </div>
+
+                                {/* MATRIX LIST */}
+
+                                {loadingMatrix ? (
+
+                                    <div className="um-modal-loading">
+                                        <div className="um-loading-dots">
+                                            <span></span>
+                                            <span></span>
+                                            <span></span>
+                                        </div>
+                                        <span>Loading...</span>
+                                    </div>
+
+                                ) : matrixRows.length === 0 ? (
+
+                                    <div className="um-no-record">
+                                        No matrix assigned to this user.
+                                    </div>
+
+                                ) : (
+
+                                    <div className="um-matrix-table-wrapper">
+                                        <table className="um-matrix-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Role</th>
+                                                    <th>Branch</th>
+                                                    <th>Status</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+
+                                            <tbody>
+                                                {matrixRows.map((row, index) => {
+
+                                                    const rowRoleId = getValue(row, 'roleID', 'RoleID', '')
+                                                    const rowBpCode = getValue(row, 'bpCode', 'BPCode', '')
+                                                    const rowActive = getBooleanValue(row, 'isActive', 'IsActive', false)
+                                                    const rowKey = getValue(row, 'matrixID', 'MatrixID', index)
+
+                                                    return (
+                                                        <tr key={rowKey}>
+                                                            <td>{getRoleLabel(rowRoleId)}</td>
+
+                                                            <td title={String(rowBpCode)}>
+                                                                {getBranchLabel(rowBpCode)}
+                                                            </td>
+
+                                                            <td>
+                                                                <span
+                                                                    className={
+                                                                        rowActive
+                                                                            ? 'um-status um-status-active'
+                                                                            : 'um-status um-status-inactive'
+                                                                    }
+                                                                >
+                                                                    {rowActive ? 'Active' : 'Inactive'}
+                                                                </span>
+                                                            </td>
+
+                                                            <td>
+                                                                <button
+                                                                    type="button"
+                                                                    className="um-btn um-btn-small um-btn-primary"
+                                                                    onClick={() => handleEditMatrix(row)}
+                                                                    disabled={showMatrixForm}
+                                                                >
+                                                                    Edit
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    )
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                )}
+
+                                {/* ADD / EDIT FORM */}
+
+                                {showMatrixForm && (
+                                    <form
+                                        className="um-matrix-form-panel"
+                                        onSubmit={handleSaveUserMatrix}
+                                    >
+                                        <h4>
+                                            {editingMatrix ? 'Edit Matrix' : 'Add New Matrix'}
+                                        </h4>
+
+                                        <div className="um-modal-grid um-matrix-grid">
+
+                                            <div className="um-form-group">
+                                                <label htmlFor="matrixRoleId">Role</label>
+
+                                                {roleLookup.length > 0 ? (
+
+                                                    <select
+                                                        id="matrixRoleId"
+                                                        className="um-input"
+                                                        value={matrixForm.roleID}
+                                                        onChange={(event) =>
+                                                            setMatrixForm(previous => ({
+                                                                ...previous,
+                                                                roleID: event.target.value
+                                                            }))
+                                                        }
+                                                        required
+                                                    >
+                                                        <option value="">
+                                                            Select Role
+                                                        </option>
+
+                                                        {roleLookup.map((role, index) => {
+                                                            const id = getValue(role, 'roleID', 'RoleID', '')
+                                                            const name = getValue(role, 'roleName', 'RoleName', id)
+
+                                                            return (
+                                                                <option key={id || index} value={id}>
+                                                                    {name}
+                                                                </option>
+                                                            )
+                                                        })}
+                                                    </select>
+
+                                                ) : (
+
+                                                    <input
+                                                        id="matrixRoleId"
+                                                        type="number"
+                                                        min="1"
+                                                        className="um-input"
+                                                        placeholder={loadingRoles ? 'Loading roles...' : 'Role ID'}
+                                                        value={matrixForm.roleID}
+                                                        onChange={(event) =>
+                                                            setMatrixForm(previous => ({
+                                                                ...previous,
+                                                                roleID: event.target.value
+                                                            }))
+                                                        }
+                                                        required
+                                                    />
+
+                                                )}
+                                            </div>
+
+                                            <div className="um-form-group">
+                                                <label htmlFor="matrixBranch">Branch</label>
+
+                                                <select
+                                                    id="matrixBranch"
+                                                    className="um-input"
+                                                    value={matrixForm.bpCode}
+                                                    onChange={(event) =>
+                                                        setMatrixForm(previous => ({
+                                                            ...previous,
+                                                            bpCode: event.target.value
+                                                        }))
+                                                    }
+                                                >
+                                                    <option value="">All branches (region-level roles only)</option>
+
+                                                    {branches.map((branch, index) => {
+                                                        const code = getValue(branch, 'bpCode', 'BPCode', '')
+                                                        const name = getValue(branch, 'branchName', 'BranchName', code)
+
+                                                        return (
+                                                            <option key={code || index} value={code}>
+                                                                {name}
+                                                            </option>
+                                                        )
+                                                    })}
+                                                </select>
+                                            </div>
+
+                                            <div className="um-form-group um-matrix-status-group">
+                                                <label htmlFor="matrixActive">Status</label>
+
+                                                <label className="um-matrix-checkbox">
+                                                    <input
+                                                        id="matrixActive"
+                                                        type="checkbox"
+                                                        checked={matrixForm.isActive}
+                                                        onChange={(event) =>
+                                                            setMatrixForm(previous => ({
+                                                                ...previous,
+                                                                isActive: event.target.checked
+                                                            }))
+                                                        }
+                                                    />
+                                                    <span>Active</span>
+                                                </label>
+                                            </div>
+
+                                        </div>
+
+                                        <div className="um-matrix-form-actions">
+                                            <button
+                                                type="button"
+                                                className="um-btn um-btn-secondary"
+                                                onClick={handleCancelMatrixForm}
+                                                disabled={savingUserMatrix}
+                                            >
+                                                Cancel
+                                            </button>
+
+                                            <button
+                                                type="submit"
+                                                className="um-btn um-btn-primary"
+                                                disabled={savingUserMatrix}
+                                            >
+                                                {savingUserMatrix ? 'Saving...' : 'Save Matrix'}
+                                            </button>
+                                        </div>
+                                    </form>
+                                )}
+
+                            </div>
+
+                            {/* FOOTER */}
+
+                            <div className="um-modal-footer">
+                                <button
+                                    type="button"
+                                    className="um-btn um-btn-secondary"
+                                    onClick={closeUserMatrixModal}
+                                >
+                                    Close
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                )}
 
                 {/* =================================================
                     EDIT USER MODAL
@@ -2738,15 +3376,8 @@ function UserManagement() {
                                                             )
                                                         )
 
-                                                    const role =
-                                                        ROLES.find(
-                                                            item =>
-                                                                item.roleId ===
-                                                                roleId
-                                                        )
-
                                                     return (
-                                                        role?.roleName ||
+                                                        getRoleName(roleId, '') ||
                                                         getValue(
                                                             selectedRequestor,
                                                             'roleName',
