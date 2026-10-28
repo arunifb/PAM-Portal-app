@@ -164,7 +164,7 @@
 
 /* SEARCH - BLUE */
 
-.franchise-btn-primary {
+/* .franchise-btn-primary {
     background: #2563eb;
     border-color: #2563eb;
     color: #ffffff;
@@ -173,19 +173,19 @@
 .franchise-btn-primary:hover:not(:disabled) {
     background: #1d4ed8;
     border-color: #1d4ed8;
-}
+} */
 
 /* ADD NEW FRANCHISE - GREEN */
 
 .franchise-header .franchise-btn-primary {
-    background-color: #198754;
-    border-color: #198754;
+    background-color: #2563eb;
+    border-color: #2563eb;
     color: #ffffff;
 }
 
 .franchise-header .franchise-btn-primary:hover:not(:disabled) {
-    background-color: #157347;
-    border-color: #146c43;
+    background-color: #1d4ed8;
+    border-color: #1d4ed8;
 }
 
 /* RESET AND VIEW - DARK GRAY */

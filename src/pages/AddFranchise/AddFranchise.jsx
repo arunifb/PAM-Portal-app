@@ -218,47 +218,63 @@ function AddFranchise({ onBack }) {
         }
     }, [userId, storedRegionCode])
 
-    // LOAD BRANCHES WHEN REGION CHANGES
-    useEffect(() => {
-        let cancelled = false
+    // LOAD BRANCHES WHEN REGION CHANGES AND AUTO-SELECT LOGGED-IN BRANCH
+useEffect(() => {
+    let cancelled = false
 
-        async function loadBranches() {
-            setBranches([])
-            setBpCode('')
+    async function loadBranches() {
+        setBranches([])
+        setBpCode('')
 
-            if (!regionCode || !userId) {
+        if (!regionCode || !userId) {
+            setLoadingBranches(false)
+            return
+        }
+
+        try {
+            setLoadingBranches(true)
+            setError('')
+
+            const data = await getBranches(userId, regionCode)
+
+            if (cancelled) return
+
+            const branchList = Array.isArray(data) ? data : []
+
+            setBranches(branchList)
+
+            // Automatically select the logged-in user's branch
+            const storedBpCode = sessionStorage.getItem('bpCode') || ''
+
+            const matchingBranch = branchList.find(branch =>
+                String(branch.bpCode ?? branch.BPCode ?? '').trim().toLowerCase() ===
+                String(storedBpCode).trim().toLowerCase()
+            )
+
+            if (matchingBranch) {
+                setBpCode(
+                    String(matchingBranch.bpCode ?? matchingBranch.BPCode)
+                )
+            }
+        } catch (err) {
+            if (!cancelled) {
+                showErrorMessage(
+                    getMessageText(err) || 'Unable to load branches.'
+                )
+            }
+        } finally {
+            if (!cancelled) {
                 setLoadingBranches(false)
-                return
-            }
-
-            try {
-                setLoadingBranches(true)
-                setError('')
-
-                const data = await getBranches(userId, regionCode)
-
-                if (cancelled) return
-
-                setBranches(Array.isArray(data) ? data : [])
-            } catch (err) {
-                if (!cancelled) {
-                    showErrorMessage(
-                        getMessageText(err) || 'Unable to load branches.'
-                    )
-                }
-            } finally {
-                if (!cancelled) {
-                    setLoadingBranches(false)
-                }
             }
         }
+    }
 
-        loadBranches()
+    loadBranches()
 
-        return () => {
-            cancelled = true
-        }
-    }, [regionCode, userId])
+    return () => {
+        cancelled = true
+    }
+}, [regionCode, userId])
 
     // LOAD CITIES WHEN STATE CHANGES
     useEffect(() => {

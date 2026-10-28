@@ -21,7 +21,9 @@ import {
 
 import './ReportParameter.css'
 import DashboardLayout from '../../components/DashboardLayout/DashboardLayout'
-
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
+import { CalendarDays } from 'lucide-react'
 
 
 // =================================================
@@ -611,6 +613,45 @@ function ColumnFilter({
     )
 }
 
+// Add For Date Picker
+// =========================================
+// DATE PICKER HELPERS
+// =========================================
+
+const parseDate = (value) => {
+    if (!value) return null
+
+    const parts = value.split('-')
+
+    if (parts.length !== 3) return null
+
+    const [year, month, day] = parts.map(Number)
+
+    if (!year || !month || !day) return null
+
+    const date = new Date(year, month - 1, day)
+
+    if (
+        date.getFullYear() !== year ||
+        date.getMonth() !== month - 1 ||
+        date.getDate() !== day
+    ) {
+        return null
+    }
+
+    return date
+}
+
+const formatDate = (date) => {
+    if (!date) return ''
+
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+
+    return `${year}-${month}-${day}`
+}
+
 
 // =================================================
 // MAIN COMPONENT
@@ -625,8 +666,9 @@ const report = reportProp || location.state?.report
     const [error, setError] = useState('')
 
     const [regions, setRegions] = useState([])
-    const [selectedRegion, setSelectedRegion] =
-        useState('')
+    // const [selectedRegion, setSelectedRegion] =
+    //     useState('')
+    const [selectedRegion, setSelectedRegion] = useState('')
     const [regionLoading, setRegionLoading] =
         useState(true)
     const [regionError, setRegionError] =
@@ -729,8 +771,24 @@ const report = reportProp || location.state?.report
     const loggedInRegionCode =
         sessionStorage.getItem('regionCode') || ''
 
-    const loggedInRoleId =
-        sessionStorage.getItem('roleId') || ''
+    const storedRoles = (() => {
+    try {
+        const roles = JSON.parse(
+            sessionStorage.getItem('roles') || '[]'
+        )
+
+        return Array.isArray(roles) ? roles : []
+    } catch {
+        return []
+    }
+})()
+
+const loggedInRoleId = String(
+    storedRoles.length > 0
+        ? storedRoles[0]
+        : sessionStorage.getItem('roleId') || ''
+)
+
 
     const loggedInLoginId =
         sessionStorage.getItem('loginId') || ''
@@ -738,29 +796,47 @@ const report = reportProp || location.state?.report
     const loggedInBpCode =
         sessionStorage.getItem('bpCode') || ''
 
+
+        console.log({
+    roleId: loggedInRoleId,
+    regionCode: loggedInRegionCode,
+    bpCode: loggedInBpCode
+})
+
+    const loggedInFranchiseCode =
+    sessionStorage.getItem('frCode') ||
+    sessionStorage.getItem('franchiseCode') ||
+    sessionStorage.getItem('FrCode') ||
+    ''
+
     // =================================================
     // ROLE IDs
     // =================================================
 
     const REGION_ROLE_ID = '1'
-const FRANCHISE_ROLE_ID = '5'
-const BRANCH_ROLE_ID = '6'
-const FACTORY_ROLE_ID = '7'
+    const FRANCHISE_ROLE_ID = '5'
+    const BRANCH_ROLE_ID = '6'
+    const FACTORY_ROLE_ID = '7'
+    const ROLE_3_ID = '3'
 
-const isRegionUser =
-    String(loggedInRoleId) === REGION_ROLE_ID
 
-const isBranchUser =
-    String(loggedInRoleId) === BRANCH_ROLE_ID
+    const isRegionUser =
+        String(loggedInRoleId) === REGION_ROLE_ID
 
-const isFranchiseUser =
-    String(loggedInRoleId) === FRANCHISE_ROLE_ID
+    const isBranchUser =
+        String(loggedInRoleId) === BRANCH_ROLE_ID
 
-const isFactoryUser =
-    String(loggedInRoleId) === FACTORY_ROLE_ID
+    const isFranchiseUser =
+        String(loggedInRoleId) === FRANCHISE_ROLE_ID
 
-const isRegionOrFactoryUser =
-    isRegionUser || isFactoryUser
+    const isFactoryUser =
+        String(loggedInRoleId) === FACTORY_ROLE_ID
+
+    const isRole3 =
+    String(loggedInRoleId) === ROLE_3_ID
+
+    const isRegionOrFactoryUser =
+        isRegionUser || isFactoryUser
 
     // =================================================
     // DATE CALENDAR LIMITS
@@ -860,52 +936,174 @@ const isRegionOrFactoryUser =
         loadReportParameters()
     }, [report])
 
-    // =================================================
-    // LOAD USER REGION
-    // =================================================
 
-    useEffect(() => {
+
+
+
+// =================================================
+// LOAD USER REGION
+// =================================================
+
+// useEffect(() => {
+//     const loadUserRegion = async () => {
+//         try {
+//             setRegionLoading(true)
+//             setRegionError('')
+
+//             const data = await getRegions(
+//                 '',
+//                 loggedInUserId
+//             )
+
+//             const regionData = Array.isArray(data)
+//                 ? data
+//                 : []
+
+//             setRegions(regionData)
+
+//             if (isFactoryUser) {
+//                 setSelectedRegion('All')
+//             } else if (isRole3 || isFranchiseUser) {
+//                 const matchingRegion = regionData.find(
+//                     (region) =>
+//                         String(
+//                             region.regionCode ??
+//                             region.RegionCode ??
+//                             ''
+//                         ).trim() ===
+//                         String(loggedInRegionCode).trim()
+//                 )
+
+//                 setSelectedRegion(
+//                     matchingRegion
+//                         ? String(
+//                             matchingRegion.regionCode ??
+//                             matchingRegion.RegionCode
+//                         )
+//                         : ''
+//                 )
+//             } else {
+//                 setSelectedRegion('')
+//             }
+//         } catch (error) {
+//             console.error(
+//                 'Load region error:',
+//                 error
+//             )
+
+//             setRegions([])
+//             setSelectedRegion('')
+
+//             setRegionError(
+//                 error.message ||
+//                 'Unable to load region.'
+//             )
+//         } finally {
+//             setRegionLoading(false)
+//         }
+//     }
+
+//     loadUserRegion()
+// }, [
+//     loggedInUserId,
+//     loggedInRegionCode,
+//     isFactoryUser,
+//     isRole3,
+//     isFranchiseUser
+// ])
+
+// =================================================
+// LOAD USER REGION — PRESELECT FOR ROLE 3 AND 6
+// =================================================
+
+useEffect(() => {
+    let cancelled = false
+
     const loadUserRegion = async () => {
         try {
             setRegionLoading(true)
             setRegionError('')
 
-            const data =
-                await getRegions(
-                    '',
-                    loggedInUserId
-                )
+            const data = await getRegions('', loggedInUserId)
 
-            const regionData =
-                Array.isArray(data)
-                    ? data
-                    : []
+            if (cancelled) return
 
+            const regionData = Array.isArray(data) ? data : []
             setRegions(regionData)
 
-            // User will select the Region manually.
-            setSelectedRegion('')
-        } catch (error) {
-            console.error(
-                'Load region error:',
-                error
-            )
+            console.log('Region API data:', regionData)
+            console.log('Logged-in region code:', loggedInRegionCode)
+            console.log('Logged-in role ID:', loggedInRoleId)
 
+            if (isFactoryUser) {
+                setSelectedRegion('All')
+                return
+            }
+
+            if (isRole3 || isBranchUser || isFranchiseUser) {
+                const matchingRegion = regionData.find((region) => {
+                    const code =
+                        region.regionCode ??
+                        region.RegionCode ??
+                        region.region_Code ??
+                        region.Region_Code ??
+                        ''
+
+                    return (
+                        String(code).trim().toLowerCase() ===
+                        String(loggedInRegionCode).trim().toLowerCase()
+                    )
+                })
+
+                const code = matchingRegion
+                    ? String(
+                        matchingRegion.regionCode ??
+                        matchingRegion.RegionCode ??
+                        matchingRegion.region_Code ??
+                        matchingRegion.Region_Code ??
+                        ''
+                    )
+                    : ''
+
+                setSelectedRegion(code)
+
+                if (!code) {
+                    console.warn(
+                        'Region preselection failed. Check the region code and Region API response.'
+                    )
+                }
+            } else {
+                setSelectedRegion('')
+            }
+        } catch (error) {
+            if (cancelled) return
+
+            console.error('Load region error:', error)
             setRegions([])
             setSelectedRegion('')
-
             setRegionError(
-                error.message ||
-                'Unable to load region.'
+                error.message || 'Unable to load region.'
             )
         } finally {
-            setRegionLoading(false)
+            if (!cancelled) {
+                setRegionLoading(false)
+            }
         }
     }
 
     loadUserRegion()
+
+    return () => {
+        cancelled = true
+    }
 }, [
-    loggedInUserId
+    loggedInUserId,
+    loggedInRegionCode,
+    loggedInRoleId,
+    isFactoryUser,
+    isRole3,
+    isBranchUser,
+    isFranchiseUser
 ])
 
     // =================================================
@@ -1230,347 +1428,314 @@ const isRegionOrFactoryUser =
         loadStatuses()
     }, [])
 
-    // =================================================
-    // LOAD USER BRANCHES
-    // =================================================
+    
 
-    useEffect(() => {
-        const loadUserBranch = async () => {
 
-            if (!selectedRegion) {
-                setBranches([])
+// =================================================
+// LOAD USER BRANCHES — PRESELECT FOR ROLE 3 AND 6
+// =================================================
 
-                setSelectedBranch(
-                    isRegionUser
-                        ? 'All'
-                        : ''
-                )
+useEffect(() => {
+    let cancelled = false
 
-                return
-            }
+    const loadUserBranch = async () => {
+        setBranchError('')
 
-            if (!loggedInRoleId) {
-                setBranches([])
+        if (!selectedRegion) {
+            setBranches([])
+            setSelectedBranch('')
+            setBranchLoading(false)
+            return
+        }
+
+        if (!loggedInRoleId) {
+            setBranches([])
+            setSelectedBranch('')
+            setBranchLoading(false)
+            setBranchError('Unable to determine logged-in role.')
+            return
+        }
+
+        if (
+            (isBranchUser || isRole3 || isFranchiseUser) &&
+            !loggedInBpCode
+        ) {
+            setBranches([])
+            setSelectedBranch('')
+            setBranchLoading(false)
+            setBranchError('Unable to determine logged-in branch.')
+            console.warn('Missing logged-in bpCode in sessionStorage.')
+            return
+        }
+
+        try {
+            setBranchLoading(true)
+
+            const data = await getBranches(
+                loggedInUserId,
+                selectedRegion === 'All' ? '' : selectedRegion
+            )
+
+            if (cancelled) return
+
+            const branchData = Array.isArray(data) ? data : []
+            setBranches(branchData)
+
+            console.log('Branch API data:', branchData)
+            console.log('Logged-in BP code:', loggedInBpCode)
+            console.log('Selected region:', selectedRegion)
+
+            if (isRegionOrFactoryUser) {
                 setSelectedBranch('All')
-
-                setBranchError(
-                    'Unable to determine logged-in role.'
-                )
-
                 return
             }
 
-            // Branch and Franchise users must have
-            // their logged-in BPCode.
-            if (
-                (isBranchUser ||
-                    isFranchiseUser) &&
-                !loggedInBpCode
-            ) {
-                setBranches([])
-                setSelectedBranch('')
+            if (isBranchUser || isRole3 || isFranchiseUser) {
+                const matchingBranch = branchData.find((branch) => {
+                    const code =
+                        branch.bpCode ??
+                        branch.BPCode ??
+                        branch.bpcode ??
+                        branch.branchCode ??
+                        branch.BranchCode ??
+                        branch.branch_code ??
+                        ''
 
-                setBranchError(
-                    'Unable to determine logged-in branch.'
-                )
-
-                return
-            }
-
-            try {
-                setBranchLoading(true)
-                setBranchError('')
-
-                // =========================================
-                // REGION USER - ROLE 1
-                // =========================================
-
-                if (isRegionOrFactoryUser) {
-                    const data =
-                        await getBranches(
-                            loggedInUserId,
-                            selectedRegion
-                        )
-
-                    const branchData =
-                        Array.isArray(data)
-                            ? data
-                            : []
-
-                    setBranches(
-                        branchData
+                    return (
+                        String(code).trim().toLowerCase() ===
+                        String(loggedInBpCode).trim().toLowerCase()
                     )
+                })
 
-                    // Region user can select All.
-                    setSelectedBranch('All')
+                const code = matchingBranch
+                    ? String(
+                        matchingBranch.bpCode ??
+                        matchingBranch.BPCode ??
+                        matchingBranch.bpcode ??
+                        matchingBranch.branchCode ??
+                        matchingBranch.BranchCode ??
+                        matchingBranch.branch_code ??
+                        ''
+                    )
+                    : ''
 
-                    return
+                setSelectedBranch(code)
+
+                if (!code) {
+                    console.warn(
+                        'Branch preselection failed. Check the BPCode and Branch API response.'
+                    )
                 }
+            } else {
+                setSelectedBranch('All')
+            }
+        } catch (error) {
+            if (cancelled) return
 
-                // =========================================
-                // BRANCH / FRANCHISE USER
-                // ROLE 6 / ROLE 5
-                // =========================================
+            console.error('Load branches error:', error)
 
-                // const data =
-                //     await getBranches(
-                //         loggedInRoleId,
-                //         selectedRegion,
-                //         loggedInBpCode
-                //     )
-
-                const data =
-                    await getBranches(
-                        loggedInUserId,
-                        selectedRegion
-                    )
-
-                const branchData =
-                    Array.isArray(data)
-                        ? data
-                        : []
-
-                setBranches(
-                    branchData
-                )
-
-                // Branch and Franchise users
-                // must use their logged-in branch.
-                setSelectedBranch(
-                    loggedInBpCode
-                )
-
-            } catch (error) {
-                console.error(
-                    'Load branches error:',
-                    error
-                )
-
-                setBranches([])
-
-                setSelectedBranch(
-                    isRegionUser
-                        ? 'All'
-                        : ''
-                )
-
-                setBranchError(
-                    error.message ||
-                    'Unable to load branches.'
-                )
-            } finally {
+            setBranches([])
+            setSelectedBranch('')
+            setBranchError(
+                error.message || 'Unable to load branches.'
+            )
+        } finally {
+            if (!cancelled) {
                 setBranchLoading(false)
             }
         }
+    }
 
-        loadUserBranch()
-    }, [
-        selectedRegion,
-        loggedInRoleId,
-        loggedInBpCode,
-        isRegionUser,
-        isBranchUser,
-        isFranchiseUser
-    ])
+    loadUserBranch()
 
+    return () => {
+        cancelled = true
+    }
+}, [
+    selectedRegion,
+    loggedInUserId,
+    loggedInRoleId,
+    loggedInBpCode,
+    isRegionOrFactoryUser,
+    isBranchUser,
+    isRole3,
+    isFranchiseUser
+])
+    
     // =================================================
-    // LOAD FRANCHISES
-    // =================================================
+// LOAD FRANCHISES
+// =================================================
 
-    useEffect(() => {
-        const loadFranchises = async () => {
+useEffect(() => {
+    let cancelled = false
 
-            // =========================================
-            // REGION USER + ALL BRANCH
-            // =========================================
-            // No single branch is selected yet.
-            // Keep franchise as All.
-            // =========================================
+    const loadFranchises = async () => {
+        setFranchiseError('')
+        setFranchises([])
 
-            if (
-                isRegionOrFactoryUser &&
-                (!selectedBranch ||
-                    selectedBranch === 'All')
-            ) {
-                setFranchises([])
-                setSelectedFranchise('All')
-                setFranchiseError('')
-                setFranchiseLoading(false)
+        // Region and Factory users must choose a specific branch.
+        if (
+            isRegionOrFactoryUser &&
+            (!selectedBranch || selectedBranch === 'All')
+        ) {
+            setSelectedFranchise('All')
+            setFranchiseLoading(false)
+            return
+        }
 
-                return
-            }
+        if (!selectedBranch) {
+            setSelectedFranchise(
+                isFranchiseUser ? '' : 'All'
+            )
+            setFranchiseLoading(false)
+            return
+        }
 
-            if (!selectedBranch) {
-                setFranchises([])
+        if (!loggedInRoleId || !loggedInLoginId) {
+            setSelectedFranchise(
+                isFranchiseUser ? '' : 'All'
+            )
+            setFranchiseLoading(false)
+            setFranchiseError(
+                !loggedInRoleId
+                    ? 'Unable to determine logged-in role.'
+                    : 'Unable to determine logged-in Login ID.'
+            )
+            return
+        }
 
-                setSelectedFranchise(
-                    isFranchiseUser
-                        ? ''
-                        : 'All'
+        // Roles 3, 5, and 6 must use their logged-in BPCode.
+        // Roles 1 and 7 use the selected branch, which cannot be All here.
+        const branchCode = isRegionOrFactoryUser
+            ? selectedBranch
+            : loggedInBpCode
+
+        if (
+            !branchCode ||
+            String(branchCode).trim().toLowerCase() === 'all'
+        ) {
+            setSelectedFranchise(
+                isFranchiseUser ? '' : 'All'
+            )
+            setFranchiseLoading(false)
+            setFranchiseError(
+                'Please select a specific branch.'
+            )
+            return
+        }
+
+        try {
+            setFranchiseLoading(true)
+
+            console.log('Franchise API request:', {
+                roleId: loggedInRoleId,
+                bpCode: branchCode,
+                loginId: loggedInLoginId
+            })
+
+            const data = await getFranchises(
+                branchCode,
+                loggedInLoginId
+            )
+
+
+            if (cancelled) return
+
+            const franchiseData = Array.isArray(data)
+                ? [...data]
+                : []
+
+            franchiseData.sort((a, b) => {
+                const nameA = String(
+                    a.frName ??
+                    a.FrName ??
+                    a.franchiseName ??
+                    a.FranchiseName ??
+                    a.name ??
+                    a.Name ??
+                    ''
                 )
 
-                setFranchiseError('')
-                setFranchiseLoading(false)
-
-                return
-            }
-
-            if (!loggedInRoleId) {
-                setFranchises([])
-                setSelectedFranchise('All')
-
-                setFranchiseError(
-                    'Unable to determine logged-in role.'
+                const nameB = String(
+                    b.frName ??
+                    b.FrName ??
+                    b.franchiseName ??
+                    b.FranchiseName ??
+                    b.name ??
+                    b.Name ??
+                    ''
                 )
 
-                setFranchiseLoading(false)
+                return nameA.localeCompare(nameB)
+            })
 
-                return
-            }
+            setFranchises(franchiseData)
 
-            if (!loggedInLoginId) {
-                setFranchises([])
-                setSelectedFranchise('All')
-
-                setFranchiseError(
-                    'Unable to determine logged-in Login ID.'
-                )
-
-                setFranchiseLoading(false)
-
-                return
-            }
-
-            try {
-                setFranchiseLoading(true)
-                setFranchiseError('')
-
-                const branchCode =
-                isRegionOrFactoryUser
-                    ? selectedBranch
-                    : loggedInBpCode
-
-                const data =
-                    await getFranchises(
-                        loggedInRoleId,
-                        branchCode,
-                        loggedInLoginId
-                    )
-
-                const franchiseData =
-                    Array.isArray(data)
-                        ? [...data]
-                        : []
-
-                franchiseData.sort(
-                    (a, b) => {
-                        const nameA =
-                            String(
-                                a.frName ??
-                                a.FrName ??
-                                a.franchiseName ??
-                                a.FranchiseName ??
-                                a.name ??
-                                a.Name ??
-                                ''
-                            )
-
-                        const nameB =
-                            String(
-                                b.frName ??
-                                b.FrName ??
-                                b.franchiseName ??
-                                b.FranchiseName ??
-                                b.name ??
-                                b.Name ??
-                                ''
-                            )
-
-                        return nameA.localeCompare(
-                            nameB
-                        )
-                    }
-                )
-
-                setFranchises(
-                    franchiseData
-                )
-
-                // =========================================
-                // FRANCHISE USER - ROLE 5
-                // =========================================
-                // The API is called with LoginID.
-                // The returned franchise is selected
-                // and the dropdown is frozen.
-                // =========================================
-
-                if (isFranchiseUser) {
-
-                    if (
-                        franchiseData.length > 0
-                    ) {
-                        const loggedInFranchise =
-                            franchiseData[0]
-
-                        const franchiseCode =
-                            loggedInFranchise.frCode ??
-                            loggedInFranchise.FrCode ??
-                            loggedInFranchise.franchiseCode ??
-                            loggedInFranchise.FranchiseCode ??
+            if (isFranchiseUser) {
+                const matchingFranchise = loggedInFranchiseCode
+                    ? franchiseData.find((franchise) => {
+                        const code =
+                            franchise.frCode ??
+                            franchise.FrCode ??
+                            franchise.franchiseCode ??
+                            franchise.FranchiseCode ??
                             ''
 
-                        setSelectedFranchise(
-                            String(
-                                franchiseCode
-                            )
+                        return (
+                            String(code).trim() ===
+                            String(loggedInFranchiseCode).trim()
                         )
-                    } else {
-                        setSelectedFranchise('')
-                    }
+                    })
+                    : null
 
-                    return
-                }
+                const selectedFranchiseData =
+                    matchingFranchise || franchiseData[0]
 
-                // =========================================
-                // REGION / BRANCH USER
-                // =========================================
+                const code =
+                    selectedFranchiseData?.frCode ??
+                    selectedFranchiseData?.FrCode ??
+                    selectedFranchiseData?.franchiseCode ??
+                    selectedFranchiseData?.FranchiseCode ??
+                    ''
 
-                setSelectedFranchise(
-                    'All'
-                )
+                setSelectedFranchise(String(code))
+            } else {
+                setSelectedFranchise('All')
+            }
+        } catch (error) {
+            if (cancelled) return
 
-            } catch (error) {
-                console.error(
-                    'Load franchises error:',
-                    error
-                )
+            console.error('Load franchises error:', error)
 
-                setFranchises([])
+            setFranchises([])
+            setSelectedFranchise(
+                isFranchiseUser ? '' : 'All'
+            )
 
-                setSelectedFranchise(
-                    isFranchiseUser
-                        ? ''
-                        : 'All'
-                )
-
-                setFranchiseError(
-                    error.message ||
-                    'Unable to load franchises.'
-                )
-            } finally {
+            setFranchiseError(
+                error.message || 'Unable to load franchises.'
+            )
+        } finally {
+            if (!cancelled) {
                 setFranchiseLoading(false)
             }
         }
+    }
 
-        loadFranchises()
-    }, [
-        selectedBranch,
-        loggedInRoleId,
-        loggedInLoginId,
-        loggedInBpCode,
-        isRegionUser,
-        isFranchiseUser
-    ])
+    loadFranchises()
+
+    return () => {
+        cancelled = true
+    }
+}, [
+    selectedBranch,
+    loggedInRoleId,
+    loggedInLoginId,
+    loggedInBpCode,
+    loggedInFranchiseCode,
+    isRegionOrFactoryUser,
+    isFranchiseUser
+])
 
     // =================================================
     // GET MULTI SELECT VALUE
@@ -1972,7 +2137,7 @@ const isRegionOrFactoryUser =
                         .toLowerCase() ===
                         'region'
             ) &&
-            !selectedRegion
+            !selectedRegion && !isFactoryUser
         ) {
             missingParameter = 'Region'
         }
@@ -2433,7 +2598,7 @@ const isRegionOrFactoryUser =
 
     if (!report) {
     return (
-        <DashboardLayout title="Report">
+        <DashboardLayout title="Report Parameter">
             <section className="report-parameter-section">
                 <div className="report-parameter-empty">
                     <i
@@ -2456,7 +2621,7 @@ const isRegionOrFactoryUser =
 
     if (loading) {
     return (
-        <DashboardLayout title="Report">
+        <DashboardLayout title="Report Parameter">
             <section className="report-parameter-section">
                 <div className="report-parameter-empty">
                     <i
@@ -2476,7 +2641,7 @@ const isRegionOrFactoryUser =
 
     if (error) {
     return (
-        <DashboardLayout title="Report">
+        <DashboardLayout title="Report Parameter">
             <section className="report-parameter-section">
                 <div className="report-parameter-empty">
                     <i
@@ -2496,7 +2661,10 @@ const isRegionOrFactoryUser =
     // =================================================
 
     return (
-    <DashboardLayout title={report?.reportType || 'Report'}>
+    <DashboardLayout
+    title={report?.reportType || 'Report Parameter'}
+    icon={report?.imageUrl || ''}
+>
             <section
                 className="report-parameter-section"
             >
@@ -2679,12 +2847,22 @@ const isRegionOrFactoryUser =
                                                     }
                                                 >
 
-                                                <option value="">
+                                                {/* <option value="">
                                                     {regionLoading
                                                         ? 'Loading region...'
                                                         : regionError
                                                             ? 'Unable to load region'
                                                             : 'Select Region'}
+                                                </option> */}
+
+                                                <option value={isFactoryUser ? 'All' : ''}>
+                                                    {regionLoading
+                                                        ? 'Loading region...'
+                                                        : regionError
+                                                            ? 'Unable to load region'
+                                                            : isFactoryUser
+                                                                ? 'All'
+                                                                : 'Select Region'}
                                                 </option>
 
                                                 {!regionLoading &&
@@ -3046,58 +3224,124 @@ const isRegionOrFactoryUser =
                                                 error={
                                                     statusError
                                                 }
-                                                maxSelections={5}
+                                                // maxSelections={5}
+                                                 maxSelections={statuses.length}
                                             />
                                         )}
 
                                         {/* FROM DATE */}
 
                                         {isFromDate && (
-                                            <input
-                                                type="date"
-                                                className="report-filter-control"
-                                                value={
-                                                    selectedFromDate
-                                                }
-                                                min={
-                                                    calendarMinDate
-                                                }
-                                                max={
-                                                    calendarMaxDate
-                                                }
-                                                onChange={(
-                                                    event
-                                                ) =>
-                                                    setSelectedFromDate(
-                                                        event.target.value
-                                                    )
-                                                }
-                                            />
+                                            // <input
+                                            //     type="date"
+                                            //     className="report-filter-control"
+                                            //     value={
+                                            //         selectedFromDate
+                                            //     }
+                                            //     min={
+                                            //         calendarMinDate
+                                            //     }
+                                            //     max={
+                                            //         calendarMaxDate
+                                            //     }
+                                            //     onChange={(
+                                            //         event
+                                            //     ) =>
+                                            //         setSelectedFromDate(
+                                            //             event.target.value
+                                            //         )
+                                            //     }
+                                            // />
+
+
+                                            <div className="report-date-picker-container">
+                                                <DatePicker
+                                                    selected={parseDate(selectedFromDate)}
+                                                    onChange={(date) => {
+                                                        setSelectedFromDate(formatDate(date))
+                                                    }}
+                                                    minDate={parseDate(calendarMinDate)}
+                                                    maxDate={parseDate(calendarMaxDate)}
+                                                    dateFormat="dd/MM/yyyy"
+                                                    placeholderText="Select from date"
+                                                    className="report-filter-control report-date-control from-date-picker"
+                                                    wrapperClassName="report-date-picker-wrapper"
+                                                    showPopperArrow={false}
+                                                    autoComplete="off"
+                                                    isClearable={false}
+                                                />
+
+                                                <button
+                                                    type="button"
+                                                    className="report-calendar-icon"
+                                                    aria-label="Open From Date calendar"
+                                                    onClick={() => {
+                                                        document
+                                                            .querySelector('.from-date-picker')
+                                                            ?.focus()
+                                                    }}
+                                                >
+                                                    <CalendarDays size={16} />
+                                                </button>
+                                            </div>
                                         )}
 
                                         {/* TO DATE */}
 
                                         {isToDate && (
-                                            <input
-                                                type="date"
-                                                className="report-filter-control"
-                                                value={
-                                                    selectedToDate
-                                                }
-                                                min={
-                                                    calendarMinDate
-                                                }
-                                                max={
-                                                    calendarMaxDate
-                                                }
-                                                onChange={(
-                                                    event
-                                                ) =>
-                                                    setSelectedToDate(
-                                                        event.target.value
-                                                    )
-                                                }
-                                            />
+                                            // <input
+                                            //     type="date"
+                                            //     className="report-filter-control"
+                                            //     value={
+                                            //         selectedToDate
+                                            //     }
+                                            //     min={
+                                            //         calendarMinDate
+                                            //     }
+                                            //     max={
+                                            //         calendarMaxDate
+                                            //     }
+                                            //     onChange={(
+                                            //         event
+                                            //     ) =>
+                                            //         setSelectedToDate(
+                                            //             event.target.value
+                                            //         )
+                                            //     }
+                                            // />
+
+                                            <div className="report-date-picker-container">
+                                                <DatePicker
+                                                    selected={parseDate(selectedToDate)}
+                                                    onChange={(date) => {
+                                                        setSelectedToDate(formatDate(date))
+                                                    }}
+                                                    minDate={parseDate(calendarMinDate)}
+                                                    maxDate={parseDate(calendarMaxDate)}
+                                                    dateFormat="dd/MM/yyyy"
+                                                    placeholderText="Select to date"
+                                                    className="report-filter-control report-date-control to-date-picker"
+                                                    wrapperClassName="report-date-picker-wrapper"
+                                                    popperClassName="to-date-picker-popper"
+                                                    popperPlacement="bottom-end"
+                                                    showPopperArrow={false}
+                                                    autoComplete="off"
+                                                    isClearable={false}
+                                                />
+
+                                                <button
+                                                    type="button"
+                                                    className="report-calendar-icon"
+                                                    aria-label="Open To Date calendar"
+                                                    onClick={() => {
+                                                        document
+                                                            .querySelector('.to-date-picker')
+                                                            ?.focus()
+                                                    }}
+                                                >
+                                                    <CalendarDays size={16} />
+                                                </button>
+                                            </div>
                                         )}
 
                                         {/* UNKNOWN / DYNAMIC PARAMETER */}

@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react'
 
 import DashboardLayout from '../../components/DashboardLayout/DashboardLayout'
@@ -41,8 +40,76 @@ function getValue(item, ...keys) {
     return ''
 }
 
-function normalize(value) {
-    return String(value ?? '').trim().toLowerCase()
+// Get the creation date as a timestamp for sorting.
+function getCreatedDateTimestamp(franchise) {
+    const value = getValue(
+        franchise,
+        'createdOn',
+        'CreatedOn',
+        'createdDate',
+        'CreatedDate',
+        'createdAt',
+        'CreatedAt',
+        'creationDate',
+        'CreationDate'
+    )
+
+    if (!value) return 0
+
+    const text = String(value).trim()
+
+    // Handle DD-MM-YYYY and DD-MM-YYYY HH:mm:ss.
+    const match = text.match(
+        /^(\d{2})-(\d{2})-(\d{4})(?:\s+(\d{2}):(\d{2}):(\d{2}))?$/
+    )
+
+    if (match) {
+        const [
+            ,
+            day,
+            month,
+            year,
+            hours = '0',
+            minutes = '0',
+            seconds = '0'
+        ] = match
+
+        const date = new Date(
+            Number(year),
+            Number(month) - 1,
+            Number(day),
+            Number(hours),
+            Number(minutes),
+            Number(seconds)
+        )
+
+        // Reject invalid date values.
+        if (
+            date.getFullYear() !== Number(year) ||
+            date.getMonth() !== Number(month) - 1 ||
+            date.getDate() !== Number(day)
+        ) {
+            return 0
+        }
+
+        return date.getTime()
+    }
+
+    // Handle standard ISO date formats.
+    const timestamp = new Date(text).getTime()
+
+    return Number.isNaN(timestamp) ? 0 : timestamp
+}
+
+// Sort newest first and return no more than 40 records.
+function getLatest40Franchises(data) {
+    return (Array.isArray(data) ? [...data] : [])
+        .sort(
+            (a, b) =>
+                getCreatedDateTimestamp(b) -
+                getCreatedDateTimestamp(a)
+        )
+        .slice(0, 40)
 }
 
 function FranchiseList({ onAddFranchise }) {
@@ -141,10 +208,9 @@ function FranchiseList({ onAddFranchise }) {
 
                     if (cancelled) return
 
+                    // Initial page load: latest 40 records.
                     setFranchises(
-                        Array.isArray(franchiseData)
-                            ? franchiseData
-                            : []
+                        getLatest40Franchises(franchiseData)
                     )
                 } else {
                     setError(
@@ -221,7 +287,9 @@ function FranchiseList({ onAddFranchise }) {
                 }
             } catch (err) {
                 if (!cancelled) {
-                    setError(err.message || 'Unable to load branches.')
+                    setError(
+                        err.message || 'Unable to load branches.'
+                    )
                 }
             } finally {
                 if (!cancelled) {
@@ -258,7 +326,9 @@ function FranchiseList({ onAddFranchise }) {
                 setCities(Array.isArray(data) ? data : [])
             } catch (err) {
                 if (!cancelled) {
-                    setError(err.message || 'Unable to load cities.')
+                    setError(
+                        err.message || 'Unable to load cities.'
+                    )
                 }
             } finally {
                 if (!cancelled) {
@@ -300,36 +370,47 @@ function FranchiseList({ onAddFranchise }) {
             const request = {
                 FrCode: filters.FrCode.trim(),
                 FranchiseName: filters.FranchiseName.trim(),
-                BPCode: searchBpCode,
+                BPCode: filters.BPCode || sessionBpCode,
                 StateCode: filters.StateCode,
                 CityCode: filters.CityCode,
                 Mobile: filters.Mobile.trim(),
                 EmailID: filters.EmailID.trim(),
-                Active: filters.Active
+                Active: filters.Active === '' ? null : filters.Active
             }
 
             const response = await searchFranchises(request)
 
-            // The search endpoint returns:
-            // { isSuccess, message, count, data }
+            console.log('Franchise search API response:', response)
+            console.log(
+                'First franchise record:',
+                response?.data?.[0]
+            )
+
+            // Search endpoint returns its filtered data.
             const result = Array.isArray(response?.data)
                 ? response.data
                 : []
 
             setFranchises(result)
-            setAppliedFilters({ ...filters, BPCode: searchBpCode })
+            setAppliedFilters({
+                ...filters,
+                BPCode: searchBpCode
+            })
 
             if (result.length === 0) {
                 setError('No franchise records found.')
             }
         } catch (err) {
             setFranchises([])
-            setError(err.message || 'Unable to search franchises.')
+            setError(
+                err.message || 'Unable to search franchises.'
+            )
         } finally {
             setLoading(false)
         }
     }
 
+    // Reset filters and reload the latest 40 franchise records.
     async function handleReset() {
         setFilters({ ...initialFilters })
         setAppliedFilters({ ...initialFilters })
@@ -339,7 +420,9 @@ function FranchiseList({ onAddFranchise }) {
 
         if (!sessionBpCode) {
             setFranchises([])
-            setError('Branch code was not found in session storage.')
+            setError(
+                'Branch code was not found in session storage.'
+            )
             return
         }
 
@@ -348,10 +431,12 @@ function FranchiseList({ onAddFranchise }) {
         try {
             const data = await getFranchiseList(sessionBpCode)
 
-            setFranchises(Array.isArray(data) ? data : [])
+            setFranchises(getLatest40Franchises(data))
         } catch (err) {
             setFranchises([])
-            setError(err.message || 'Unable to reload franchises.')
+            setError(
+                err.message || 'Unable to reload franchises.'
+            )
         } finally {
             setLoading(false)
         }
@@ -360,7 +445,48 @@ function FranchiseList({ onAddFranchise }) {
     function formatDate(value) {
         if (!value) return '-'
 
-        const date = new Date(value)
+        const dateValue = String(value).trim()
+
+        if (!dateValue) return '-'
+
+        // Handle API format: DD-MM-YYYY HH:mm:ss.
+        const match = dateValue.match(
+            /^(\d{2})-(\d{2})-(\d{4})(?:\s+(\d{2}):(\d{2}):(\d{2}))?$/
+        )
+
+        let date
+
+        if (match) {
+            const [
+                ,
+                day,
+                month,
+                year,
+                hours = '0',
+                minutes = '0',
+                seconds = '0'
+            ] = match
+
+            date = new Date(
+                Number(year),
+                Number(month) - 1,
+                Number(day),
+                Number(hours),
+                Number(minutes),
+                Number(seconds)
+            )
+
+            if (
+                date.getFullYear() !== Number(year) ||
+                date.getMonth() !== Number(month) - 1 ||
+                date.getDate() !== Number(day)
+            ) {
+                return '-'
+            }
+        } else {
+            // Handle standard ISO date formats.
+            date = new Date(dateValue)
+        }
 
         if (Number.isNaN(date.getTime())) return '-'
 
@@ -372,7 +498,6 @@ function FranchiseList({ onAddFranchise }) {
     }
 
     // Search results are already filtered by the backend.
-    // Do not filter them again using the list endpoint's different DTO.
     const filteredFranchises = franchises
 
     // Show AddFranchise without navigating to another URL.
@@ -631,7 +756,7 @@ function FranchiseList({ onAddFranchise }) {
                             <div className="franchise-actions">
                                 <button
                                     type="submit"
-                                    className="franchise-btn franchise-btn-primary"
+                                    className="btn-search franchise-btn franchise-btn-primary"
                                     disabled={loading}
                                 >
                                     {loading ? 'Searching...' : 'Search'}
@@ -669,7 +794,6 @@ function FranchiseList({ onAddFranchise }) {
                                     <th>Location</th>
                                     <th>Created Date</th>
                                     <th>Status</th>
-                                    {/* <th>Action</th> */}
                                 </tr>
                             </thead>
 
@@ -677,7 +801,7 @@ function FranchiseList({ onAddFranchise }) {
                                 {loading ? (
                                     <tr>
                                         <td
-                                            colSpan="8"
+                                            colSpan="7"
                                             className="franchise-empty"
                                         >
                                             Loading franchises...
@@ -686,7 +810,7 @@ function FranchiseList({ onAddFranchise }) {
                                 ) : filteredFranchises.length === 0 ? (
                                     <tr>
                                         <td
-                                            colSpan="8"
+                                            colSpan="7"
                                             className="franchise-empty"
                                         >
                                             No franchise records found.
@@ -701,20 +825,32 @@ function FranchiseList({ onAddFranchise }) {
                                         ) || '-'
 
                                         const mobile = getValue(
-                                            franchise,
-                                            'mobileNo',
-                                            'MobileNo',
-                                            'Mobile',
-                                            'PhoneNo',
-                                            'phoneNo'
-                                        ) || '-'
+                                        franchise,
+                                        'mobileno',
+                                        'mobileNo',
+                                        'MobileNo',
+                                        'mobile',
+                                        'Mobile',
+                                        'mobileNumber',
+                                        'MobileNumber',
+                                        'phoneNo',
+                                        'PhoneNo',
+                                        'phoneNumber',
+                                        'PhoneNumber',
+                                        'contactNumber',
+                                        'ContactNumber'
+                                    ) || '-'
 
                                         const email = getValue(
                                             franchise,
                                             'email',
                                             'Email',
+                                            'emailId',
+                                            'EmailId',
                                             'emailID',
-                                            'EmailID'
+                                            'EmailID',
+                                            'emailAddress',
+                                            'EmailAddress'
                                         ) || '-'
 
                                         const location = getValue(
@@ -728,7 +864,11 @@ function FranchiseList({ onAddFranchise }) {
                                             'createdOn',
                                             'CreatedOn',
                                             'createdDate',
-                                            'CreatedDate'
+                                            'CreatedDate',
+                                            'createdAt',
+                                            'CreatedAt',
+                                            'creationDate',
+                                            'CreationDate'
                                         )
 
                                         const status = getValue(
@@ -736,8 +876,24 @@ function FranchiseList({ onAddFranchise }) {
                                             'isActive',
                                             'IsActive',
                                             'isactive',
-                                            'Active'
+                                            'Active',
+                                            'active',
+                                            'status',
+                                            'Status',
+                                            'franchiseStatus',
+                                            'FranchiseStatus'
                                         )
+
+                                        const normalizedStatus = String(
+                                            status ?? ''
+                                        ).trim().toLowerCase()
+
+                                        const isActive =
+                                            status === true ||
+                                            normalizedStatus === '1' ||
+                                            normalizedStatus === 'true' ||
+                                            normalizedStatus === 'active' ||
+                                            normalizedStatus === 'yes'
 
                                         const franchiseCode = getValue(
                                             franchise,
@@ -746,10 +902,6 @@ function FranchiseList({ onAddFranchise }) {
                                             'franchiseCode',
                                             'FranchiseCode'
                                         )
-
-                                        const isActive =
-                                            String(status) === '1' ||
-                                            String(status).toLowerCase() === 'active'
 
                                         return (
                                             <tr
@@ -777,15 +929,6 @@ function FranchiseList({ onAddFranchise }) {
                                                             : 'Inactive'}
                                                     </span>
                                                 </td>
-                                                {/* <td>
-                                                    <button
-                                                        type="button"
-                                                        className="franchise-btn franchise-btn-secondary"
-                                                        onClick={handleAddFranchise}
-                                                    >
-                                                        View
-                                                    </button>
-                                                </td> */}
                                             </tr>
                                         )
                                     })

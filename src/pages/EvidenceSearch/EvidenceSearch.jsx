@@ -206,7 +206,7 @@ function EvidenceSearch() {
                     <div className="evidence-search-button-area">
                         <button
                             type="button"
-                            className="evidence-search-button"
+                            className="btn-search evidence-search-button"
                             onClick={handleSearch}
                             disabled={loading}
                         >

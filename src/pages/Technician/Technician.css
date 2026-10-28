@@ -1,6 +1,7 @@
+
 /* =========================================================
    TECHNICIAN PAGE
-   ========================================================= */
+========================================================= */
 
 .technician-page {
     width: 100%;
@@ -10,7 +11,7 @@
 
 /* =========================================================
    ALERTS
-   ========================================================= */
+========================================================= */
 
 .technician-alert {
     width: 100%;
@@ -34,8 +35,8 @@
 }
 
 /* =========================================================
-   FILTER BOX
-   ========================================================= */
+   FILTER BOX - UNCHANGED
+========================================================= */
 
 .technician-filter-box {
     width: 100%;
@@ -45,7 +46,6 @@
     padding: 15px;
     margin-bottom: 14px;
     display: grid;
-
     grid-template-columns:
         minmax(120px, 1fr)
         minmax(120px, 1fr)
@@ -54,17 +54,14 @@
         minmax(140px, 1.1fr)
         minmax(120px, 1fr)
         auto;
-
     gap: 10px;
     align-items: end;
-
-    box-shadow:
-        0 1px 3px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 /* =========================================================
-   FILTER ITEM
-   ========================================================= */
+   FILTER ITEM - UNCHANGED
+========================================================= */
 
 .technician-filter-item {
     min-width: 0;
@@ -83,13 +80,10 @@
     width: 100%;
     height: 37px;
     padding: 7px 9px;
-
     border: 1px solid #cfd5db;
     border-radius: 5px;
-
     background: #ffffff;
     color: #333333;
-
     font-size: 13px;
     outline: none;
     box-sizing: border-box;
@@ -98,9 +92,7 @@
 .technician-filter-item input:focus,
 .technician-filter-item select:focus {
     border-color: #7f8c99;
-
-    box-shadow:
-        0 0 0 2px rgba(127, 140, 153, 0.08);
+    box-shadow: 0 0 0 2px rgba(127, 140, 153, 0.08);
 }
 
 .technician-filter-item select:disabled,
@@ -111,8 +103,8 @@
 }
 
 /* =========================================================
-   FILTER ACTIONS
-   ========================================================= */
+   FILTER ACTIONS - UNCHANGED
+========================================================= */
 
 .technician-filter-actions {
     display: flex;
@@ -122,33 +114,30 @@
 }
 
 /* =========================================================
-   SEARCH BUTTON
-   ========================================================= */
+   SEARCH BUTTON - UNCHANGED
+========================================================= */
 
 .technician-search-button {
     height: 37px;
     padding: 0 17px;
-
-    border: 1px solid #1f5f99;
+    /* border: 1px solid #2563eb; */
+    border: 1px solid ;
     border-radius: 5px;
-
-    background: #1f5f99;
-    color: #ffffff;
-
+    /* background: #2563eb; */
+    /* color: #ffffff; */
     font-size: 13px;
     font-weight: 600;
-
     cursor: pointer;
-
     transition:
         background 0.15s ease,
-        border-color 0.15s ease;
+        border-color 0.15s ease,
+        opacity 0.15s ease;
 }
 
-.technician-search-button:hover:not(:disabled) {
-    background: #174d80;
-    border-color: #174d80;
-}
+/* .technician-search-button:hover:not(:disabled) {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+} */
 
 .technician-search-button:disabled {
     opacity: 0.6;
@@ -156,24 +145,50 @@
 }
 
 /* =========================================================
-   DOWNLOAD BUTTON
-   ========================================================= */
+   ADD TECHNICIAN BUTTON - ROLE ID 5 - UNCHANGED
+========================================================= */
+
+.technician-add-button {
+    height: 37px;
+    padding: 0 15px;
+    border: 1px solid #198754;
+    border-radius: 5px;
+    background: #198754;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        opacity 0.15s ease;
+}
+
+.technician-add-button:hover:not(:disabled) {
+    background: #157347;
+    border-color: #157347;
+}
+
+.technician-add-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* =========================================================
+   DOWNLOAD BUTTON - UNCHANGED
+========================================================= */
 
 .technician-download-button {
     height: 37px;
     padding: 0 15px;
-
     border: 1px solid #198754;
     border-radius: 5px;
-
     background: #198754;
     color: #ffffff;
-
     font-size: 13px;
     font-weight: 600;
-
     cursor: pointer;
-
     transition:
         background 0.15s ease,
         border-color 0.15s ease,
@@ -191,18 +206,16 @@
 }
 
 /* =========================================================
-   LOADING
-   ========================================================= */
+   LOADING - UNCHANGED
+========================================================= */
 
 .technician-loading {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 9px;
-
     min-height: 50px;
     margin: 8px 0 12px;
-
     font-size: 13px;
     color: #555555;
 }
@@ -215,14 +228,9 @@
 .technician-loading-dots span {
     width: 6px;
     height: 6px;
-
     border-radius: 50%;
-
     background: #1f5f99;
-
-    animation:
-        technician-loading-bounce
-        1.2s infinite ease-in-out;
+    animation: technician-loading-bounce 1.2s infinite ease-in-out;
 }
 
 .technician-loading-dots span:nth-child(1) {
@@ -257,223 +265,348 @@
 }
 
 /* =========================================================
-   RECORD COUNT
-   ========================================================= */
+   RECORD COUNT - UNCHANGED
+========================================================= */
 
 .technician-record-count {
     margin: 10px 0;
-
     font-size: 15px;
     font-weight: 600;
-
     color: #333333;
 }
 
 /* =========================================================
-   REPORT SECTION
-   ========================================================= */
+   REPORT SECTION - MATCH FRANCHISE LIST
+========================================================= */
 
 .technician-report-section {
     width: 100%;
-
     background: #ffffff;
-
-    border: 1px solid #e1e5e9;
-    border-radius: 8px;
-
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 7px;
     overflow: hidden;
-
-    box-shadow:
-        0 1px 3px rgba(0, 0, 0, 0.04);
+    box-shadow: none;
 }
 
 /* =========================================================
-   SECTION HEADER
-   ========================================================= */
+   SECTION HEADER - MATCH FRANCHISE LIST
+========================================================= */
 
 .technician-section-header {
-    padding: 12px 14px;
-
-    background: #f7f8fa;
-
-    border-bottom: 1px solid #e1e5e9;
-
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 7px;
+    margin: 0;
+    background: #ffffff;
+    border-bottom: 1px solid #ddd;
+    color: #333;
     font-size: 14px;
     font-weight: 600;
+}
 
-    color: #333333;
+.technician-header-record-count {
+    color: #666;
+    font-size: 12px;
+    font-weight: 400;
+    white-space: nowrap;
 }
 
 /* =========================================================
    TABLE CONTAINER
-   ========================================================= */
+========================================================= */
 
 .technician-table-container {
     width: 100%;
+    max-width: 100%;
     overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* =========================================================
-   TABLE
-   ========================================================= */
+   TABLE - MATCH FRANCHISE LIST
+========================================================= */
 
 .technician-table {
     width: 100%;
-
-    border-collapse: collapse;
-
-    font-size: 13px;
-
     min-width: 1050px;
+    table-layout: fixed;
+    border-collapse: collapse;
+    border-spacing: 0;
+    font-size: 12px;
 }
 
 .technician-table th {
-    padding: 10px 9px;
-
-    background: #f8f9fa;
-
-    border-bottom: 1px solid #dfe3e7;
-
-    color: #333333;
-
+    padding: 8px 7px;
+    border: 1px solid #ddd;
+    background: #f5f5f5;
+    color: #333;
     font-size: 12px;
-    font-weight: 700;
-
-    text-align: left;
-
-    white-space: nowrap;
+    font-weight: 600;
+    text-align: center;
+    white-space: normal;
+    overflow-wrap: break-word;
+    vertical-align: middle;
+    box-sizing: border-box;
 }
 
 .technician-table td {
-    padding: 9px;
-
-    border-bottom: 1px solid #eceff2;
-
-    color: #333333;
-
+    height: auto;
+    padding: 7px;
+    border: 1px solid #ddd;
+    color: #444;
+    font-size: 12px;
+    text-align: center;
     vertical-align: middle;
-
-    white-space: nowrap;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: normal;
+    box-sizing: border-box;
 }
 
-.technician-table tbody tr:hover {
-    background: #fafbfc;
+.technician-table tbody tr {
+    background: #ffffff;
 }
 
-.technician-table tbody tr:last-child td {
-    border-bottom: none;
+.technician-table tbody tr:hover td {
+    background: #fafafa;
+}
+
+.technician-table th:last-child,
+.technician-table td:last-child {
+    border-right: 1px solid #ddd;
 }
 
 /* =========================================================
-   FRANCHISE CELL
-   ========================================================= */
+   SERIAL NUMBER COLUMN
+========================================================= */
+
+.technician-table th.technician-sno-column,
+.technician-table td.technician-sno-column,
+.technician-table th:first-child,
+.technician-table td:first-child {
+    width: 38px;
+    min-width: 38px;
+    max-width: 38px;
+    padding: 6px 3px;
+    text-align: center;
+    white-space: nowrap;
+    font-size: 11px;
+}
+
+/* =========================================================
+   FRANCHISE COLUMN
+========================================================= */
+
+.technician-table th.technician-franchise-column,
+.technician-table td.technician-franchise-column {
+    width: 145px;
+    min-width: 145px;
+    max-width: 145px;
+    box-sizing: border-box;
+}
+
+.technician-table th.technician-franchise-column {
+    white-space: normal;
+}
+
+.technician-table td.technician-franchise-column {
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
 
 .technician-franchise-cell {
-    min-width: 170px;
+    min-width: 0;
+    max-width: 100%;
+}
+
+/* =========================================================
+   TECHNICIAN IMAGE COLUMN - ROLE ID 3 ONLY
+========================================================= */
+
+.technician-table th.technician-image-column,
+.technician-table td.technician-image-cell {
+    width: 85px;
+    min-width: 85px;
+    max-width: 85px;
+    padding: 6px;
+    text-align: center;
+    vertical-align: middle;
+    box-sizing: border-box;
+}
+
+.technician-profile-image {
+    display: block;
+    width: 44px;
+    height: 44px;
+    margin: 0 auto;
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #f5f5f5;
+}
+
+.technician-profile-image-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin: 0 auto;
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    background-color: #f5f5f5;
+    color: #666;
+    font-size: 10px;
+    font-weight: 500;
+    box-sizing: border-box;
+}
+
+/* =========================================================
+   TECHNICIAN NAME COLUMN
+========================================================= */
+
+.technician-table th.technician-name-column,
+.technician-table td.technician-name-column {
+    width: 150px;
+    min-width: 150px;
+    max-width: 150px;
+    box-sizing: border-box;
+    vertical-align: middle;
+}
+
+.technician-table th.technician-name-column {
+    white-space: normal;
+    overflow-wrap: break-word;
+}
+
+.technician-table td.technician-name-column {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: normal;
 }
 
 /* =========================================================
    EDIT INPUT
-   ========================================================= */
+========================================================= */
 
 .technician-edit-input {
-    width: 130px;
-    height: 34px;
-
-    padding: 6px 8px;
-
-    border: 1px solid #aeb6bf;
+    display: block;
+    width: 100%;
+    max-width: 150px;
+    min-width: 0;
+    height: 29px;
+    padding: 4px 7px;
+    border: 1px solid #ccc;
     border-radius: 4px;
-
     background: #ffffff;
-    color: #333333;
-
-    font-size: 13px;
-
+    color: #333;
+    font-family: inherit;
+    font-size: 12px;
     box-sizing: border-box;
     outline: none;
 }
 
 .technician-edit-input:focus {
-    border-color: #1f5f99;
-
-    box-shadow:
-        0 0 0 2px rgba(31, 95, 153, 0.08);
+    border-color: #888;
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 5%);
 }
 
 .technician-edit-input:disabled {
-    background: #f3f4f6;
+    background: #f3f3f3;
     cursor: not-allowed;
 }
 
 /* =========================================================
    PARTNER ID
-   ========================================================= */
+========================================================= */
 
 .technician-partner-id {
-    font-weight: 600;
-    color: #333333;
+    font-size: 12px;
+    font-weight: 500;
+    color: #444;
+    overflow-wrap: anywhere;
 }
 
 .technician-partner-button {
-    padding: 5px 9px;
-
-    border: 1px solid #1f5f99;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 25px;
+    max-width: 100%;
+    padding: 4px 9px;
+    border: 1px solid #343a40;
     border-radius: 4px;
-
-    background: #ffffff;
-    color: #1f5f99;
-
+    background: #343a40;
+    color: #ffffff;
+    font-family: inherit;
     font-size: 12px;
-    font-weight: 600;
-
+    font-weight: 500;
     cursor: pointer;
-
-    transition:
-        background 0.15s ease,
-        color 0.15s ease;
+    white-space: nowrap;
+    box-sizing: border-box;
 }
 
 .technician-partner-button:hover:not(:disabled) {
-    background: #1f5f99;
-    color: #ffffff;
+    background: #23272b;
+    border-color: #23272b;
 }
 
 .technician-partner-button:disabled {
-    opacity: 0.55;
+    opacity: 0.6;
     cursor: not-allowed;
 }
 
 /* =========================================================
-   STATUS BADGES
-   ========================================================= */
+   STATUS COLUMN
+========================================================= */
+
+.technician-table th.technician-status-column,
+.technician-table td.technician-status-column {
+    width: 110px;
+    min-width: 110px;
+    max-width: 110px;
+    padding: 7px;
+    text-align: center;
+    vertical-align: middle;
+    box-sizing: border-box;
+}
+
+/* =========================================================
+   STATUS BADGES - MATCH FRANCHISE LIST
+========================================================= */
 
 .technician-status-badge {
     display: inline-block;
-
-    padding: 4px 8px;
-
-    border-radius: 12px;
-
+    max-width: 100%;
+    padding: 3px 7px;
+    border-radius: 10px;
     font-size: 11px;
-    font-weight: 600;
-
-    white-space: nowrap;
+    font-weight: 500;
+    line-height: 1.4;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-align: center;
+    box-sizing: border-box;
 }
 
 .technician-status-success {
-    background: #e8f7ee;
-    color: #177245;
+    background: #dff0d8;
+    color: #3c763d;
 }
 
 .technician-status-warning {
-    background: #fff7df;
-    color: #956500;
+    background: #fff3cd;
+    color: #856404;
 }
 
 .technician-status-danger {
-    background: #fdecec;
-    color: #b42318;
+    background: #f2dede;
+    color: #a94442;
 }
 
 .technician-status-default {
@@ -482,66 +615,74 @@
 }
 
 /* =========================================================
-   ACTIONS
-   ========================================================= */
+   ROW ACTIONS
+========================================================= */
 
 .technician-row-actions {
     display: flex;
     align-items: center;
-    gap: 5px;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 4px;
 }
 
 /* =========================================================
    EDIT BUTTON
-   ========================================================= */
+========================================================= */
 
 .technician-edit-button {
-    padding: 5px 10px;
-
-    border: 1px solid #1f5f99;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 25px;
+    padding: 4px 9px;
+    border: 1px solid #343a40;
     border-radius: 4px;
-
-    background: #ffffff;
-    color: #1f5f99;
-
+    background: #343a40;
+    color: #ffffff;
+    font-family: inherit;
     font-size: 12px;
-    font-weight: 600;
-
+    font-weight: 500;
     cursor: pointer;
+    white-space: nowrap;
+    box-sizing: border-box;
 }
 
 .technician-edit-button:hover:not(:disabled) {
-    background: #1f5f99;
-    color: #ffffff;
+    background: #23272b;
+    border-color: #23272b;
 }
 
 .technician-edit-button:disabled {
-    opacity: 0.55;
+    opacity: 0.6;
     cursor: not-allowed;
 }
 
 /* =========================================================
    SAVE BUTTON
-   ========================================================= */
+========================================================= */
 
 .technician-save-button {
-    padding: 5px 10px;
-
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 25px;
+    padding: 4px 9px;
     border: 1px solid #198754;
     border-radius: 4px;
-
     background: #198754;
     color: #ffffff;
-
+    font-family: inherit;
     font-size: 12px;
-    font-weight: 600;
-
+    font-weight: 500;
     cursor: pointer;
+    white-space: nowrap;
+    box-sizing: border-box;
 }
 
 .technician-save-button:hover:not(:disabled) {
     background: #157347;
-    border-color: #157347;
+    border-color: #146c43;
 }
 
 .technician-save-button:disabled {
@@ -551,21 +692,24 @@
 
 /* =========================================================
    CANCEL BUTTON
-   ========================================================= */
+========================================================= */
 
 .technician-cancel-button {
-    padding: 5px 10px;
-
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 25px;
+    padding: 4px 9px;
     border: 1px solid #adb5bd;
     border-radius: 4px;
-
     background: #ffffff;
-    color: #555555;
-
+    color: #343a40;
+    font-family: inherit;
     font-size: 12px;
-    font-weight: 600;
-
+    font-weight: 500;
     cursor: pointer;
+    white-space: nowrap;
+    box-sizing: border-box;
 }
 
 .technician-cancel-button:hover:not(:disabled) {
@@ -578,25 +722,21 @@
 }
 
 /* =========================================================
-   NO RECORD
-   ========================================================= */
+   NO RECORD - MATCH FRANCHISE LIST
+========================================================= */
 
 .technician-no-record {
-    padding: 35px 20px;
-
+    padding: 18px 10px;
+    color: #777;
+    font-size: 12px;
     text-align: center;
-
-    color: #777777;
-
-    font-size: 14px;
 }
 
 /* =========================================================
-   LARGE DESKTOP
-   ========================================================= */
+   LARGE DESKTOP - FILTERS UNCHANGED
+========================================================= */
 
 @media (max-width: 1450px) {
-
     .technician-filter-box {
         grid-template-columns:
             minmax(105px, 1fr)
@@ -609,6 +749,7 @@
     }
 
     .technician-search-button,
+    .technician-add-button,
     .technician-download-button {
         padding-left: 12px;
         padding-right: 12px;
@@ -616,14 +757,12 @@
 }
 
 /* =========================================================
-   TABLET
-   ========================================================= */
+   TABLET - FILTERS UNCHANGED
+========================================================= */
 
 @media (max-width: 1150px) {
-
     .technician-filter-box {
-        grid-template-columns:
-            repeat(3, minmax(150px, 1fr));
+        grid-template-columns: repeat(3, minmax(150px, 1fr));
     }
 
     .technician-filter-actions {
@@ -633,11 +772,10 @@
 }
 
 /* =========================================================
-   MOBILE
-   ========================================================= */
+   MOBILE - FILTERS UNCHANGED
+========================================================= */
 
 @media (max-width: 700px) {
-
     .technician-page {
         padding: 7px;
     }
@@ -654,8 +792,11 @@
     }
 
     .technician-search-button,
+    .technician-add-button,
     .technician-download-button {
         flex: 1;
+        padding-left: 8px;
+        padding-right: 8px;
     }
 
     .technician-record-count {
@@ -664,5 +805,25 @@
 
     .technician-section-header {
         font-size: 13px;
+        padding: 7px;
+    }
+
+    .technician-table th.technician-image-column,
+    .technician-table td.technician-image-cell {
+        width: 70px;
+        min-width: 70px;
+        max-width: 70px;
+    }
+
+    .technician-profile-image,
+    .technician-profile-image-placeholder {
+        width: 40px;
+        height: 40px;
+    }
+
+    .technician-table .technician-edit-button,
+    .technician-table .technician-save-button,
+    .technician-table .technician-cancel-button {
+        padding: 4px 7px;
     }
 }

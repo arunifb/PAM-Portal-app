@@ -14,9 +14,46 @@ import DashboardLayout from '../../components/DashboardLayout/DashboardLayout'
 
 import './DDRRegion.css'
 
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
+import { CalendarDays } from 'lucide-react'
+
 
 const PAGE_SIZE = 20
 
+
+
+// Date Picker
+
+function parseDate(value) {
+    if (!value) return null
+
+    const [year, month, day] = value.split('-').map(Number)
+
+    if (!year || !month || !day) return null
+
+    const date = new Date(year, month - 1, day)
+
+    if (
+        date.getFullYear() !== year ||
+        date.getMonth() !== month - 1 ||
+        date.getDate() !== day
+    ) {
+        return null
+    }
+
+    return date
+}
+
+function formatInputDate(date) {
+    if (!date) return ''
+
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+
+    return `${year}-${month}-${day}`
+}
 
 // =========================================================
 // DATE HELPERS
@@ -1079,44 +1116,77 @@ function DDRRegion() {
 
 
                     <div className="ddr-filter-item">
+                        <label htmlFor="fromDate">From Date</label>
 
-                        <label htmlFor="fromDate">
-                            From Date
-                        </label>
+                        <div className="ddr-date-picker-container">
+                            <DatePicker
+                                id="fromDate"
+                                selected={parseDate(fromDate)}
+                                onChange={date => setFromDate(formatInputDate(date))}
+                                dateFormat="dd/MM/yyyy"
+                                placeholderText="dd/mm/yyyy"
+                                className="ddr-date-control"
+                                calendarClassName="ddr-calendar"
+                                showPopperArrow={false}
+                                autoComplete="off"
+                                isClearable={false}
+                                popperPlacement="bottom-start"
+                            />
 
+                            <button
+                                type="button"
+                                className="ddr-calendar-icon"
+                                aria-label="Open From Date calendar"
+                                onClick={event => {
+                                    const input = event.currentTarget
+                                        .parentElement
+                                        .querySelector('input')
 
-                        <input
-                            id="fromDate"
-                            type="date"
-                            value={fromDate}
-                            onChange={(event) =>
-                                setFromDate(
-                                    event.target.value
-                                )
-                            }
-                        />
-
+                                    input?.focus()
+                                    input?.click()
+                                }}
+                            >
+                                <CalendarDays size={18} />
+                            </button>
+                        </div>
                     </div>
 
 
                     <div className="ddr-filter-item">
+                        <label htmlFor="toDate">To Date</label>
 
-                        <label htmlFor="toDate">
-                            To Date
-                        </label>
+                        <div className="ddr-date-picker-container">
+                            <DatePicker
+                                id="toDate"
+                                selected={parseDate(toDate)}
+                                onChange={date => setToDate(formatInputDate(date))}
+                                dateFormat="dd/MM/yyyy"
+                                placeholderText="dd/mm/yyyy"
+                                className="ddr-date-control"
+                                calendarClassName="ddr-calendar"
+                                minDate={parseDate(fromDate)}
+                                showPopperArrow={false}
+                                autoComplete="off"
+                                isClearable={false}
+                                popperPlacement="bottom-end"
+                            />
 
+                            <button
+                                type="button"
+                                className="ddr-calendar-icon"
+                                aria-label="Open To Date calendar"
+                                onClick={event => {
+                                    const input = event.currentTarget
+                                        .parentElement
+                                        .querySelector('input')
 
-                        <input
-                            id="toDate"
-                            type="date"
-                            value={toDate}
-                            onChange={(event) =>
-                                setToDate(
-                                    event.target.value
-                                )
-                            }
-                        />
-
+                                    input?.focus()
+                                    input?.click()
+                                }}
+                            >
+                                <CalendarDays size={18} />
+                            </button>
+                        </div>
                     </div>
 
 
@@ -1269,7 +1339,7 @@ function DDRRegion() {
 
                         <button
                             type="button"
-                            className="ddr-search-button"
+                            className="btn-search ddr-search-button"
                             onClick={handleSearch}
                             disabled={
                                 loading ||

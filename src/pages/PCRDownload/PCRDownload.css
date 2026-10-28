@@ -96,15 +96,15 @@
 }
 
 
-.pcr-download-search-btn {
+/* .pcr-download-search-btn {
     background: #0d6efd;
     color: #ffffff;
-}
+} */
 
 
-.pcr-download-search-btn:hover {
+/* .pcr-download-search-btn:hover {
     background: #0b5ed7;
-}
+} */
 
 
 .pcr-download-excel-btn {
@@ -279,4 +279,81 @@
         width: 100%;
     }
 
+}
+
+/* =========================================
+   PCR DOWNLOAD DATE PICKER
+========================================= */
+
+.pcr-download-date-picker {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+}
+
+.pcr-download-date-picker .react-datepicker-wrapper,
+.pcr-download-date-picker .react-datepicker__input-container {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.pcr-download-date-control {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    height: 36px;
+    padding: 5px 34px 5px 9px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    background: #ffffff;
+    color: #333333;
+    font-family: inherit;
+    font-size: 13px;
+    box-sizing: border-box;
+    outline: none;
+    cursor: pointer;
+}
+
+.pcr-download-date-control:focus {
+    border-color: #86b7fe;
+}
+
+.pcr-download-calendar-icon {
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 25px;
+    height: 28px;
+    padding: 2px;
+    border: none;
+    background: transparent;
+    color: #6c757d;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.pcr-download-calendar-icon:hover {
+    color: #0d6efd;
+}
+
+.pcr-download-calendar-icon:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.pcr-download-page .react-datepicker-popper {
+    z-index: 99999 !important;
+}
+
+.pcr-download-page .pcr-download-calendar {
+    font-size: 12px;
+}
+
+.pcr-download-page .react-datepicker__close-icon {
+    display: none !important;
 }

@@ -120,9 +120,9 @@
     font-weight: 600;
 }
 
-.ddr-search-button {
+/* .ddr-search-button {
     background: #dc3545;
-}
+} */
 
 .ddr-download-button {
     background: #198754;
@@ -496,4 +496,82 @@
     .ddr-filter-actions {
         flex-direction: column;
     }
+}
+
+
+/* =========================================
+   DDR REGION DATE PICKER
+========================================= */
+
+.ddr-date-picker-container {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+}
+
+.ddr-date-picker-container .react-datepicker-wrapper,
+.ddr-date-picker-container .react-datepicker__input-container {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.ddr-date-control {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    height: 38px;
+    padding: 6px 34px 6px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    background: #ffffff;
+    color: #111827;
+    font-family: inherit;
+    font-size: 13px;
+    box-sizing: border-box;
+    outline: none;
+    cursor: pointer;
+}
+
+.ddr-date-control:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.10);
+}
+
+.ddr-calendar-icon {
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 28px;
+    padding: 2px;
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.ddr-calendar-icon:hover {
+    color: #2563eb;
+}
+
+.ddr-region-page .react-datepicker-popper {
+    z-index: 99999 !important;
+}
+
+.ddr-region-page .ddr-calendar {
+    font-size: 12px;
+}
+
+.ddr-region-page .ddr-calendar .react-datepicker__month-container {
+    float: none;
+}
+
+.ddr-region-page .react-datepicker__close-icon {
+    display: none !important;
 }

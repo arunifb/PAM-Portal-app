@@ -116,15 +116,15 @@
     box-shadow: 0 2px 4px rgba(91, 192, 222, 0.3);
 }
 
-.bom-btn-search {
+/* .bom-btn-search {
     background-color: #337ab7;
     border-color: #2e6da4;
-}
+} */
 
-.bom-btn-search:hover:not(:disabled) {
+/* .bom-btn-search:hover:not(:disabled) {
     background-color: #286090;
     box-shadow: 0 2px 4px rgba(51, 122, 183, 0.3);
-}
+} */
 
 .bom-btn-reset {
     background-color: #777;

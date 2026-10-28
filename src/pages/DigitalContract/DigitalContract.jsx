@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react'
 
 import DashboardLayout from '../../components/DashboardLayout/DashboardLayout'
@@ -17,598 +18,424 @@ import {
 
 import './DigitalContract.css'
 
-function DigitalContract() {
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
+import { CalendarDays } from 'lucide-react'
 
+function DigitalContract() {
     // =========================================
     // SESSION VALUES
     // =========================================
 
-    const roleId =
-        sessionStorage.getItem('roleId') || ''
-
-    const userId =
-        sessionStorage.getItem('userId') || ''
-
-    const loginId =
-        sessionStorage.getItem('loginId') || ''
-
-    const sessionRegionCode =
-        sessionStorage.getItem('regionCode') || ''
-
+    const sessionUserId = Number(sessionStorage.getItem('userId') || 0)
+    const loginId = sessionStorage.getItem('loginId') || ''
+    const sessionRegionCode = sessionStorage.getItem('regionCode') || ''
     const sessionBpCode =
-        sessionStorage.getItem('bpCode') || ''
+        sessionStorage.getItem('bpCode') ||
+        sessionStorage.getItem('BPCode') ||
+        ''
 
-    // =========================================
-    // NEW REGION / BRANCH / FRANCHISE ROLES
-    // Role 1, 6 and 9 use new dropdown flow
-    // Role 7 keeps existing logic
-    // =========================================
+    let storedRoles = []
 
-    // const isNewDropdownRole =
-    //     roleId === '1' ||
-    //     roleId === '6' ||
-    //     roleId === '9'
-    const isNewDropdownRole =
-    roleId === '1' ||
-    roleId === '6' ||
-    roleId === '9'
+    try {
+        const parsedRoles = JSON.parse(
+            sessionStorage.getItem('roles') || '[]'
+        )
 
-    const isRole5 = roleId === '5'
+        if (Array.isArray(parsedRoles)) {
+            storedRoles = parsedRoles.map(role => String(role).trim())
+        } else if (parsedRoles !== null && parsedRoles !== undefined) {
+            storedRoles = [String(parsedRoles).trim()]
+        }
+    } catch (error) {
+        console.error('Unable to parse stored roles:', error)
+    }
+
+    const roles = storedRoles
+
+    const isRole1 = roles.includes('1')
+    const isRole5 = roles.includes('5')
+    const isRole6 = roles.includes('6')
+    const isRole7 = roles.includes('7')
+    const isRole9 = roles.includes('9')
+
+    const isDigitalICRDropdownRole = isRole1 || isRole5 || isRole6
 
     // =========================================
     // SEARCH FIELDS
     // =========================================
 
-    // const [regionCode, setRegionCode] =
-    //     useState(
-    //         isNewDropdownRole
-    //             ? ''
-    //             : sessionRegionCode
-    //     )
-
-    const [regionCode, setRegionCode] =
-    useState(
-        isNewDropdownRole
-            ? ''
-            : sessionRegionCode
+    const [regionCode, setRegionCode] = useState(
+        isRole5 || isRole6 ? sessionRegionCode : ''
     )
 
-    // const [branchCode, setBranchCode] =
-    //     useState(
-    //         isNewDropdownRole
-    //             ? ''
-    //             : (
-    //                 roleId === '5' ||
-    //                 roleId === '6' ||
-    //                 roleId === '21'
-    //                     ? sessionBpCode
-    //                     : ''
-    //             )
-    //     )
-
-    const [branchCode, setBranchCode] =
-    useState(
-        isNewDropdownRole
-            ? ''
-            : (
-                roleId === '5' ||
-                roleId === '6' ||
-                roleId === '21'
-                    ? sessionBpCode
-                    : ''
-            )
+    const [branchCode, setBranchCode] = useState(
+        isRole1 ? 'All' : isRole5 || isRole6 ? sessionBpCode : ''
     )
 
-    // Empty value means ALL franchises
-    const [franchiseCode, setFranchiseCode] =
-        useState(
-            roleId === '5'
-                ? loginId
-                : ''
-        )
+    const [franchiseCode, setFranchiseCode] = useState(
+        isRole5 ? loginId : isRole1 || isRole6 ? 'All' : ''
+    )
 
-    const [refId, setRefId] =
-        useState('')
-
-    const [icrNo, setIcrNo] =
-        useState('')
-
-    const [status, setStatus] =
-        useState('S')
-
-    const [icrType, setIcrType] =
-        useState('X')
-
-    const [fromDate, setFromDate] =
-        useState('')
-
-    const [toDate, setToDate] =
-        useState('')
+    const [refId, setRefId] = useState('')
+    const [icrNo, setIcrNo] = useState('')
+    const [status, setStatus] = useState('S')
+    const [icrType, setIcrType] = useState('X')
+    const [fromDate, setFromDate] = useState('')
+    const [toDate, setToDate] = useState('')
 
     // =========================================
     // DROPDOWN DATA
     // =========================================
 
-    const [regions, setRegions] =
-        useState([])
-
-    const [branches, setBranches] =
-        useState([])
-
-    const [franchises, setFranchises] =
-        useState([])
+    const [regions, setRegions] = useState([])
+    const [branches, setBranches] = useState([])
+    const [franchises, setFranchises] = useState([])
 
     // =========================================
-    // DATA
+    // RESULT DATA
     // =========================================
 
-    const [details, setDetails] =
-        useState([])
-
-    const [summary, setSummary] =
-        useState([])
+    const [details, setDetails] = useState([])
+    const [summary, setSummary] = useState([])
 
     // =========================================
     // UI STATE
     // =========================================
 
-    const [loading, setLoading] =
-        useState(false)
+    const [loading, setLoading] = useState(false)
+    const [downloading, setDownloading] = useState(false)
+    const [message, setMessage] = useState('')
+    const [messageType, setMessageType] = useState('')
+    const [actionLoading, setActionLoading] = useState(null)
 
-    const [downloading, setDownloading] =
-        useState(false)
+    const [loadingRegions, setLoadingRegions] = useState(false)
+    const [loadingBranches, setLoadingBranches] = useState(false)
+    const [loadingFranchises, setLoadingFranchises] = useState(false)
 
-    const [message, setMessage] =
-        useState('')
-
-    const [messageType, setMessageType] =
-        useState('')
-
-    const [actionLoading, setActionLoading] =
-        useState(null)
-
-    const [dropdownLoading, setDropdownLoading] =
-        useState(false)
+    const dropdownLoading =
+        loadingRegions || loadingBranches || loadingFranchises
 
     // =========================================
     // HELPERS
     // =========================================
 
-    const getValue = (
-        row,
-        fieldName
-    ) => {
+    const getValue = (row, fieldName) => {
+        if (!row || typeof row !== 'object') return ''
 
-        if (!row) {
-            return ''
-        }
+        const key = Object.keys(row).find(
+            item => item.toLowerCase() === fieldName.toLowerCase()
+        )
 
-        const key =
-            Object.keys(row).find(
-                key =>
-                    key.toLowerCase() ===
-                    fieldName.toLowerCase()
-            )
-
-        return key
-            ? row[key] ?? ''
-            : ''
+        return key ? row[key] ?? '' : ''
     }
 
-    // =========================================
-    // DATE FORMAT
-    // Native date input already gives yyyy-mm-dd
-    // =========================================
+    const getArrayResponse = (response, propertyName) => {
+        if (Array.isArray(response)) return response
 
-    const formatDateForApi = (
-        value
-    ) => {
+        if (Array.isArray(response?.data)) return response.data
 
-        if (!value) {
-            return ''
+        if (Array.isArray(response?.[propertyName])) {
+            return response[propertyName]
         }
 
-        return value
+        if (Array.isArray(response?.data?.[propertyName])) {
+            return response.data[propertyName]
+        }
+
+        return []
     }
 
-    // =========================================
-    // BUILD SEARCH REQUEST
-    // =========================================
+    const equalsIgnoreCase = (first, second) =>
+        String(first ?? '').trim().toLowerCase() ===
+        String(second ?? '').trim().toLowerCase()
 
-    const buildRequest = () => ({
-        icrNo: icrNo.trim(),
+    const getRegionCode = item =>
+        getValue(item, 'RegionCode') ||
+        getValue(item, 'regionCode')
 
-        regionCode,
+    const getRegionName = item =>
+        getValue(item, 'RegionName') ||
+        getValue(item, 'regionName') ||
+        getValue(item, 'Name')
 
-        // Empty value means ALL branches
-        branchCode,
+    const getBranchCode = item =>
+        getValue(item, 'BpCode') ||
+        getValue(item, 'BPCode') ||
+        getValue(item, 'BranchCode')
 
-        // Empty value means ALL franchises
-        franchiseCode,
+    const getBranchName = item =>
+        getValue(item, 'BranchName') ||
+        getValue(item, 'Name')
 
-        refId:
-            refId.trim()
-                ? Number(refId.trim())
-                : 0,
+    const getFranchiseCode = item =>
+        getValue(item, 'FrCode') ||
+        getValue(item, 'Frcode') ||
+        getValue(item, 'FRCode') ||
+        getValue(item, 'LoginID') ||
+        getValue(item, 'LoginId') ||
+        getValue(item, 'frCode') ||
+        getValue(item, 'loginId')
 
-        status,
-
-        icrType,
-
-        fromDate:
-            formatDateForApi(fromDate),
-
-        toDate:
-            formatDateForApi(toDate)
-    })
+    const getFranchiseName = item =>
+        getValue(item, 'FranchiseName') ||
+        getValue(item, 'UserName') ||
+        getValue(item, 'Name') ||
+        getFranchiseCode(item)
 
     const clearMessage = () => {
-
         setMessage('')
-
         setMessageType('')
     }
 
-    // =========================================
-    // FROM DATE CHANGE
-    // =========================================
-
-    const handleFromDateChange = (
-        event
-    ) => {
-
-        const value =
-            event.target.value
-
-        setFromDate(value)
-
-        // Remove only the From Date
-        // validation message immediately
-        if (
-            value &&
-            message ===
-            'Please select a From Date.'
-        ) {
-
-            clearMessage()
-        }
+    const getValidUserId = () => {
+        return Number.isInteger(sessionUserId) && sessionUserId > 0
+            ? sessionUserId
+            : null
     }
 
-    // =========================================
-    // TO DATE CHANGE
-    // =========================================
-
-    const handleToDateChange = (
-        event
-    ) => {
-
-        const value =
-            event.target.value
-
-        setToDate(value)
-
-        // Remove only the To Date
-        // validation message immediately
-        if (
-            value &&
-            message ===
-            'Please select a To Date.'
-        ) {
-
-            clearMessage()
-        }
-    }
+    const buildRequest = () => ({
+        icrNo: icrNo.trim(),
+        regionCode,
+        branchCode: branchCode === 'All' ? '' : branchCode,
+        franchiseCode: franchiseCode === 'All' ? '' : franchiseCode,
+        refId: refId.trim() ? Number(refId.trim()) : 0,
+        status,
+        icrType,
+        fromDate: fromDate || '',
+        toDate: toDate || ''
+    })
 
     // =========================================
     // LOAD REGIONS
     // =========================================
 
     useEffect(() => {
+        let cancelled = false
 
         const loadRegions = async () => {
-
             try {
+                setLoadingRegions(true)
+                clearMessage()
 
-                // ---------------------------------
-                // NEW ROLES: 1, 6, 9
-                // Load all regions for selection
-                // ---------------------------------
+                let response
 
-                // if (isNewDropdownRole) {
+                if (isRole1 || isRole5 || isRole6 || isRole9) {
+                    const validUserId = getValidUserId()
 
-                if (isNewDropdownRole || isRole5) {
-
-                    const result =
-                        await getRegions(
-                            '',
-                            Number(userId)
+                    if (validUserId === null) {
+                        throw new Error(
+                            'Invalid userId in session. Please check the session value.'
                         )
+                    }
 
-                    const regionList =
-                        Array.isArray(result)
-                            ? result
-                            : result?.data || []
-
-                    setRegions(
-                        regionList
+                    response = await getRegions('', validUserId)
+                } else {
+                    response = await getRegions(
+                        isRole7 ? null : sessionRegionCode
                     )
-
-                    return
                 }
 
-                // ---------------------------------
-                // EXISTING LOGIC
-                // INCLUDING ROLE 7
-                // ---------------------------------
+                if (cancelled) return
 
-                const result =
-                    await getRegions(
-                        roleId === '7'
-                            ? null
-                            : sessionRegionCode
+                const regionList = getArrayResponse(response, 'regions')
+                setRegions(regionList)
+
+                if (isRole1 || isRole9) {
+                    setRegionCode('')
+                } else if (isRole5 || isRole6) {
+                    const matchingRegion = regionList.find(item =>
+                        equalsIgnoreCase(
+                            getRegionCode(item),
+                            sessionRegionCode
+                        )
                     )
 
-                const regionList =
-                    Array.isArray(result)
-                        ? result
-                        : result?.data || []
-
-                setRegions(
-                    regionList
-                )
-
+                    setRegionCode(
+                        matchingRegion
+                            ? String(getRegionCode(matchingRegion))
+                            : sessionRegionCode
+                    )
+                }
             } catch (error) {
+                if (cancelled) return
 
-                console.error(
-                    'Digital Contract region error:',
-                    error
-                )
-
-                setMessage(
-                    error.message ||
-                    'Unable to load regions.'
-                )
-
+                console.error('Digital Contract region error:', error)
+                setRegions([])
+                setMessage(error.message || 'Unable to load regions.')
                 setMessageType('error')
+            } finally {
+                if (!cancelled) setLoadingRegions(false)
             }
         }
 
         loadRegions()
 
+        return () => {
+            cancelled = true
+        }
     }, [
-        roleId,
-        userId,
+        sessionUserId,
         sessionRegionCode,
-        isNewDropdownRole,
-        isRole5
+        isRole1,
+        isRole5,
+        isRole6,
+        isRole7,
+        isRole9
     ])
 
     // =========================================
     // LOAD BRANCHES
+    // Uses the same API signature as DigitalICR.jsx
     // =========================================
 
     useEffect(() => {
+        let cancelled = false
 
         const loadBranches = async () => {
-
-            // =====================================
-            // NEW LOGIC
-            // ROLE 1, 6, 9
-            // =====================================
-
-            if (isNewDropdownRole) {
-
-                if (!regionCode) {
-
-                    setBranches([])
-
-                    setBranchCode('')
-
-                    setFranchises([])
-
-                    setFranchiseCode('')
-
-                    return
-                }
-
-                try {
-
-                    setDropdownLoading(true)
-
-                    const result =
-                        await getBranches(
-                            Number(userId),
-                            regionCode
-                        )
-
-                    const branchList =
-                        Array.isArray(result)
-                            ? result
-                            : result?.data || []
-
-                    setBranches(
-                        branchList
-                    )
-
-                    // Empty value means ALL branches
-                    setBranchCode('')
-
-                    // Franchise resets when branch changes
-                    setFranchises([])
-
-                    setFranchiseCode('')
-
-                } catch (error) {
-
-                    console.error(
-                        'Digital Contract branch error:',
-                        error
-                    )
-
-                    setBranches([])
-
-                    setMessage(
-                        error.message ||
-                        'Unable to load branches.'
-                    )
-
-                    setMessageType('error')
-
-                } finally {
-
-                    setDropdownLoading(false)
-                }
-
-                return
-            }
-
-
-
-            // =====================================
-            // ROLE 5
-            // Same behavior as DigitalICR.jsx
-            // =====================================
-
-                if (isRole5) {
-                    if (!regionCode) {
-                        setBranches([])
-                        setBranchCode('')
-                        setFranchises([])
-                        setFranchiseCode(loginId)
-                        return
-                    }
-
-                    try {
-                        setDropdownLoading(true)
-
-                        const result = await getBranches(
-                            Number(userId),
-                            regionCode
-                        )
-
-                        const branchList = Array.isArray(result)
-                            ? result
-                            : result?.data || []
-
-                        setBranches(branchList)
-
-                        // Prefer the logged-in user's branch.
-                        // Otherwise, select the first returned branch.
-                        const matchingBranch = branchList.find(
-                            item =>
-                                String(getValue(item, 'BpCode')) ===
-                                String(sessionBpCode)
-                        )
-
-                        if (matchingBranch) {
-                            setBranchCode(
-                                getValue(matchingBranch, 'BpCode')
-                            )
-                        } else if (branchList.length > 0) {
-                            setBranchCode(
-                                getValue(branchList[0], 'BpCode')
-                            )
-                        } else {
-                            setBranchCode('')
-                        }
-
-                        setFranchises([])
-                        setFranchiseCode(loginId)
-
-                    } catch (error) {
-                        console.error(
-                            'Digital Contract Role 5 branch error:',
-                            error
-                        )
-
-                        setBranches([])
-                        setBranchCode('')
-                        setFranchises([])
-                        setFranchiseCode(loginId)
-
-                        setMessage(
-                            error.message ||
-                            'Unable to load branches.'
-                        )
-
-                        setMessageType('error')
-
-                    } finally {
-                        setDropdownLoading(false)
-                    }
-
-                    return
-                }
-
-
-            // =====================================
-            // EXISTING LOGIC
-            // INCLUDING ROLE 7
-            // =====================================
+            setBranches([])
+            setFranchises([])
 
             if (!regionCode) {
+                setLoadingBranches(false)
+                setLoadingFranchises(false)
 
-                setBranches([])
+                if (isRole1) {
+                    setBranchCode('All')
+                    setFranchiseCode('All')
+                } else if (isRole5) {
+                    setBranchCode(sessionBpCode)
+                    setFranchiseCode(loginId)
+                } else if (isRole6) {
+                    setBranchCode(sessionBpCode)
+                    setFranchiseCode('All')
+                } else if (isRole9) {
+                    setBranchCode('')
+                    setFranchiseCode('All')
+                }
 
                 return
             }
 
             try {
+                setLoadingBranches(true)
 
-                setDropdownLoading(true)
+                const validUserId = getValidUserId()
 
-                const result =
-                    await getBranches(
-                        Number(roleId),
+                let response
+
+                if (isDigitalICRDropdownRole || isRole9) {
+                    if (validUserId === null) {
+                        throw new Error(
+                            'Invalid userId in session. Please check the session value.'
+                        )
+                    }
+
+                    response = await getBranches(
+                        validUserId,
+                        regionCode
+                    )
+                } else {
+                    response = await getBranches(
+                        Number(storedRoles[0] || 0),
                         regionCode,
-                        roleId === '5' ||
-                        roleId === '6' ||
-                        roleId === '21'
-                            ? sessionBpCode
-                            : ''
+                        sessionBpCode
+                    )
+                }
+
+                if (cancelled) return
+
+                const branchData = getArrayResponse(response, 'branches')
+
+                console.log('Digital Contract branch response:', response)
+
+                const validBranches = branchData.filter(item =>
+                    String(getBranchCode(item)).trim() !== '' &&
+                    String(getBranchName(item)).trim() !== ''
+                )
+
+                console.log(
+                    'Digital Contract parsed branches:',
+                    validBranches
+                )
+
+                if (isRole1) {
+                    const availableBranches = validBranches.filter(
+                        item => !equalsIgnoreCase(getBranchCode(item), 'All')
                     )
 
-                const branchList =
-                    Array.isArray(result)
-                        ? result
-                        : result?.data || []
+                    setBranches([
+                        { BpCode: 'All', BranchName: 'All' },
+                        ...availableBranches
+                    ])
 
-                setBranches(
-                    branchList
-                )
+                    setBranchCode('All')
+                    setFranchiseCode('All')
+                } else if (isRole5 || isRole6) {
+                    setBranches(validBranches)
 
+                    const matchingBranch = validBranches.find(item =>
+                        equalsIgnoreCase(
+                            getBranchCode(item),
+                            sessionBpCode
+                        )
+                    )
+
+                    const selectedCode = matchingBranch
+                        ? String(getBranchCode(matchingBranch))
+                        : sessionBpCode
+
+                    setBranchCode(selectedCode)
+                    setFranchiseCode(isRole5 ? loginId : 'All')
+
+                    console.log(
+                        'Digital Contract selected branch:',
+                        selectedCode
+                    )
+                } else if (isRole9) {
+                    setBranches(validBranches)
+                    setBranchCode('')
+                    setFranchiseCode('All')
+                } else {
+                    setBranches(branchData)
+                }
             } catch (error) {
+                if (cancelled) return
 
-                console.error(
-                    'Digital Contract branch error:',
-                    error
-                )
+                console.error('Digital Contract branch error:', error)
 
                 setBranches([])
+                setFranchises([])
 
-                setMessage(
-                    error.message ||
-                    'Unable to load branches.'
+                setBranchCode(
+                    isRole1 ? 'All' :
+                    isRole5 || isRole6 ? sessionBpCode : ''
                 )
 
+                setFranchiseCode(isRole5 ? loginId : 'All')
+
+                setMessage(error.message || 'Unable to load branches.')
                 setMessageType('error')
-
             } finally {
-
-                setDropdownLoading(false)
+                if (!cancelled) setLoadingBranches(false)
             }
         }
 
         loadBranches()
 
+        return () => {
+            cancelled = true
+        }
     }, [
         regionCode,
-        roleId,
-        userId,
+        sessionUserId,
         sessionBpCode,
-        isNewDropdownRole,
+        loginId,
+        isRole1,
         isRole5,
-        loginId
+        isRole6,
+        isRole9,
+        isDigitalICRDropdownRole
     ])
 
     // =========================================
@@ -616,274 +443,151 @@ function DigitalContract() {
     // =========================================
 
     useEffect(() => {
+        let cancelled = false
 
         const loadFranchises = async () => {
-
-            // =====================================
-            // NEW LOGIC
-            // ROLE 1, 6, 9
-            // =====================================
-
-            if (isNewDropdownRole) {
-
-                // No Region selected
-                if (!regionCode) {
-
-                    setFranchises([])
-
-                    setFranchiseCode('')
-
-                    return
-                }
-
-                // Region selected but Branch = ALL
-                // Do not load franchise list
-                if (!branchCode) {
-
-                    setFranchises([])
-
-                    setFranchiseCode('')
-
-                    return
-                }
-
-                try {
-
-                    setDropdownLoading(true)
-
-                    const result =
-                        await getFranchises(
-                            Number(roleId),
-                            branchCode,
-                            loginId
-                        )
-
-                    const franchiseList =
-                        Array.isArray(result)
-                            ? result
-                            : result?.data || []
-
-                    setFranchises(
-                        franchiseList
-                    )
-
-                    // Empty value means ALL franchises
-                    setFranchiseCode('')
-
-                } catch (error) {
-
-                    console.error(
-                        'Digital Contract franchise error:',
-                        error
-                    )
-
-                    setFranchises([])
-
-                    setMessage(
-                        error.message ||
-                        'Unable to load franchises.'
-                    )
-
-                    setMessageType('error')
-
-                } finally {
-
-                    setDropdownLoading(false)
-                }
-
-                return
-            }
-
-
-            // =====================================
-            // ROLE 5
-            // Use the logged-in user's branch and login
-            // =====================================
+            setFranchises([])
 
             if (isRole5) {
-                if (!branchCode) {
-                    setFranchises([])
-                    setFranchiseCode(loginId)
-                    return
-                }
-
-                try {
-                    setDropdownLoading(true)
-
-                    const result = await getFranchises(
-                        Number(roleId),
-                        sessionBpCode,
-                        loginId
-                    )
-
-                    const franchiseList = Array.isArray(result)
-                        ? result
-                        : result?.data || []
-
-                    setFranchises(franchiseList)
-
-                    // Automatically select the first franchise.
-                    if (franchiseList.length > 0) {
-                        const firstFranchiseCode =
-                            getValue(franchiseList[0], 'frCode') ||
-                            getValue(franchiseList[0], 'Frcode') ||
-                            getValue(franchiseList[0], 'FRCode') ||
-                            getValue(franchiseList[0], 'loginId') ||
-                            getValue(franchiseList[0], 'LoginID')
-
-                        setFranchiseCode(
-                            firstFranchiseCode || loginId
-                        )
-                    } else {
-                        setFranchiseCode(loginId)
-                    }
-
-                } catch (error) {
-                    console.error(
-                        'Digital Contract Role 5 franchise error:',
-                        error
-                    )
-
-                    setFranchises([])
-
-                    setMessage(
-                        error.message ||
-                        'Unable to load franchises.'
-                    )
-
-                    setMessageType('error')
-
-                } finally {
-                    setDropdownLoading(false)
-                }
-
-                return
+                setFranchiseCode(loginId)
+            } else if (isRole1 || isRole6) {
+                setFranchiseCode('All')
             }
 
-            // =====================================
-            // EXISTING LOGIC
-            // INCLUDING ROLE 7
-            // =====================================
-
-            if (!branchCode) {
-
-                setFranchises([])
-
-                // Role 5 always uses logged-in
-                // franchise
-                if (roleId === '5') {
-
-                    setFranchiseCode(
-                        loginId
-                    )
-
-                } else {
-
-                    // ALL franchises
-                    setFranchiseCode('')
-                }
-
+            if (!regionCode || !branchCode) {
+                setLoadingFranchises(false)
                 return
             }
 
             try {
+                setLoadingFranchises(true)
 
-                setDropdownLoading(true)
+                let response
 
-                const result =
-                    await getFranchises(
-                        Number(roleId),
-                        branchCode,
-                        roleId === '5'
-                            ? loginId
-                            : ''
-                    )
+                if (isDigitalICRDropdownRole) {
+                    const franchiseBpCode = isRole1
+                        ? branchCode === 'All' ? '' : branchCode
+                        : sessionBpCode
 
-                const franchiseList =
-                    Array.isArray(result)
-                        ? result
-                        : result?.data || []
-
-                setFranchises(
-                    franchiseList
-                )
-
-                // ---------------------------------
-                // Role 5 always uses logged-in
-                // franchise
-                // ---------------------------------
-
-                if (roleId === '5') {
-
-                    setFranchiseCode(
+                    response = await getFranchises(
+                        franchiseBpCode,
                         loginId
                     )
-
+                } else if (isRole9) {
+                    response = await getFranchises(
+                        Number(storedRoles[0] || 0),
+                        branchCode,
+                        loginId
+                    )
                 } else {
-
-                    // ALL franchises
-                    setFranchiseCode('')
+                    response = await getFranchises(
+                        Number(storedRoles[0] || 0),
+                        branchCode,
+                        ''
+                    )
                 }
 
-            } catch (error) {
+                if (cancelled) return
 
-                console.error(
-                    'Digital Contract franchise error:',
-                    error
+                const franchiseData = getArrayResponse(
+                    response,
+                    'franchises'
                 )
+
+                const validFranchises = franchiseData
+                    .filter(item => String(getFranchiseCode(item)).trim() !== '')
+                    .sort((a, b) =>
+                        String(getFranchiseName(a)).localeCompare(
+                            String(getFranchiseName(b)),
+                            undefined,
+                            { sensitivity: 'base' }
+                        )
+                    )
+
+                if (isRole1 || isRole6) {
+                    const availableFranchises = validFranchises.filter(
+                        item => !equalsIgnoreCase(getFranchiseCode(item), 'All')
+                    )
+
+                    setFranchises([
+                        { FrCode: 'All', FranchiseName: 'All' },
+                        ...availableFranchises
+                    ])
+
+                    setFranchiseCode('All')
+                } else if (isRole5) {
+                    setFranchises(validFranchises)
+
+                    const userFranchise = validFranchises.find(item =>
+                        equalsIgnoreCase(getFranchiseCode(item), loginId)
+                    )
+
+                    setFranchiseCode(
+                        userFranchise
+                            ? String(getFranchiseCode(userFranchise))
+                            : loginId
+                    )
+                } else if (isRole9) {
+                    setFranchises(validFranchises)
+                    setFranchiseCode('All')
+                } else {
+                    setFranchises(franchiseData)
+                    setFranchiseCode('')
+                }
+            } catch (error) {
+                if (cancelled) return
+
+                console.error('Digital Contract franchise error:', error)
 
                 setFranchises([])
+                setFranchiseCode(isRole5 ? loginId : 'All')
 
-                setMessage(
-                    error.message ||
-                    'Unable to load franchises.'
-                )
-
-                setMessageType('error')
-
+                // setMessage(error.message || 'Unable to load franchises.')
+                // setMessageType('error')
+                clearMessage()
             } finally {
-
-                setDropdownLoading(false)
+                if (!cancelled) setLoadingFranchises(false)
             }
         }
 
         loadFranchises()
 
+        return () => {
+            cancelled = true
+        }
     }, [
-        branchCode,
         regionCode,
-        roleId,
-        loginId,
+        branchCode,
         sessionBpCode,
-        isNewDropdownRole,
-        isRole5
+        loginId,
+        isRole1,
+        isRole5,
+        isRole6,
+        isRole9,
+        isDigitalICRDropdownRole
     ])
 
     // =========================================
     // REGION CHANGE
     // =========================================
 
-    const handleRegionChange = (
-        event
-    ) => {
+    const handleRegionChange = event => {
+        const value = event.target.value
 
-        const value =
-            event.target.value
-
-        setRegionCode(
-            value
-        )
-
-        // Reset Branch
-        setBranchCode('')
-
-        // Reset Franchise
-        setFranchiseCode('')
-
+        setRegionCode(value)
         setBranches([])
-
         setFranchises([])
 
+        if (isRole1) {
+            setBranchCode('All')
+            setFranchiseCode('All')
+        } else {
+            setBranchCode('')
+            setFranchiseCode(isRole5 ? loginId : 'All')
+        }
+
+        setDetails([])
+        setSummary([])
         clearMessage()
     }
 
@@ -891,193 +595,93 @@ function DigitalContract() {
     // BRANCH CHANGE
     // =========================================
 
-    const handleBranchChange = (
-        event
-    ) => {
-
-        const value =
-            event.target.value
-
-        // Empty value means ALL branches
-        setBranchCode(
-            value
-        )
-
-        // Whenever branch changes,
-        // reset franchise to ALL
-        setFranchiseCode('')
-
+    const handleBranchChange = event => {
+        setBranchCode(event.target.value)
         setFranchises([])
+        setFranchiseCode(isRole5 ? loginId : 'All')
+        setDetails([])
+        setSummary([])
+        clearMessage()
+    }
 
+    const handleFranchiseChange = event => {
+        setFranchiseCode(event.target.value)
         clearMessage()
     }
 
     // =========================================
-    // FRANCHISE CHANGE
+    // DATE CHANGES
     // =========================================
 
-    const handleFranchiseChange = (
-        event
-    ) => {
+    const handleFromDateChange = event => {
+        setFromDate(event.target.value)
 
-        const value =
-            event.target.value
+        if (event.target.value && message === 'Please select a From Date.') {
+            clearMessage()
+        }
+    }
 
-        // Empty value means ALL franchises
-        setFranchiseCode(
-            value
-        )
+    const handleToDateChange = event => {
+        setToDate(event.target.value)
 
-        clearMessage()
+        if (event.target.value && message === 'Please select a To Date.') {
+            clearMessage()
+        }
     }
 
     // =========================================
     // SEARCH
     // =========================================
 
-    const handleSearch = async (
-        event
-    ) => {
-
+    const handleSearch = async event => {
         event?.preventDefault()
-
         clearMessage()
 
-        // -------------------------------------
-        // REGION VALIDATION
-        // Only for roles 1, 6 and 9
-        // -------------------------------------
-
-        if (
-            (isNewDropdownRole || isRole5) &&
-            !regionCode
-        ) {
-
-            setMessage(
-                'Please select a Region.'
-            )
-
+        if ((isDigitalICRDropdownRole || isRole9) && !regionCode) {
+            setMessage('Please select a Region.')
             setMessageType('error')
-
             return
         }
-
-        // -------------------------------------
-        // FROM DATE VALIDATION
-        // -------------------------------------
 
         if (!fromDate) {
-
-            setMessage(
-                'Please select a From Date.'
-            )
-
+            setMessage('Please select a From Date.')
             setMessageType('error')
-
             return
         }
-
-        // -------------------------------------
-        // TO DATE VALIDATION
-        // -------------------------------------
 
         if (!toDate) {
-
-            setMessage(
-                'Please select a To Date.'
-            )
-
+            setMessage('Please select a To Date.')
             setMessageType('error')
-
             return
         }
 
-        // -------------------------------------
-        // DATE VALIDATION
-        // -------------------------------------
-
-        if (
-            fromDate &&
-            toDate &&
-            fromDate > toDate
-        ) {
-
-            setMessage(
-                'From Date cannot be greater than To Date.'
-            )
-
+        if (fromDate > toDate) {
+            setMessage('From Date cannot be greater than To Date.')
             setMessageType('error')
-
             return
         }
 
-        // -------------------------------------
-        // REF ID VALIDATION
-        // -------------------------------------
-
-        if (
-            refId.trim() &&
-            !/^\d+$/.test(
-                refId.trim()
-            )
-        ) {
-
-            setMessage(
-                'RefId must contain only numbers.'
-            )
-
+        if (refId.trim() && !/^\d+$/.test(refId.trim())) {
+            setMessage('RefId must contain only numbers.')
             setMessageType('error')
-
             return
         }
 
         setLoading(true)
 
         try {
+            const result = await searchDigitalContracts(buildRequest())
 
-            const result =
-                await searchDigitalContracts(
-                    buildRequest()
-                )
-
-            setDetails(
-                Array.isArray(
-                    result?.data
-                )
-                    ? result.data
-                    : []
-            )
-
-            setSummary(
-                Array.isArray(
-                    result?.summary
-                )
-                    ? result.summary
-                    : []
-            )
-
-            setMessage('')
-
+            setDetails(Array.isArray(result?.data) ? result.data : [])
+            setSummary(Array.isArray(result?.summary) ? result.summary : [])
         } catch (error) {
-
-            console.error(
-                'Digital Contract search error:',
-                error
-            )
+            console.error('Digital Contract search error:', error)
 
             setDetails([])
-
             setSummary([])
-
-            setMessage(
-                error.message ||
-                'Unable to search digital contract details.'
-            )
-
+            setMessage(error.message || 'Unable to search digital contract details.')
             setMessageType('error')
-
         } finally {
-
             setLoading(false)
         }
     }
@@ -1087,65 +691,30 @@ function DigitalContract() {
     // =========================================
 
     const handleDownload = async () => {
-
         clearMessage()
 
-        if (!details.length) {
-            return
-        }
+        if (!details.length) return
 
         setDownloading(true)
 
         try {
-
-            const blob =
-                await exportDigitalContracts(
-                    buildRequest()
-                )
-
-            const url =
-                window.URL.createObjectURL(
-                    blob
-                )
-
-            const link =
-                document.createElement(
-                    'a'
-                )
+            const blob = await exportDigitalContracts(buildRequest())
+            const url = window.URL.createObjectURL(blob)
+            const link = document.createElement('a')
 
             link.href = url
+            link.download = 'DigitalContract.xlsx'
 
-            link.download =
-                'DigitalContract.xlsx'
-
-            document.body.appendChild(
-                link
-            )
-
+            document.body.appendChild(link)
             link.click()
-
             link.remove()
 
-            window.URL.revokeObjectURL(
-                url
-            )
-
+            window.URL.revokeObjectURL(url)
         } catch (error) {
-
-            console.error(
-                'Digital Contract download error:',
-                error
-            )
-
-            setMessage(
-                error.message ||
-                'Unable to download DigitalContract.xlsx.'
-            )
-
+            console.error('Digital Contract download error:', error)
+            setMessage(error.message || 'Unable to download DigitalContract.xlsx.')
             setMessageType('error')
-
         } finally {
-
             setDownloading(false)
         }
     }
@@ -1154,59 +723,34 @@ function DigitalContract() {
     // RESEND REQUEST
     // =========================================
 
-    const handleResendRequest = async (
-        row
-    ) => {
-
-        const currentRefId =
-            getValue(
-                row,
-                'RefId'
-            )
-
-        if (!currentRefId) {
-            return
-        }
+    const handleResendRequest = async row => {
+        const currentRefId = getValue(row, 'RefId')
+        if (!currentRefId) return
 
         clearMessage()
-
-        setActionLoading(
-            `request-${currentRefId}`
-        )
+        setActionLoading(`request-${currentRefId}`)
 
         try {
+            const validUserId = getValidUserId()
 
-            const result =
-                await resendDigitalContractRequest(
-                    Number(currentRefId),
-                    Number(userId)
-                )
+            if (validUserId === null) {
+                throw new Error('Invalid userId in session.')
+            }
 
-            setMessage(
-                result.message ||
-                'Submitted Successfully.'
+            const result = await resendDigitalContractRequest(
+                Number(currentRefId),
+                validUserId
             )
 
+            setMessage(result?.message || 'Submitted Successfully.')
             setMessageType('success')
 
             await handleSearch()
-
         } catch (error) {
-
-            console.error(
-                'Resend request error:',
-                error
-            )
-
-            setMessage(
-                error.message ||
-                'There is some error.'
-            )
-
+            console.error('Resend request error:', error)
+            setMessage(error.message || 'There is some error.')
             setMessageType('error')
-
         } finally {
-
             setActionLoading(null)
         }
     }
@@ -1215,101 +759,78 @@ function DigitalContract() {
     // RESEND RECEIPT
     // =========================================
 
-    const handleResendReceipt = async (
-        row
-    ) => {
-
-        const currentRefId =
-            getValue(
-                row,
-                'RefId'
-            )
-
-        if (!currentRefId) {
-            return
-        }
+    const handleResendReceipt = async row => {
+        const currentRefId = getValue(row, 'RefId')
+        if (!currentRefId) return
 
         clearMessage()
-
-        setActionLoading(
-            `receipt-${currentRefId}`
-        )
+        setActionLoading(`receipt-${currentRefId}`)
 
         try {
+            const result = await resendDigitalReceipt(Number(currentRefId))
 
-            const result =
-                await resendDigitalReceipt(
-                    Number(currentRefId)
-                )
-
-            setMessage(
-                result.message ||
-                'receipt send successfully'
-            )
-
+            setMessage(result?.message || 'receipt send successfully')
             setMessageType('success')
-
         } catch (error) {
-
-            console.error(
-                'Resend receipt error:',
-                error
-            )
-
+            console.error('Resend receipt error:', error)
             setMessage(
                 error.message ||
                 'There is some error occurred when trying to send digital receipt.'
             )
-
             setMessageType('error')
-
         } finally {
-
             setActionLoading(null)
         }
     }
 
     // =========================================
-    // STATUS CLASS
+    // STATUS AND SUMMARY
     // =========================================
 
-    const getStatusClass = (
-        flag
-    ) => {
+    const getStatusClass = flag => {
+        const value = String(flag || '').toUpperCase()
 
-        const value =
-            String(flag || '')
-                .toUpperCase()
-
-        if (value === 'S') {
-
-            return 'digital-contract-status success'
-        }
-
-        if (value === 'A') {
-
-            return 'digital-contract-status alert'
-        }
+        if (value === 'S') return 'digital-contract-status success'
+        if (value === 'A') return 'digital-contract-status alert'
 
         return 'digital-contract-status error'
     }
 
-    // =========================================
-    // SUMMARY
-    // =========================================
+    const getSummaryValue = fieldName => {
+        if (!summary.length) return 0
+        return getValue(summary[0], fieldName) || 0
+    }
 
-    const getSummaryValue = (
-        fieldName
-    ) => {
+    // Date Picker
 
-        if (!summary.length) {
-            return 0
-        }
+    const parseDate = value => {
+    if (!value) return null
 
-        return getValue(
-            summary[0],
-            fieldName
-        ) || 0
+    const [year, month, day] = value.split('-').map(Number)
+
+    if (!year || !month || !day) return null
+
+    const date = new Date(year, month - 1, day)
+
+    if (
+        date.getFullYear() !== year ||
+        date.getMonth() !== month - 1 ||
+        date.getDate() !== day
+    ) {
+        return null
+    }
+
+    return date
+    }
+
+    const formatDate = date => {
+        if (!date) return ''
+
+        const year = date.getFullYear()
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const day = String(date.getDate()).padStart(2, '0')
+
+        return `${year}-${month}-${day}`
     }
 
     // =========================================
@@ -1317,465 +838,320 @@ function DigitalContract() {
     // =========================================
 
     return (
-
-        <DashboardLayout
-            title="Digital Contract"
-        >
-
+        <DashboardLayout title="Digital Contract">
             <div className="digital-contract-page">
-
-                {/* =====================================
-                    SEARCH SECTION
-                ====================================== */}
-
                 <div className="digital-contract-box">
-
-                    <form
-                        onSubmit={
-                            handleSearch
-                        }
-                    >
-
+                    <form onSubmit={handleSearch}>
                         <div className="digital-contract-search-grid">
-
-                            {/* REGION */}
-
                             <div className="digital-contract-field">
-
                                 <label>
                                     Region
-
-                                    {(isNewDropdownRole || isRole5) && (
-                                        <span className="required">
-                                            *
-                                        </span>
+                                    {(isDigitalICRDropdownRole || isRole9) && (
+                                        <span className="required">*</span>
                                     )}
                                 </label>
 
                                 <select
-                                    value={
-                                        regionCode
-                                    }
-                                    // disabled={
-                                    //     roleId !== '7' &&
-                                    //     !isNewDropdownRole
-                                    // }
-                                    disabled={
-                                        roleId !== '7' &&
-                                        !isNewDropdownRole &&
-                                        !isRole5
-                                    }
-                                    onChange={
-                                        handleRegionChange
-                                    }
-                                >
+                                value={regionCode}
+                                onChange={handleRegionChange}
+                                disabled={loadingRegions || isRole5 || isRole6}
+                            >
+                                <option value="">Select Region</option>
 
-                                    <option value="">
-                                        Select Region
-                                    </option>
+                                {regions.map((region, index) => {
+                                    const value = getRegionCode(region)
 
-                                    {regions.map(
-                                        (region, index) => {
-
-                                            const value =
-                                                getValue(
-                                                    region,
-                                                    'RegionCode'
-                                                )
-
-                                            const text =
-                                                getValue(
-                                                    region,
-                                                    'RegionName'
-                                                )
-
-                                            return (
-
-                                                <option
-                                                    key={
-                                                        `${value}-${index}`
-                                                    }
-                                                    value={
-                                                        value
-                                                    }
-                                                >
-                                                    {
-                                                        text ||
-                                                        value
-                                                    }
-                                                </option>
-                                            )
-                                        }
-                                    )}
-
-                                </select>
-
+                                    return (
+                                        <option
+                                            key={`${value}-${index}`}
+                                            value={value}
+                                        >
+                                            {getRegionName(region) || value}
+                                        </option>
+                                    )
+                                })}
+                            </select>
                             </div>
 
-                            {/* BRANCH */}
-
                             <div className="digital-contract-field">
-
-                                <label>
-                                    Branch
-                                </label>
+                                <label>Branch</label>
 
                                 <select
-                                    value={
-                                        branchCode
-                                    }
+                                    value={branchCode}
+                                    onChange={handleBranchChange}
                                     disabled={
-                                            isNewDropdownRole
-                                                ? !regionCode || dropdownLoading
-                                                : isRole5
-                                                    ? !regionCode || dropdownLoading
-                                                    : (
-                                                        roleId === '5' ||
-                                                        roleId === '6' ||
-                                                        roleId === '21'
+                                        !regionCode ||
+                                        loadingBranches ||
+                                        isRole5 ||
+                                        isRole6
+                                    }
+                                >
+                                {isRole1 ? (
+                                    <>
+                                        {!regionCode && (
+                                            <option value="All">All</option>
+                                        )}
+
+                                        {branches.map((branch, index) => {
+                                            const value = getBranchCode(branch)
+
+                                            return (
+                                                <option
+                                                    key={`${value}-${index}`}
+                                                    value={value}
+                                                >
+                                                    {getBranchName(branch) || value}
+                                                </option>
+                                            )
+                                        })}
+                                    </>
+                                ) : (
+                                    <>
+                                        <option value="All">All</option>
+
+                                        {branches
+                                            .filter(item =>
+                                                !equalsIgnoreCase(getBranchCode(item), 'All')
+                                            )
+                                            .map((branch, index) => {
+                                                const value = getBranchCode(branch)
+
+                                                return (
+                                                    <option
+                                                        key={`${value}-${index}`}
+                                                        value={value}
+                                                    >
+                                                        {getBranchName(branch) || value}
+                                                    </option>
+                                                )
+                                            })}
+                                    </>
+                                )}
+                            </select>
+                            </div>
+
+                            <div className="digital-contract-field">
+                                <label>Franchise</label>
+
+                                <select
+                                    value={franchiseCode}
+                                    onChange={handleFranchiseChange}
+                                    disabled={
+                                        !regionCode ||
+                                        !branchCode ||
+                                        loadingFranchises ||
+                                        isRole5
+                                    }
+                                >
+                                    {isRole5 ? (
+                                        <>
+                                            {franchises.map((franchise, index) => {
+                                                const value = getFranchiseCode(franchise)
+
+                                                return (
+                                                    <option
+                                                        key={`${value}-${index}`}
+                                                        value={value}
+                                                    >
+                                                        {getFranchiseName(franchise)}
+                                                    </option>
+                                                )
+                                            })}
+
+                                            {franchises.length === 0 && (
+                                                <option value={loginId}>
+                                                    {loginId}
+                                                </option>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <>
+                                            <option value="All">All</option>
+
+                                            {franchises
+                                                .filter(item =>
+                                                    !equalsIgnoreCase(
+                                                        getFranchiseCode(item),
+                                                        'All'
                                                     )
-                                    }
-                                    onChange={
-                                        handleBranchChange
-                                    }
-                                >
-
-                                    <option value="">
-                                        All
-                                    </option>
-
-                                    {branches.map(
-                                        (branch, index) => {
-
-                                            const value =
-                                                getValue(
-                                                    branch,
-                                                    'BpCode'
                                                 )
+                                                .map((franchise, index) => {
+                                                    const value = getFranchiseCode(franchise)
 
-                                            const text =
-                                                getValue(
-                                                    branch,
-                                                    'BranchName'
-                                                )
-
-                                            return (
-
-                                                <option
-                                                    key={
-                                                        `${value}-${index}`
-                                                    }
-                                                    value={
-                                                        value
-                                                    }
-                                                >
-                                                    {
-                                                        text ||
-                                                        value
-                                                    }
-                                                </option>
-                                            )
-                                        }
+                                                    return (
+                                                        <option
+                                                            key={`${value}-${index}`}
+                                                            value={value}
+                                                        >
+                                                            {getFranchiseName(franchise)}
+                                                        </option>
+                                                    )
+                                                })}
+                                        </>
                                     )}
-
                                 </select>
-
                             </div>
 
-                            {/* FRANCHISE */}
-
                             <div className="digital-contract-field">
-
-                                <label>
-                                    Franchise
-                                </label>
-
-                                <select
-                                    value={
-                                        franchiseCode
-                                    }
-                                    disabled={
-                                        isNewDropdownRole
-                                            ? !regionCode || dropdownLoading
-                                            : isRole5
-                                                ? true
-                                                : false
-                                    }
-                                    onChange={
-                                        handleFranchiseChange
-                                    }
-                                >
-
-                                    <option value="">
-                                        All
-                                    </option>
-
-                                    {franchises.map(
-                                        (franchise, index) => {
-
-                                            const value =
-                                                getValue(
-                                                    franchise,
-                                                    'frCode'
-                                                )
-
-                                            const text =
-                                                getValue(
-                                                    franchise,
-                                                    'FranchiseName'
-                                                )
-
-                                            return (
-
-                                                <option
-                                                    key={
-                                                        `${value}-${index}`
-                                                    }
-                                                    value={
-                                                        value
-                                                    }
-                                                >
-                                                    {
-                                                        text ||
-                                                        value
-                                                    }
-                                                </option>
-                                            )
-                                        }
-                                    )}
-
-                                </select>
-
-                            </div>
-
-                            {/* REF ID */}
-
-                            <div className="digital-contract-field">
-
-                                <label>
-                                    RefId#
-                                </label>
-
+                                <label>RefId#</label>
                                 <input
                                     type="text"
-                                    value={
-                                        refId
-                                    }
-                                    onChange={
-                                        event =>
-                                            setRefId(
-                                                event.target.value
-                                            )
-                                    }
+                                    value={refId}
+                                    onChange={event => setRefId(event.target.value)}
                                     maxLength={18}
                                     placeholder="Enter RefId"
                                 />
-
                             </div>
 
-                            {/* ICR NUMBER */}
-
                             <div className="digital-contract-field">
-
-                                <label>
-                                    ICR Number
-                                </label>
-
+                                <label>ICR Number</label>
                                 <input
                                     type="text"
-                                    value={
-                                        icrNo
-                                    }
-                                    onChange={
-                                        event =>
-                                            setIcrNo(
-                                                event.target.value
-                                            )
-                                    }
+                                    value={icrNo}
+                                    onChange={event => setIcrNo(event.target.value)}
                                     placeholder="Enter ICR number"
                                 />
-
                             </div>
 
-                            {/* STATUS */}
-
                             <div className="digital-contract-field">
-
-                                <label>
-                                    Status
-                                </label>
-
+                                <label>Status</label>
                                 <select
-                                    value={
-                                        status
-                                    }
-                                    onChange={
-                                        event =>
-                                            setStatus(
-                                                event.target.value
-                                            )
-                                    }
+                                    value={status}
+                                    onChange={event => setStatus(event.target.value)}
                                 >
-
-                                    <option value="">
-                                        All
-                                    </option>
-
-                                    <option value="S">
-                                        Success
-                                    </option>
-
-                                    <option value="E">
-                                        Error
-                                    </option>
-
-                                    <option value="P">
-                                        Re-Processing
-                                    </option>
-
-                                    <option value="A">
-                                        Alert
-                                    </option>
-
+                                    <option value="">All</option>
+                                    <option value="S">Success</option>
+                                    <option value="E">Error</option>
+                                    <option value="P">Re-Processing</option>
+                                    <option value="A">Alert</option>
                                 </select>
-
                             </div>
 
-                            {/* ICR TYPE */}
-
                             <div className="digital-contract-field">
-
-                                <label>
-                                    ICR Type
-                                </label>
-
+                                <label>ICR Type</label>
                                 <select
-                                    value={
-                                        icrType
-                                    }
-                                    onChange={
-                                        event =>
-                                            setIcrType(
-                                                event.target.value
-                                            )
-                                    }
+                                    value={icrType}
+                                    onChange={event => setIcrType(event.target.value)}
                                 >
-
-                                    <option value="X">
-                                        Digital ICR
-                                    </option>
-
-                                    <option value="">
-                                        Physical ICR
-                                    </option>
-
+                                    <option value="X">Digital ICR</option>
+                                    <option value="">Physical ICR</option>
                                 </select>
-
                             </div>
 
-                            {/* FROM DATE */}
-
                             <div className="digital-contract-field">
-
                                 <label>
-
                                     Purchased From Date
-
-                                    <span className="required">
-                                        *
-                                    </span>
-
+                                    <span className="required">*</span>
                                 </label>
 
-                                <input
-                                    type="date"
-                                    value={
-                                        fromDate
-                                    }
-                                    onChange={
-                                        handleFromDateChange
-                                    }
-                                />
+                                <div className="digital-contract-date-picker-container">
+                                    <DatePicker
+                                        selected={parseDate(fromDate)}
+                                        onChange={date => {
+                                            const value = formatDate(date)
+                                            setFromDate(value)
 
+                                            if (value && message === 'Please select a From Date.') {
+                                                clearMessage()
+                                            }
+                                        }}
+                                        dateFormat="dd/MM/yyyy"
+                                        placeholderText="dd/mm/yyyy"
+                                        className="digital-contract-date-control"
+                                        calendarClassName="digital-contract-calendar"
+                                        showPopperArrow={false}
+                                        autoComplete="off"
+                                        isClearable={false}
+                                        popperPlacement="bottom-start"
+                                    />
+
+                                    <button
+                                        type="button"
+                                        className="digital-contract-calendar-icon"
+                                        aria-label="Open Purchased From Date calendar"
+                                        onClick={event => {
+                                            const input = event.currentTarget
+                                                .parentElement
+                                                .querySelector('input')
+
+                                            input?.focus()
+                                            input?.click()
+                                        }}
+                                    >
+                                        <CalendarDays size={18} />
+                                    </button>
+                                </div>
                             </div>
-
-                            {/* TO DATE */}
 
                             <div className="digital-contract-field">
-
                                 <label>
-
                                     Purchased To Date
-
-                                    <span className="required">
-                                        *
-                                    </span>
-
+                                    <span className="required">*</span>
                                 </label>
 
-                                <input
-                                    type="date"
-                                    value={
-                                        toDate
-                                    }
-                                    onChange={
-                                        handleToDateChange
-                                    }
-                                />
+                                <div className="digital-contract-date-picker-container">
+                                    <DatePicker
+                                        selected={parseDate(toDate)}
+                                        onChange={date => {
+                                            const value = formatDate(date)
+                                            setToDate(value)
 
+                                            if (value && message === 'Please select a To Date.') {
+                                                clearMessage()
+                                            }
+                                        }}
+                                        dateFormat="dd/MM/yyyy"
+                                        placeholderText="dd/mm/yyyy"
+                                        className="digital-contract-date-control"
+                                        calendarClassName="digital-contract-calendar"
+                                        minDate={parseDate(fromDate)}
+                                        showPopperArrow={false}
+                                        autoComplete="off"
+                                        isClearable={false}
+                                        popperPlacement="bottom-end"
+                                    />
+
+                                    <button
+                                        type="button"
+                                        className="digital-contract-calendar-icon"
+                                        aria-label="Open Purchased To Date calendar"
+                                        onClick={event => {
+                                            const input = event.currentTarget
+                                                .parentElement
+                                                .querySelector('input')
+
+                                            input?.focus()
+                                            input?.click()
+                                        }}
+                                    >
+                                        <CalendarDays size={18} />
+                                    </button>
+                                </div>
                             </div>
-
-                            {/* BUTTONS */}
 
                             <div className="digital-contract-search-actions">
-
                                 <button
                                     type="submit"
                                     className="digital-contract-search-button"
-                                    disabled={
-                                        loading ||
-                                        dropdownLoading
-                                    }
+                                    disabled={loading || dropdownLoading}
                                 >
-
-                                    {loading
-                                        ? 'Searching...'
-                                        : 'Search'}
-
+                                    {loading ? 'Searching...' : 'Search'}
                                 </button>
 
                                 <button
                                     type="button"
                                     className="digital-contract-download-button"
-                                    disabled={
-                                        !details.length ||
-                                        downloading
-                                    }
-                                    onClick={
-                                        handleDownload
-                                    }
+                                    disabled={!details.length || downloading}
+                                    onClick={handleDownload}
                                 >
-
-                                    {downloading
-                                        ? 'Downloading...'
-                                        : 'Download'}
-
+                                    {downloading ? 'Downloading...' : 'Download'}
                                 </button>
-
                             </div>
-
                         </div>
-
                     </form>
-
                 </div>
 
-                {/* =====================================
-                    MESSAGE
-                ====================================== */}
-
                 {message && (
-
                     <div
                         className={
                             messageType === 'success'
@@ -1785,405 +1161,134 @@ function DigitalContract() {
                     >
                         {message}
                     </div>
-
                 )}
 
-                {/* =====================================
-                    SUMMARY
-                ====================================== */}
-
                 <div className="digital-contract-summary-box">
-
                     <div className="digital-contract-summary-item success">
-
-                        <span>
-                            Success
-                        </span>
-
-                        <strong>
-                            {
-                                getSummaryValue(
-                                    'Success'
-                                )
-                            }
-                        </strong>
-
+                        <span>Success</span>
+                        <strong>{getSummaryValue('Success')}</strong>
                     </div>
 
                     <div className="digital-contract-summary-item processing">
-
-                        <span>
-                            Re-Send
-                        </span>
-
-                        <strong>
-                            {
-                                getSummaryValue(
-                                    'Re-Processing'
-                                )
-                            }
-                        </strong>
-
+                        <span>Re-Send</span>
+                        <strong>{getSummaryValue('Re-Processing')}</strong>
                     </div>
 
                     <div className="digital-contract-summary-item alert">
-
-                        <span>
-                            Alert
-                        </span>
-
-                        <strong>
-                            {
-                                getSummaryValue(
-                                    'Alert'
-                                )
-                            }
-                        </strong>
-
+                        <span>Alert</span>
+                        <strong>{getSummaryValue('Alert')}</strong>
                     </div>
 
                     <div className="digital-contract-summary-item error">
-
-                        <span>
-                            Error
-                        </span>
-
-                        <strong>
-                            {
-                                getSummaryValue(
-                                    'Error'
-                                )
-                            }
-                        </strong>
-
+                        <span>Error</span>
+                        <strong>{getSummaryValue('Error')}</strong>
                     </div>
 
                     <div className="digital-contract-summary-item total">
-
-                        <span>
-                            Total
-                        </span>
-
-                        <strong>
-                            {
-                                getSummaryValue(
-                                    'Total'
-                                )
-                            }
-                        </strong>
-
+                        <span>Total</span>
+                        <strong>{getSummaryValue('Total')}</strong>
                     </div>
-
                 </div>
 
-                {/* =====================================
-                    RESULTS
-                ====================================== */}
-
                 <div className="digital-contract-box">
-
                     <div className="digital-contract-section-title">
-
                         Digital Contract Details
-
                     </div>
 
                     <div className="digital-contract-table-wrapper">
-
                         <table className="digital-contract-table">
-
                             <thead>
-
                                 <tr>
-
-                                    <th>
-                                        #RefId
-                                    </th>
-
-                                    <th>
-                                        Franchise
-                                    </th>
-
-                                    <th>
-                                        Customer Name
-                                    </th>
-
-                                    <th>
-                                        ICRNO
-                                    </th>
-
-                                    <th>
-                                        SerialNo.
-                                    </th>
-
-                                    <th>
-                                        AMC Type
-                                    </th>
-
-                                    <th>
-                                        Price
-                                    </th>
-
-                                    <th>
-                                        Remarks
-                                    </th>
-
-                                    <th>
-                                        Purchased Date
-                                    </th>
-
-                                    <th>
-                                        Status
-                                    </th>
-
+                                    <th>#RefId</th>
+                                    <th>Franchise</th>
+                                    <th>Customer Name</th>
+                                    <th>ICRNO</th>
+                                    <th>SerialNo.</th>
+                                    <th>AMC Type</th>
+                                    <th>Price</th>
+                                    <th>Remarks</th>
+                                    <th>Purchased Date</th>
+                                    <th>Status</th>
                                 </tr>
-
                             </thead>
 
                             <tbody>
-
                                 {loading && (
-
                                     <tr>
-
-                                        <td
-                                            colSpan="10"
-                                            className="digital-contract-loading"
-                                        >
+                                        <td colSpan="10" className="digital-contract-loading">
                                             Loading...
                                         </td>
-
                                     </tr>
-
                                 )}
 
-                                {!loading &&
-                                    details.length === 0 && (
-
+                                {!loading && details.length === 0 && (
                                     <tr>
-
-                                        <td
-                                            colSpan="10"
-                                            className="digital-contract-empty"
-                                        >
+                                        <td colSpan="10" className="digital-contract-empty">
                                             No record found. Change search criteria.
                                         </td>
-
                                     </tr>
-
                                 )}
 
-                                {!loading &&
-                                    details.map(
-                                        (
-                                            row,
-                                            index
-                                        ) => {
+                                {!loading && details.map((row, index) => {
+                                    const currentRefId = getValue(row, 'RefId')
+                                    const flag = getValue(row, 'flag')
+                                    const flagValue = String(flag || '').toUpperCase()
 
-                                            const currentRefId =
-                                                getValue(
-                                                    row,
-                                                    'RefId'
-                                                )
+                                    return (
+                                        <tr key={`${currentRefId}-${index}`}>
+                                            <td>{currentRefId}</td>
+                                            <td>{getValue(row, 'FranchiseName')}</td>
+                                            <td>{getValue(row, 'customer_name')}</td>
+                                            <td>{getValue(row, 'DigitalICR')}</td>
+                                            <td>{getValue(row, 'serial_no')}</td>
+                                            <td>{getValue(row, 'description')}</td>
+                                            <td>{getValue(row, 'gross_value')}</td>
+                                            <td
+                                                title={getValue(row, 'remarks')}
+                                                className="digital-contract-remarks"
+                                            >
+                                                {getValue(row, 'remarks')}
+                                            </td>
+                                            <td>{getValue(row, 'amc_purchased_date')}</td>
+                                            <td>
+                                                <div className="digital-contract-status-wrapper">
+                                                    <span className={getStatusClass(flag)}>
+                                                        {flag}
+                                                    </span>
 
-                                            const flag =
-                                                getValue(
-                                                    row,
-                                                    'flag'
-                                                )
+                                                    {flagValue === 'S' && (
+                                                        <button
+                                                            type="button"
+                                                            className="digital-contract-action-button receipt"
+                                                            title="Resend Receipt"
+                                                            disabled={actionLoading === `receipt-${currentRefId}`}
+                                                            onClick={() => handleResendReceipt(row)}
+                                                        >
+                                                            {actionLoading === `receipt-${currentRefId}` ? '...' : '✉'}
+                                                        </button>
+                                                    )}
 
-                                            const flagValue =
-                                                String(
-                                                    flag || ''
-                                                ).toUpperCase()
-
-                                            return (
-
-                                                <tr
-                                                    key={
-                                                        `${currentRefId}-${index}`
-                                                    }
-                                                >
-
-                                                    <td>
-                                                        {
-                                                            currentRefId
-                                                        }
-                                                    </td>
-
-                                                    <td>
-                                                        {
-                                                            getValue(
-                                                                row,
-                                                                'FranchiseName'
-                                                            )
-                                                        }
-                                                    </td>
-
-                                                    <td>
-                                                        {
-                                                            getValue(
-                                                                row,
-                                                                'customer_name'
-                                                            )
-                                                        }
-                                                    </td>
-
-                                                    <td>
-                                                        {
-                                                            getValue(
-                                                                row,
-                                                                'DigitalICR'
-                                                            )
-                                                        }
-                                                    </td>
-
-                                                    <td>
-                                                        {
-                                                            getValue(
-                                                                row,
-                                                                'serial_no'
-                                                            )
-                                                        }
-                                                    </td>
-
-                                                    <td>
-                                                        {
-                                                            getValue(
-                                                                row,
-                                                                'description'
-                                                            )
-                                                        }
-                                                    </td>
-
-                                                    <td>
-                                                        {
-                                                            getValue(
-                                                                row,
-                                                                'gross_value'
-                                                            )
-                                                        }
-                                                    </td>
-
-                                                    <td
-                                                        title={
-                                                            getValue(
-                                                                row,
-                                                                'remarks'
-                                                            )
-                                                        }
-                                                        className="digital-contract-remarks"
-                                                    >
-                                                        {
-                                                            getValue(
-                                                                row,
-                                                                'remarks'
-                                                            )
-                                                        }
-                                                    </td>
-
-                                                    <td>
-                                                        {
-                                                            getValue(
-                                                                row,
-                                                                'amc_purchased_date'
-                                                            )
-                                                        }
-                                                    </td>
-
-                                                    <td>
-
-                                                        <div className="digital-contract-status-wrapper">
-
-                                                            <span
-                                                                className={
-                                                                    getStatusClass(
-                                                                        flag
-                                                                    )
-                                                                }
-                                                            >
-                                                                {
-                                                                    flag
-                                                                }
-                                                            </span>
-
-                                                            {/* SUCCESS -> RESEND RECEIPT */}
-
-                                                            {flagValue === 'S' && (
-
-                                                                <button
-                                                                    type="button"
-                                                                    className="digital-contract-action-button receipt"
-                                                                    title="Resend Receipt"
-                                                                    disabled={
-                                                                        actionLoading ===
-                                                                        `receipt-${currentRefId}`
-                                                                    }
-                                                                    onClick={() =>
-                                                                        handleResendReceipt(
-                                                                            row
-                                                                        )
-                                                                    }
-                                                                >
-
-                                                                    {actionLoading ===
-                                                                    `receipt-${currentRefId}`
-                                                                        ? '...'
-                                                                        : '✉'}
-
-                                                                </button>
-
-                                                            )}
-
-                                                            {/* ERROR / OTHER -> RESEND REQUEST */}
-
-                                                            {flagValue !== 'S' &&
-                                                                flagValue !== 'A' && (
-
-                                                                <button
-                                                                    type="button"
-                                                                    className="digital-contract-action-button resend"
-                                                                    title="Resend Request In CRM"
-                                                                    disabled={
-                                                                        actionLoading ===
-                                                                        `request-${currentRefId}`
-                                                                    }
-                                                                    onClick={() =>
-                                                                        handleResendRequest(
-                                                                            row
-                                                                        )
-                                                                    }
-                                                                >
-
-                                                                    {actionLoading ===
-                                                                    `request-${currentRefId}`
-                                                                        ? '...'
-                                                                        : '➤'}
-
-                                                                </button>
-
-                                                            )}
-
-                                                        </div>
-
-                                                    </td>
-
-                                                </tr>
-
-                                            )
-                                        }
-                                    )}
-
+                                                    {flagValue !== 'S' && flagValue !== 'A' && (
+                                                        <button
+                                                            type="button"
+                                                            className="digital-contract-action-button resend"
+                                                            title="Resend Request In CRM"
+                                                            disabled={actionLoading === `request-${currentRefId}`}
+                                                            onClick={() => handleResendRequest(row)}
+                                                        >
+                                                            {actionLoading === `request-${currentRefId}` ? '...' : '➤'}
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )
+                                })}
                             </tbody>
-
                         </table>
-
                     </div>
-
                 </div>
-
             </div>
-
         </DashboardLayout>
     )
 }

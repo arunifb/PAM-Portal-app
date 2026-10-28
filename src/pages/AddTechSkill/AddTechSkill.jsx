@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react'
 import './AddTechSkill.css'
 
@@ -9,7 +10,8 @@ import {
 
 import {
     getTechnicianSkillMatrix,
-    saveTechnicianSkillMatrix
+    saveTechnicianSkillMatrix,
+    downloadTechnicianSkillSet
 } from '../../api/technicianSkillApi'
 
 import DashboardLayout from '../../components/DashboardLayout/DashboardLayout'
@@ -23,13 +25,56 @@ function AddTechSkill() {
         sessionStorage.getItem('userId') || 0
     )
 
+    const loginId = sessionStorage.getItem('loginId') || ''
+
+    const sessionRegionCode =
+        sessionStorage.getItem('regionCode') ||
+        sessionStorage.getItem('RegionCode') ||
+        ''
+
+    const bpCode =
+        sessionStorage.getItem('bpCode') ||
+        sessionStorage.getItem('BPCode') ||
+        ''
+
+    // Read assigned roles from sessionStorage.
+    const storedRoles = (() => {
+        try {
+            const roles = JSON.parse(
+                sessionStorage.getItem('roles') || '[]'
+            )
+
+            return Array.isArray(roles)
+                ? roles.map(role =>
+                    String(
+                        typeof role === 'object' && role !== null
+                            ? role.roleId ??
+                              role.RoleID ??
+                              role.id ??
+                              role.ID ??
+                              ''
+                            : role
+                    )
+                )
+                : []
+        } catch {
+            return []
+        }
+    })()
+
+    // Fallback for sessions that store only roleId.
     const roleId = Number(
         sessionStorage.getItem('roleId') ||
         sessionStorage.getItem('roleID') ||
         0
     )
 
-    const loginId = sessionStorage.getItem('loginId') || ''
+    const hasAssignedRole = (id) =>
+        storedRoles.includes(String(id)) ||
+        roleId === Number(id)
+
+    // Role 3 automatically selects its assigned region and branch.
+    const shouldAutoSelectRegionBranch = hasAssignedRole(3)
 
     // =========================================
     // DROPDOWN STATE
@@ -39,8 +84,14 @@ function AddTechSkill() {
     const [branches, setBranches] = useState([])
     const [franchises, setFranchises] = useState([])
 
-    const [region, setRegion] = useState('')
-    const [branch, setBranch] = useState('')
+    const [region, setRegion] = useState(
+        shouldAutoSelectRegionBranch ? sessionRegionCode : ''
+    )
+
+    const [branch, setBranch] = useState(
+        shouldAutoSelectRegionBranch ? bpCode : ''
+    )
+
     const [franchise, setFranchise] = useState('')
 
     const [regionLoading, setRegionLoading] = useState(false)
@@ -55,6 +106,7 @@ function AddTechSkill() {
     const [technicians, setTechnicians] = useState([])
     const [matrixLoading, setMatrixLoading] = useState(false)
     const [saving, setSaving] = useState(false)
+    const [downloading, setDownloading] = useState(false)
 
     const [error, setError] = useState('')
     const [message, setMessage] = useState('')
@@ -81,6 +133,7 @@ function AddTechSkill() {
 
     const getFranchiseCode = (item) =>
         item.frCode ??
+        item.FrCode ??
         item.Frcode ??
         item.FRCode ??
         item.frcode ??
@@ -97,7 +150,6 @@ function AddTechSkill() {
 
     // =========================================
     // LOAD REGIONS
-    // All roles can select a region.
     // =========================================
 
     useEffect(() => {
@@ -117,10 +169,24 @@ function AddTechSkill() {
                 }
 
                 setRegions(data)
+
+                if (shouldAutoSelectRegionBranch) {
+                    const matchingRegion = data.find(
+                        item =>
+                            String(getRegionCode(item)).trim().toLowerCase() ===
+                            String(sessionRegionCode).trim().toLowerCase()
+                    )
+
+                    setRegion(
+                        matchingRegion ? getRegionCode(matchingRegion) : ''
+                    )
+                }
             } catch (err) {
                 if (cancelled) return
 
                 setRegions([])
+                setRegion('')
+
                 setError(err.message || 'Unable to load regions.')
             } finally {
                 if (!cancelled) {
@@ -134,7 +200,11 @@ function AddTechSkill() {
         return () => {
             cancelled = true
         }
-    }, [sessionUserId])
+    }, [
+        sessionUserId,
+        shouldAutoSelectRegionBranch,
+        sessionRegionCode
+    ])
 
     // =========================================
     // LOAD BRANCHES WHEN REGION CHANGES
@@ -161,10 +231,7 @@ function AddTechSkill() {
                 setError('')
                 setMessage('')
 
-                const data = await getBranches(
-                    sessionUserId,
-                    region
-                )
+                const data = await getBranches(sessionUserId, region)
 
                 if (cancelled) return
 
@@ -172,18 +239,32 @@ function AddTechSkill() {
                     throw new Error('Invalid branch response.')
                 }
 
-                setBranches(
-                    data.filter(
-                        item =>
-                            item &&
-                            getBranchCode(item) &&
-                            getBranchName(item)
-                    )
+                const validBranches = data.filter(
+                    item =>
+                        item &&
+                        getBranchCode(item) &&
+                        getBranchName(item)
                 )
+
+                setBranches(validBranches)
+
+                if (shouldAutoSelectRegionBranch) {
+                    const matchingBranch = validBranches.find(
+                        item =>
+                            String(getBranchCode(item)).trim().toLowerCase() ===
+                            String(bpCode).trim().toLowerCase()
+                    )
+
+                    setBranch(
+                        matchingBranch ? getBranchCode(matchingBranch) : ''
+                    )
+                }
             } catch (err) {
                 if (cancelled) return
 
                 setBranches([])
+                setBranch('')
+
                 setError(err.message || 'Unable to load branches.')
             } finally {
                 if (!cancelled) {
@@ -197,10 +278,16 @@ function AddTechSkill() {
         return () => {
             cancelled = true
         }
-    }, [region, sessionUserId])
+    }, [
+        region,
+        sessionUserId,
+        shouldAutoSelectRegionBranch,
+        bpCode
+    ])
 
     // =========================================
     // LOAD FRANCHISES WHEN BRANCH CHANGES
+    // API signature: getFranchises(bpCode, loginId)
     // =========================================
 
     useEffect(() => {
@@ -222,11 +309,8 @@ function AddTechSkill() {
                 setError('')
                 setMessage('')
 
-                const data = await getFranchises(
-                    roleId,
-                    branch,
-                    loginId
-                )
+                // FIX: pass the selected BPCode and LoginID only.
+                const data = await getFranchises(branch, loginId)
 
                 if (cancelled) return
 
@@ -234,20 +318,48 @@ function AddTechSkill() {
                     throw new Error('Invalid franchise response.')
                 }
 
-                const sortedFranchises = [...data].sort(
-                    (a, b) =>
-                        getFranchiseName(a).localeCompare(
-                            getFranchiseName(b),
-                            undefined,
-                            { sensitivity: 'base' }
-                        )
+                const sortedFranchises = [...data].sort((a, b) =>
+                    String(getFranchiseName(a)).localeCompare(
+                        String(getFranchiseName(b)),
+                        undefined,
+                        { sensitivity: 'base' }
+                    )
                 )
 
                 setFranchises(sortedFranchises)
+
+                // Match LoginID against the franchise identifier.
+                const normalizedLoginId = String(loginId).trim().toLowerCase()
+
+                const matchingFranchise = sortedFranchises.find(item => {
+                    const franchiseCode = String(
+                        getFranchiseCode(item)
+                    ).trim().toLowerCase()
+
+                    const franchiseLoginId = String(
+                        item.loginId ??
+                        item.LoginID ??
+                        item.loginID ??
+                        ''
+                    ).trim().toLowerCase()
+
+                    return (
+                        (normalizedLoginId &&
+                            franchiseCode === normalizedLoginId) ||
+                        (normalizedLoginId &&
+                            franchiseLoginId === normalizedLoginId)
+                    )
+                })
+
+                if (matchingFranchise) {
+                    setFranchise(String(getFranchiseCode(matchingFranchise)))
+                }
             } catch (err) {
                 if (cancelled) return
 
                 setFranchises([])
+                setFranchise('')
+
                 setError(err.message || 'Unable to load franchises.')
             } finally {
                 if (!cancelled) {
@@ -261,7 +373,7 @@ function AddTechSkill() {
         return () => {
             cancelled = true
         }
-    }, [branch, roleId, loginId])
+    }, [branch, loginId])
 
     // =========================================
     // LOAD SKILL MATRIX WHEN FRANCHISE CHANGES
@@ -302,7 +414,9 @@ function AddTechSkill() {
                     rows.map(row => ({
                         techId: row.techId ?? row.TechId ?? row.techID,
                         name: row.name ?? row.Name ?? '',
-                        scores: { ...(row.scores ?? row.Scores ?? {}) }
+                        scores: {
+                            ...(row.scores ?? row.Scores ?? {})
+                        }
                     }))
                 )
 
@@ -314,6 +428,7 @@ function AddTechSkill() {
 
                 setProducts([])
                 setTechnicians([])
+
                 setError(
                     err.message ||
                     'Unable to load technician skill matrix.'
@@ -379,7 +494,6 @@ function AddTechSkill() {
     // =========================================
 
     const handleScoreChange = (techId, productCode, value) => {
-        // Allow only numeric values.
         if (value !== '' && !/^\d+$/.test(value)) {
             return
         }
@@ -436,7 +550,6 @@ function AddTechSkill() {
                     technician.scores?.[product.Code] ??
                     ''
 
-                // Preserve backend behavior: blank values are not submitted.
                 if (String(score).trim() !== '') {
                     items.push({
                         techId: Number(technician.techId),
@@ -464,6 +577,43 @@ function AddTechSkill() {
             setError(err.message || 'Unable to save skill scores.')
         } finally {
             setSaving(false)
+        }
+    }
+
+    // =========================================
+    // DOWNLOAD SKILL MATRIX
+    // =========================================
+
+    const handleDownload = async () => {
+        setError('')
+        setMessage('')
+
+        if (!region) {
+            setError('Please select a region.')
+            return
+        }
+
+        if (!branch) {
+            setError('Please select a branch.')
+            return
+        }
+
+        if (!franchise) {
+            setError('Please select a franchise.')
+            return
+        }
+
+        try {
+            setDownloading(true)
+
+            await downloadTechnicianSkillSet(branch, franchise)
+        } catch (err) {
+            setError(
+                err.message ||
+                'Unable to download technician skill set.'
+            )
+        } finally {
+            setDownloading(false)
         }
     }
 
@@ -559,7 +709,7 @@ function AddTechSkill() {
                                     return (
                                         <option
                                             key={`${code}-${index}`}
-                                            value={code}
+                                            value={String(code)}
                                         >
                                             {getFranchiseName(item) || code}
                                         </option>
@@ -600,7 +750,10 @@ function AddTechSkill() {
                             <table className="add-tech-skill-table">
                                 <thead>
                                     <tr>
-                                        <th className="tech-id-column">Tech ID</th>
+                                        <th className="tech-id-column">
+                                            Tech ID
+                                        </th>
+
                                         <th className="tech-name-column">
                                             Technician Name
                                         </th>
@@ -633,35 +786,39 @@ function AddTechSkill() {
                                                 <td>{technician.techId}</td>
                                                 <td>{technician.name}</td>
 
-                                                {products.map((product, productIndex) => {
-                                                    const code =
-                                                        product.code ??
-                                                        product.Code ??
-                                                        ''
+                                                {products.map(
+                                                    (product, productIndex) => {
+                                                        const code =
+                                                            product.code ??
+                                                            product.Code ??
+                                                            ''
 
-                                                    const score =
-                                                        technician.scores?.[code] ?? ''
+                                                        const score =
+                                                            technician.scores?.[code] ?? ''
 
-                                                    return (
-                                                        <td key={`${code}-${productIndex}`}>
-                                                            <input
-                                                                type="text"
-                                                                inputMode="numeric"
-                                                                pattern="[0-9]*"
-                                                                aria-label={`${technician.name} ${code} skill score`}
-                                                                value={score}
-                                                                onChange={event =>
-                                                                    handleScoreChange(
-                                                                        technician.techId,
-                                                                        code,
-                                                                        event.target.value
-                                                                    )
-                                                                }
-                                                                disabled={saving}
-                                                            />
-                                                        </td>
-                                                    )
-                                                })}
+                                                        return (
+                                                            <td
+                                                                key={`${code}-${productIndex}`}
+                                                            >
+                                                                <input
+                                                                    type="text"
+                                                                    inputMode="numeric"
+                                                                    pattern="[0-9]*"
+                                                                    aria-label={`${technician.name} ${code} skill score`}
+                                                                    value={score}
+                                                                    onChange={event =>
+                                                                        handleScoreChange(
+                                                                            technician.techId,
+                                                                            code,
+                                                                            event.target.value
+                                                                        )
+                                                                    }
+                                                                    disabled={saving}
+                                                                />
+                                                            </td>
+                                                        )
+                                                    }
+                                                )}
                                             </tr>
                                         ))
                                     ) : (
@@ -682,19 +839,30 @@ function AddTechSkill() {
                         </div>
                     )}
 
-                    {/* SAVE BUTTON */}
-                    {franchise && !matrixLoading && technicians.length > 0 && (
-                        <div className="add-tech-skill-actions">
-                            <button
-                                type="button"
-                                className="add-tech-skill-save"
-                                onClick={handleSave}
-                                disabled={saving}
-                            >
-                                {saving ? 'Saving...' : 'Save'}
-                            </button>
-                        </div>
-                    )}
+                    {/* SAVE AND DOWNLOAD BUTTONS */}
+                    {franchise &&
+                        !matrixLoading &&
+                        technicians.length > 0 && (
+                            <div className="add-tech-skill-actions">
+                                <button
+                                    type="button"
+                                    className="add-tech-skill-download"
+                                    onClick={handleDownload}
+                                    disabled={saving || downloading}
+                                >
+                                    {downloading ? 'Downloading...' : 'Download'}
+                                </button>
+
+                                <button
+                                    type="button"
+                                    className="add-tech-skill-save"
+                                    onClick={handleSave}
+                                    disabled={saving || downloading}
+                                >
+                                    {saving ? 'Saving...' : 'Save'}
+                                </button>
+                            </div>
+                        )}
                 </div>
             </div>
         </DashboardLayout>

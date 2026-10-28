@@ -141,6 +141,9 @@ function Login() {
                     recaptchaToken
                 )
 
+                console.log('Role ID:', data.roleID)
+console.log('Roles:', data.roles)
+
 
             console.timeEnd('API Login')
 
@@ -253,14 +256,24 @@ function Login() {
                 String(data.roleID ?? '')
             )
 
+            // sessionStorage.setItem(
+            //     'bpCode',
+            //     data.bpCode || ''
+            // )
+
+            // sessionStorage.setItem(
+            //     'regionCode',
+            //     data.regionCode || ''
+            // )
+
             sessionStorage.setItem(
-                'bpCode',
-                data.bpCode || ''
-            )
+            'bpCode',
+            String(data.bpCode || data.BPCode || data.branches || '')
+             )
 
             sessionStorage.setItem(
                 'regionCode',
-                data.regionCode || ''
+                String(data.regionCode || data.RegionCode || data.regions || '')
             )
 
 
@@ -409,7 +422,7 @@ function Login() {
                         </h2>
 
                         <p>
-                            Enter your username and password
+                            Enter your Login-ID and Password
                             to log on.
                         </p>
 
@@ -482,7 +495,7 @@ function Login() {
                                 className="form-label"
                                 htmlFor="username"
                             >
-                                Username
+                                Login-ID
                             </label>
 
 

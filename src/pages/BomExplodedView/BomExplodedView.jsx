@@ -513,7 +513,7 @@ const canUploadDelete = roleId === '22'
                         {/* Search Button */}
                         <div className="bom-field bom-field-btn">
                             <button
-                                className="bom-btn bom-btn-search"
+                                className="btn-search bom-btn bom-btn-search"
                                 onClick={handleSearch}
                                 disabled={loading}
                             >

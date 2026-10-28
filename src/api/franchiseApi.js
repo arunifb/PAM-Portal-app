@@ -84,9 +84,9 @@ export async function saveFranchise(request) {
 }
 
 // SEARCH FRANCHISES
+
 export async function searchFranchises(request) {
-    const activeValue =
-        request.Active ?? request.IsActive ?? ''
+    const activeValue = request.Active ?? request.IsActive ?? null
 
     const response = await authFetch(
         `${API_BASE_URL}/api/FranchiseMaster/search`,
@@ -104,7 +104,9 @@ export async function searchFranchises(request) {
                 PhoneNo: request.PhoneNo || '',
                 MobileNo: request.Mobile || request.MobileNo || '',
                 Email: request.EmailID || request.Email || '',
-                IsActive: activeValue === '0' ? '0' : '1'
+                IsActive: activeValue == null || activeValue === ''
+    ? ''
+    : activeValue
             })
         }
     )

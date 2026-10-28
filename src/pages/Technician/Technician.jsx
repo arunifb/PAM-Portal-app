@@ -33,6 +33,42 @@ function getSessionValue(...keys) {
     return ''
 }
 
+function getSessionRoles() {
+    try {
+        const storedRoles = sessionStorage.getItem('roles')
+
+        if (!storedRoles) return []
+
+        const parsedRoles = JSON.parse(storedRoles)
+
+        if (Array.isArray(parsedRoles)) {
+            return parsedRoles
+                .map(role => {
+                    if (typeof role === 'object' && role !== null) {
+                        return Number(
+                            role.roleID ??
+                            role.RoleID ??
+                            role.roleId ??
+                            role.RoleId ??
+                            role.id ??
+                            role.Id
+                        )
+                    }
+
+                    return Number(role)
+                })
+                .filter(roleId =>
+                    Number.isInteger(roleId) && roleId > 0
+                )
+        }
+
+        return []
+    } catch (error) {
+        console.error('Unable to read session roles:', error)
+        return []
+    }
+}
+
 function getArrayFromResponse(response) {
     if (Array.isArray(response)) return response
     if (Array.isArray(response?.data)) return response.data
@@ -90,6 +126,10 @@ function getFranchiseCode(item) {
         item?.FrCode ??
         item?.franchiseCode ??
         item?.FranchiseCode ??
+        item?.loginId ??
+        item?.LoginId ??
+        item?.LoginID ??
+        item?.loginID ??
         item?.code ??
         item?.Code ??
         ''
@@ -107,23 +147,54 @@ function getFranchiseName(item) {
     )
 }
 
-// Format date as dd-MMM-yyyy.
+// function getFranchiseName(item) {
+//     return String(
+//         item?.franchiseName ??
+//         item?.Franchisename ??
+//         item?.FranchiseName ??
+//         item?.name ??
+//         item?.Name ??
+//         ''
+//     )
+// }
+
+// =====================================================
+// DATE FORMAT
+// =====================================================
+
 function formatCreatedDate(value) {
     if (!value) return '-'
 
-    const date = new Date(value)
+    let date
+
+    // Handle API format: DD-MM-YYYY HH:mm:ss
+    if (
+        typeof value === 'string' &&
+        /^\d{2}-\d{2}-\d{4}/.test(value)
+    ) {
+        const [datePart] = value.split(' ')
+        const [day, month, year] = datePart.split('-')
+
+        date = new Date(
+            Number(year),
+            Number(month) - 1,
+            Number(day)
+        )
+    } else {
+        date = new Date(value)
+    }
 
     if (Number.isNaN(date.getTime())) return '-'
 
-    const day = String(date.getUTCDate()).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
 
     const month = [
         'Jan', 'Feb', 'Mar', 'Apr',
         'May', 'Jun', 'Jul', 'Aug',
         'Sep', 'Oct', 'Nov', 'Dec'
-    ][date.getUTCMonth()]
+    ][date.getMonth()]
 
-    return `${day}-${month}-${date.getUTCFullYear()}`
+    return `${day}-${month}-${date.getFullYear()}`
 }
 
 function getTechnicianCreatedDate(technician) {
@@ -143,7 +214,7 @@ function getStatusClass(status) {
         return 'technician-status-badge technician-status-success'
     }
 
-    if (value.includes('de-activated')) {
+    if (value.includes('de-activated') || value.includes('deactivated')) {
         return 'technician-status-badge technician-status-danger'
     }
 
@@ -155,44 +226,164 @@ function getStatusClass(status) {
 }
 
 // =====================================================
+// FILTER TECHNICIANS BY STATUS
+// =====================================================
+
+function filterTechniciansByStatus(technicians, selectedStatus) {
+    if (!selectedStatus || selectedStatus === '') {
+        return technicians
+    }
+
+    const statusLabels = {
+        '5': ['ready for review', 'skill set'],
+        '1': ['approved', 'activated'],
+        '0': ['de-activated', 'deactivated'],
+        '6': ['correction required'],
+        '7': ['request for change']
+    }
+
+    return technicians.filter(technician => {
+        const statusId =
+            technician?.statusId ??
+            technician?.StatusId ??
+            technician?.statusID ??
+            technician?.StatusID
+
+        const rawStatus =
+            technician?.status ??
+            technician?.Status ??
+            ''
+
+        if (
+            statusId !== null &&
+            statusId !== undefined &&
+            String(statusId) !== ''
+        ) {
+            return String(statusId) === String(selectedStatus)
+        }
+
+        if (/^\d+$/.test(String(rawStatus).trim())) {
+            return String(rawStatus).trim() === String(selectedStatus)
+        }
+
+        const description = String(rawStatus).toLowerCase()
+        const keywords = statusLabels[String(selectedStatus)] || []
+
+        if (selectedStatus === '5') {
+            return (
+                description.includes('ready for review') ||
+                description.includes('skill set')
+            )
+        }
+
+        return keywords.some(keyword =>
+            description.includes(keyword)
+        )
+    })
+}
+
+// =====================================================
 // COMPONENT
 // =====================================================
 
-function Technician() {
+function getTechnicianPhotoUrl(photoUrl) {
+    if (!photoUrl) return ''
+
+    const url = String(photoUrl).trim()
+
+    // Absolute URLs can be used directly.
+    if (/^https?:\/\//i.test(url)) {
+        return url
+    }
+
+    // Resolve relative image paths against the API server.
+    const apiBaseUrl = 'https://localhost:7095'
+
+    return `${apiBaseUrl}/${url.replace(/^\/+/, '')}`
+}
+
+
+function Technician({
+    onAddTechnician,
+    onEditTechnician,
+    restoreListState: savedListState,
+    refreshAfterAdd = 0
+}) {
     const navigate = useNavigate()
     const location = useLocation()
 
     // =================================================
-    // RESTORE PREVIOUS LIST STATE WHEN RETURNING FROM EDIT
+    // RESTORE PREVIOUS LIST STATE
     // =================================================
 
-    const restoredListState = location.state?.restoreListState
-        ? location.state.listState
-        : null
+    const restoredListState =
+        savedListState ||
+        (location.state?.restoreListState
+            ? location.state.listState
+            : null)
 
+    // =================================================
     // SESSION VALUES
-
-    const roleId = Number(
-        getSessionValue('roleId', 'RoleID') || 1
-    )
+    // =================================================
 
     const sessionUserId = getSessionValue('userId', 'UserID')
-    const sessionBpCode = getSessionValue('bpCode', 'BPCode')
-    const sessionLoginId = getSessionValue('loginId', 'LoginID')
 
+    const sessionBpCode = (
+        getSessionValue('bpCode', 'BPCode')
+    ).trim()
+
+    const sessionLoginId = (
+    sessionStorage.getItem('loginId') ||
+    sessionStorage.getItem('LoginID') ||
+    ''
+).trim()
+
+    const sessionRegionCode = getSessionValue(
+        'regionCode',
+        'RegionCode'
+    ).trim()
+
+
+// =====================================================
+// ROLES
+// Read the roles stored during login.
+// =====================================================
+
+const sessionRoles = getSessionRoles()
+
+const isRole1 = sessionRoles.includes(1)
+const isRole3 = sessionRoles.includes(3)
+const isRole5 = sessionRoles.includes(5)
+const isRole6 = sessionRoles.includes(6)
+
+const storedRoleId = Number(
+    getSessionValue('roleId', 'RoleID')
+)
+
+const roleId = sessionRoles.includes(storedRoleId)
+    ? storedRoleId
+    : sessionRoles.length === 1
+        ? sessionRoles[0]
+        : 0
+
+// Stable dependency value for effects.
+const sessionRolesKey = sessionRoles.join(',')
+    // =================================================
     // ROLE FLAGS
+    // =================================================
 
-    const isRole1 = roleId === 1
-    const isRole3 = roleId === 3
-    const isRole5 = roleId === 5
-    const isRole6 = roleId === 6
+    // const isRole1 = roleId === 1
+    // const isRole3 = roleId === 3
+    // const isRole5 = roleId === 5
+    // const isRole6 = roleId === 6
 
     // =================================================
     // FILTER STATES
     // =================================================
 
     const [regionCode, setRegionCode] = useState(
-        restoredListState?.regionCode ?? ''
+        restoredListState?.regionCode ??
+        ((isRole3 || isRole5 || isRole6) ? sessionRegionCode : '')
     )
 
     const [branchCode, setBranchCode] = useState(
@@ -204,7 +395,8 @@ function Technician() {
     )
 
     const [status, setStatus] = useState(
-        restoredListState?.status ?? (roleId === 3 ? '5' : '1')
+        restoredListState?.status ??
+        (roleId === 3 || roleId === 5 ? '5' : '1')
     )
 
     const [technicianName, setTechnicianName] = useState(
@@ -215,19 +407,26 @@ function Technician() {
         restoredListState?.mobileNo ?? ''
     )
 
+    // =================================================
     // DROPDOWN DATA
+    // =================================================
 
     const [regions, setRegions] = useState([])
-    const [branches, setBranches] = useState([])
-    const [franchises, setFranchises] = useState([])
+const [branches, setBranches] = useState([])
+const [franchises, setFranchises] = useState([])
+const [loadingFranchises, setLoadingFranchises] = useState(false)
 
+    // =================================================
     // TABLE DATA
+    // =================================================
 
     const [technicians, setTechnicians] = useState(
         restoredListState?.technicians ?? []
     )
 
+    // =================================================
     // UI STATES
+    // =================================================
 
     const [loading, setLoading] = useState(false)
     const [downloadLoading, setDownloadLoading] = useState(false)
@@ -242,192 +441,374 @@ function Technician() {
 
     // =================================================
     // LOAD REGIONS
+    // Role 5 and Role 6: auto-select session region
     // =================================================
 
-    useEffect(() => {
-        let cancelled = false
+    
 
-        async function loadRegions() {
-            try {
-                const response = await getRegions('', sessionUserId)
+useEffect(() => {
+    let cancelled = false
 
-                if (cancelled) return
+    async function loadRegions() {
+        try {
+            const response = await getRegions('', sessionUserId)
 
-                setRegions(getArrayFromResponse(response))
+            if (cancelled) return
 
-                // Do not clear the region when restoring a previous search.
-                if (restoredListState) {
-                    setRegionCode(restoredListState.regionCode ?? '')
-                }
-            } catch (err) {
-                if (!cancelled) {
-                    setRegions([])
-                    setError(err?.message || 'Unable to load regions.')
-                }
-            }
-        }
+            const regionList = getArrayFromResponse(response)
+            setRegions(regionList)
 
-        loadRegions()
-
-        return () => {
-            cancelled = true
-        }
-    }, [sessionUserId])
-
-    // =================================================
-    // LOAD BRANCHES
-    // =================================================
-
-    useEffect(() => {
-        let cancelled = false
-
-        async function loadBranches() {
-            if (!regionCode) {
-                setBranches([])
-
-                if (!restoredListState) {
-                    setBranchCode('')
-                    setFranchises([])
-                    setFranchiseCode('')
-                }
-
+            // If returning from Edit, restore the previous selection.
+            if (restoredListState) {
+                setRegionCode(restoredListState.regionCode ?? '')
                 return
             }
 
-            try {
-                const response = await getBranches(
-                    sessionUserId,
-                    regionCode
+            // Automatically select the logged-in user's region.
+            if (isRole3 || isRole5 || isRole6) {
+                const loggedInRegionCode = String(
+                    sessionRegionCode ?? ''
+                ).trim().toLowerCase()
+
+                const matchingRegion = regionList.find(region =>
+                    getRegionCode(region).trim().toLowerCase() ===
+                    loggedInRegionCode
                 )
 
-                if (cancelled) return
+                if (matchingRegion) {
+                    setRegionCode(getRegionCode(matchingRegion))
+                } else {
+                    console.warn('Region auto-selection failed:', {
+                        loggedInRegionCode,
+                        availableRegions: regionList.map(region => ({
+                            code: getRegionCode(region),
+                            name: getRegionName(region)
+                        }))
+                    })
 
-                setBranches(getArrayFromResponse(response))
+                    setRegionCode('')
+                }
+            }
+        } catch (err) {
+            if (!cancelled) {
+                setRegions([])
+                setError(err?.message || 'Unable to load regions.')
+            }
+        }
+    }
 
-                if (restoredListState) {
-                    setBranchCode(restoredListState.branchCode ?? '')
-                } else if (isRole5 || isRole6) {
-                    setBranchCode(sessionBpCode || '')
+    loadRegions()
+
+    return () => {
+        cancelled = true
+    }
+}, [
+    sessionUserId,
+    sessionRegionCode,
+    isRole3,
+    isRole5,
+    isRole6,
+    restoredListState
+])
+    // =================================================
+    // LOAD BRANCHES WHEN REGION CHANGES
+    // Role 5 and Role 6: select session branch if available,
+    // otherwise select the first available branch.
+    // =================================================
+
+  
+
+useEffect(() => {
+    let cancelled = false
+
+    async function loadBranches() {
+        if (!regionCode) {
+            setBranches([])
+            setBranchCode('')
+            setFranchises([])
+            setFranchiseCode('')
+            return
+        }
+
+        try {
+            const response = await getBranches(
+                sessionUserId,
+                regionCode
+            )
+
+            if (cancelled) return
+
+            const branchList = getArrayFromResponse(response)
+            setBranches(branchList)
+
+            // Restore the branch when returning from Edit.
+            if (
+                restoredListState &&
+                String(restoredListState.regionCode ?? '').trim().toLowerCase() ===
+                String(regionCode).trim().toLowerCase()
+            ) {
+                const restoredBranchCode = String(
+                    restoredListState.branchCode ?? ''
+                ).trim().toLowerCase()
+
+                const matchingRestoredBranch = branchList.find(
+                    branch =>
+                        getBranchCode(branch).trim().toLowerCase() ===
+                        restoredBranchCode
+                )
+
+                if (matchingRestoredBranch) {
+                    setBranchCode(getBranchCode(matchingRestoredBranch))
+                } else if (
+                    (isRole3 || isRole5 || isRole6) &&
+                    branchList.length > 0
+                ) {
+                    setBranchCode(getBranchCode(branchList[0]))
                 } else {
                     setBranchCode('')
                 }
-            } catch (err) {
-                if (!cancelled) {
-                    setBranches([])
-                    setError(err?.message || 'Unable to load branches.')
+            } else if (isRole3 || isRole5 || isRole6) {
+                // Match the logged-in user's branch.
+                const loggedInBranchCode = String(
+                    sessionBpCode ?? ''
+                ).trim().toLowerCase()
+
+                const matchingBranch = branchList.find(
+                    branch =>
+                        getBranchCode(branch).trim().toLowerCase() ===
+                        loggedInBranchCode
+                )
+
+                if (matchingBranch) {
+                    setBranchCode(getBranchCode(matchingBranch))
+                } else if (branchList.length > 0) {
+                    // Fallback when the session BPCode doesn't match.
+                    setBranchCode(getBranchCode(branchList[0]))
+                } else {
+                    setBranchCode('')
                 }
+            } else {
+                setBranchCode('')
+            }
+
+            setFranchises([])
+            setFranchiseCode('')
+        } catch (err) {
+            if (!cancelled) {
+                setBranches([])
+                setBranchCode('')
+                setFranchises([])
+                setFranchiseCode('')
+                setError(err?.message || 'Unable to load branches.')
             }
         }
+    }
 
-        loadBranches()
+    loadBranches()
 
-        return () => {
-            cancelled = true
-        }
-    }, [
-        sessionUserId,
-        regionCode,
-        sessionBpCode,
-        isRole5,
-        isRole6
-    ])
+    return () => {
+        cancelled = true
+    }
+}, [
+    sessionUserId,
+    regionCode,
+    sessionBpCode,
+    isRole3,
+    isRole5,
+    isRole6,
+    restoredListState
+])
 
     // =================================================
     // LOAD FRANCHISES
+    // Role 5 and Role 6: auto-select first franchise
     // =================================================
 
-    useEffect(() => {
-        let cancelled = false
+    
 
-        async function loadFranchises() {
-            if (!regionCode) {
-                setFranchises([])
 
-                if (!restoredListState) {
-                    setFranchiseCode('')
-                }
 
-                return
-            }
+// =====================================================
+// LOAD FRANCHISES
+// =====================================================
 
-            if ((isRole1 || isRole3) && !branchCode) {
-                setFranchises([])
+useEffect(() => {
+    let cancelled = false
 
-                if (!restoredListState) {
-                    setFranchiseCode('')
-                }
+    async function loadFranchises() {
+        setFranchises([])
+        setError('')
 
-                return
-            }
+        if (!regionCode) {
+            setFranchiseCode('')
+            setLoadingFranchises(false)
+            return
+        }
 
-            try {
-                let bpCodeForFranchise = ''
-                let loginIdForFranchise = ''
+        // Roles 1 and 3 require a selected branch.
+        if ((isRole1 || isRole3) && !branchCode) {
+            setFranchiseCode('')
+            setLoadingFranchises(false)
+            return
+        }
 
-                if (isRole5) {
-                    bpCodeForFranchise = sessionBpCode
-                    loginIdForFranchise = sessionLoginId
-                } else if (isRole6) {
-                    bpCodeForFranchise = sessionBpCode
-                    loginIdForFranchise = ''
-                } else {
-                    bpCodeForFranchise = branchCode
-                    loginIdForFranchise = ''
-                }
+        // Roles 5 and 6 use the logged-in user's BPCode.
+        if ((isRole5 || isRole6) && !sessionBpCode) {
+            setFranchiseCode('')
+            setLoadingFranchises(false)
+            setError('BP Code is missing from the session.')
+            return
+        }
 
-                if (!bpCodeForFranchise) {
-                    setFranchises([])
+        // Declare API parameters ONCE, before using them.
+        const bpCodeForFranchise =
+            (isRole5 || isRole6)
+                ? sessionBpCode
+                : branchCode
 
-                    if (!restoredListState) {
-                        setFranchiseCode('')
-                    }
+        const loginIdForFranchise = sessionLoginId
 
-                    return
-                }
+        if (!bpCodeForFranchise) {
+            setFranchiseCode('')
+            setLoadingFranchises(false)
+            return
+        }
 
-                const response = await getFranchises(
-                    roleId,
-                    bpCodeForFranchise,
-                    loginIdForFranchise
+        // The API requires LoginID for roles 5 and 6.
+        if (
+            (isRole5 || isRole6) &&
+            !loginIdForFranchise
+        ) {
+            setFranchiseCode('')
+            setFranchises([])
+            setLoadingFranchises(false)
+
+            setError(
+                'Login ID is missing from the session. Please sign in again.'
+            )
+
+            console.error('Franchise API: Login ID is missing.', {
+                bpCode: bpCodeForFranchise,
+                roles: sessionRoles
+            })
+
+            return
+        }
+
+        try {
+            setLoadingFranchises(true)
+
+            console.log('Technician franchise API parameters:', {
+                roles: sessionRoles,
+                bpCode: bpCodeForFranchise,
+                loginId: loginIdForFranchise
+            })
+
+            // Use the existing reportsApi.js function.
+            const response = await getFranchises(
+                bpCodeForFranchise,
+                loginIdForFranchise
+            )
+
+            if (cancelled) return
+
+            const franchiseList = getArrayFromResponse(response)
+
+            console.log(
+                'Technician franchise API response:',
+                franchiseList
+            )
+
+            setFranchises(franchiseList)
+
+            // Restore the previous selection when returning from Edit.
+            if (restoredListState) {
+                const restoredCode = String(
+                    restoredListState.franchiseCode ?? ''
+                ).trim().toLowerCase()
+
+                const restoredFranchise = franchiseList.find(item =>
+                    getFranchiseCode(item)
+                        .trim()
+                        .toLowerCase() === restoredCode
                 )
 
-                if (cancelled) return
-
-                setFranchises(getArrayFromResponse(response))
-
-                if (restoredListState) {
+                if (restoredFranchise) {
                     setFranchiseCode(
-                        restoredListState.franchiseCode ?? ''
+                        getFranchiseCode(restoredFranchise)
                     )
-                } else if (isRole5) {
-                    setFranchiseCode(sessionLoginId || '')
-                } else {
-                    setFranchiseCode('')
-                }
-            } catch (err) {
-                if (!cancelled) {
-                    setFranchises([])
-                    setError(err?.message || 'Unable to load franchises.')
+                    return
                 }
             }
-        }
 
-        loadFranchises()
+            // Role 5: select the franchise matching LoginID.
+            if (isRole5) {
+                const matchingFranchise = franchiseList.find(item =>
+                    getFranchiseCode(item)
+                        .trim()
+                        .toLowerCase() ===
+                    sessionLoginId.trim().toLowerCase()
+                )
 
-        return () => {
-            cancelled = true
+                const selectedFranchise =
+                    matchingFranchise || franchiseList[0]
+
+                setFranchiseCode(
+                    selectedFranchise
+                        ? getFranchiseCode(selectedFranchise)
+                        : ''
+                )
+            }
+            // Role 6: select the first available franchise.
+            else if (isRole6) {
+                const firstFranchise = franchiseList[0]
+
+                setFranchiseCode(
+                    firstFranchise
+                        ? getFranchiseCode(firstFranchise)
+                        : ''
+                )
+            }
+            // Other roles: allow the user to select a franchise.
+            else {
+                setFranchiseCode('')
+            }
+        } catch (err) {
+            if (!cancelled) {
+                console.error('Franchise API failed:', err)
+
+                setFranchises([])
+                setFranchiseCode('')
+
+                setError(
+                    err?.message ||
+                    'Unable to load franchises. Please check the API.'
+                )
+            }
+        } finally {
+            if (!cancelled) {
+                setLoadingFranchises(false)
+            }
         }
-    }, [
-        roleId,
-        regionCode,
-        branchCode,
-        sessionBpCode,
-        sessionLoginId,
-        isRole1,
-        isRole3,
-        isRole5,
-        isRole6
-    ])
+    }
+
+    loadFranchises()
+
+    return () => {
+        cancelled = true
+    }
+}, [
+    regionCode,
+    branchCode,
+    sessionBpCode,
+    sessionLoginId,
+    sessionRolesKey,
+    isRole1,
+    isRole3,
+    isRole5,
+    isRole6,
+    restoredListState
+])
 
     // =================================================
     // SEARCH
@@ -445,7 +826,7 @@ function Technician() {
         setLoading(true)
 
         try {
-            const response = await searchTechnicians({
+            const searchParams = {
                 regionCode,
                 branchCode,
                 franchiseCode,
@@ -453,67 +834,126 @@ function Technician() {
                 mobileNo: mobileNo.trim(),
                 status,
                 roleId
-            })
+            }
 
-            setTechnicians(getArrayFromResponse(response))
+            console.log(
+                'Technician search request:',
+                searchParams
+            )
+
+            const response = await searchTechnicians(searchParams)
+
+            console.log(
+                'Technician search response:',
+                response
+            )
+
+            const technicianList = getArrayFromResponse(response)
+
+            const filteredTechnicians = filterTechniciansByStatus(
+                technicianList,
+                status
+            )
+
+            setTechnicians(filteredTechnicians)
         } catch (err) {
             setTechnicians([])
-            setError(err?.message || 'Unable to load technician data.')
+            setError(
+                err?.message || 'Unable to load technician data.'
+            )
         } finally {
             setLoading(false)
         }
     }
 
+    // =================================================
+    // RESTORE LIST STATE WHEN RETURNING FROM EDIT
+    // =================================================
+
+    useEffect(() => {
+        if (!restoredListState) return
+
+        setRegionCode(restoredListState.regionCode ?? '')
+        setBranchCode(restoredListState.branchCode ?? '')
+        setFranchiseCode(restoredListState.franchiseCode ?? '')
+
+        setStatus(
+            restoredListState.status ??
+            (roleId === 3 || roleId === 5 ? '5' : '1')
+        )
+
+        setTechnicianName(
+            restoredListState.technicianName ?? ''
+        )
+
+        setMobileNo(restoredListState.mobileNo ?? '')
+
+        setTechnicians(restoredListState.technicians ?? [])
+    }, [restoredListState, roleId])
 
     // =================================================
-// REFRESH LIST WHEN RETURNING FROM EDIT PAGE
-// =================================================
+    // REFRESH LIST AFTER ADDING A TECHNICIAN
+    // =================================================
 
-useEffect(() => {
-    if (!location.state?.refreshTechnicians) {
-        return
-    }
+    useEffect(() => {
+        if (!refreshAfterAdd) return
 
-    let cancelled = false
+        let cancelled = false
 
-    async function refreshTechnicianList() {
-        setLoading(true)
-        setError('')
-
-        try {
-            const response = await searchTechnicians({
-                regionCode,
-                branchCode,
-                franchiseCode,
-                name: technicianName.trim(),
-                mobileNo: mobileNo.trim(),
-                status,
-                roleId
-            })
-
-            if (cancelled) return
-
-            setTechnicians(getArrayFromResponse(response))
-        } catch (err) {
-            if (!cancelled) {
-                setError(
-                    err?.message ||
-                    'Unable to refresh technician data.'
-                )
+        async function refreshTechnicians() {
+            if (!regionCode) {
+                setError('Region is required.')
+                return
             }
-        } finally {
-            if (!cancelled) {
-                setLoading(false)
+
+            const refreshStatus = roleId === 5 ? '5' : status
+
+            setStatus(refreshStatus)
+            setLoading(true)
+            setError('')
+            setSuccessMessage('')
+
+            try {
+                const response = await searchTechnicians({
+                    regionCode,
+                    branchCode,
+                    franchiseCode,
+                    name: technicianName.trim(),
+                    mobileNo: mobileNo.trim(),
+                    status: refreshStatus,
+                    roleId
+                })
+
+                if (cancelled) return
+
+                const technicianList = getArrayFromResponse(response)
+
+                setTechnicians(
+                    filterTechniciansByStatus(
+                        technicianList,
+                        refreshStatus
+                    )
+                )
+            } catch (err) {
+                if (!cancelled) {
+                    setError(
+                        err?.message ||
+                        'Unable to refresh technician data.'
+                    )
+                }
+            } finally {
+                if (!cancelled) {
+                    setLoading(false)
+                }
             }
         }
-    }
 
-    refreshTechnicianList()
+        refreshTechnicians()
 
-    return () => {
-        cancelled = true
-    }
-}, [location.key])
+        return () => {
+            cancelled = true
+        }
+    }, [refreshAfterAdd])
 
     // =================================================
     // FILTER CHANGES
@@ -528,9 +968,16 @@ useEffect(() => {
     }
 
     function handleRegionChange(event) {
-        setRegionCode(event.target.value)
+        const selectedRegion = event.target.value
+
+        setRegionCode(selectedRegion)
+
         setBranchCode('')
+        setBranches([])
+
         setFranchiseCode('')
+        setFranchises([])
+
         setTechnicians([])
         setError('')
         setSuccessMessage('')
@@ -540,64 +987,120 @@ useEffect(() => {
     // EDIT
     // =================================================
 
-    function handleEdit(technician) {
-        if (isRole6) return
+    // function handleEdit(technician) {
+    //     if (isRole6) return
 
-        const techId = String(
-            technician?.techId ??
-            technician?.TechId ??
-            technician?.techID ??
-            technician?.TechID ??
+    //     const techId = String(
+    //         technician?.techId ??
+    //         technician?.TechId ??
+    //         technician?.techID ??
+    //         technician?.TechID ??
+    //         ''
+    //     )
+
+    //     if (!techId) {
+    //         setError('Technician ID is missing.')
+    //         return
+    //     }
+
+    //     setError('')
+    //     setSuccessMessage('')
+
+    //     // Role 3: Existing Technician Edit page.
+    //     // Role 5: S.A Profile page.
+    //     if (isRole3 || isRole5) {
+    //         const listState = {
+    //             regionCode,
+    //             branchCode,
+    //             franchiseCode,
+    //             status,
+    //             technicianName,
+    //             mobileNo,
+    //             technicians
+    //         }
+
+    //         navigate('/technician/edit', {
+    //             state: {
+    //                 techId,
+    //                 profileMode: isRole5 ? 'sa-profile' : 'edit',
+    //                 returnUrl: location.pathname + location.search,
+    //                 listState
+    //             }
+    //         })
+
+    //         return
+    //     }
+
+    //     setEditingTechId(techId)
+
+    //     setEditingFranchiseCode(
+    //         String(
+    //             technician?.franchiseCode ??
+    //             technician?.FranchiseCode ??
+    //             technician?.frCode ??
+    //             technician?.FrCode ??
+    //             ''
+    //         )
+    //     )
+    // }
+
+    function handleEdit(technician) {
+    if (isRole6) return
+
+    const techId = String(
+        technician?.techId ??
+        technician?.TechId ??
+        technician?.techID ??
+        technician?.TechID ??
+        ''
+    )
+
+    if (!techId) {
+        setError('Technician ID is missing.')
+        return
+    }
+
+    setError('')
+    setSuccessMessage('')
+
+    // Role 3: Existing Technician Edit page.
+    // Role 5: S.A Profile page.
+    // Open inside the same dynamic URL.
+    if (isRole3 || isRole5) {
+        const listState = {
+            regionCode,
+            branchCode,
+            franchiseCode,
+            status,
+            technicianName,
+            mobileNo,
+            technicians
+        }
+
+        if (typeof onEditTechnician === 'function') {
+            onEditTechnician({
+                techId,
+                profileMode: isRole5 ? 'sa-profile' : 'edit',
+                listState
+            })
+        }
+
+        return
+    }
+
+    // Keep existing behavior for other roles.
+    setEditingTechId(techId)
+
+    setEditingFranchiseCode(
+        String(
+            technician?.franchiseCode ??
+            technician?.FranchiseCode ??
+            technician?.frCode ??
+            technician?.FrCode ??
             ''
         )
-
-        if (!techId) {
-            setError('Technician ID is missing.')
-            return
-        }
-
-        setError('')
-        setSuccessMessage('')
-
-        if (isRole3) {
-            // Preserve the current route and search state.
-            const listState = {
-                regionCode,
-                branchCode,
-                franchiseCode,
-                status,
-                technicianName,
-                mobileNo,
-                technicians
-            }
-
-            navigate(
-                `/technician/edit/${encodeURIComponent(techId)}`,
-                {
-                    state: {
-                        returnUrl:
-                            location.pathname + location.search,
-                        listState
-                    }
-                }
-            )
-
-            return
-        }
-
-        // Other roles retain inline franchise editing.
-        setEditingTechId(techId)
-
-        setEditingFranchiseCode(
-            String(
-                technician?.franchiseCode ??
-                technician?.FranchiseCode ??
-                technician?.frCode ??
-                technician?.FrCode ??
-                ''
-            )
-        )
-    }
+    )
+}
 
     function handleCancelEdit() {
         setEditingTechId(null)
@@ -639,7 +1142,8 @@ useEffect(() => {
 
             if (response?.isSuccess === false) {
                 throw new Error(
-                    response?.message || 'Unable to update technician.'
+                    response?.message ||
+                    'Unable to update technician.'
                 )
             }
 
@@ -653,7 +1157,9 @@ useEffect(() => {
 
             await handleSearch()
         } catch (err) {
-            setError(err?.message || 'Unable to update technician.')
+            setError(
+                err?.message || 'Unable to update technician.'
+            )
         } finally {
             setActionLoading(false)
         }
@@ -690,7 +1196,8 @@ useEffect(() => {
 
             if (response?.isSuccess === false) {
                 throw new Error(
-                    response?.message || 'Request submission failed.'
+                    response?.message ||
+                    'Request submission failed.'
                 )
             }
 
@@ -701,7 +1208,9 @@ useEffect(() => {
 
             await handleSearch()
         } catch (err) {
-            setError(err?.message || 'Request submission failed.')
+            setError(
+                err?.message || 'Request submission failed.'
+            )
         } finally {
             setActionLoading(false)
         }
@@ -765,7 +1274,9 @@ useEffect(() => {
                 setSuccessMessage('')
             }, 2000)
         } catch (err) {
-            setError(err?.message || 'Unable to download technician data.')
+            setError(
+                err?.message || 'Unable to download technician data.'
+            )
         } finally {
             setDownloadLoading(false)
         }
@@ -795,6 +1306,8 @@ useEffect(() => {
 
                 <div className="technician-filter-box">
 
+                    {/* REGION */}
+
                     <div className="technician-filter-item">
                         <label>Region</label>
 
@@ -820,15 +1333,25 @@ useEffect(() => {
                         </select>
                     </div>
 
+                    {/* BRANCH */}
+
                     <div className="technician-filter-item">
                         <label>Branch</label>
 
                         <select
                             value={branchCode}
                             onChange={handleBranchChange}
-                            disabled={!regionCode || isRole5 || isRole6}
+                            disabled={!regionCode || isRole6}
                         >
-                            <option value="">All</option>
+                            {!isRole5 && (
+                                <option value="">All</option>
+                            )}
+
+                            {isRole5 && branches.length === 0 && (
+                                <option value="">
+                                    No branches available
+                                </option>
+                            )}
 
                             {branches.map((branch, index) => {
                                 const code = getBranchCode(branch)
@@ -846,64 +1369,108 @@ useEffect(() => {
                         </select>
                     </div>
 
-                    <div className="technician-filter-item">
-                        <label>Franchise</label>
+                    {/* FRANCHISE */}
 
-                        <select
-                            value={franchiseCode}
-                            onChange={event =>
-                                setFranchiseCode(event.target.value)
-                            }
-                            disabled={
-                                !regionCode ||
-                                isRole5 ||
-                                ((isRole1 || isRole3) && !branchCode)
-                            }
-                        >
-                            <option value="">All</option>
+<div className="technician-filter-item">
+    <label>Franchise</label>
 
-                            {franchises.map((franchise, index) => {
-                                const code = getFranchiseCode(franchise)
-                                const name = getFranchiseName(franchise)
+    <select
+        value={franchiseCode}
+        onChange={event => setFranchiseCode(event.target.value)}
+        disabled={
+            !regionCode ||
+            isRole5 ||
+            ((isRole1 || isRole3) && !branchCode)
+        }
+    >
+        <option value="">All</option>
 
-                                return (
-                                    <option
-                                        key={`${code}-${index}`}
-                                        value={code}
-                                    >
-                                        {name || code}
-                                    </option>
-                                )
-                            })}
-                        </select>
-                    </div>
+        {franchises.map((franchise, index) => {
+            const code = getFranchiseCode(franchise)
+            const name = getFranchiseName(franchise)
+
+            return (
+                <option
+                    key={`${code}-${index}`}
+                    value={code}
+                >
+                    {name || code}
+                </option>
+            )
+        })}
+    </select>
+</div>
+
+                    {/* STATUS */}
 
                     <div className="technician-filter-item">
                         <label>Status</label>
 
                         <select
                             value={status}
-                            onChange={event =>
-                                setStatus(event.target.value)
-                            }
+                            onChange={event => setStatus(event.target.value)}
                         >
                             <option value="">All</option>
 
-                            {isRole3 && (
-                                <option value="5">
-                                    Ready for review &amp; skill set
-                                </option>
+                            {isRole3 ? (
+                                <>
+                                    <option value="5">
+                                        Ready for review &amp; skill set
+                                    </option>
+
+                                    <option value="1">
+                                        Approved &amp; Activated By Trainer
+                                    </option>
+
+                                    <option value="0">
+                                        De-Activated By Trainer
+                                    </option>
+
+                                    <option value="6">
+                                        Request for Profile Photo Change
+                                    </option>
+
+                                    <option value="7">
+                                        Request for change for Mobile
+                                    </option>
+                                </>
+                            ) : isRole5 ? (
+                                <>
+                                    <option value="5">
+                                        Ready for review &amp; skill set
+                                    </option>
+
+                                    <option value="1">
+                                        Approved &amp; Activated By Trainer
+                                    </option>
+
+                                    <option value="0">
+                                        De-Activated By Branch Trainer
+                                    </option>
+
+                                    <option value="6">
+                                        Correction Required
+                                    </option>
+
+                                    <option value="7">
+                                        Request for change
+                                    </option>
+                                </>
+                            ) : (
+                                <>
+                                    <option value="1">
+                                        Approved &amp; Activated By Trainer
+                                    </option>
+
+                                    <option value="0">
+                                        De-Activated By Trainer
+                                    </option>
+                                </>
                             )}
-
-                            <option value="1">
-                                Approved &amp; Activated By Trainer
-                            </option>
-
-                            <option value="0">
-                                De-Activated By Trainer
-                            </option>
                         </select>
                     </div>
+
+                    {/* TECHNICIAN NAME */}
 
                     <div className="technician-filter-item">
                         <label>Technician Name</label>
@@ -918,6 +1485,8 @@ useEffect(() => {
                         />
                     </div>
 
+                    {/* MOBILE */}
+
                     <div className="technician-filter-item">
                         <label>Mobile</label>
 
@@ -931,10 +1500,12 @@ useEffect(() => {
                         />
                     </div>
 
+                    {/* ACTION BUTTONS */}
+
                     <div className="technician-filter-actions">
                         <button
                             type="button"
-                            className="technician-search-button"
+                            className="btn-search technician-search-button"
                             onClick={handleSearch}
                             disabled={
                                 loading ||
@@ -944,6 +1515,35 @@ useEffect(() => {
                         >
                             {loading ? 'Searching...' : 'Search'}
                         </button>
+
+                        {/* Add button: Role 5 only */}
+
+                        {isRole5 && (
+                            <button
+                                type="button"
+                                className="technician-add-button"
+                                onClick={() => {
+                                    onAddTechnician?.({
+                                        regionCode,
+                                        branchCode,
+                                        franchiseCode,
+                                        status,
+                                        technicianName,
+                                        mobileNo,
+                                        technicians
+                                    })
+                                }}
+                                disabled={
+                                    loading ||
+                                    actionLoading ||
+                                    downloadLoading
+                                }
+                            >
+                                + Add
+                            </button>
+                        )}
+
+                        {/* Download button: Role 1 only */}
 
                         {isRole1 && (
                             <button
@@ -956,7 +1556,9 @@ useEffect(() => {
                                     downloadLoading
                                 }
                             >
-                                {downloadLoading ? 'Downloading...' : 'Download'}
+                                {downloadLoading
+                                    ? 'Downloading...'
+                                    : 'Download'}
                             </button>
                         )}
                     </div>
@@ -980,19 +1582,26 @@ useEffect(() => {
 
                 {/* RECORD COUNT */}
 
-                {!loading && technicians.length > 0 && (
+                {/* {!loading && technicians.length > 0 && (
                     <h3 className="technician-record-count">
                         {technicians.length}{' '}
                         record{technicians.length !== 1 ? 's' : ''} found
                     </h3>
-                )}
+                )} */}
 
                 {/* TABLE */}
 
                 {!loading && (
                     <div className="technician-report-section">
                         <div className="technician-section-header">
-                            Search Technician
+                            <span>Search Technician </span>
+
+                           {technicians.length > 0 && (
+                                <span className="technician-header-record-count">
+                                    {technicians.length}{' '}
+                                    record{technicians.length !== 1 ? 's' : ''} found
+                                </span>
+                            )}
                         </div>
 
                         {technicians.length > 0 ? (
@@ -1001,10 +1610,11 @@ useEffect(() => {
                                     <thead>
                                         <tr>
                                             <th>SNo</th>
-                                            <th>Franchise</th>
+                                            <th className="technician-franchise-column">Franchise</th>
                                             <th>BpExt.</th>
-                                            <th>PartnerID</th>
-                                            <th>Name</th>
+                                            {!isRole3 && <th>PartnerID</th>}
+                                            <th className="technician-name-column">Name</th>
+                                            {isRole3 && <th>Profile Image</th>}
                                             <th>MobileNo</th>
                                             <th>Status</th>
 
@@ -1041,7 +1651,7 @@ useEffect(() => {
                                                 <tr key={techId || index}>
                                                     <td>{index + 1}</td>
 
-                                                    <td className="technician-franchise-cell">
+                                                    <td className="technician-franchise-column technician-franchise-cell">
                                                         {isEditing ? (
                                                             <input
                                                                 type="text"
@@ -1065,7 +1675,7 @@ useEffect(() => {
                                                     </td>
 
                                                     <td>{techId || '-'}</td>
-
+                                                    {!isRole3 && (
                                                     <td>
                                                         {partnerId &&
                                                         String(partnerId).length > 1 ? (
@@ -1088,12 +1698,81 @@ useEffect(() => {
                                                             </button>
                                                         )}
                                                     </td>
+                                                    )}
 
-                                                    <td>
+                                                    <td className="technician-name-column">
                                                         {technician?.name ??
                                                             technician?.Name ??
                                                             '-'}
                                                     </td>
+
+                                                    {isRole3 && (
+                                                        <td className="technician-image-cell">
+                                                            {(() => {
+                                                                // const imageUrl =
+                                                                //     technician?.profileUrl ??
+                                                                //     technician?.ProfileUrl ??
+                                                                //     technician?.imageUrl ??
+                                                                //     technician?.ImageUrl ??
+                                                                //     technician?.imageURL ??
+                                                                //     technician?.ImageURL ??
+                                                                //     technician?.imagePath ??
+                                                                //     technician?.ImagePath ??
+                                                                //     technician?.photoUrl ??
+                                                                //     technician?.PhotoUrl ??
+                                                                //     technician?.photo ??
+                                                                //     technician?.Photo ??
+                                                                //     ''
+
+                                                                // const defaultImage =
+                                                                //     '/images/default-male-profile.png'
+
+                                                                const imageUrl = getTechnicianPhotoUrl(
+                                                                technician?.profileUrl ??
+                                                                technician?.ProfileUrl ??
+                                                                technician?.url ??
+                                                                technician?.Url ??
+                                                                technician?.imageUrl ??
+                                                                technician?.ImageUrl ??
+                                                                technician?.imageURL ??
+                                                                technician?.ImageURL ??
+                                                                technician?.imagePath ??
+                                                                technician?.ImagePath ??
+                                                                technician?.photoUrl ??
+                                                                technician?.PhotoUrl ??
+                                                                technician?.photo ??
+                                                                technician?.Photo ??
+                                                                ''
+                                                            )
+
+                                                            const defaultImage = '/images/default-male-profile.png'
+
+                                                                return (
+                                                                    <img
+                                                                        src={imageUrl || defaultImage}
+                                                                        alt={
+                                                                            technician?.name ??
+                                                                            technician?.Name ??
+                                                                            'Technician'
+                                                                        }
+                                                                        className="technician-profile-image"
+                                                                        onError={(event) => {
+                                                                            const img = event.currentTarget
+
+                                                                            // Show the default image if the API image
+                                                                            // is missing or cannot be loaded.
+                                                                            if (
+                                                                                img.getAttribute('src') !== defaultImage
+                                                                            ) {
+                                                                                img.onerror = null
+                                                                                img.src = defaultImage
+                                                                            }
+                                                                        }}
+                                                                    />
+                                                                )
+                                                            })()}
+                                                        </td>
+                                                    )}
 
                                                     <td>
                                                         {technician?.mobileNo ??
@@ -1102,16 +1781,52 @@ useEffect(() => {
                                                     </td>
 
                                                     <td>
-                                                        <span
-                                                            className={getStatusClass(
+                                                        {(() => {
+                                                            const rawStatus =
                                                                 technician?.status ??
-                                                                technician?.Status
-                                                            )}
-                                                        >
-                                                            {technician?.status ??
                                                                 technician?.Status ??
-                                                                '-'}
-                                                        </span>
+                                                                technician?.statusName ??
+                                                                technician?.StatusName ??
+                                                                technician?.statusDescription ??
+                                                                technician?.StatusDescription ??
+                                                                technician?.actionStatus ??
+                                                                technician?.ActionStatus ??
+                                                                ''
+
+                                                            const statusId =
+                                                                technician?.statusId ??
+                                                                technician?.StatusId ??
+                                                                technician?.statusID ??
+                                                                technician?.StatusID
+
+                                                            const statusLabels = {
+                                                                '5': 'Ready for review & skill set',
+                                                                '1': 'Approved & Activated By Trainer',
+                                                                '0': 'De-Activated By Branch Trainer',
+                                                                '6': 'Correction Required',
+                                                                '7': 'Request for change'
+                                                            }
+
+                                                            const displayedStatus =
+                                                                String(rawStatus).trim() !== '' &&
+                                                                !/^\d+$/.test(String(rawStatus).trim())
+                                                                    ? rawStatus
+                                                                    : statusLabels[
+                                                                        String(
+                                                                            statusId ?? rawStatus
+                                                                        ).trim()
+                                                                    ] ?? '-'
+
+                                                            return (
+                                                                <span
+                                                                    className={getStatusClass(
+                                                                        displayedStatus
+                                                                    )}
+                                                                >
+                                                                    {displayedStatus}
+                                                                </span>
+                                                            )
+                                                        })()}
                                                     </td>
 
                                                     {isRole3 && (

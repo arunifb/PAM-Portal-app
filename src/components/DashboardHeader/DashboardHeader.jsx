@@ -1,29 +1,23 @@
+
 import './DashboardHeader.css'
 import ifbLogo from '../../assets/ifb-logo.png'
 import UserProfile from '../UserProfile'
 
 function DashboardHeader({
     title,
+    icon,
     sidebarCollapsed,
     onToggleSidebar
 }) {
-
     return (
-
         <header className="dashboard-header">
-
-            {/* =========================================
-                HEADER LEFT
-            ========================================= */}
+            {/* HEADER LEFT */}
 
             <div className="dashboard-header-left">
-
                 {/* IFB LOGO + SIDEBAR TOGGLE */}
 
                 {sidebarCollapsed && (
-
                     <div className="collapsed-header-brand">
-
                         <img
                             src={ifbLogo}
                             alt="IFB Industries"
@@ -38,31 +32,28 @@ function DashboardHeader({
                         >
                             ☰
                         </button>
-
                     </div>
-
                 )}
 
-
-                {/* PAGE TITLE */}
+                {/* PAGE TITLE WITH SQL MENU ICON */}
 
                 <div className="dashboard-breadcrumb">
+                    {icon && (
+                        <i
+                            className={`dashboard-breadcrumb-icon fa ${icon}`}
+                            aria-hidden="true"
+                        />
+                    )}
 
                     <span className="dashboard-breadcrumb-current">
                         {title}
                     </span>
-
                 </div>
-
             </div>
 
-
-            {/* =========================================
-                USER PROFILE
-            ========================================= */}
+            {/* USER PROFILE */}
 
             <UserProfile />
-
         </header>
     )
 }

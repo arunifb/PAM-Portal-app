@@ -1,0 +1,311 @@
+/* =========================================
+   SUB-DEALER VIEW PAGE
+========================================= */
+
+.subdealer-view-page {
+    width: 100%;
+    min-width: 0;
+    padding: 12px 18px;
+    box-sizing: border-box;
+    color: #263445;
+}
+
+/* =========================================
+   HEADER
+========================================= */
+
+.subdealer-view-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.subdealer-view-header h2 {
+    margin: 0;
+    color: #1f2937;
+    font-size: 21px;
+    font-weight: 700;
+}
+
+.subdealer-view-header h2 i {
+    color: #0d6efd;
+    font-size: 19px;
+}
+
+.subdealer-view-header p {
+    margin: 5px 0 0;
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.subdealer-view-back-button,
+.subdealer-view-refresh-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-height: 35px;
+    padding: 7px 13px;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.subdealer-view-back-button {
+    background: #6c757d;
+    color: #fff;
+}
+
+.subdealer-view-back-button:hover {
+    background: #5c636a;
+}
+
+.subdealer-view-refresh-button {
+    background: #0d6efd;
+    color: #fff;
+}
+
+.subdealer-view-refresh-button:hover {
+    background: #0b5ed7;
+}
+
+.subdealer-view-refresh-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* =========================================
+   ERROR MESSAGE
+========================================= */
+
+.subdealer-view-error {
+    margin-bottom: 14px;
+    padding: 10px 13px;
+    border: 1px solid #f5c2c7;
+    border-radius: 6px;
+    background: #f8d7da;
+    color: #842029;
+    font-size: 13px;
+}
+
+/* =========================================
+   SEARCH AND REFRESH
+========================================= */
+
+.subdealer-view-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.subdealer-view-search {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 340px;
+    max-width: 100%;
+    min-height: 36px;
+    padding: 0 11px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+.subdealer-view-search i {
+    color: #6c757d;
+    font-size: 13px;
+}
+
+.subdealer-view-search input {
+    width: 100%;
+    min-width: 0;
+    height: 34px;
+    padding: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #212529;
+    font-family: inherit;
+    font-size: 13px;
+}
+
+.subdealer-view-search:focus-within {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+}
+
+/* =========================================
+   TABLE
+========================================= */
+
+.subdealer-view-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 7px;
+    background: #fff;
+}
+
+.subdealer-view-table {
+    width: 100%;
+    min-width: 1400px;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.subdealer-view-table thead th {
+    padding: 11px 10px;
+    border-right: 1px solid #e4e8ec;
+    border-bottom: 1px solid #dee2e6;
+    background: #f1f3f5;
+    color: #343a40;
+    font-weight: 600;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.subdealer-view-table tbody td {
+    padding: 10px;
+    border-right: 1px solid #f0f1f3;
+    border-bottom: 1px solid #edf0f2;
+    color: #343a40;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.subdealer-view-table thead th:last-child,
+.subdealer-view-table tbody td:last-child {
+    border-right: none;
+}
+
+.subdealer-view-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.subdealer-view-table tbody tr:hover {
+    background: #f8faff;
+}
+
+.subdealer-view-message {
+    padding: 35px !important;
+    color: #6c757d !important;
+    text-align: center;
+    white-space: normal !important;
+    font-size: 13px;
+}
+
+/* =========================================
+   STATUS LABELS
+========================================= */
+
+.subdealer-view-status {
+    display: inline-block;
+    padding: 4px 9px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.subdealer-view-status-pending {
+    background: #fff3cd;
+    color: #664d03;
+}
+
+.subdealer-view-status-correction {
+    background: #f8d7da;
+    color: #842029;
+}
+
+.subdealer-view-status-downloaded {
+    background: #cff4fc;
+    color: #055160;
+}
+
+.subdealer-view-status-issued {
+    background: #d1e7dd;
+    color: #0f5132;
+}
+
+.subdealer-view-status-closed {
+    background: #e2e3e5;
+    color: #41464b;
+}
+
+/* =========================================
+   FOOTER
+========================================= */
+
+.subdealer-view-footer {
+    padding: 11px 2px;
+    color: #6c757d;
+    font-size: 12px;
+    text-align: right;
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 768px) {
+    .subdealer-view-page {
+        padding: 10px;
+    }
+
+    .subdealer-view-header h2 {
+        font-size: 18px;
+    }
+
+    .subdealer-view-toolbar {
+        align-items: stretch;
+    }
+
+    .subdealer-view-search {
+        flex: 1;
+        width: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .subdealer-view-page {
+        padding: 8px;
+    }
+
+    .subdealer-view-header {
+        align-items: flex-start;
+    }
+
+    .subdealer-view-header h2 {
+        font-size: 16px;
+    }
+
+    .subdealer-view-header p {
+        font-size: 12px;
+    }
+
+    .subdealer-view-back-button {
+        padding: 7px 10px;
+    }
+
+    .subdealer-view-toolbar {
+        flex-wrap: wrap;
+    }
+
+    .subdealer-view-search {
+        flex-basis: 100%;
+        width: 100%;
+    }
+
+    .subdealer-view-refresh-button {
+        width: 100%;
+    }
+}

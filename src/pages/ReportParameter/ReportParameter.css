@@ -1733,13 +1733,21 @@ input[type="checkbox"]:checked::after {
    BACK BUTTON - TOP RIGHT
 ========================================= */
 
+/* =========================================
+   BACK BUTTON - TOP RIGHT (COMPACT)
+========================================= */
+
 .report-parameter-header {
     display: flex;
     justify-content: flex-end;
     align-items: center;
+
     width: calc(100% + 20px);
-    margin: -8px -10px 12px;
-    padding: 8px 10px;
+
+    /* Reduce space above and below */
+    margin: -8px -10px 4px;
+    padding: 0 10px 4px;
+
     box-sizing: border-box;
     background: transparent;
 }
@@ -1749,42 +1757,214 @@ input[type="checkbox"]:checked::after {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 5px;
 
-    min-height: 28px;
-    padding: 4px 9px;
+    min-height: 25px;
+    padding: 3px 8px;
 
-    background: #198754;
-    border: 1px solid #198754;
+    background: #6b7280;
+    border: 1px solid #6b7280;
     border-radius: 4px;
 
     color: #ffffff;
     font-size: 11px;
     font-weight: 600;
-    line-height: 1.2;
+    line-height: 1.1;
 
     cursor: pointer;
     white-space: nowrap;
 
-    transition: background-color 0.15s ease,
-                border-color 0.15s ease;
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease;
 }
 
 /* Back Arrow */
 .report-parameter-header .back-arrow {
     display: inline-block;
-    font-size: 17px;
+    font-size: 15px;
     line-height: 1;
 }
 
-/* Hover Effect */
+/* Hover */
 .report-parameter-header .af-button-secondary:hover {
-    background: #157347;
-    border-color: #146c43;
+    background: #4b5563;
+    border-color: #4b5563;
 }
 
-/* Focus Effect */
+/* Keyboard Focus */
 .report-parameter-header .af-button-secondary:focus-visible {
     outline: 2px solid #86b7fe;
     outline-offset: 2px;
+}
+
+/* add for date picker */
+
+/* =========================================
+   CONSISTENT REACT DATE PICKER
+========================================= */
+
+.report-date-picker-wrapper {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.report-date-picker-wrapper .react-datepicker__input-container {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.report-date-control {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    height: 34px;
+    box-sizing: border-box;
+    padding: 5px 36px 5px 8px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+
+    background-color: #ffffff;
+    color: #374151;
+
+    font-family: inherit;
+    font-size: 12px;
+    line-height: normal;
+
+    outline: none;
+    cursor: pointer;
+
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.report-date-control:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08);
+}
+
+.report-date-control::placeholder {
+    color: #777777;
+    opacity: 1;
+}
+
+/* =========================================
+   DATE PICKER CONTAINER
+========================================= */
+
+.report-date-picker-container {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+}
+
+.report-date-picker-container .report-date-picker-wrapper {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.report-date-picker-container .report-date-control {
+    width: 100%;
+    padding-right: 36px;
+}
+
+/* =========================================
+   CALENDAR ICON
+========================================= */
+
+.report-calendar-icon {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 22px;
+    height: 24px;
+    padding: 2px;
+
+    border: none;
+    border-radius: 3px;
+
+    background: transparent;
+    color: #6b7280;
+
+    cursor: pointer;
+    z-index: 2;
+}
+
+.report-calendar-icon:hover {
+    color: #2563eb;
+}
+
+.report-calendar-icon:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 1px;
+}
+
+/* =========================================
+   HIDE CLEAR / CROSS ICON
+========================================= */
+
+.report-date-picker-wrapper .react-datepicker__close-icon {
+    display: none !important;
+}
+
+.report-date-picker-wrapper .react-datepicker__close-icon::after {
+    display: none !important;
+}
+
+/* =========================================
+   DEFAULT DATE PICKER POPUP
+========================================= */
+
+.react-datepicker-popper {
+    z-index: 99999 !important;
+}
+
+.react-datepicker {
+    font-family: inherit;
+    font-size: 12px;
+    box-sizing: border-box;
+}
+
+/* =========================================
+   TO DATE POPUP ONLY
+========================================= */
+
+.to-date-picker-popper {
+    z-index: 99999 !important;
+    max-width: calc(100vw - 16px) !important;
+}
+
+.to-date-picker-popper .react-datepicker {
+    max-width: calc(100vw - 16px);
+    box-sizing: border-box;
+}
+
+/* Keep spacing consistent */
+
+.to-date-picker-popper[data-placement^="bottom"] {
+    margin-top: 4px;
+}
+
+.to-date-picker-popper[data-placement^="top"] {
+    margin-bottom: 4px;
+}
+
+/* Slightly reduce the To Date calendar on narrow screens */
+
+@media screen and (max-width: 600px) {
+    .to-date-picker-popper .react-datepicker {
+        transform: scale(0.9);
+        transform-origin: top right;
+    }
 }

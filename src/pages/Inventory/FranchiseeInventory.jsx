@@ -20,7 +20,7 @@ import './FranchiseeInventory.css'
 function FranchiseeInventory() {
 
     // =========================================
-    // CONSTANT
+    // CONSTANTS
     // =========================================
 
     const MAX_FRANCHISE_SELECTION = 10
@@ -28,20 +28,53 @@ function FranchiseeInventory() {
 
     // =========================================
     // LOGGED-IN USER DETAILS
+    // Roles are read from sessionStorage.roles,
+    // matching the working DigitalICR.jsx.
     // =========================================
-
-    const roleId =
-        sessionStorage.getItem('roleId') || ''
 
     const loginId =
         sessionStorage.getItem('loginId') || ''
+
+    const sessionRegionCode =
+        sessionStorage.getItem('regionCode') || ''
+
+    const sessionBpCode =
+        sessionStorage.getItem('bpCode') || ''
+
+    let storedRoles = []
+
+    try {
+        const parsedRoles = JSON.parse(
+            sessionStorage.getItem('roles') || '[]'
+        )
+
+        if (Array.isArray(parsedRoles)) {
+            storedRoles = parsedRoles.map(role =>
+                String(role).trim()
+            )
+        } else if (
+            parsedRoles !== null &&
+            parsedRoles !== undefined
+        ) {
+            storedRoles = [String(parsedRoles).trim()]
+        }
+    } catch (error) {
+        console.error(
+            'Unable to parse stored roles:',
+            error
+        )
+    }
+
+    const isRegionRole = storedRoles.includes('1')
+    const isFranchiseRole = storedRoles.includes('5')
+    const isBranchRole = storedRoles.includes('6')
 
 
     // =========================================
     // GET LOGGED-IN USER ID
     // =========================================
 
-    const getViewerUserId = () => {
+    function getViewerUserId() {
 
         const possibleKeys = [
             'userId',
@@ -52,29 +85,87 @@ function FranchiseeInventory() {
 
         for (const key of possibleKeys) {
 
-            const value =
-                sessionStorage.getItem(key)
+            const value = sessionStorage.getItem(key)
 
             if (value) {
 
-                const parsedValue =
-                    Number(value)
+                const parsedValue = Number(value)
 
                 if (
                     Number.isInteger(parsedValue) &&
                     parsedValue > 0
                 ) {
-
                     return parsedValue
-
                 }
-
             }
-
         }
 
         return 0
+    }
 
+
+    // =========================================
+    // API FIELD HELPERS
+    // =========================================
+
+    function getApiField(item, fieldNames) {
+
+        if (!item || typeof item !== 'object') {
+            return ''
+        }
+
+        for (const fieldName of fieldNames) {
+
+            const matchingKey = Object.keys(item).find(
+                key =>
+                    key.toLowerCase() ===
+                    fieldName.toLowerCase()
+            )
+
+            if (
+                matchingKey &&
+                item[matchingKey] !== null &&
+                item[matchingKey] !== undefined
+            ) {
+                return String(
+                    item[matchingKey]
+                ).trim()
+            }
+        }
+
+        return ''
+    }
+
+
+    function getResponseArray(response, propertyName = '') {
+
+        if (Array.isArray(response)) {
+            return response
+        }
+
+        if (Array.isArray(response?.data)) {
+            return response.data
+        }
+
+        if (Array.isArray(response?.data?.data)) {
+            return response.data.data
+        }
+
+        if (
+            propertyName &&
+            Array.isArray(response?.[propertyName])
+        ) {
+            return response[propertyName]
+        }
+
+        if (
+            propertyName &&
+            Array.isArray(response?.data?.[propertyName])
+        ) {
+            return response.data[propertyName]
+        }
+
+        return []
     }
 
 
@@ -82,25 +173,28 @@ function FranchiseeInventory() {
     // STATE
     // =========================================
 
-    const [regions, setRegions] =
-        useState([])
+    const [regions, setRegions] = useState([])
 
-    const [regionCode, setRegionCode] =
-        useState('')
+    const [regionCode, setRegionCode] = useState(
+        isBranchRole || isFranchiseRole
+            ? sessionRegionCode
+            : ''
+    )
 
-    const [branches, setBranches] =
-        useState([
-            {
-                bpCode: 'All',
-                branchName: 'All'
-            }
-        ])
+    const [branches, setBranches] = useState(
+        isBranchRole
+            ? []
+            : [{ bpCode: 'All', branchName: 'All' }]
+    )
 
     const [selectedBranch, setSelectedBranch] =
-        useState('All')
+        useState(
+            isBranchRole
+                ? sessionBpCode
+                : 'All'
+        )
 
-    const [franchises, setFranchises] =
-        useState([])
+    const [franchises, setFranchises] = useState([])
 
     const [selectedCategory, setSelectedCategory] =
         useState('')
@@ -111,17 +205,14 @@ function FranchiseeInventory() {
     const [fgDescription, setFgDescription] =
         useState('')
 
-    const [component, setComponent] =
-        useState('')
+    const [component, setComponent] = useState('')
 
     const [componentDescription, setComponentDescription] =
         useState('')
 
-    const [inventoryData, setInventoryData] =
-        useState([])
+    const [inventoryData, setInventoryData] = useState([])
 
-    const [loading, setLoading] =
-        useState(false)
+    const [loading, setLoading] = useState(false)
 
     const [loadingRegions, setLoadingRegions] =
         useState(false)
@@ -135,22 +226,18 @@ function FranchiseeInventory() {
     const [exportLoading, setExportLoading] =
         useState(false)
 
-    const [message, setMessage] =
-        useState('')
+    const [message, setMessage] = useState('')
 
-    const [messageType, setMessageType] =
-        useState('')
+    const [messageType, setMessageType] = useState('')
 
 
     // =========================================
     // MODAL STATE
     // =========================================
 
-    const [showModal, setShowModal] =
-        useState(false)
+    const [showModal, setShowModal] = useState(false)
 
-    const [modalMessage, setModalMessage] =
-        useState('')
+    const [modalMessage, setModalMessage] = useState('')
 
 
     // =========================================
@@ -160,8 +247,7 @@ function FranchiseeInventory() {
     const [franchiseDropdownOpen, setFranchiseDropdownOpen] =
         useState(false)
 
-    const franchiseDropdownRef =
-        useRef(null)
+    const franchiseDropdownRef = useRef(null)
 
 
     // =========================================
@@ -169,18 +255,14 @@ function FranchiseeInventory() {
     // =========================================
 
     function openModal(messageText) {
-
         setModalMessage(messageText)
         setShowModal(true)
-
     }
 
 
     function closeModal() {
-
         setShowModal(false)
         setModalMessage('')
-
     }
 
 
@@ -198,11 +280,8 @@ function FranchiseeInventory() {
                     event.target
                 )
             ) {
-
                 setFranchiseDropdownOpen(false)
-
             }
-
         }
 
         document.addEventListener(
@@ -211,121 +290,10 @@ function FranchiseeInventory() {
         )
 
         return () => {
-
             document.removeEventListener(
                 'mousedown',
                 handleClickOutside
             )
-
-        }
-
-    }, [])
-
-
-    // =========================================
-    // LOAD REGIONS
-    // =========================================
-
-    useEffect(() => {
-
-        let isMounted = true
-
-
-        async function loadRegions() {
-
-            try {
-
-                setLoadingRegions(true)
-
-                setMessage('')
-                setMessageType('')
-
-
-                const viewerUserId =
-                    getViewerUserId()
-
-
-                if (!viewerUserId) {
-
-                    setRegions([])
-
-                    setMessage(
-                        'User ID is not available.'
-                    )
-
-                    setMessageType('error')
-
-                    return
-
-                }
-
-
-                const response =
-                    await getRegions(
-                        '',
-                        viewerUserId
-                    )
-
-
-                if (!isMounted) {
-                    return
-                }
-
-
-                const regionData =
-                    Array.isArray(response)
-                        ? response
-                        : Array.isArray(response?.data)
-                            ? response.data
-                            : []
-
-
-                setRegions(regionData)
-
-            }
-            catch (error) {
-
-                if (!isMounted) {
-                    return
-                }
-
-
-                console.error(
-                    'Inventory region error:',
-                    error
-                )
-
-
-                setRegions([])
-
-                setMessage(
-                    error.message ||
-                    'Unable to load regions.'
-                )
-
-                setMessageType('error')
-
-            }
-            finally {
-
-                if (isMounted) {
-
-                    setLoadingRegions(false)
-
-                }
-
-            }
-
-        }
-
-
-        loadRegions()
-
-
-        return () => {
-
-            isMounted = false
-
         }
 
     }, [])
@@ -333,146 +301,357 @@ function FranchiseeInventory() {
 
     // =========================================
     // LOAD BRANCHES
+    // Role 6 preselects the logged-in user's branch.
     // =========================================
 
     async function loadBranches(
-        selectedRegionCode
+        selectedRegionCode,
+        isCurrent = () => true
     ) {
 
         if (!selectedRegionCode) {
 
-            setBranches([
-                {
-                    bpCode: 'All',
-                    branchName: 'All'
-                }
-            ])
+            if (!isCurrent()) return
 
-            setSelectedBranch('All')
+            setBranches(
+                isBranchRole
+                    ? []
+                    : [{ bpCode: 'All', branchName: 'All' }]
+            )
+
+            setSelectedBranch(
+                isBranchRole ? '' : 'All'
+            )
 
             return
-
         }
-
 
         try {
 
             setLoadingBranches(true)
 
-            setMessage('')
-            setMessageType('')
-
-
-            const viewerUserId =
-                getViewerUserId()
-
+            const viewerUserId = getViewerUserId()
 
             if (!viewerUserId) {
 
+                if (!isCurrent()) return
+
+                setBranches(
+                    isBranchRole
+                        ? []
+                        : [{ bpCode: 'All', branchName: 'All' }]
+                )
+
+                setSelectedBranch(
+                    isBranchRole ? '' : 'All'
+                )
+
+                setMessage('User ID is not available.')
+                setMessageType('error')
+
+                return
+            }
+
+            const response = await getBranches(
+                viewerUserId,
+                selectedRegionCode
+            )
+
+            if (!isCurrent()) return
+
+            const branchData = getResponseArray(
+                response,
+                'branches'
+            )
+
+            const validBranches = branchData.filter(branch => {
+
+                const code = getApiField(branch, [
+                    'bpCode',
+                    'BPCode',
+                    'BpCode',
+                    'branchCode',
+                    'BranchCode'
+                ])
+
+                const name = getApiField(branch, [
+                    'branchName',
+                    'BranchName',
+                    'name',
+                    'Name'
+                ])
+
+                return (
+                    Boolean(code) &&
+                    Boolean(name) &&
+                    code.toLowerCase() !== 'all'
+                )
+            })
+
+
+            // =========================================
+            // ROLE 6: MATCH SESSION BP CODE
+            // =========================================
+
+            if (isBranchRole) {
+
+                setBranches(validBranches)
+
+                const normalizedSessionBpCode =
+                    String(sessionBpCode)
+                        .trim()
+                        .toLowerCase()
+
+                const matchingBranch = validBranches.find(
+                    branch => {
+
+                        const code = getApiField(branch, [
+                            'bpCode',
+                            'BPCode',
+                            'BpCode',
+                            'branchCode',
+                            'BranchCode'
+                        ])
+
+                        return (
+                            code.toLowerCase() ===
+                            normalizedSessionBpCode
+                        )
+                    }
+                )
+
+                if (matchingBranch) {
+
+                    const matchedBranchCode = getApiField(
+                        matchingBranch,
+                        [
+                            'bpCode',
+                            'BPCode',
+                            'BpCode',
+                            'branchCode',
+                            'BranchCode'
+                        ]
+                    )
+
+                    setSelectedBranch(matchedBranchCode)
+
+                } else {
+
+                    setSelectedBranch(sessionBpCode)
+
+                    console.warn(
+                        'Role 6 branch could not be matched.',
+                        {
+                            sessionBpCode,
+                            selectedRegionCode,
+                            availableBranches: validBranches
+                        }
+                    )
+                }
+
+            } else {
+
+                // Preserve existing behavior for other roles.
                 setBranches([
                     {
                         bpCode: 'All',
                         branchName: 'All'
-                    }
+                    },
+                    ...validBranches
                 ])
 
                 setSelectedBranch('All')
-
-                setMessage(
-                    'User ID is not available.'
-                )
-
-                setMessageType('error')
-
-                return
-
             }
 
+        } catch (error) {
 
-            const data =
-                await getBranches(
-                    viewerUserId,
-                    selectedRegionCode
-                )
-
-
-            const branchData =
-                Array.isArray(data)
-                    ? data
-                    : Array.isArray(data?.data)
-                        ? data.data
-                        : []
-
-
-            const filteredBranches =
-                branchData.filter(
-                    branch => {
-
-                        const code =
-                            String(
-                                branch.BPCode ??
-                                branch.bpCode ??
-                                branch.BpCode ??
-                                branch.branchCode ??
-                                branch.BranchCode ??
-                                ''
-                            )
-                                .trim()
-                                .toLowerCase()
-
-
-                        return code !== 'all'
-
-                    }
-                )
-
-
-            setBranches([
-                {
-                    bpCode: 'All',
-                    branchName: 'All'
-                },
-                ...filteredBranches
-            ])
-
-
-            setSelectedBranch('All')
-
-        }
-        catch (error) {
+            if (!isCurrent()) return
 
             console.error(
                 'Inventory branch error:',
                 error
             )
 
+            setBranches(
+                isBranchRole
+                    ? []
+                    : [{ bpCode: 'All', branchName: 'All' }]
+            )
 
-            setBranches([
-                {
-                    bpCode: 'All',
-                    branchName: 'All'
-                }
-            ])
-
-
-            setSelectedBranch('All')
-
+            setSelectedBranch(
+                isBranchRole ? '' : 'All'
+            )
 
             setMessage(
-                error.message ||
-                'Unable to load branch.'
+                error.message || 'Unable to load branches.'
             )
 
             setMessageType('error')
 
+        } finally {
+
+            if (isCurrent()) {
+                setLoadingBranches(false)
+            }
         }
-        finally {
-
-            setLoadingBranches(false)
-
-        }
-
     }
+
+
+    // =========================================
+    // LOAD REGIONS
+    // Role 6 matches the session region before
+    // loading its branch list.
+    // =========================================
+
+    useEffect(() => {
+
+        let isMounted = true
+
+        async function loadInitialRegions() {
+
+            try {
+
+                setLoadingRegions(true)
+
+                const viewerUserId = getViewerUserId()
+
+                if (!viewerUserId) {
+
+                    if (!isMounted) return
+
+                    setRegions([])
+
+                    setMessage('User ID is not available.')
+                    setMessageType('error')
+
+                    return
+                }
+
+                const response = await getRegions(
+                    '',
+                    viewerUserId
+                )
+
+                if (!isMounted) return
+
+                const regionData = getResponseArray(
+                    response,
+                    'regions'
+                )
+
+                setRegions(regionData)
+
+                if (isBranchRole || isFranchiseRole) {
+
+                    const normalizedSessionRegion =
+                        String(sessionRegionCode)
+                            .trim()
+                            .toLowerCase()
+
+                    const matchingRegion = regionData.find(
+                        region => {
+
+                            const code = getApiField(region, [
+                                'regionCode',
+                                'RegionCode',
+                                'code',
+                                'Code'
+                            ])
+
+                            return (
+                                code.toLowerCase() ===
+                                normalizedSessionRegion
+                            )
+                        }
+                    )
+
+                    if (!matchingRegion) {
+
+                        setRegionCode('')
+
+                        setBranches(
+                            isBranchRole
+                                ? []
+                                : [{
+                                    bpCode: 'All',
+                                    branchName: 'All'
+                                }]
+                        )
+
+                        setSelectedBranch(
+                            isBranchRole ? '' : 'All'
+                        )
+
+                        console.warn(
+                            'Logged-in user region could not be matched.',
+                            {
+                                sessionRegionCode,
+                                availableRegions: regionData
+                            }
+                        )
+
+                        setMessage(
+                            'Your region could not be matched. Please check the logged-in user region code.'
+                        )
+
+                        setMessageType('error')
+
+                        return
+                    }
+
+                    const matchedRegionCode = getApiField(
+                        matchingRegion,
+                        [
+                            'regionCode',
+                            'RegionCode',
+                            'code',
+                            'Code'
+                        ]
+                    )
+
+                    setRegionCode(matchedRegionCode)
+
+                    if (isBranchRole) {
+
+                        await loadBranches(
+                            matchedRegionCode,
+                            () => isMounted
+                        )
+                    }
+                }
+
+            } catch (error) {
+
+                if (!isMounted) return
+
+                console.error(
+                    'Inventory region error:',
+                    error
+                )
+
+                setRegions([])
+
+                setMessage(
+                    error.message || 'Unable to load regions.'
+                )
+
+                setMessageType('error')
+
+            } finally {
+
+                if (isMounted) {
+                    setLoadingRegions(false)
+                }
+            }
+        }
+
+        loadInitialRegions()
+
+        return () => {
+            isMounted = false
+        }
+
+    }, [])
 
 
     // =========================================
@@ -481,14 +660,11 @@ function FranchiseeInventory() {
 
     async function handleRegionChange(event) {
 
-        const value =
-            event.target.value
-
+        const value = event.target.value
 
         setRegionCode(value)
 
         setSelectedBranch('All')
-
 
         setBranches([
             {
@@ -497,55 +673,35 @@ function FranchiseeInventory() {
             }
         ])
 
-
-        // Clear franchise data
-
         setFranchises([])
-
         setSelectedFranchises([])
-
         setFranchiseDropdownOpen(false)
 
-
-        // Clear inventory results
-
         setInventoryData([])
-
 
         setMessage('')
         setMessageType('')
 
-
         if (value) {
-
             await loadBranches(value)
-
         }
-
     }
 
 
     // =========================================
-    // LOAD FRANCHISES
+    // LOAD FRANCHISES WHEN REGION / BRANCH CHANGES
     // =========================================
 
     useEffect(() => {
 
-        if (
-            !regionCode ||
-            !selectedBranch
-        ) {
+        if (!regionCode || !selectedBranch) {
 
             setFranchises([])
-
             setSelectedFranchises([])
-
             setFranchiseDropdownOpen(false)
 
             return
-
         }
-
 
         loadFranchises()
 
@@ -555,6 +711,10 @@ function FranchiseeInventory() {
     ])
 
 
+    // =========================================
+    // LOAD FRANCHISES
+    // =========================================
+
     async function loadFranchises() {
 
         try {
@@ -562,76 +722,53 @@ function FranchiseeInventory() {
             setFranchiseLoading(true)
 
             setFranchises([])
-
             setSelectedFranchises([])
-
             setFranchiseDropdownOpen(false)
 
-
             if (
-                !roleId ||
                 !selectedBranch ||
                 !loginId
             ) {
-
                 throw new Error(
                     'Logged-in user details are missing. Please login again.'
                 )
-
             }
 
+            const franchiseBpCode = isBranchRole
+                ? sessionBpCode || '0'
+                : selectedBranch
 
-            const data =
-                await getFranchises(
-                    roleId,
-                    selectedBranch,
-                    loginId
-                )
-
-
-            let franchiseList = []
-
-
-            if (Array.isArray(data)) {
-
-                franchiseList = data
-
-            }
-            else if (
-                Array.isArray(data?.data)
-            ) {
-
-                franchiseList = data.data
-
-            }
-
-
-            setFranchises(
-                franchiseList
+            const response = await getFranchises(
+                franchiseBpCode,
+                loginId
             )
 
-        }
-        catch (error) {
+            const franchiseList = getResponseArray(
+                response,
+                'franchises'
+            )
+
+            setFranchises(franchiseList)
+
+        } catch (error) {
 
             console.error(
                 'Inventory franchise error:',
                 error
             )
 
+            setFranchises([])
+
             setMessage(
-                error.message ||
-                'Unable to load franchises.'
+                error.message || 'Unable to load franchises.'
             )
 
             setMessageType('error')
 
-        }
-        finally {
+        } finally {
 
             setFranchiseLoading(false)
-
         }
-
     }
 
 
@@ -639,29 +776,26 @@ function FranchiseeInventory() {
     // NORMALIZE FRANCHISE OPTIONS
     // =========================================
 
-    const normalizedFranchises =
-        useMemo(() => {
+    const normalizedFranchises = useMemo(() => {
 
-            return franchises.map(
-                franchise => ({
+        return franchises.map(franchise => ({
 
-                    code:
-                        franchise.Frcode ??
-                        franchise.frCode ??
-                        franchise.frcode ??
-                        franchise.FrCode ??
-                        '',
+            code: getApiField(franchise, [
+                'Frcode',
+                'frCode',
+                'frcode',
+                'FrCode'
+            ]),
 
-                    name:
-                        franchise.FranchiseName ??
-                        franchise.franchiseName ??
-                        franchise.Franchise ??
-                        ''
+            name: getApiField(franchise, [
+                'FranchiseName',
+                'franchiseName',
+                'Franchise'
+            ])
 
-                })
-            )
+        }))
 
-        }, [franchises])
+    }, [franchises])
 
 
     // =========================================
@@ -678,17 +812,9 @@ function FranchiseeInventory() {
 
         if (event.target.checked) {
 
-            const availableCodes =
-                normalizedFranchises
-                    .map(
-                        franchise =>
-                            franchise.code
-                    )
-                    .filter(Boolean)
-
-
-            // Select maximum 10 only.
-            // Do NOT open modal here.
+            const availableCodes = normalizedFranchises
+                .map(franchise => franchise.code)
+                .filter(Boolean)
 
             setSelectedFranchises(
                 availableCodes.slice(
@@ -697,13 +823,11 @@ function FranchiseeInventory() {
                 )
             )
 
-        }
-        else {
+        } else {
 
             setSelectedFranchises([])
 
         }
-
     }
 
 
@@ -711,55 +835,33 @@ function FranchiseeInventory() {
     // SELECT FRANCHISE
     // =========================================
 
-    function handleFranchiseChange(
-        franchiseCode
-    ) {
+    function handleFranchiseChange(franchiseCode) {
 
-        setSelectedFranchises(
-            current => {
+        setSelectedFranchises(current => {
 
-                // Unselect existing franchise
+            if (current.includes(franchiseCode)) {
 
-                if (
-                    current.includes(
-                        franchiseCode
-                    )
-                ) {
-
-                    return current.filter(
-                        code =>
-                            code !== franchiseCode
-                    )
-
-                }
-
-
-                // Maximum 10 check
-                // Modal opens ONLY when trying
-                // to select the 11th franchise.
-
-                if (
-                    current.length >=
-                    MAX_FRANCHISE_SELECTION
-                ) {
-
-                    openModal(
-                        'You can select maximum 10 franchises.'
-                    )
-
-                    return current
-
-                }
-
-
-                return [
-                    ...current,
-                    franchiseCode
-                ]
-
+                return current.filter(
+                    code => code !== franchiseCode
+                )
             }
-        )
 
+            if (
+                current.length >= MAX_FRANCHISE_SELECTION
+            ) {
+
+                openModal(
+                    'You can select maximum 10 franchises.'
+                )
+
+                return current
+            }
+
+            return [
+                ...current,
+                franchiseCode
+            ]
+        })
     }
 
 
@@ -768,9 +870,7 @@ function FranchiseeInventory() {
     // =========================================
 
     function getFormattedFranchiseCodes() {
-
         return selectedFranchises.join(',')
-
     }
 
 
@@ -784,108 +884,45 @@ function FranchiseeInventory() {
         setMessageType('')
         setInventoryData([])
 
-
-        // =========================================
-        // REGION VALIDATION
-        // =========================================
-
         if (!regionCode) {
-
-            setMessage(
-                'Region is required.'
-            )
-
+            setMessage('Region is required.')
             setMessageType('error')
-
             return
-
         }
 
-
-        // =========================================
-        // BRANCH VALIDATION
-        // =========================================
-
-        if (
-            !selectedBranch ||
-            selectedBranch === 'All'
-        ) {
-
-            setMessage(
-                'Branch is required.'
-            )
-
+        if (!selectedBranch || selectedBranch === 'All') {
+            setMessage('Branch is required.')
             setMessageType('error')
-
             return
-
         }
-
-
-        // =========================================
-        // FG CATEGORY VALIDATION
-        // =========================================
 
         if (!selectedCategory) {
-
-            setMessage(
-                'FG Category is required.'
-            )
-
+            setMessage('FG Category is required.')
             setMessageType('error')
-
             return
-
         }
-
 
         try {
 
             setLoading(true)
 
-
-            const franchiseCodes =
-                getFormattedFranchiseCodes()
-
-
             const request = {
-
-                branchCode:
-                    selectedBranch,
-
-                materialCategory:
-                    selectedCategory,
-
-                franchiseCodes:
-                    franchiseCodes,
-
-                fgDescription:
-                    fgDescription,
-
-                component:
-                    component,
-
-                componentDescription:
-                    componentDescription
-
+                branchCode: selectedBranch,
+                materialCategory: selectedCategory,
+                franchiseCodes: getFormattedFranchiseCodes(),
+                fgDescription,
+                component,
+                componentDescription
             }
-
 
             console.log(
                 'Inventory search request:',
                 request
             )
 
+            const data = await searchInventory(request)
 
-            const data =
-                await searchInventory(
-                    request
-                )
-
-
-            if (
-                data?.isSuccess === false
-            ) {
+            if (data?.isSuccess === false) {
 
                 setMessage(
                     data.message ||
@@ -894,7 +931,6 @@ function FranchiseeInventory() {
 
                 setMessageType('error')
 
-
                 setInventoryData(
                     Array.isArray(data.data)
                         ? data.data
@@ -902,20 +938,15 @@ function FranchiseeInventory() {
                 )
 
                 return
-
             }
 
-
-            const rows =
-                Array.isArray(data)
-                    ? data
-                    : Array.isArray(data?.data)
-                        ? data.data
-                        : []
-
+            const rows = Array.isArray(data)
+                ? data
+                : Array.isArray(data?.data)
+                    ? data.data
+                    : []
 
             setInventoryData(rows)
-
 
             setMessage(
                 data?.message ||
@@ -924,8 +955,7 @@ function FranchiseeInventory() {
 
             setMessageType('success')
 
-        }
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 'Inventory search error:',
@@ -933,19 +963,15 @@ function FranchiseeInventory() {
             )
 
             setMessage(
-                error.message ||
-                'Unable to search inventory.'
+                error.message || 'Unable to search inventory.'
             )
 
             setMessageType('error')
 
-        }
-        finally {
+        } finally {
 
             setLoading(false)
-
         }
-
     }
 
 
@@ -955,145 +981,69 @@ function FranchiseeInventory() {
 
     async function handleExport() {
 
-        // =========================================
-        // REGION VALIDATION
-        // =========================================
-
         if (!regionCode) {
-
-            setMessage(
-                'Region is required.'
-            )
-
+            setMessage('Region is required.')
             setMessageType('error')
-
             return
-
         }
 
-
-        // =========================================
-        // BRANCH VALIDATION
-        // =========================================
-
-        if (
-            !selectedBranch ||
-            selectedBranch === 'All'
-        ) {
-
-            setMessage(
-                'Branch is required.'
-            )
-
+        if (!selectedBranch || selectedBranch === 'All') {
+            setMessage('Branch is required.')
             setMessageType('error')
-
             return
-
         }
-
-
-        // =========================================
-        // FG CATEGORY VALIDATION
-        // =========================================
 
         if (!selectedCategory) {
-
-            setMessage(
-                'FG Category is required.'
-            )
-
+            setMessage('FG Category is required.')
             setMessageType('error')
-
             return
-
         }
 
-
-        if (
-            inventoryData.length === 0
-        ) {
+        if (inventoryData.length === 0) {
 
             setMessage(
                 'Please search inventory before downloading.'
             )
 
             setMessageType('error')
-
             return
-
         }
-
 
         try {
 
             setExportLoading(true)
 
-
-            const franchiseCodes =
-                getFormattedFranchiseCodes()
-
-
             const request = {
-
-                branchCode:
-                    selectedBranch,
-
-                materialCategory:
-                    selectedCategory,
-
-                franchiseCodes:
-                    franchiseCodes,
-
-                fgDescription:
-                    fgDescription,
-
-                component:
-                    component,
-
-                componentDescription:
-                    componentDescription
-
+                branchCode: selectedBranch,
+                materialCategory: selectedCategory,
+                franchiseCodes: getFormattedFranchiseCodes(),
+                fgDescription,
+                component,
+                componentDescription
             }
-
 
             console.log(
                 'Inventory export request:',
                 request
             )
 
+            const blob = await exportInventory(request)
 
-            const blob =
-                await exportInventory(
-                    request
-                )
+            const url = window.URL.createObjectURL(blob)
 
-
-            const url =
-                window.URL.createObjectURL(
-                    blob
-                )
-
-
-            const link =
-                document.createElement('a')
-
+            const link = document.createElement('a')
 
             link.href = url
-
-            link.download =
-                'Inventory.xlsx'
-
+            link.download = 'Inventory.xlsx'
 
             document.body.appendChild(link)
 
             link.click()
-
             link.remove()
 
             window.URL.revokeObjectURL(url)
 
-        }
-        catch (error) {
+        } catch (error) {
 
             console.error(
                 'Inventory export error:',
@@ -1101,19 +1051,15 @@ function FranchiseeInventory() {
             )
 
             setMessage(
-                error.message ||
-                'Unable to download inventory.'
+                error.message || 'Unable to download inventory.'
             )
 
             setMessageType('error')
 
-        }
-        finally {
+        } finally {
 
             setExportLoading(false)
-
         }
-
     }
 
 
@@ -1123,9 +1069,7 @@ function FranchiseeInventory() {
 
     const columns =
         inventoryData.length > 0
-            ? Object.keys(
-                inventoryData[0]
-            )
+            ? Object.keys(inventoryData[0])
             : []
 
 
@@ -1149,15 +1093,9 @@ function FranchiseeInventory() {
 
     return (
 
-        <DashboardLayout
-            title="Inventory"
-        >
+        <DashboardLayout title="Inventory">
 
             <div className="inventory-page">
-
-                {/* =====================================
-                    SEARCH CARD
-                ===================================== */}
 
                 <div className="inventory-card">
 
@@ -1181,46 +1119,45 @@ function FranchiseeInventory() {
 
                             <select
                                 value={regionCode}
-                                onChange={
-                                    handleRegionChange
+                                onChange={handleRegionChange}
+                                disabled={
+                                    isBranchRole ||
+                                    isFranchiseRole ||
+                                    loadingRegions
                                 }
-                                disabled={loadingRegions}
                             >
 
                                 <option value="">
                                     Select Region
                                 </option>
 
-                                {regions.map(
-                                    (region, index) => {
+                                {regions.map((region, index) => {
 
-                                        const code =
-                                            region.RegionCode ??
-                                            region.regionCode ??
-                                            region.Code ??
-                                            region.code ??
-                                            ''
+                                    const code = getApiField(region, [
+                                        'RegionCode',
+                                        'regionCode',
+                                        'Code',
+                                        'code'
+                                    ])
 
-                                        const name =
-                                            region.RegionName ??
-                                            region.regionName ??
-                                            region.Name ??
-                                            region.name ??
-                                            ''
+                                    const name = getApiField(region, [
+                                        'RegionName',
+                                        'regionName',
+                                        'Name',
+                                        'name'
+                                    ])
 
-                                        return (
+                                    return (
 
-                                            <option
-                                                key={`${code}-${index}`}
-                                                value={code}
-                                            >
-                                                {name}
-                                            </option>
+                                        <option
+                                            key={`${code}-${index}`}
+                                            value={code}
+                                        >
+                                            {name}
+                                        </option>
 
-                                        )
-
-                                    }
-                                )}
+                                    )
+                                })}
 
                             </select>
 
@@ -1246,6 +1183,8 @@ function FranchiseeInventory() {
                             <select
                                 value={selectedBranch}
                                 disabled={
+                                    isBranchRole ||
+                                    isFranchiseRole ||
                                     !regionCode ||
                                     loadingBranches
                                 }
@@ -1255,6 +1194,9 @@ function FranchiseeInventory() {
                                         event.target.value
                                     )
 
+                                    setFranchises([])
+                                    setSelectedFranchises([])
+
                                     setInventoryData([])
 
                                     setMessage('')
@@ -1263,37 +1205,42 @@ function FranchiseeInventory() {
                                 }}
                             >
 
-                                {branches.map(
-                                    (branch, index) => {
+                                {/* {!isBranchRole &&
+                                    !isFranchiseRole && (
+                                        <option value="All">
+                                            All
+                                        </option>
+                                    )
+                                } */}
 
-                                        const code =
-                                            branch.BPCode ??
-                                            branch.bpCode ??
-                                            branch.BpCode ??
-                                            branch.branchCode ??
-                                            branch.BranchCode ??
-                                            ''
+                                {branches.map((branch, index) => {
 
-                                        const name =
-                                            branch.BranchName ??
-                                            branch.branchName ??
-                                            branch.Name ??
-                                            branch.name ??
-                                            ''
+                                    const code = getApiField(branch, [
+                                        'BPCode',
+                                        'BpCode',
+                                        'bpCode',
+                                        'BranchCode',
+                                        'branchCode'
+                                    ])
 
-                                        return (
+                                    const name = getApiField(branch, [
+                                        'BranchName',
+                                        'branchName',
+                                        'Name',
+                                        'name'
+                                    ])
 
-                                            <option
-                                                key={`${code}-${index}`}
-                                                value={code}
-                                            >
-                                                {name}
-                                            </option>
+                                    return (
 
-                                        )
+                                        <option
+                                            key={`${code}-${index}`}
+                                            value={code}
+                                        >
+                                            {name}
+                                        </option>
 
-                                    }
-                                )}
+                                    )
+                                })}
 
                             </select>
 
@@ -1324,17 +1271,9 @@ function FranchiseeInventory() {
                                         event.target.value
                                     )
 
-
-                                    // Clear FG Category
-                                    // validation message
-
-                                    if (
-                                        event.target.value
-                                    ) {
-
+                                    if (event.target.value) {
                                         setMessage('')
                                         setMessageType('')
-
                                     }
 
                                 }}
@@ -1344,41 +1283,15 @@ function FranchiseeInventory() {
                                     Select FG Category
                                 </option>
 
-                                <option value="WM">
-                                    Washing Machine
-                                </option>
-
-                                <option value="DW">
-                                    Dish Washer
-                                </option>
-
-                                <option value="AC">
-                                    Air Conditioner
-                                </option>
-
-                                <option value="MW">
-                                    Micro Wave
-                                </option>
-
-                                <option value="CD">
-                                    Cloth Dryer
-                                </option>
-
-                                <option value="KA">
-                                    Kitchen Appliances
-                                </option>
-
-                                <option value="ACC">
-                                    Accessories
-                                </option>
-
-                                <option value="ADD">
-                                    Additive
-                                </option>
-
-                                <option value="WP">
-                                    Water Purifier
-                                </option>
+                                <option value="WM">Washing Machine</option>
+                                <option value="DW">Dish Washer</option>
+                                <option value="AC">Air Conditioner</option>
+                                <option value="MW">Micro Wave</option>
+                                <option value="CD">Cloth Dryer</option>
+                                <option value="KA">Kitchen Appliances</option>
+                                <option value="ACC">Accessories</option>
+                                <option value="ADD">Additive</option>
+                                <option value="WP">Water Purifier</option>
 
                             </select>
 
@@ -1392,9 +1305,7 @@ function FranchiseeInventory() {
                             ref={franchiseDropdownRef}
                         >
 
-                            <label>
-                                Franchise
-                            </label>
+                            <label>Franchise</label>
 
                             <button
                                 type="button"
@@ -1405,8 +1316,7 @@ function FranchiseeInventory() {
                                 }
                                 onClick={() =>
                                     setFranchiseDropdownOpen(
-                                        current =>
-                                            !current
+                                        current => !current
                                     )
                                 }
                                 disabled={
@@ -1431,30 +1341,23 @@ function FranchiseeInventory() {
 
                             </button>
 
-
                             {franchiseDropdownOpen && (
 
                                 <div className="franchise-options">
 
                                     {franchiseLoading && (
-
                                         <div className="franchise-loading">
                                             Loading...
                                         </div>
-
                                     )}
-
 
                                     {!franchiseLoading &&
                                         normalizedFranchises.length === 0 && (
-
                                             <div className="franchise-empty">
                                                 No franchises available
                                             </div>
-
                                         )
                                     }
-
 
                                     {!franchiseLoading &&
                                         normalizedFranchises.length > 0 && (
@@ -1465,55 +1368,42 @@ function FranchiseeInventory() {
 
                                                     <input
                                                         type="checkbox"
-                                                        checked={
-                                                            allSelected
-                                                        }
-                                                        onChange={
-                                                            handleSelectAll
-                                                        }
+                                                        checked={allSelected}
+                                                        onChange={handleSelectAll}
                                                     />
 
-                                                    <span>
-                                                        Select All
-                                                    </span>
+                                                    <span>Select All</span>
 
                                                 </label>
 
+                                                {normalizedFranchises.map(franchise => (
 
-                                                {normalizedFranchises.map(
-                                                    franchise => (
+                                                    <label
+                                                        className="franchise-option"
+                                                        key={franchise.code}
+                                                    >
 
-                                                        <label
-                                                            className="franchise-option"
-                                                            key={
-                                                                franchise.code
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={
+                                                                selectedFranchises.includes(
+                                                                    franchise.code
+                                                                )
                                                             }
-                                                        >
+                                                            onChange={() =>
+                                                                handleFranchiseChange(
+                                                                    franchise.code
+                                                                )
+                                                            }
+                                                        />
 
-                                                            <input
-                                                                type="checkbox"
-                                                                checked={
-                                                                    selectedFranchises.includes(
-                                                                        franchise.code
-                                                                    )
-                                                                }
-                                                                onChange={() =>
-                                                                    handleFranchiseChange(
-                                                                        franchise.code
-                                                                    )
-                                                                }
-                                                            />
+                                                        <span>
+                                                            {franchise.name}
+                                                        </span>
 
-                                                            <span>
-                                                                {
-                                                                    franchise.name
-                                                                }
-                                                            </span>
+                                                    </label>
 
-                                                        </label>
-
-                                                    )
-                                                )}
+                                                ))}
 
                                             </>
 
@@ -1531,21 +1421,15 @@ function FranchiseeInventory() {
 
                         <div className="inventory-field">
 
-                            <label>
-                                FG Description
-                            </label>
+                            <label>FG Description</label>
 
                             <input
                                 type="text"
-                                value={
-                                    fgDescription
-                                }
+                                value={fgDescription}
                                 maxLength={164}
                                 placeholder="Enter FG description"
                                 onChange={event =>
-                                    setFgDescription(
-                                        event.target.value
-                                    )
+                                    setFgDescription(event.target.value)
                                 }
                             />
 
@@ -1556,9 +1440,7 @@ function FranchiseeInventory() {
 
                         <div className="inventory-field">
 
-                            <label>
-                                Component
-                            </label>
+                            <label>Component</label>
 
                             <input
                                 type="text"
@@ -1566,9 +1448,7 @@ function FranchiseeInventory() {
                                 maxLength={50}
                                 placeholder="Enter component"
                                 onChange={event =>
-                                    setComponent(
-                                        event.target.value
-                                    )
+                                    setComponent(event.target.value)
                                 }
                             />
 
@@ -1579,21 +1459,15 @@ function FranchiseeInventory() {
 
                         <div className="inventory-field">
 
-                            <label>
-                                Component Description
-                            </label>
+                            <label>Component Description</label>
 
                             <input
                                 type="text"
-                                value={
-                                    componentDescription
-                                }
+                                value={componentDescription}
                                 maxLength={164}
                                 placeholder="Enter component description"
                                 onChange={event =>
-                                    setComponentDescription(
-                                        event.target.value
-                                    )
+                                    setComponentDescription(event.target.value)
                                 }
                             />
 
@@ -1608,18 +1482,12 @@ function FranchiseeInventory() {
 
                         <button
                             type="button"
-                            className="inventory-search-button"
+                            className="btn-search inventory-search-button"
                             disabled={loading}
                             onClick={handleSearch}
                         >
-
-                            {loading
-                                ? 'Searching...'
-                                : 'Search'
-                            }
-
+                            {loading ? 'Searching...' : 'Search'}
                         </button>
-
 
                         <button
                             type="button"
@@ -1630,12 +1498,10 @@ function FranchiseeInventory() {
                             }
                             onClick={handleExport}
                         >
-
                             {exportLoading
                                 ? 'Downloading...'
                                 : 'Download'
                             }
-
                         </button>
 
                     </div>
@@ -1643,26 +1509,20 @@ function FranchiseeInventory() {
                 </div>
 
 
-                {/* =====================================
-                    MESSAGE
-                ===================================== */}
+                {/* MESSAGE */}
 
                 {message && (
 
                     <div
                         className={`inventory-message ${messageType}`}
                     >
-
                         {message}
-
                     </div>
 
                 )}
 
 
-                {/* =====================================
-                    RESULTS
-                ===================================== */}
+                {/* RESULTS */}
 
                 {inventoryData.length > 0 && (
 
@@ -1671,21 +1531,14 @@ function FranchiseeInventory() {
                         <div className="inventory-results-header">
 
                             <div>
-
-                                <h2>
-                                    Search Results
-                                </h2>
+                                <h2>Search Results</h2>
 
                                 <span>
-                                    {
-                                        inventoryData.length
-                                    } records
+                                    {inventoryData.length} records
                                 </span>
-
                             </div>
 
                         </div>
-
 
                         <div className="inventory-table-wrapper">
 
@@ -1694,68 +1547,35 @@ function FranchiseeInventory() {
                                 <thead>
 
                                     <tr>
+                                        <th>S.No.</th>
 
-                                        <th>
-                                            S.No.
-                                        </th>
-
-                                        {columns.map(
-                                            column => (
-
-                                                <th
-                                                    key={column}
-                                                >
-                                                    {column}
-                                                </th>
-
-                                            )
-                                        )}
+                                        {columns.map(column => (
+                                            <th key={column}>
+                                                {column}
+                                            </th>
+                                        ))}
 
                                     </tr>
 
                                 </thead>
 
-
                                 <tbody>
 
-                                    {inventoryData.map(
-                                        (
-                                            row,
-                                            rowIndex
-                                        ) => (
+                                    {inventoryData.map((row, rowIndex) => (
 
-                                            <tr
-                                                key={
-                                                    rowIndex
-                                                }
-                                            >
+                                        <tr key={rowIndex}>
 
-                                                <td>
-                                                    {
-                                                        rowIndex + 1
-                                                    }
+                                            <td>{rowIndex + 1}</td>
+
+                                            {columns.map(column => (
+                                                <td key={`${rowIndex}-${column}`}>
+                                                    {row[column] ?? ''}
                                                 </td>
+                                            ))}
 
-                                                {columns.map(
-                                                    column => (
+                                        </tr>
 
-                                                        <td
-                                                            key={`${rowIndex}-${column}`}
-                                                        >
-                                                            {
-                                                                row[
-                                                                    column
-                                                                ] ?? ''
-                                                            }
-                                                        </td>
-
-                                                    )
-                                                )}
-
-                                            </tr>
-
-                                        )
-                                    )}
+                                    ))}
 
                                 </tbody>
 
@@ -1768,9 +1588,7 @@ function FranchiseeInventory() {
                 )}
 
 
-                {/* =====================================
-                    MAX 10 FRANCHISE MODAL
-                ===================================== */}
+                {/* MAX 10 FRANCHISE MODAL */}
 
                 {showModal && (
 
@@ -1781,8 +1599,7 @@ function FranchiseeInventory() {
                             left: 0,
                             right: 0,
                             bottom: 0,
-                            backgroundColor:
-                                'rgba(0, 0, 0, 0.5)',
+                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -1797,57 +1614,42 @@ function FranchiseeInventory() {
                                 maxWidth: '90%',
                                 backgroundColor: '#ffffff',
                                 borderRadius: '8px',
-                                boxShadow:
-                                    '0 10px 30px rgba(0, 0, 0, 0.25)',
+                                boxShadow: '0 10px 30px rgba(0, 0, 0, 0.25)',
                                 overflow: 'hidden'
                             }}
-                            onClick={event =>
-                                event.stopPropagation()
-                            }
+                            onClick={event => event.stopPropagation()}
                         >
-
-                            {/* MODAL HEADER */}
 
                             <div
                                 style={{
-                                    padding:
-                                        '16px 20px',
-                                    borderBottom:
-                                        '1px solid #e5e5e5',
+                                    padding: '16px 20px',
+                                    borderBottom: '1px solid #e5e5e5',
                                     display: 'flex',
-                                    alignItems:
-                                        'center',
-                                    justifyContent:
-                                        'space-between'
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between'
                                 }}
                             >
 
                                 <h3
                                     style={{
                                         margin: 0,
-                                        fontSize:
-                                            '18px',
+                                        fontSize: '18px',
                                         fontWeight: 600
                                     }}
                                 >
                                     Validation
                                 </h3>
 
-
                                 <button
                                     type="button"
                                     onClick={closeModal}
                                     style={{
                                         border: 'none',
-                                        background:
-                                            'transparent',
-                                        fontSize:
-                                            '24px',
-                                        cursor:
-                                            'pointer',
+                                        background: 'transparent',
+                                        fontSize: '24px',
+                                        cursor: 'pointer',
                                         lineHeight: 1,
-                                        padding:
-                                            '0 4px'
+                                        padding: '0 4px'
                                     }}
                                 >
                                     ×
@@ -1856,32 +1658,22 @@ function FranchiseeInventory() {
                             </div>
 
 
-                            {/* MODAL BODY */}
-
                             <div
                                 style={{
-                                    padding:
-                                        '24px 20px',
-                                    fontSize:
-                                        '15px',
+                                    padding: '24px 20px',
+                                    fontSize: '15px',
                                     color: '#333'
                                 }}
                             >
-
                                 {modalMessage}
-
                             </div>
 
 
-                            {/* MODAL FOOTER */}
-
                             <div
                                 style={{
-                                    padding:
-                                        '12px 20px 18px',
+                                    padding: '12px 20px 18px',
                                     display: 'flex',
-                                    justifyContent:
-                                        'flex-end'
+                                    justifyContent: 'flex-end'
                                 }}
                             >
 
@@ -1889,21 +1681,14 @@ function FranchiseeInventory() {
                                     type="button"
                                     onClick={closeModal}
                                     style={{
-                                        minWidth:
-                                            '80px',
-                                        padding:
-                                            '8px 18px',
+                                        minWidth: '80px',
+                                        padding: '8px 18px',
                                         border: 'none',
-                                        borderRadius:
-                                            '5px',
-                                        backgroundColor:
-                                            '#0d6efd',
-                                        color:
-                                            '#ffffff',
-                                        cursor:
-                                            'pointer',
-                                        fontSize:
-                                            '14px'
+                                        borderRadius: '5px',
+                                        backgroundColor: '#0d6efd',
+                                        color: '#ffffff',
+                                        cursor: 'pointer',
+                                        fontSize: '14px'
                                     }}
                                 >
                                     OK
@@ -1922,8 +1707,6 @@ function FranchiseeInventory() {
         </DashboardLayout>
 
     )
-
 }
-
 
 export default FranchiseeInventory

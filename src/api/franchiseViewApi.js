@@ -142,86 +142,67 @@ export async function searchFranchises(
 // UPDATE FRANCHISE
 // =============================================
 
-export async function updateFranchise(
-    request
-) {
 
-    const response =
-        await authFetch(
-            `${API_BASE_URL}/api/FranchiseView`,
-            {
-                method: 'PUT',
+export async function updateFranchise(request) {
+    const payload = {
+    FrCode: request.FrCode,
+    Status: request.Status,
+    UpdatedBy: request.UpdatedBy,
+    RoleId: String(request.RoleId)
+}
 
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+    // Include contact details only when they are provided.
+    // Role ID 6 sends only FrCode, Status and UpdatedBy.
+    if (request.MobileNo !== undefined) {
+        payload.MobileNo = request.MobileNo
+    }
 
-                body: JSON.stringify({
-                    FrCode:
-                        request.FrCode,
+    if (request.EmailId !== undefined) {
+        payload.EmailId = request.EmailId
+    }
 
-                    MobileNo:
-                        request.MobileNo,
+    if (request.ContactPerson !== undefined) {
+        payload.ContactPerson = request.ContactPerson
+    }
 
-                    EmailId:
-                        request.EmailId,
+    const response = await authFetch(
+        `${API_BASE_URL}/api/FranchiseView`,
+        {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        }
+    )
 
-                    ContactPerson:
-                        request.ContactPerson,
-
-                    Status:
-                        request.Status,
-
-                    UpdatedBy:
-                        request.UpdatedBy
-                })
-            }
-        )
-
-
-    const text =
-        await response.text()
-
+    const text = await response.text()
 
     let data = null
 
-
     if (text) {
-
         try {
-
             data = JSON.parse(text)
-
         } catch {
-
             throw new Error(
                 'Invalid response received while updating franchise.'
             )
-
         }
-
     }
 
-
     if (!response.ok) {
-
         throw new Error(
             data?.message ||
             'Unable to update franchise.'
         )
-
     }
 
-
     if (!data?.isSuccess) {
-
         throw new Error(
             data?.message ||
             'Franchise update failed.'
         )
-
     }
-
 
     return data
 }

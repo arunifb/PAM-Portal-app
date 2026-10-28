@@ -1,5 +1,12 @@
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+//import { useEffect, useState, useRef } from 'react'
+// import { useParams, useNavigate } from 'react-router-dom'
+import {
+    useParams,
+    useNavigate,
+    useLocation,
+    useSearchParams
+} from 'react-router-dom'
 
 import { getDashboardMenu } from '../../api/dashboardApi'
 
@@ -16,6 +23,7 @@ import DDRRegion from '../DDRRegion/DDRRegion'
 import DigitalICR from '../DigitalICR/DigitalICR'
 import SparesStock from '../SparesStock/SparesStock'
 import Technician from '../Technician/Technician'
+import TechnicianEdit from '../Technician/TechnicianEdit'
 import SparesSearch from '../SparesSearch/SparesSearch'
 import UserManagement from '../UserManagement/UserManagement'
 import CheckTicketStatus from '../CheckTicketStatus/CheckTicketStatus'
@@ -29,12 +37,26 @@ import AddFranchise from '../AddFranchise/AddFranchise'
 import FranchiseList from '../Franchise/FranchiseList'
 import AddTechSkill from '../AddTechSkill/AddTechSkill'
 import EvidenceSearch from '../EvidenceSearch/EvidenceSearch'
+import TechnicianAdd from '../Technician/TechnicianAdd'
+import UploadMSMEDoc from '../UploadMSMEDoc/UploadMSMEDoc'
+import SearchInvoice from '../SearchInvoice/SearchInvoice'
+import TrainingManual from '../TrainingManual/TrainingManual'
+import SubDealerView from '../SubDealer/SubDealerView'
+// import VendorCreation from '../Vendor/Creation'
 
 function RouteKeyPage() {
 
     const { routeKey } = useParams()
 
     const navigate = useNavigate()
+
+
+    const location = useLocation()
+
+    // const previousRouteKey = useRef(routeKey)
+
+    const showSubDealerView =
+        location.state?.showSubDealerView === true
 
 
     // =========================================
@@ -50,7 +72,24 @@ function RouteKeyPage() {
     const [menuItem, setMenuItem] =
         useState(null)
 
-    const [franchiseView, setFranchiseView] = useState('add')
+    const [searchParams, setSearchParams] = useSearchParams()
+
+// Default to Add Franchise; preserve the selected view on refresh.
+const franchiseView =
+    searchParams.get('view') === 'list' ? 'list' : 'add'
+
+const setFranchiseView = (view) => {
+    if (view === 'list') {
+        setSearchParams({ view: 'list' })
+    } else {
+        setSearchParams({})
+    }
+}
+
+    const [technicianView, setTechnicianView] = useState('list')
+    const [technicianListState, setTechnicianListState] = useState(null)
+    const [refreshAfterAdd, setRefreshAfterAdd] = useState(0)
+    const [technicianEditState, setTechnicianEditState] = useState(null)
 
 
     // =========================================
@@ -98,6 +137,9 @@ function RouteKeyPage() {
         '/technician':
             Technician,
 
+        '/technician/add':
+            TechnicianAdd,
+
         '/spares-search':
             SparesSearch,
 
@@ -130,7 +172,21 @@ function RouteKeyPage() {
                  AddTechSkill,
 
         '/evidence-search':
-        EvidenceSearch,
+                EvidenceSearch,
+
+        '/upload-msme-doc':
+                UploadMSMEDoc,
+                
+        '/search-invoice': SearchInvoice,
+
+        '/training-manual':
+            TrainingManual,
+
+        '/sub-dealer-view':
+            SubDealerView,
+
+        // '/vendor/creation': 
+        // VendorCreation,
 
         // =========================================
         // REPORT DATA
@@ -190,6 +246,9 @@ function RouteKeyPage() {
                         'Invalid dashboard menu response.'
                     )
                 }
+
+
+                
 
 
                 // =========================================
@@ -254,6 +313,30 @@ function RouteKeyPage() {
     }, [
         routeKey
     ])
+
+
+    // =========================================
+// UPDATE BROWSER TAB TITLE FROM MENU NAME
+// =========================================
+
+useEffect(() => {
+    if (menuItem) {
+        const menuName =
+            menuItem.menuName ||
+            menuItem.MenuName
+
+        if (menuName) {
+            document.title = `eTraining-${menuName}`
+        }
+    }
+}, [menuItem])
+
+useEffect(() => {
+    // Reset Technician Management to its default list view
+    setTechnicianView('list')
+    setTechnicianEditState(null)
+    setTechnicianListState(null)
+}, [routeKey, location.pathname])
 
 
     // =========================================
@@ -396,27 +479,121 @@ function RouteKeyPage() {
 
 
     // =========================================
-// RENDER FRANCHISE PAGES WITHOUT URL CHANGE
-// =========================================
+    // RENDER FRANCHISE PAGES WITHOUT URL CHANGE
+    // =========================================
 
-if (reactUrl === '/add-franchise') {
-    if (franchiseView === 'list') {
+    if (reactUrl === '/add-franchise') {
+        if (franchiseView === 'list') {
+            return (
+                <FranchiseList
+                    onAddFranchise={() => setFranchiseView('add')}
+                />
+            )
+        }
+
         return (
-            <FranchiseList
-                onAddFranchise={() => setFranchiseView('add')}
+            <AddFranchise
+                onBack={() => setFranchiseView('list')}
             />
         )
     }
 
+
+
+    // if (reactUrl === '/technician') {
+    //     if (technicianView === 'add') {
+    //         return (
+    //             <TechnicianAdd
+    //                 onBack={(result) => {
+    //                     setTechnicianView('list')
+
+    //                     if (result?.listState) {
+    //                         setTechnicianListState(result.listState)
+    //                     }
+
+    //                     if (result?.refreshTechnicians) {
+    //                         setRefreshAfterAdd((prev) => prev + 1)
+    //                     }
+    //                 }}
+    //                 listState={technicianListState}
+    //             />
+    //         )
+    //     }
+
+    //     return (
+    //         <Technician
+    //             onAddTechnician={(listState) => {
+    //                 setTechnicianListState(listState)
+    //                 setTechnicianView('add')
+    //             }}
+    //             restoreListState={technicianListState}
+    //             refreshAfterAdd={refreshAfterAdd}
+    //         />
+    //     )
+    // }
+
+    if (reactUrl === '/technician') {
+    if (technicianView === 'add') {
+        return (
+            <TechnicianAdd
+                onBack={(result) => {
+                    setTechnicianView('list')
+
+                    if (result?.listState) {
+                        setTechnicianListState(result.listState)
+                    }
+
+                    if (result?.refreshTechnicians) {
+                        setRefreshAfterAdd((prev) => prev + 1)
+                    }
+                }}
+                listState={technicianListState}
+            />
+        )
+    }
+
+    // Show Technician Edit without changing the URL
+    if (technicianEditState) {
+        return (
+            <TechnicianEdit
+                techId={technicianEditState.techId}
+                profileMode={technicianEditState.profileMode}
+                listState={technicianEditState.listState}
+                onBack={() => {
+                    setTechnicianEditState(null)
+                }}
+            />
+        )
+    }
+
+    // Show Technician list
     return (
-        <AddFranchise
-            onBack={() => setFranchiseView('list')}
+        <Technician
+            onAddTechnician={(listState) => {
+                setTechnicianListState(listState)
+                setTechnicianView('add')
+            }}
+            onEditTechnician={(editState) => {
+                setTechnicianListState(editState.listState)
+                setTechnicianEditState(editState)
+            }}
+            restoreListState={technicianListState}
+            refreshAfterAdd={refreshAfterAdd}
         />
     )
 }
 
-return <PageComponent />
-}
+
+    if (
+        reactUrl === '/subdealer/editview' &&
+        showSubDealerView
+            ) {
+            return <SubDealerView />
+        }
+
+    return <PageComponent />
+
+    }
 
 
 export default RouteKeyPage

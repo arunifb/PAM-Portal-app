@@ -14,23 +14,43 @@ import {
     exportDigitalICR
 } from '../../api/digitalICRApi'
 
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
+import { CalendarDays } from 'lucide-react'
 
 function DigitalICR() {
-
     // =========================================
     // SESSION VALUES
     // =========================================
 
-    const sessionUserId =
-        Number(
-            sessionStorage.getItem('userId') || 0
+    const sessionUserId = Number(
+        sessionStorage.getItem('userId') || 0
+    )
+
+    // Use roles only. Login.jsx remains unchanged.
+    let storedRoles = []
+
+    try {
+        const parsedRoles = JSON.parse(
+            sessionStorage.getItem('roles') || '[]'
         )
 
-    const roleId =
-        Number(
-            sessionStorage.getItem('roleId') ||
-            sessionStorage.getItem('roleID')
-        ) || 0
+        if (Array.isArray(parsedRoles)) {
+            storedRoles = parsedRoles.map(role =>
+                String(role).trim()
+            )
+        } else if (parsedRoles !== null && parsedRoles !== undefined) {
+            storedRoles = [String(parsedRoles).trim()]
+        }
+    } catch (err) {
+        console.error('Unable to parse stored roles:', err)
+    }
+
+    const roles = storedRoles
+
+    const isRegionRole = roles.includes('1')
+    const isFranchiseRole = roles.includes('5')
+    const isBranchRole = roles.includes('6')
 
     const sessionRegionCode =
         sessionStorage.getItem('regionCode') || ''
@@ -41,1827 +61,1048 @@ function DigitalICR() {
     const loginId =
         sessionStorage.getItem('loginId') || ''
 
-
     // =========================================
     // REGION STATE
     // =========================================
 
-    const [regions, setRegions] =
-        useState([])
-
-    const [selectedRegionCode, setSelectedRegionCode] =
-        useState('')
-
-    const [loadingRegions, setLoadingRegions] =
-        useState(false)
-
+    const [regions, setRegions] = useState([])
+    const [selectedRegionCode, setSelectedRegionCode] = useState('')
+    const [loadingRegions, setLoadingRegions] = useState(false)
 
     // =========================================
     // FORM STATE
     // =========================================
 
-    const [branches, setBranches] =
-        useState([])
+    const [branches, setBranches] = useState([])
+    const [franchises, setFranchises] = useState([])
 
-    const [franchises, setFranchises] =
-        useState([])
+    const [branchCode, setBranchCode] = useState('All')
+    const [franchiseCode, setFranchiseCode] = useState('All')
 
-
-    const [branchCode, setBranchCode] =
-        useState('')
-
-    const [franchiseCode, setFranchiseCode] =
-        useState('All')
-
-
-    const [fromDate, setFromDate] =
-        useState('')
-
-    const [toDate, setToDate] =
-        useState('')
-
+    const [fromDate, setFromDate] = useState('')
+    const [toDate, setToDate] = useState('')
 
     // =========================================
     // RESULT STATE
     // =========================================
 
-    const [records, setRecords] =
-        useState([])
-
-    const [searching, setSearching] =
-        useState(false)
-
-    const [downloading, setDownloading] =
-        useState(false)
-
+    const [records, setRecords] = useState([])
+    const [searching, setSearching] = useState(false)
+    const [downloading, setDownloading] = useState(false)
 
     // =========================================
     // LOADING STATE
     // =========================================
 
-    const [loadingBranches, setLoadingBranches] =
-        useState(false)
-
-    const [loadingFranchises, setLoadingFranchises] =
-        useState(false)
-
+    const [loadingBranches, setLoadingBranches] = useState(false)
+    const [loadingFranchises, setLoadingFranchises] = useState(false)
 
     // =========================================
     // MESSAGE STATE
     // =========================================
 
-    const [error, setError] =
-        useState('')
-
-    const [message, setMessage] =
-        useState('')
-
+    const [error, setError] = useState('')
+    const [message, setMessage] = useState('')
 
     // =========================================
-    // GET REGION VALUE
+    // PROPERTY HELPERS
     // =========================================
 
-    const getRegionCode = (item) => {
+    const getRegionCode = (item) =>
+        item?.regionCode ??
+        item?.RegionCode ??
+        ''
 
-        return (
-            item.regionCode ??
-            item.RegionCode ??
-            ''
-        )
+    const getRegionName = (item) =>
+        item?.regionName ??
+        item?.RegionName ??
+        item?.name ??
+        item?.Name ??
+        ''
 
+    const getBranchCode = (item) =>
+        item?.bpCode ??
+        item?.BPCode ??
+        item?.branchCode ??
+        item?.BranchCode ??
+        ''
+
+    const getBranchName = (item) =>
+        item?.branchName ??
+        item?.BranchName ??
+        item?.name ??
+        item?.Name ??
+        ''
+
+    const getFranchiseCode = (item) =>
+        item?.frCode ??
+        item?.FrCode ??
+        item?.Frcode ??
+        item?.FRCode ??
+        item?.frcode ??
+        item?.loginId ??
+        item?.LoginID ??
+        ''
+
+    const getFranchiseName = (item) =>
+        item?.franchiseName ??
+        item?.FranchiseName ??
+        item?.userName ??
+        item?.UserName ??
+        item?.name ??
+        item?.Name ??
+        ''
+
+    const equalsIgnoreCase = (first, second) =>
+        String(first ?? '').trim().toLowerCase() ===
+        String(second ?? '').trim().toLowerCase()
+
+    // =========================================
+    // API RESPONSE HELPER
+    // =========================================
+
+    const getArrayResponse = (response, propertyName) => {
+        if (Array.isArray(response)) return response
+
+        if (Array.isArray(response?.data)) {
+            return response.data
+        }
+
+        if (Array.isArray(response?.[propertyName])) {
+            return response[propertyName]
+        }
+
+        if (Array.isArray(response?.data?.[propertyName])) {
+            return response.data[propertyName]
+        }
+
+        return []
     }
 
+    // =========================================
+    // DEBUG ROLE INFORMATION
+    // =========================================
 
-    const getRegionName = (item) => {
-
-        return (
-            item.regionName ??
-            item.RegionName ??
-            item.name ??
-            item.Name ??
-            ''
-        )
-
-    }
-
+    useEffect(() => {
+        console.log('Digital ICR roles:', roles)
+        console.log('Is Region role:', isRegionRole)
+        console.log('Is Franchise role:', isFranchiseRole)
+        console.log('Is Branch role:', isBranchRole)
+    }, [])
 
     // =========================================
     // LOAD REGIONS
     // =========================================
 
     useEffect(() => {
-
         let cancelled = false
 
-
         const loadRegions = async () => {
-
             try {
-
                 setLoadingRegions(true)
                 setError('')
 
+                const response = await getRegions(
+                    '',
+                    sessionUserId
+                )
 
-                const data =
-                    await getRegions(
-                        '',
-                        sessionUserId
-                    )
+                if (cancelled) return
 
-
-                if (cancelled) {
-                    return
-                }
-
-
-                if (!Array.isArray(data)) {
-
-                    throw new Error(
-                        'Invalid region response.'
-                    )
-
-                }
-
+                const data = getArrayResponse(
+                    response,
+                    'regions'
+                )
 
                 setRegions(data)
 
-
-                // =====================================
-                // INITIAL REGION
-                // =====================================
-                //
-                // Role 1:
-                // Start with Select Region.
-                //
-                // Other roles:
-                // Use session region if available.
-                // =====================================
-
-                if (
-                    roleId === 1
-                ) {
-
+                if (isRegionRole) {
+                    // Role 1: keep Region unselected.
                     setSelectedRegionCode('')
-
-                }
-                else if (
-                    sessionRegionCode
-                ) {
-
-                    setSelectedRegionCode(
-                        sessionRegionCode
+                } else if (isFranchiseRole || isBranchRole) {
+                    const matchingRegion = data.find(item =>
+                        equalsIgnoreCase(
+                            getRegionCode(item),
+                            sessionRegionCode
+                        )
                     )
 
-                }
-                else {
-
+                    setSelectedRegionCode(
+                        matchingRegion
+                            ? String(getRegionCode(matchingRegion))
+                            : sessionRegionCode
+                    )
+                } else {
                     setSelectedRegionCode('')
-
                 }
+            } catch (err) {
+                if (cancelled) return
 
-
-            } catch (error) {
-
-                if (cancelled) {
-                    return
-                }
-
-
-                console.error(
-                    'Digital ICR region error:',
-                    error
-                )
-
+                console.error('Digital ICR region error:', err)
 
                 setRegions([])
-
                 setSelectedRegionCode('')
 
-
                 setError(
-                    error.message ||
-                    'Unable to load regions.'
+                    err.message || 'Unable to load regions.'
                 )
-
-
             } finally {
-
                 if (!cancelled) {
-
                     setLoadingRegions(false)
-
                 }
-
             }
-
         }
-
 
         loadRegions()
 
-
         return () => {
-
             cancelled = true
-
         }
-
-
     }, [
         sessionUserId,
-        roleId,
+        isRegionRole,
+        isFranchiseRole,
+        isBranchRole,
         sessionRegionCode
     ])
-
 
     // =========================================
     // LOAD BRANCHES
     // =========================================
 
     useEffect(() => {
-
         let cancelled = false
 
-
         const loadBranches = async () => {
-
-            // =====================================
-            // NO REGION SELECTED
-            // =====================================
+            setBranches([])
+            setBranchCode('All')
+            setFranchises([])
+            setFranchiseCode('All')
 
             if (!selectedRegionCode) {
-
-                setBranches([])
-
-                setBranchCode('')
-
-                setFranchises([])
-
-                setFranchiseCode('All')
-
                 setLoadingBranches(false)
-
                 return
-
             }
 
-
             try {
-
                 setLoadingBranches(true)
-                setError('')
 
-
-                console.log(
-                    'Digital ICR Loading branches:',
-                    {
-                        userId:
-                            sessionUserId,
-
-                        regionCode:
-                            selectedRegionCode
-                    }
+                const response = await getBranches(
+                    sessionUserId,
+                    selectedRegionCode
                 )
 
+                if (cancelled) return
 
-                const data =
-                    await getBranches(
-                        sessionUserId,
-                        selectedRegionCode
-                    )
-
-
-                if (cancelled) {
-                    return
-                }
-
-
-                console.log(
-                    'Digital ICR Branch Response:',
-                    data
+                const branchData = getArrayResponse(
+                    response,
+                    'branches'
                 )
 
+                const validBranches = branchData.filter(item =>
+                    String(getBranchCode(item)).trim() !== '' &&
+                    String(getBranchName(item)).trim() !== ''
+                )
 
-                if (!Array.isArray(data)) {
+                console.log(
+                    'Digital ICR branch response:',
+                    response
+                )
 
-                    throw new Error(
-                        'Invalid branch response.'
+                console.log(
+                    'Digital ICR parsed branches:',
+                    validBranches
+                )
+
+                if (isRegionRole) {
+                    // Role 1: preserve All and selectable branches.
+                    const allBranches = validBranches.filter(
+                        item =>
+                            !equalsIgnoreCase(
+                                getBranchCode(item),
+                                'All'
+                            )
                     )
 
-                }
-
-
-                // =====================================
-                // ROLE 1
-                // =====================================
-                //
-                // Show All + returned branches.
-                // =====================================
-
-                if (roleId === 1) {
-
-                    setBranches([
+                    const branchOptions = [
                         {
                             bpCode: 'All',
                             branchName: 'All'
                         },
-                        ...data
-                    ])
+                        ...allBranches
+                    ]
 
+                    setBranches(branchOptions)
                     setBranchCode('All')
+                } else {
+                    // Roles 5 and 6: select the logged-in user's branch.
+                    setBranches(validBranches)
 
-                }
-
-                // =====================================
-                // OTHER ROLES
-                // =====================================
-                //
-                // Keep their existing branch behavior.
-                // =====================================
-
-                else {
-
-                    setBranches(data)
-
-
-                    if (
-                        bpCode &&
-                        data.some(
-                            item =>
-                                String(
-                                    getBranchCode(item)
-                                ) ===
-                                String(bpCode)
-                        )
-                    ) {
-
-                        setBranchCode(
+                    const matchingBranch = validBranches.find(item =>
+                        equalsIgnoreCase(
+                            getBranchCode(item),
                             bpCode
                         )
+                    )
 
-                    }
-                    else if (
-                        data.length > 0
-                    ) {
+                    const selectedCode = matchingBranch
+                        ? String(getBranchCode(matchingBranch))
+                        : bpCode
 
-                        setBranchCode(
-                            getBranchCode(
-                                data[0]
-                            )
-                        )
+                    setBranchCode(selectedCode)
 
-                    }
-                    else {
-
-                        setBranchCode('')
-
-                    }
-
+                    console.log(
+                        'Preselected branch code:',
+                        selectedCode
+                    )
                 }
-
-
-                // =====================================
-                // RESET FRANCHISE
-                // =====================================
-
-                setFranchises([])
-
-                setFranchiseCode('All')
-
-
-            } catch (error) {
-
-                if (cancelled) {
-                    return
-                }
-
+            } catch (err) {
+                if (cancelled) return
 
                 console.error(
                     'Digital ICR branch error:',
-                    error
+                    err
                 )
-
 
                 setBranches([])
-
-                setBranchCode('')
-
+                setBranchCode('All')
                 setFranchises([])
-
                 setFranchiseCode('All')
 
-
                 setError(
-                    error.message ||
-                    'Unable to load branches.'
+                    err.message || 'Unable to load branches.'
                 )
-
-
             } finally {
-
                 if (!cancelled) {
-
                     setLoadingBranches(false)
-
                 }
-
             }
-
         }
-
 
         loadBranches()
 
-
         return () => {
-
             cancelled = true
-
         }
-
-
     }, [
         selectedRegionCode,
         sessionUserId,
-        roleId,
+        isRegionRole,
         bpCode
     ])
-
 
     // =========================================
     // LOAD FRANCHISES
     // =========================================
 
     useEffect(() => {
-
         let cancelled = false
 
-
         const loadFranchises = async () => {
+            setFranchises([])
+            setFranchiseCode('All')
 
-            // =====================================
-            // NO REGION
-            // =====================================
-
-            if (!selectedRegionCode) {
-
-                setFranchises([])
-
-                setFranchiseCode('All')
-
+            if (!selectedRegionCode || !branchCode) {
                 setLoadingFranchises(false)
-
                 return
-
             }
 
-
-            // =====================================
-            // NO BRANCH
-            // =====================================
-
-            if (!branchCode) {
-
-                setFranchises([])
-
-                setFranchiseCode('All')
-
+            if (
+                !isRegionRole &&
+                !isFranchiseRole &&
+                !isBranchRole
+            ) {
                 setLoadingFranchises(false)
-
                 return
-
             }
 
+            // Role 1: when All branches are selected,
+            // fetch franchises using the existing behavior.
+            // Roles 5 and 6: use their preselected branch.
+            if (
+                isRegionRole &&
+                equalsIgnoreCase(branchCode, 'All')
+            ) {
+                // Keep Role 1 behavior: getFranchises is called
+                // with the selected branch value, including All.
+            }
 
             try {
-
                 setLoadingFranchises(true)
                 setError('')
 
-
-                let franchiseBpCode =
-                    branchCode
-
-                let franchiseLoginId =
-                    loginId
-
-
-                // =====================================
-                // ROLE 1
-                // =====================================
-
-                if (roleId === 1) {
-
-                    franchiseBpCode =
-                        branchCode
-
-                    franchiseLoginId =
-                        loginId
-
-                }
-
-                // =====================================
-                // ROLE 6
-                // =====================================
-
-                else if (roleId === 6) {
-
-                    franchiseBpCode =
-                        bpCode
-
-                    franchiseLoginId =
-                        loginId
-
-                }
-
-                // =====================================
-                // ROLE 5
-                // =====================================
-
-                else if (roleId === 5) {
-
-                    franchiseBpCode =
-                        bpCode
-
-                    franchiseLoginId =
-                        loginId
-
-                }
-
-                // =====================================
-                // OTHER ROLES
-                // =====================================
-
-                else {
-
-                    setFranchises([])
-
-                    setFranchiseCode('All')
-
-                    setLoadingFranchises(false)
-
-                    return
-
-                }
-
+                // Role 1 uses the selected branch.
+                // Roles 5 and 6 use the session branch BP code.
+                const franchiseBpCode = isRegionRole
+                    ? branchCode
+                    : bpCode
 
                 console.log(
-                    'Digital ICR Loading franchises:',
+                    'Digital ICR franchise request:',
                     {
-                        roleId,
-                        regionCode:
-                            selectedRegionCode,
-                        bpCode:
-                            franchiseBpCode,
-                        loginId:
-                            franchiseLoginId
+                        roles,
+                        selectedRegionCode,
+                        branchCode,
+                        franchiseBpCode,
+                        loginId
                     }
                 )
 
-
-                const data =
-                    await getFranchises(
-                        roleId,
-                        franchiseBpCode,
-                        franchiseLoginId
-                    )
-
-
-                if (cancelled) {
-                    return
-                }
-
-
-                console.log(
-                    'Digital ICR Franchise Response:',
-                    data
+                // reportsApi.js signature:
+                // getFranchises(bpCode, loginId)
+                const response = await getFranchises(
+                    franchiseBpCode,
+                    loginId
                 )
 
+                if (cancelled) return
 
-                if (!Array.isArray(data)) {
+                const franchiseData = getArrayResponse(
+                    response,
+                    'franchises'
+                )
 
-                    throw new Error(
-                        'Invalid franchise response.'
+                console.log(
+                    'Digital ICR franchise response:',
+                    response
+                )
+
+                const validFranchises = franchiseData
+                    .filter(
+                        item =>
+                            String(getFranchiseCode(item)).trim() !== ''
+                    )
+                    .sort((a, b) =>
+                        String(getFranchiseName(a)).localeCompare(
+                            String(getFranchiseName(b)),
+                            undefined,
+                            { sensitivity: 'base' }
+                        )
                     )
 
-                }
-
-
-                // =====================================
-                // ROLE 1
-                // =====================================
-
-                if (roleId === 1) {
-
-                    setFranchises([
+                if (isRegionRole) {
+                    // Role 1: All remains available.
+                    const franchiseOptions = [
                         {
                             frCode: 'All',
                             franchiseName: 'All'
                         },
-                        ...data
-                    ])
+                        ...validFranchises.filter(
+                            item =>
+                                !equalsIgnoreCase(
+                                    getFranchiseCode(item),
+                                    'All'
+                                )
+                        )
+                    ]
 
+                    setFranchises(franchiseOptions)
                     setFranchiseCode('All')
+                } else if (isFranchiseRole) {
+                    // Role 5: preselect the logged-in franchise.
+                    setFranchises(validFranchises)
 
-                }
-
-                // =====================================
-                // ROLE 6
-                // =====================================
-
-                else if (roleId === 6) {
-
-                    setFranchises(data)
-
-
-                    if (
-                        data.length > 0
-                    ) {
-
-                        setFranchiseCode(
-                            getFranchiseCode(
-                                data[0]
-                            )
+                    const userFranchise = validFranchises.find(item =>
+                        equalsIgnoreCase(
+                            getFranchiseCode(item),
+                            loginId
                         )
+                    )
 
-                    }
-                    else {
-
-                        setFranchiseCode('All')
-
-                    }
-
-                }
-
-                // =====================================
-                // ROLE 5
-                // =====================================
-
-                else if (roleId === 5) {
-
-                    setFranchises(data)
-
-
-                    if (
-                        data.length > 0
-                    ) {
-
-                        setFranchiseCode(
-                            getFranchiseCode(
-                                data[0]
-                            )
+                    setFranchiseCode(
+                        userFranchise
+                            ? String(getFranchiseCode(userFranchise))
+                            : loginId || 'All'
+                    )
+                } else if (isBranchRole) {
+                    // Role 6: show all franchises belonging to
+                    // the preselected branch; default to All.
+                    const franchiseOptions = [
+                        {
+                            frCode: 'All',
+                            franchiseName: 'All'
+                        },
+                        ...validFranchises.filter(
+                            item =>
+                                !equalsIgnoreCase(
+                                    getFranchiseCode(item),
+                                    'All'
+                                )
                         )
+                    ]
 
-                    }
-                    else {
-
-                        setFranchiseCode('All')
-
-                    }
-
+                    setFranchises(franchiseOptions)
+                    setFranchiseCode('All')
                 }
-
-
-            } catch (error) {
-
-                if (cancelled) {
-                    return
-                }
-
+            } catch (err) {
+                if (cancelled) return
 
                 console.error(
                     'Digital ICR franchise error:',
-                    error
+                    err
                 )
-
 
                 setFranchises([])
-
                 setFranchiseCode('All')
 
-
                 setError(
-                    error.message ||
-                    'Unable to load franchises.'
+                    err.message || 'Unable to load franchises.'
                 )
-
-
             } finally {
-
                 if (!cancelled) {
-
                     setLoadingFranchises(false)
-
                 }
-
             }
-
         }
-
 
         loadFranchises()
 
-
         return () => {
-
             cancelled = true
-
         }
-
-
     }, [
         selectedRegionCode,
         branchCode,
-        roleId,
+        isRegionRole,
+        isFranchiseRole,
+        isBranchRole,
         bpCode,
         loginId
     ])
-
 
     // =========================================
     // REGION CHANGE
     // =========================================
 
     const handleRegionChange = (event) => {
+        const regionCode = event.target.value
 
-        const selectedRegion =
-            event.target.value
+        setSelectedRegionCode(regionCode)
 
-
-        setSelectedRegionCode(
-            selectedRegion
-        )
-
-
-        // Reset dependent filters.
         setBranches([])
-
-        setBranchCode('')
-
+        setBranchCode('All')
         setFranchises([])
-
         setFranchiseCode('All')
 
-
-        // Clear previous results/messages.
         setRecords([])
-
         setError('')
-
         setMessage('')
-
     }
-
 
     // =========================================
     // BRANCH CHANGE
     // =========================================
 
     const handleBranchChange = (event) => {
+        const selectedBranch = event.target.value
 
-        const selectedBranch =
-            event.target.value
-
-
-        setBranchCode(
-            selectedBranch
-        )
-
-
+        setBranchCode(selectedBranch)
+        setFranchises([])
         setFranchiseCode('All')
 
-        setFranchises([])
-
         setRecords([])
-
         setError('')
-
         setMessage('')
-
     }
-
 
     // =========================================
     // FRANCHISE CHANGE
     // =========================================
 
     const handleFranchiseChange = (event) => {
-
-        setFranchiseCode(
-            event.target.value
-        )
-
+        setFranchiseCode(event.target.value)
         setError('')
-
         setMessage('')
-
     }
-
 
     // =========================================
     // SEARCH
     // =========================================
 
     const handleSearch = async () => {
-
         setError('')
-
         setMessage('')
-
-
-        // Clear previous records immediately.
-
         setRecords([])
 
-
-        // =====================================
-        // REGION VALIDATION
-        // =====================================
-
         if (!selectedRegionCode) {
-
-            setError(
-                'Region is required.'
-            )
-
+            setError('Region is required.')
             return
-
         }
 
-
-        // =====================================
-        // DATE VALIDATION
-        // =====================================
-
-        if (
-            !fromDate ||
-            !toDate
-        ) {
-
-            setError(
-                'From Date and To Date are required.'
-            )
-
+        if (!fromDate || !toDate) {
+            setError('From Date and To Date are required.')
             return
-
         }
 
-
-        if (
-            fromDate >
-            toDate
-        ) {
-
+        if (fromDate > toDate) {
             setError(
                 'From Date cannot be greater than To Date.'
             )
-
             return
-
         }
-
-
-        // =====================================
-        // REQUEST
-        // =====================================
 
         const searchData = {
-
-            branchCode:
-                branchCode ||
-                'All',
-
-            franchiseCode:
-                franchiseCode ||
-                'All',
-
-            fromDate:
-                fromDate,
-
-            toDate:
-                toDate
-
+            branchCode: branchCode || 'All',
+            franchiseCode: franchiseCode || 'All',
+            fromDate,
+            toDate
         }
-
 
         console.log(
             'Digital ICR Search Request:',
             searchData
         )
 
-
-        // =====================================
-        // API CALL
-        // =====================================
-
         try {
-
             setSearching(true)
 
-
-            const response =
-                await searchDigitalICR(
-                    searchData
-                )
-
+            const response = await searchDigitalICR(searchData)
 
             console.log(
                 'Digital ICR Search Response:',
                 response
             )
 
-
-            const data =
-                Array.isArray(
-                    response?.data
-                )
-                    ? response.data
-                    : []
-
+            const data = Array.isArray(response?.data)
+                ? response.data
+                : []
 
             setRecords(data)
 
-
-            if (
-                data.length === 0
-            ) {
-
-                setMessage(
-                    'No records found.'
-                )
-
+            if (data.length === 0) {
+                setMessage('No records found.')
             }
-
-
-        } catch (error) {
-
+        } catch (err) {
             console.error(
                 'Digital ICR search error:',
-                error
+                err
             )
-
 
             setError(
-                error.message ||
-                'Unable to load Digital ICR data.'
+                err.message || 'Unable to load Digital ICR data.'
             )
-
-
         } finally {
-
             setSearching(false)
-
         }
-
     }
-
 
     // =========================================
     // DOWNLOAD
     // =========================================
 
     const handleDownload = async () => {
-
         setError('')
-
         setMessage('')
 
-
         const searchData = {
-
-            branchCode:
-                branchCode ||
-                'All',
-
-            franchiseCode:
-                franchiseCode ||
-                'All',
-
-            fromDate:
-                fromDate ||
-                null,
-
-            toDate:
-                toDate ||
-                null
-
+            branchCode: branchCode || 'All',
+            franchiseCode: franchiseCode || 'All',
+            fromDate: fromDate || null,
+            toDate: toDate || null
         }
-
 
         try {
-
             setDownloading(true)
 
+            const blob = await exportDigitalICR(searchData)
 
-            const blob =
-                await exportDigitalICR(
-                    searchData
-                )
+            const url = window.URL.createObjectURL(blob)
+            const link = document.createElement('a')
 
+            link.href = url
+            link.download = 'DigitalICR.xlsx'
 
-            const url =
-                window.URL.createObjectURL(
-                    blob
-                )
-
-
-            const link =
-                document.createElement('a')
-
-
-            link.href =
-                url
-
-
-            link.download =
-                'DigitalICR.xlsx'
-
-
-            document.body.appendChild(
-                link
-            )
-
-
+            document.body.appendChild(link)
             link.click()
-
-
             link.remove()
 
-
-            window.URL.revokeObjectURL(
-                url
-            )
-
-
-        } catch (error) {
-
+            window.URL.revokeObjectURL(url)
+        } catch (err) {
             console.error(
                 'Digital ICR download error:',
-                error
+                err
             )
-
 
             setError(
-                error.message ||
-                'Unable to download Digital ICR.'
+                err.message || 'Unable to download Digital ICR.'
             )
-
-
         } finally {
-
             setDownloading(false)
-
         }
-
     }
-
 
     // =========================================
     // FORMAT DATE
     // =========================================
 
     const formatICRDate = (value) => {
+        if (!value) return ''
 
-        if (!value) {
+        const date = new Date(value)
 
-            return ''
-
+        if (Number.isNaN(date.getTime())) {
+            return value
         }
 
+        return date.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        })
+    }
 
-        const date =
-            new Date(value)
 
+    // =========================================
+    // DATE PICKER HELPERS
+    // =========================================
+
+    const parseDate = (value) => {
+        if (!value) return null
+
+        const [year, month, day] = value.split('-').map(Number)
+
+        if (!year || !month || !day) return null
+
+        const date = new Date(year, month - 1, day)
 
         if (
-            Number.isNaN(
-                date.getTime()
-            )
+            date.getFullYear() !== year ||
+            date.getMonth() !== month - 1 ||
+            date.getDate() !== day
         ) {
-
-            return value
-
+            return null
         }
 
-
-        return date.toLocaleDateString(
-            'en-GB',
-            {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric'
-            }
-        )
-
+        return date
     }
 
+    const formatDate = (date) => {
+        if (!date) return ''
 
-    // =========================================
-    // GET BRANCH VALUE
-    // =========================================
+        const year = date.getFullYear()
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const day = String(date.getDate()).padStart(2, '0')
 
-    const getBranchCode = (item) => {
-
-        return (
-            item.bpCode ??
-            item.BPCode ??
-            ''
-        )
-
+        return `${year}-${month}-${day}`
     }
-
-
-    const getBranchName = (item) => {
-
-        return (
-            item.branchName ??
-            item.BranchName ??
-            ''
-        )
-
-    }
-
-
-    // =========================================
-    // GET FRANCHISE VALUE
-    // =========================================
-
-    const getFranchiseCode = (item) => {
-
-        return (
-            item.frCode ??
-            item.Frcode ??
-            item.FRCode ??
-            item.frcode ??
-            item.loginId ??
-            item.LoginID ??
-            ''
-        )
-
-    }
-
-
-    const getFranchiseName = (item) => {
-
-        return (
-            item.franchiseName ??
-            item.FranchiseName ??
-            item.FranchiseName ??
-            item.userName ??
-            item.UserName ??
-            ''
-        )
-
-    }
-
 
     // =========================================
     // UI
     // =========================================
 
     return (
-
         <DashboardLayout title="Digital ICR">
-
             <div className="digital-icr-page">
-
-
-                {/* =================================
-                    FILTER BOX
-                ================================= */}
-
                 <div className="digital-icr-card">
-
-
-                    {/* =================================
-                        FILTERS
-                    ================================= */}
-
                     <div className="digital-icr-filter-grid">
-
-
-                        {/* =============================
-                            REGION
-                        ============================= */}
-
+                        {/* REGION */}
                         <div className="digital-icr-field">
-
-                            <label>
-                                Region
-                            </label>
-
+                            <label>Region</label>
 
                             <select
-                                value={
-                                    selectedRegionCode
-                                }
-                                onChange={
-                                    handleRegionChange
-                                }
+                                value={selectedRegionCode}
+                                onChange={handleRegionChange}
                                 disabled={
-                                    loadingRegions
+                                    loadingRegions ||
+                                    isFranchiseRole ||
+                                    isBranchRole
                                 }
                             >
-
                                 <option value="">
                                     Select Region
                                 </option>
 
+                                {regions.map((item, index) => {
+                                    const code = getRegionCode(item)
+                                    const name = getRegionName(item)
 
-                                {
-                                    regions.map(
-                                        (
-                                            item,
-                                            index
-                                        ) => {
-
-                                            const code =
-                                                getRegionCode(
-                                                    item
-                                                )
-
-                                            const name =
-                                                getRegionName(
-                                                    item
-                                                )
-
-
-                                            return (
-
-                                                <option
-                                                    key={
-                                                        code ||
-                                                        `region-${index}`
-                                                    }
-                                                    value={
-                                                        code
-                                                    }
-                                                >
-
-                                                    {
-                                                        name
-                                                    }
-
-                                                </option>
-
-                                            )
-
-                                        }
+                                    return (
+                                        <option
+                                            key={code || `region-${index}`}
+                                            value={code}
+                                        >
+                                            {name}
+                                        </option>
                                     )
-                                }
-
+                                })}
                             </select>
-
                         </div>
 
-
-                        {/* =============================
-                            BRANCH
-                        ============================= */}
-
+                        {/* BRANCH */}
                         <div className="digital-icr-field">
-
-                            <label>
-                                Branch
-                            </label>
-
+                            <label>Branch</label>
 
                             <select
-                                value={
-                                    branchCode
-                                }
-                                onChange={
-                                    handleBranchChange
-                                }
+                                value={branchCode}
+                                onChange={handleBranchChange}
                                 disabled={
                                     !selectedRegionCode ||
-                                    loadingBranches
+                                    loadingBranches ||
+                                    isFranchiseRole ||
+                                    isBranchRole
                                 }
                             >
+                                {isRegionRole && (
+                                    <option value="All">All</option>
+                                )}
 
-                                {
-                                    !selectedRegionCode ? (
-
-                                        <option value="">
-                                            Select Region First
-                                        </option>
-
-                                    ) : (
-
-                                        branches.map(
-                                            (
-                                                item,
-                                                index
-                                            ) => (
-
-                                                <option
-                                                    key={
-                                                        `${getBranchCode(item)}-${index}`
-                                                    }
-                                                    value={
-                                                        getBranchCode(item)
-                                                    }
-                                                >
-
-                                                    {
-                                                        getBranchName(
-                                                            item
-                                                        )
-                                                    }
-
-                                                </option>
-
+                                {branches
+                                    .filter(item =>
+                                        !(
+                                            isRegionRole &&
+                                            equalsIgnoreCase(
+                                                getBranchCode(item),
+                                                'All'
                                             )
                                         )
-
                                     )
+                                    .map((item, index) => (
+                                        <option
+                                            key={`${getBranchCode(item)}-${index}`}
+                                            value={getBranchCode(item)}
+                                        >
+                                            {getBranchName(item)}
+                                        </option>
+                                    ))}
 
-                                }
-
+                                {!isRegionRole && branchCode === 'All' && (
+                                    <option value="All">All</option>
+                                )}
                             </select>
-
                         </div>
 
-
-                        {/* =============================
-                            FRANCHISE
-                        ============================= */}
-
+                        {/* FRANCHISE */}
                         <div className="digital-icr-field">
-
-                            <label>
-                                Franchise
-                            </label>
-
+                            <label>Franchise</label>
 
                             <select
-                                value={
-                                    franchiseCode
-                                }
-                                onChange={
-                                    handleFranchiseChange
-                                }
+                                value={franchiseCode}
+                                onChange={handleFranchiseChange}
                                 disabled={
                                     !selectedRegionCode ||
                                     !branchCode ||
                                     loadingFranchises ||
-                                    roleId === 5
+                                    isFranchiseRole
                                 }
                             >
+                                {franchises.map((item, index) => (
+                                    <option
+                                        key={`${getFranchiseCode(item)}-${index}`}
+                                        value={getFranchiseCode(item)}
+                                    >
+                                        {getFranchiseName(item)}
+                                    </option>
+                                ))}
 
-                                {
-                                    !selectedRegionCode ? (
-
-                                        <option value="All">
-                                            Select Region First
-                                        </option>
-
-                                    ) : !branchCode ? (
-
-                                        <option value="All">
-                                            All
-                                        </option>
-
-                                    ) : (
-
-                                        franchises.map(
-                                            (
-                                                item,
-                                                index
-                                            ) => (
-
-                                                <option
-                                                    key={
-                                                        `${getFranchiseCode(item)}-${index}`
-                                                    }
-                                                    value={
-                                                        getFranchiseCode(item)
-                                                    }
-                                                >
-
-                                                    {
-                                                        getFranchiseName(
-                                                            item
-                                                        )
-                                                    }
-
-                                                </option>
-
-                                            )
-                                        )
-
-                                    )
-
-                                }
-
+                                {franchises.length === 0 && (
+                                    <option value="All">All</option>
+                                )}
                             </select>
-
                         </div>
 
-
-                        {/* =============================
-                            FROM DATE
-                        ============================= */}
-
+                        {/* FROM DATE */}
                         <div className="digital-icr-field">
-
                             <label>
-
                                 ICR From Date
-
-                                <span className="required">
-                                    *
-                                </span>
-
+                                <span className="required">*</span>
                             </label>
 
+                            <div className="digital-icr-date-picker-container">
+                                <div className="digital-icr-date-picker-wrapper">
+                                    <DatePicker
+                                        selected={parseDate(fromDate)}
+                                        onChange={(date) => setFromDate(formatDate(date))}
+                                        dateFormat="dd/MM/yyyy"
+                                        placeholderText="dd/mm/yyyy"
+                                        className="digital-icr-date-control"
+                                        calendarClassName="digital-icr-calendar"
+                                        showPopperArrow={false}
+                                        autoComplete="off"
+                                        isClearable={false}
+                                    />
+                                </div>
 
-                            <input
-                                type="date"
-                                value={
-                                    fromDate
-                                }
-                                onChange={
-                                    (event) =>
-                                        setFromDate(
-                                            event.target.value
-                                        )
-                                }
-                            />
+                                <button
+                                    type="button"
+                                    className="digital-icr-calendar-icon"
+                                    aria-label="Open ICR From Date calendar"
+                                    onClick={(event) => {
+                                        const input = event.currentTarget
+                                            .parentElement
+                                            .querySelector('input')
 
+                                        input?.focus()
+                                        input?.click()
+                                    }}
+                                >
+                                    <CalendarDays size={18} />
+                                </button>
+                            </div>
                         </div>
 
-
-                        {/* =============================
-                            TO DATE
-                        ============================= */}
-
+                        {/* TO DATE */}
                         <div className="digital-icr-field">
-
                             <label>
-
                                 ICR To Date
-
-                                <span className="required">
-                                    *
-                                </span>
-
+                                <span className="required">*</span>
                             </label>
 
+                            <div className="digital-icr-date-picker-container">
+                                <div className="digital-icr-date-picker-wrapper">
+                                    <DatePicker
+                                        selected={parseDate(toDate)}
+                                        onChange={(date) => setToDate(formatDate(date))}
+                                        dateFormat="dd/MM/yyyy"
+                                        placeholderText="dd/mm/yyyy"
+                                        className="digital-icr-date-control"
+                                        calendarClassName="digital-icr-calendar"
+                                        minDate={parseDate(fromDate)}
+                                        popperPlacement="bottom-end"
+                                        popperProps={{
+                                            strategy: 'fixed'
+                                        }}
+                                        showPopperArrow={false}
+                                        autoComplete="off"
+                                        isClearable={false}
+                                    />
+                                </div>
 
-                            <input
-                                type="date"
-                                value={
-                                    toDate
-                                }
-                                onChange={
-                                    (event) =>
-                                        setToDate(
-                                            event.target.value
-                                        )
-                                }
-                            />
+                                <button
+                                    type="button"
+                                    className="digital-icr-calendar-icon"
+                                    aria-label="Open ICR To Date calendar"
+                                    onClick={(event) => {
+                                        const input = event.currentTarget
+                                            .parentElement
+                                            .querySelector('input')
 
+                                        input?.focus()
+                                        input?.click()
+                                    }}
+                                >
+                                    <CalendarDays size={18} />
+                                </button>
+                            </div>
                         </div>
-
                     </div>
 
+                    {error && (
+                        <div className="digital-icr-error">
+                            {error}
+                        </div>
+                    )}
 
-                    {/* =================================
-                        ERROR
-                    ================================= */}
-
-                    {
-                        error && (
-
-                            <div className="digital-icr-error">
-                                {error}
-                            </div>
-
-                        )
-                    }
-
-
-                    {/* =================================
-                        MESSAGE
-                    ================================= */}
-
-                    {
-                        message && (
-
-                            <div className="digital-icr-message">
-                                {message}
-                            </div>
-
-                        )
-                    }
-
-
-                    {/* =================================
-                        BUTTONS
-                    ================================= */}
+                    {message && (
+                        <div className="digital-icr-message">
+                            {message}
+                        </div>
+                    )}
 
                     <div className="digital-icr-actions">
-
                         <button
                             type="button"
-                            className="digital-icr-search-button"
-                            onClick={
-                                handleSearch
-                            }
-                            disabled={
-                                searching
-                            }
+                            className="btn-search digital-icr-search-button"
+                            onClick={handleSearch}
+                            disabled={searching}
                         >
-
-                            {
-                                searching
-                                    ? 'Searching...'
-                                    : 'Search'
-                            }
-
+                            {searching ? 'Searching...' : 'Search'}
                         </button>
-
 
                         <button
                             type="button"
                             className="digital-icr-download-button"
-                            onClick={
-                                handleDownload
-                            }
+                            onClick={handleDownload}
                             disabled={
                                 records.length === 0 ||
                                 downloading ||
                                 searching
                             }
                         >
-
-                            {
-                                downloading
-                                    ? 'Downloading...'
-                                    : 'Download'
-                            }
-
+                            {downloading ? 'Downloading...' : 'Download'}
                         </button>
-
                     </div>
-
                 </div>
 
-
-                {/* =================================
-                    RESULTS
-                ================================= */}
-
+                {/* RESULTS */}
                 <div className="digital-icr-card">
-
-
-                    {/* =================================
-                        TOTAL RECORDS
-                    ================================= */}
-
-                    {
-                        records.length > 0 &&
-                        !searching && (
-
-                            <h3 className="digital-icr-record-count">
-
-                                {
-                                    records.length
-                                }
-
-                                {' '}
-
-                                record
-
-                                {
-                                    records.length !== 1
-                                        ? 's'
-                                        : ''
-                                }
-
-                                {' '}
-
-                                found
-
-                            </h3>
-
-                        )
-                    }
-
-
-                    {/* =================================
-                        TABLE
-                    ================================= */}
+                    {records.length > 0 && !searching && (
+                        <h3 className="digital-icr-record-count">
+                            {records.length} record
+                            {records.length !== 1 ? 's' : ''} found
+                        </h3>
+                    )}
 
                     <div className="digital-icr-table-container">
-
                         <table className="digital-icr-table">
-
                             <thead>
-
                                 <tr>
-
-                                    <th>
-                                        #TicketNo
-                                    </th>
-
-                                    <th>
-                                        Customer
-                                    </th>
-
-                                    <th>
-                                        Franchise
-                                    </th>
-
-                                    <th>
-                                        Technician
-                                    </th>
-
-                                    <th>
-                                        ICRNO
-                                    </th>
-
-                                    <th>
-                                        Amount
-                                    </th>
-
-                                    <th>
-                                        ICR Date
-                                    </th>
-
-                                    <th>
-                                        PaymentMode
-                                    </th>
-
-                                    <th>
-                                        Type
-                                    </th>
-
+                                    <th>#TicketNo</th>
+                                    <th>Customer</th>
+                                    <th>Franchise</th>
+                                    <th>Technician</th>
+                                    <th>ICRNO</th>
+                                    <th>Amount</th>
+                                    <th>ICR Date</th>
+                                    <th>PaymentMode</th>
+                                    <th>Type</th>
                                 </tr>
-
                             </thead>
 
-
                             <tbody>
-
-
-                                {/* =================================
-                                    LOADING
-                                ================================= */}
-
-                                {
-                                    searching ? (
-
-                                        <tr>
-
-                                            <td
-                                                colSpan="9"
-                                                className="digital-icr-loading-cell"
-                                            >
-
-                                                <div className="digital-icr-loading">
-
-                                                    <div className="digital-icr-loading-dots">
-
-                                                        <span></span>
-                                                        <span></span>
-                                                        <span></span>
-
-                                                    </div>
-
-                                                    <span className="digital-icr-loading-text">
-                                                        Loading...
-                                                    </span>
-
+                                {searching ? (
+                                    <tr>
+                                        <td
+                                            colSpan="9"
+                                            className="digital-icr-loading-cell"
+                                        >
+                                            <div className="digital-icr-loading">
+                                                <div className="digital-icr-loading-dots">
+                                                    <span></span>
+                                                    <span></span>
+                                                    <span></span>
                                                 </div>
 
+                                                <span className="digital-icr-loading-text">
+                                                    Loading...
+                                                </span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ) : records.length > 0 ? (
+                                    records.map((record, index) => (
+                                        <tr
+                                            key={`${record.ticketNo || index}-${index}`}
+                                        >
+                                            <td>{record.ticketNo || ''}</td>
+                                            <td>{record.customer || ''}</td>
+                                            <td>{record.franchiseName || ''}</td>
+                                            <td>{record.technician || ''}</td>
+                                            <td>{record.icrNo || ''}</td>
+                                            <td>{record.amount || ''}</td>
+                                            <td>
+                                                {formatICRDate(record.icrDate)}
                                             </td>
-
+                                            <td>{record.paymentMode || ''}</td>
+                                            <td>{record.type || ''}</td>
                                         </tr>
-
-                                    ) : records.length > 0 ? (
-
-                                        /* =================================
-                                           RESULTS
-                                        ================================= */
-
-                                        records.map(
-                                            (
-                                                record,
-                                                index
-                                            ) => (
-
-                                                <tr
-                                                    key={
-                                                        `${record.ticketNo || index}-${index}`
-                                                    }
-                                                >
-
-                                                    <td>
-                                                        {
-                                                            record.ticketNo ||
-                                                            ''
-                                                        }
-                                                    </td>
-
-                                                    <td>
-                                                        {
-                                                            record.customer ||
-                                                            ''
-                                                        }
-                                                    </td>
-
-                                                    <td>
-                                                        {
-                                                            record.franchiseName ||
-                                                            ''
-                                                        }
-                                                    </td>
-
-                                                    <td>
-                                                        {
-                                                            record.technician ||
-                                                            ''
-                                                        }
-                                                    </td>
-
-                                                    <td>
-                                                        {
-                                                            record.icrNo ||
-                                                            ''
-                                                        }
-                                                    </td>
-
-                                                    <td>
-                                                        {
-                                                            record.amount ||
-                                                            ''
-                                                        }
-                                                    </td>
-
-                                                    <td>
-                                                        {
-                                                            formatICRDate(
-                                                                record.icrDate
-                                                            )
-                                                        }
-                                                    </td>
-
-                                                    <td>
-                                                        {
-                                                            record.paymentMode ||
-                                                            ''
-                                                        }
-                                                    </td>
-
-                                                    <td>
-                                                        {
-                                                            record.type ||
-                                                            ''
-                                                        }
-                                                    </td>
-
-                                                </tr>
-
-                                            )
-                                        )
-
-                                    ) : (
-
-                                        /* =================================
-                                           NO RECORDS
-                                        ================================= */
-
-                                        <tr>
-
-                                            <td
-                                                colSpan="9"
-                                                className="digital-icr-empty"
-                                            >
-                                                no record found change search criteria
-                                            </td>
-
-                                        </tr>
-
-                                    )
-                                }
-
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td
+                                            colSpan="9"
+                                            className="digital-icr-empty"
+                                        >
+                                            no record found change search criteria
+                                        </td>
+                                    </tr>
+                                )}
                             </tbody>
-
                         </table>
-
                     </div>
-
                 </div>
-
             </div>
-
         </DashboardLayout>
-
     )
-
 }
-
 
 export default DigitalICR

@@ -1,4 +1,8 @@
-import API_BASE_URL from './api'
+import API_BASE_URL, {
+    startTokenExpiryTimer,
+    stopTokenExpiryTimer,
+    logoutAndRedirect
+} from './api'
 
 
 // =========================================
@@ -19,20 +23,15 @@ export async function getOAuthToken() {
     // =========================================
 
     if (!clientId) {
-
         throw new Error(
             'OAuth client ID is missing.'
         )
-
     }
 
-
     if (!clientSecret) {
-
         throw new Error(
             'OAuth client secret is missing.'
         )
-
     }
 
 
@@ -65,16 +64,10 @@ export async function getOAuthToken() {
     const contentType =
         response.headers.get('content-type') || ''
 
-
     let data = {}
 
-
-    if (
-        contentType.includes('application/json')
-    ) {
-
+    if (contentType.includes('application/json')) {
         data = await response.json()
-
     }
 
 
@@ -83,14 +76,12 @@ export async function getOAuthToken() {
     // =========================================
 
     if (!response.ok) {
-
         throw new Error(
             data.error_description ||
             data.message ||
             data.error ||
             'Unable to generate access token.'
         )
-
     }
 
 
@@ -99,29 +90,38 @@ export async function getOAuthToken() {
     // =========================================
 
     if (!data.access_token) {
-
         throw new Error(
             'Access token was not returned by the server.'
         )
-
     }
 
 
     // =========================================
-    // SAVE TOKEN
+    // SAVE TOKEN AND EXPIRY TIME
     // =========================================
+
+    const expiresIn = Number(data.expires_in || 0)
+
+    stopTokenExpiryTimer()
 
     sessionStorage.setItem(
         'accessToken',
         data.access_token
     )
 
-
     sessionStorage.setItem(
         'tokenExpiresIn',
-        String(data.expires_in || 0)
+        String(expiresIn)
     )
 
+    sessionStorage.setItem(
+        'accessTokenExpiresAt',
+        String(
+            expiresIn > 0
+                ? Date.now() + expiresIn * 1000
+                : 0
+        )
+    )
 
     sessionStorage.setItem(
         'tokenRole',
@@ -129,10 +129,16 @@ export async function getOAuthToken() {
     )
 
 
+    // =========================================
+    // START AUTOMATIC TOKEN EXPIRY TIMER
+    // =========================================
+
+    startTokenExpiryTimer()
+
+
     console.log(
         'OAuth access token generated successfully.'
     )
-
 
     return data
 }
@@ -145,19 +151,13 @@ export async function getOAuthToken() {
 function getStoredAccessToken() {
 
     const accessToken =
-        sessionStorage.getItem(
-            'accessToken'
-        )
-
+        sessionStorage.getItem('accessToken')
 
     if (!accessToken) {
-
         throw new Error(
             'Access token is missing.'
         )
-
     }
-
 
     return accessToken
 }
@@ -173,29 +173,27 @@ export async function login(
     recaptchaToken
 ) {
 
-    // =========================================
-    // GET EXISTING TOKEN
-    // =========================================
-
     let accessToken =
-        sessionStorage.getItem(
-            'accessToken'
-        )
+        sessionStorage.getItem('accessToken')
 
+    const expiresAt = Number(
+        sessionStorage.getItem('accessTokenExpiresAt')
+    )
 
-    // =========================================
-    // IF TOKEN DOES NOT EXIST,
-    // GENERATE IT FIRST
-    // =========================================
+    // Generate a new token if missing or expired.
+    if (
+        !accessToken ||
+        (expiresAt > 0 && Date.now() >= expiresAt)
+    ) {
+        stopTokenExpiryTimer()
 
-    if (!accessToken) {
+        sessionStorage.removeItem('accessToken')
+        sessionStorage.removeItem('tokenExpiresIn')
+        sessionStorage.removeItem('accessTokenExpiresAt')
+        sessionStorage.removeItem('tokenRole')
 
-        const tokenData =
-            await getOAuthToken()
-
-        accessToken =
-            tokenData.access_token
-
+        const tokenData = await getOAuthToken()
+        accessToken = tokenData.access_token
     }
 
 
@@ -210,11 +208,8 @@ export async function login(
 
             headers: {
                 'Content-Type': 'application/json',
-
                 'Accept': 'application/json',
-
-                'Authorization':
-                    `Bearer ${accessToken}`
+                'Authorization': `Bearer ${accessToken}`
             },
 
             body: JSON.stringify({
@@ -233,16 +228,10 @@ export async function login(
     const contentType =
         response.headers.get('content-type') || ''
 
-
     let data = {}
 
-
-    if (
-        contentType.includes('application/json')
-    ) {
-
+    if (contentType.includes('application/json')) {
         data = await response.json()
-
     }
 
 
@@ -251,21 +240,15 @@ export async function login(
     // =========================================
 
     if (!response.ok) {
-
         throw new Error(
             data.message ||
             data.error_description ||
             data.error ||
             'Login failed.'
         )
-
     }
 
-
-    console.log(
-        'Login API successful.'
-    )
-
+    console.log('Login API successful.')
 
     return data
 }
@@ -280,13 +263,19 @@ export async function verifyTwoFactor(
     code
 ) {
 
-    const accessToken =
-        getStoredAccessToken()
+    const accessToken = getStoredAccessToken()
 
+    const expiresAt = Number(
+        sessionStorage.getItem('accessTokenExpiresAt')
+    )
 
-    // =========================================
-    // CALL VERIFY 2FA API
-    // =========================================
+    if (expiresAt > 0 && Date.now() >= expiresAt) {
+        await logoutAndRedirect()
+
+        throw new Error(
+            'Your session has expired. Please login again.'
+        )
+    }
 
     const response = await fetch(
         `${API_BASE_URL}/api/Auth/verify-2fa`,
@@ -295,11 +284,8 @@ export async function verifyTwoFactor(
 
             headers: {
                 'Content-Type': 'application/json',
-
                 'Accept': 'application/json',
-
-                'Authorization':
-                    `Bearer ${accessToken}`
+                'Authorization': `Bearer ${accessToken}`
             },
 
             body: JSON.stringify({
@@ -317,16 +303,10 @@ export async function verifyTwoFactor(
     const contentType =
         response.headers.get('content-type') || ''
 
-
     let data = {}
 
-
-    if (
-        contentType.includes('application/json')
-    ) {
-
+    if (contentType.includes('application/json')) {
         data = await response.json()
-
     }
 
 
@@ -334,17 +314,22 @@ export async function verifyTwoFactor(
     // CHECK RESPONSE
     // =========================================
 
-    if (!response.ok) {
+    if (response.status === 401) {
+        await logoutAndRedirect()
 
+        throw new Error(
+            'Your session has expired. Please login again.'
+        )
+    }
+
+    if (!response.ok) {
         throw new Error(
             data.message ||
             data.error_description ||
             data.error ||
             'Two-factor authentication failed.'
         )
-
     }
-
 
     return data
 }
@@ -354,110 +339,65 @@ export async function verifyTwoFactor(
 // LOGOUT
 // =========================================
 
-export async function logout(
-    userId
-) {
+export async function logout(userId) {
 
     const accessToken =
-        getStoredAccessToken()
+        sessionStorage.getItem('accessToken')
 
+    stopTokenExpiryTimer()
 
-    // =========================================
-    // CALL LOGOUT API
-    // =========================================
+    try {
 
-    const response = await fetch(
-        `${API_BASE_URL}/api/Auth/logout?userId=${encodeURIComponent(userId)}`,
-        {
-            method: 'POST',
-
-            headers: {
-                'Accept': 'application/json',
-
-                'Authorization':
-                    `Bearer ${accessToken}`
-            }
+        if (!accessToken) {
+            return {}
         }
-    )
 
+        const response = await fetch(
+            `${API_BASE_URL}/api/Auth/logout?userId=${encodeURIComponent(userId)}`,
+            {
+                method: 'POST',
 
-    // =========================================
-    // READ RESPONSE SAFELY
-    // =========================================
-
-    const contentType =
-        response.headers.get('content-type') || ''
-
-
-    let data = {}
-
-
-    if (
-        contentType.includes('application/json')
-    ) {
-
-        data = await response.json()
-
-    }
-
-
-    // =========================================
-    // CHECK RESPONSE
-    // =========================================
-
-    if (!response.ok) {
-
-        throw new Error(
-            data.message ||
-            data.error_description ||
-            data.error ||
-            'Logout failed.'
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            }
         )
 
+
+        // =========================================
+        // READ RESPONSE SAFELY
+        // =========================================
+
+        const contentType =
+            response.headers.get('content-type') || ''
+
+        let data = {}
+
+        if (contentType.includes('application/json')) {
+            data = await response.json()
+        }
+
+
+        // =========================================
+        // CHECK RESPONSE
+        // =========================================
+
+        if (!response.ok) {
+            throw new Error(
+                data.message ||
+                data.error_description ||
+                data.error ||
+                'Logout failed.'
+            )
+        }
+
+        return data
+
+    } finally {
+
+        // Clear local session whether the request succeeds or fails.
+        sessionStorage.clear()
+
     }
-
-
-    // =========================================
-    // CLEAR AUTH SESSION
-    // =========================================
-
-    sessionStorage.removeItem(
-        'accessToken'
-    )
-
-    sessionStorage.removeItem(
-        'tokenExpiresIn'
-    )
-
-    sessionStorage.removeItem(
-        'tokenRole'
-    )
-
-
-    sessionStorage.removeItem(
-        'userId'
-    )
-
-    sessionStorage.removeItem(
-        'loginId'
-    )
-
-    sessionStorage.removeItem(
-        'username'
-    )
-
-    sessionStorage.removeItem(
-        'roleId'
-    )
-
-    sessionStorage.removeItem(
-        'bpCode'
-    )
-
-    sessionStorage.removeItem(
-        'regionCode'
-    )
-
-
-    return data
 }

@@ -12,6 +12,42 @@ import {
 
 import './PCRDownload.css'
 
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
+import { CalendarDays } from 'lucide-react'
+
+//Date Picker
+
+function parsePCRDownloadDate(value) {
+    if (!value) return null
+
+    const [year, month, day] = value.split('-').map(Number)
+
+    if (!year || !month || !day) return null
+
+    const date = new Date(year, month - 1, day)
+
+    if (
+        date.getFullYear() !== year ||
+        date.getMonth() !== month - 1 ||
+        date.getDate() !== day
+    ) {
+        return null
+    }
+
+    return date
+}
+
+function formatPCRDownloadDate(date) {
+    if (!date) return ''
+
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+
+    return `${year}-${month}-${day}`
+}
+
 function PCRDownload({
     pcrState,
     onBack
@@ -90,91 +126,89 @@ function PCRDownload({
     // LOAD BRANCHES
     // =====================================================
 
-    useEffect(() => {
-        const loadBranches = async () => {
-            try {
-                setError('')
+   
 
-                let response
+useEffect(() => {
+    let cancelled = false
 
-                if (isRole7) {
-                    // Role 7: use the logged-in user's ID,
-                    // matching the Click2Call branch-loading logic.
-                    response = await getBranches(
-                        sessionUserId,
+    const loadBranches = async () => {
+        try {
+            setError('')
+
+            // Load all branches for the logged-in user.
+            const response = await getBranches(
+                sessionUserId,
+                ''
+            )
+
+            if (cancelled) return
+
+            console.log(
+                'PCR Download branches response:',
+                response
+            )
+
+            // Support common API response formats.
+            const branchList = Array.isArray(response)
+                ? response
+                : Array.isArray(response?.data)
+                    ? response.data
+                    : Array.isArray(response?.data?.data)
+                        ? response.data.data
+                        : []
+
+            console.log(
+                'PCR Download branch list:',
+                branchList
+            )
+
+            setBranches(branchList)
+
+            // Preserve the existing selection if it exists.
+            const currentBranch =
+                originalPCRState.branchCode || 'All'
+
+            const branchExists =
+                currentBranch === 'All' ||
+                branchList.some((branch) => {
+                    const value =
+                        branch.bpCode ??
+                        branch.BPCode ??
+                        branch.branchCode ??
+                        branch.BrCode ??
                         ''
-                    )
-                } else {
-                    // Other roles: preserve the existing call.
-                    response = await getBranches(
-                        roleId,
-                        'All',
-                        bpCode
-                    )
-                }
 
-                console.log(
-                    'PCR Download branches response:',
-                    response
-                )
+                    return String(value) === String(currentBranch)
+                })
 
-                // Support common API response formats.
-                const branchList = Array.isArray(response)
-                    ? response
-                    : Array.isArray(response?.data)
-                        ? response.data
-                        : Array.isArray(response?.data?.data)
-                            ? response.data.data
-                            : []
+            setBranchCode(
+                branchExists ? currentBranch : 'All'
+            )
+        } catch (err) {
+            if (cancelled) return
 
-                console.log(
-                    'PCR Download branch list:',
-                    branchList
-                )
+            console.error(
+                'Unable to load PCR Download branches:',
+                err
+            )
 
-                setBranches(branchList)
+            setBranches([])
+            setBranchCode('All')
 
-                // Preserve the existing selection when available.
-                const currentBranch =
-                    originalPCRState.branchCode || 'All'
-
-                const branchExists =
-                    currentBranch === 'All' ||
-                    branchList.some((branch) => {
-                        const value =
-                            branch.bpCode ??
-                            branch.BPCode ??
-                            branch.branchCode ??
-                            branch.BrCode ??
-                            ''
-
-                        return String(value) === String(currentBranch)
-                    })
-
-                if (!branchExists) {
-                    setBranchCode('All')
-                }
-            } catch (err) {
-                console.error(
-                    'Unable to load PCR Download branches:',
-                    err
-                )
-
-                setBranches([])
-
-                setError(
-                    err.message || 'Unable to load branches.'
-                )
-            }
+            setError(
+                err.message || 'Unable to load branches.'
+            )
         }
+    }
 
-        loadBranches()
-    }, [
-        roleId,
-        bpCode,
-        isRole7,
-        sessionUserId
-    ])
+    loadBranches()
+
+    return () => {
+        cancelled = true
+    }
+}, [
+    sessionUserId
+])
 
     // =====================================================
     // GET SELECTED BRANCH NAME
@@ -423,43 +457,103 @@ function PCRDownload({
                         {/* FROM DATE */}
 
                         <div className="pcr-download-field">
-                            <label>
+                            <label htmlFor="pcr-download-from-date">
                                 From Date
-                                <span className="required-mark">
-                                    *
-                                </span>
+                                <span className="required-mark">*</span>
                             </label>
 
-                            <input
-                                type="date"
-                                value={fromDate}
-                                onChange={(e) => {
-                                    setFromDate(e.target.value)
-                                    setError('')
-                                }}
-                                disabled={loading || downloading}
-                            />
+                            <div className="pcr-download-date-picker">
+                                <DatePicker
+                                    id="pcr-download-from-date"
+                                    selected={parsePCRDownloadDate(fromDate)}
+                                    onChange={(date) => {
+                                        const value = formatPCRDownloadDate(date)
+
+                                        setFromDate(value)
+
+                                        if (value && toDate && toDate < value) {
+                                            setToDate(value)
+                                        }
+
+                                        setError('')
+                                    }}
+                                    dateFormat="dd/MM/yyyy"
+                                    placeholderText="dd/mm/yyyy"
+                                    className="pcr-download-date-control"
+                                    calendarClassName="pcr-download-calendar"
+                                    showPopperArrow={false}
+                                    autoComplete="off"
+                                    isClearable={false}
+                                    popperPlacement="bottom-start"
+                                    portalId="pcr-download-datepicker-portal"
+                                    disabled={loading || downloading}
+                                />
+
+                                <button
+                                    type="button"
+                                    className="pcr-download-calendar-icon"
+                                    aria-label="Open From Date calendar"
+                                    disabled={loading || downloading}
+                                    onClick={(event) => {
+                                        const input = event.currentTarget
+                                            .parentElement
+                                            .querySelector('input')
+
+                                        input?.focus()
+                                        input?.click()
+                                    }}
+                                >
+                                    <CalendarDays size={18} />
+                                </button>
+                            </div>
                         </div>
 
                         {/* TO DATE */}
 
                         <div className="pcr-download-field">
-                            <label>
+                            <label htmlFor="pcr-download-to-date">
                                 To Date
-                                <span className="required-mark">
-                                    *
-                                </span>
+                                <span className="required-mark">*</span>
                             </label>
 
-                            <input
-                                type="date"
-                                value={toDate}
-                                onChange={(e) => {
-                                    setToDate(e.target.value)
-                                    setError('')
-                                }}
-                                disabled={loading || downloading}
-                            />
+                            <div className="pcr-download-date-picker">
+                                <DatePicker
+                                    id="pcr-download-to-date"
+                                    selected={parsePCRDownloadDate(toDate)}
+                                    onChange={(date) => {
+                                        setToDate(formatPCRDownloadDate(date))
+                                        setError('')
+                                    }}
+                                    dateFormat="dd/MM/yyyy"
+                                    placeholderText="dd/mm/yyyy"
+                                    minDate={parsePCRDownloadDate(fromDate)}
+                                    className="pcr-download-date-control"
+                                    calendarClassName="pcr-download-calendar"
+                                    showPopperArrow={false}
+                                    autoComplete="off"
+                                    isClearable={false}
+                                    popperPlacement="bottom-start"
+                                    portalId="pcr-download-datepicker-portal"
+                                    disabled={loading || downloading}
+                                />
+
+                                <button
+                                    type="button"
+                                    className="pcr-download-calendar-icon"
+                                    aria-label="Open To Date calendar"
+                                    disabled={loading || downloading}
+                                    onClick={(event) => {
+                                        const input = event.currentTarget
+                                            .parentElement
+                                            .querySelector('input')
+
+                                        input?.focus()
+                                        input?.click()
+                                    }}
+                                >
+                                    <CalendarDays size={18} />
+                                </button>
+                            </div>
                         </div>
 
                         {/* BUTTONS */}
@@ -467,7 +561,7 @@ function PCRDownload({
                         <div className="pcr-download-actions">
                             <button
                                 type="button"
-                                className="pcr-download-search-btn"
+                                className="btn-search pcr-download-search-btn"
                                 onClick={handleSearch}
                                 disabled={loading || downloading}
                             >

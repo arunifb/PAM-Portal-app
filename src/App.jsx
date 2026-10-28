@@ -1,4 +1,6 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+// import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
 
 import Login from './pages/Login/Login'
 import ResetPassword from './pages/ResetPassword/ResetPassword'
@@ -32,13 +34,72 @@ import FranchiseList from './pages/Franchise/FranchiseList'
 import TechnicianEdit from './pages/Technician/TechnicianEdit'
 import AddTechSkill from './pages/AddTechSkill/AddTechSkill'
 import EvidenceSearch from './pages/EvidenceSearch/EvidenceSearch'
+import TechnicianAdd from './pages/Technician/TechnicianAdd'
+import UploadMSMEDoc from './pages/UploadMSMEDoc/UploadMSMEDoc'
+import SearchInvoice from './pages/SearchInvoice/SearchInvoice'
+import TrainingManual from './pages/TrainingManual/TrainingManual'
+import SubDealerView from './pages/SubDealer/SubDealerView'
+// import Creation from './pages/Vendor/Creation'
 import ProtectedRoute from './components/ProtectedRoute'
+
+
+function PageTitleUpdater() {
+    const location = useLocation()
+
+    useEffect(() => {
+        const pageTitles = {
+            '/': 'Login',
+            '/reset-password': 'Reset Password',
+            '/2fa': 'Two Factor Authentication',
+            '/dashboard': 'Dashboard',
+            '/report-parameter': 'Report Parameter',
+            '/click2call': 'Click2Call',
+            '/call-summary': 'Call Summary',
+            '/franchise-view': 'Franchise View',
+            '/one-search': 'One Search',
+            '/digital-contract': 'Digital Contract',
+            '/inventory': 'Inventory',
+            '/ddr-region': 'DDR Region',
+            '/digital-icr': 'Digital ICR',
+            '/spares-stock': 'Spares Stock',
+            '/technician': 'Technician',
+            '/technician/edit': 'Edit Technician',
+            '/technician/add': 'Add Technician',
+            '/spares-search': 'Spares Search',
+            '/check-ticket-status': 'Check Ticket Status',
+            '/user-management': 'User Management',
+            '/supersession': 'Supersession',
+            '/pcr': 'PCR',
+            '/pcr-download': 'PCR Download',
+            '/add-part-category': 'Add Part Category',
+            '/legal-case': 'Legal Case',
+            '/add-franchise': 'Add Franchise',
+            '/franchise-list': 'Franchise List',
+            '/subdealer/editview': 'Subdealer',
+            '/add-tech-skill': 'Add Tech Skill',
+            '/evidence-search': 'Evidence Search',
+            '/upload-msme-doc': 'Upload MSME Document',
+            '/search-invoice': 'Search Invoice',
+            '/skill-set-view': 'Skill Set View',
+            '/bom-exploded-view': 'BOM Exploded View'
+        }
+
+        const pageName = pageTitles[location.pathname] || 'eTraining'
+
+        document.title = `eTraining-${pageName}`
+    }, [location.pathname])
+
+    return null
+}
+
 
 function App() {
 
     return (
 
         <BrowserRouter>
+
+            <PageTitleUpdater />
 
             <Routes>
 
@@ -148,9 +209,19 @@ function App() {
                         element={<Technician />}
                     />
 
-                    <Route
+                    {/* <Route
                         path="/technician/edit/:techId"
                         element={<TechnicianEdit />}
+                    /> */}
+
+                    <Route
+                        path="/technician/edit"
+                        element={<TechnicianEdit />}
+                    />
+
+                    <Route
+                        path="/technician/add"
+                        element={<TechnicianAdd />}
                     />
 
                     <Route
@@ -217,6 +288,30 @@ function App() {
                         path="/evidence-search"
                         element={<EvidenceSearch />}
                     />
+
+                    <Route
+                        path="/upload-msme-doc"
+                        element={<UploadMSMEDoc />}
+                    />
+
+                    <Route
+                        path="/search-invoice"
+                        element={<SearchInvoice />}
+                    />
+
+                    <Route
+                        path="/training-manual"
+                        element={<TrainingManual />}
+                    />
+
+                    <Route
+                        path="/sub-dealer-view"
+                        element={<SubDealerView />}
+                    />
+
+                    {/* <Route 
+                        path="/vendor/creation" 
+                        element={<Creation />} /> */}
 
 
                     {/* =========================================
