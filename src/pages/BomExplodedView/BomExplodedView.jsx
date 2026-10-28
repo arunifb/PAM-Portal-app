@@ -26,8 +26,8 @@ function BomExplodedView() {
         ''
 
 
-    // Upload/Delete visible for all roles
-    const canUploadDelete = true
+    // Upload/Delete visible only for role id 22
+const canUploadDelete = roleId === '22'
 
 
     // =========================================
