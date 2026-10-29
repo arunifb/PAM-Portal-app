@@ -1,5 +1,8 @@
 
 import { useEffect, useMemo, useState } from 'react'
+import PCRRefurbishVendorMaster from './PCRRefurbishVendorMaster'
+import PartCategory from './PartCategory'
+import PCRRequisitionView from './PCRRequisitionView'
 import DashboardLayout from '../../components/DashboardLayout/DashboardLayout'
 
 import {
@@ -312,6 +315,38 @@ function roleExists(roles, roleId) {
 // =========================================
 
 function PCRVendorDetails() {
+    
+    
+
+    const [activePage, setActivePage] = useState(() => {
+    return sessionStorage.getItem('pcrActivePage') || 'vendor-details'
+    })
+
+    const handlePartVendor = () => {
+        sessionStorage.setItem('pcrActivePage', 'vendor-master')
+        setActivePage('vendor-master')
+    }
+
+    const handleBackToVendorDetails = () => {
+        sessionStorage.setItem('pcrActivePage', 'vendor-details')
+        setActivePage('vendor-details')
+    }
+
+    const handlePartCategory = () => {
+    sessionStorage.setItem('pcrActivePage', 'part-category')
+    setActivePage('part-category')
+    }
+
+    const handleBackFromPartCategory = () => {
+        sessionStorage.setItem('pcrActivePage', 'vendor-details')
+        setActivePage('vendor-details')
+    }
+
+    const handleViewPage = () => {
+    sessionStorage.setItem('pcrActivePage', 'pcr-requisition-view')
+    setActivePage('pcr-requisition-view')
+    }
+
     const userId = getSessionValue('userId', 'UserID')
     const bpCode = getSessionValue('bpCode', 'BPCode')
     const regionCode = getSessionValue('regionCode', 'RegionCode')
@@ -1180,6 +1215,31 @@ function PCRVendorDetails() {
     // UI
     // =========================================
 
+
+    if (activePage === 'vendor-master') {
+        return (
+            <PCRRefurbishVendorMaster
+                onBack={handleBackToVendorDetails}
+            />
+        )
+    }
+
+    if (activePage === 'part-category') {
+        return (
+            <PartCategory
+                onBack={handleBackFromPartCategory}
+            />
+        )
+    }
+
+    if (activePage === 'pcr-requisition-view') {
+        return (
+            <PCRRequisitionView
+                onBack={handleBackToVendorDetails}
+            />
+        )
+    }
+
     return (
         <DashboardLayout>
             <main className="pcr-vendor-page">
@@ -1225,18 +1285,21 @@ function PCRVendorDetails() {
 
                         <button
                             type="button"
-                            onClick={() => window.alert(
-                                'Part Category page is not connected yet.'
-                            )}
+                            onClick={handleViewPage}
+                        >
+                            View
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={handlePartCategory}
                         >
                             Part Category
                         </button>
 
                         <button
                             type="button"
-                            onClick={() => window.alert(
-                                'Part Vendor page is not connected yet.'
-                            )}
+                            onClick={handlePartVendor}
                         >
                             Part Vendor
                         </button>
@@ -1706,13 +1769,13 @@ function PCRVendorDetails() {
                     </div>
 
                     <div
-                        className={`pcr-table-wrapper ${
+                        className={`pcr-vendor-grid-wrapper ${
                             !loading && rows.length === 0
-                                ? 'pcr-table-wrapper-empty'
+                                ? 'pcr-vendor-grid-wrapper-empty'
                                 : ''
                         }`}
                     >
-                        <table className="pcr-table">
+                        <table className="pcr-vendor-grid">
                             <thead>
                                 <tr>
                                     <th>

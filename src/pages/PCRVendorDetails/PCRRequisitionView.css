@@ -1,0 +1,513 @@
+
+/* =========================================
+   SUBMITTED PCR PAGE
+========================================= */
+
+.pcr-requisition-page,
+.pcr-requisition-page * {
+    box-sizing: border-box;
+}
+
+.pcr-requisition-page {
+    width: 100%;
+    max-width: 100%;
+    padding: 4px;
+    margin: 0;
+    color: #263445;
+    font-size: 13px;
+}
+
+/* =========================================
+   TOP-RIGHT BACK BUTTON
+========================================= */
+
+.pcr-requisition-topbar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+    margin: 0 0 3px;
+    padding: 0 2px;
+    min-height: 28px;
+}
+
+.pcr-requisition-topbar .pcr-rv-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: auto;
+    min-height: 28px;
+    height: 28px;
+    margin: 0;
+    padding: 4px 11px;
+    background-color: #6b7280;
+    color: #ffffff;
+    border: 1px solid #6b7280;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.3;
+    text-align: center;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.pcr-requisition-topbar .pcr-rv-btn-secondary:hover:not(:disabled) {
+    background-color: #4b5563;
+    border-color: #4b5563;
+    color: #ffffff;
+}
+
+.pcr-requisition-topbar .pcr-rv-btn-secondary:active:not(:disabled) {
+    background-color: #374151;
+    border-color: #374151;
+}
+
+.pcr-requisition-topbar .pcr-rv-btn-secondary:focus-visible {
+    outline: 2px solid #6b7280;
+    outline-offset: 2px;
+}
+
+.pcr-requisition-topbar .pcr-rv-btn-secondary:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+/* =========================================
+   PANELS
+========================================= */
+
+.pcr-rv-panel {
+    width: 100%;
+    padding: 12px;
+    margin: 0 0 12px;
+    background: #fff;
+    border: 1px solid #dfe5ec;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgb(20 40 60 / 5%);
+}
+
+.pcr-rv-results-panel {
+    padding: 12px;
+}
+
+/* =========================================
+   SIX FIELDS IN THE FIRST ROW
+========================================= */
+
+.pcr-rv-filter-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 10px;
+    align-items: end;
+}
+
+/* =========================================
+   FIELD LABELS AND CONTROLS
+========================================= */
+
+.pcr-rv-field {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 4px;
+    margin: 0;
+    color: #35465a;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.pcr-rv-field > span {
+    display: block;
+    line-height: 1.25;
+}
+
+.pcr-rv-field input,
+.pcr-rv-field select {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    height: 32px;
+    padding: 5px 8px;
+    margin: 0;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    background: #fff;
+    color: #263445;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 400;
+    outline: none;
+}
+
+.pcr-rv-field input:focus,
+.pcr-rv-field select:focus {
+    border-color: #337ab7;
+    box-shadow: 0 0 0 2px rgb(51 122 183 / 12%);
+}
+
+.pcr-rv-field input:disabled,
+.pcr-rv-field select:disabled {
+    background: #f1f4f7;
+    color: #64748b;
+    cursor: not-allowed;
+}
+
+/* =========================================
+   SECOND ROW: DATES AND ACTIONS
+========================================= */
+
+.pcr-rv-date-action-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 16px;
+    margin-top: 12px;
+}
+
+.pcr-rv-date-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(170px, 220px));
+    gap: 10px;
+    flex: 0 1 auto;
+    min-width: 0;
+}
+
+/* =========================================
+   SEARCH AND RESET
+========================================= */
+
+.pcr-rv-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.pcr-rv-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 72px;
+    height: 32px;
+    padding: 0 13px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease;
+}
+
+.pcr-rv-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.pcr-rv-btn-primary {
+    background: #337ab7;
+    border-color: #2e6da4;
+    color: #fff;
+}
+
+.pcr-rv-btn-primary:hover:not(:disabled) {
+    background: #286090;
+    border-color: #204d74;
+}
+
+/* Default secondary buttons, including Reset */
+
+.pcr-rv-btn-secondary {
+    background: #fff;
+    border-color: #cbd5e1;
+    color: #334155;
+}
+
+.pcr-rv-btn-secondary:hover:not(:disabled) {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+}
+
+/* =========================================
+   ERROR MESSAGE
+========================================= */
+
+.pcr-rv-alert {
+    padding: 8px 10px;
+    margin: 0 0 10px;
+    border: 1px solid #f0b8b8;
+    border-radius: 4px;
+    background: #fff1f1;
+    color: #a4262c;
+    font-size: 12px;
+}
+
+/* =========================================
+   RESULTS HEADING
+========================================= */
+
+.pcr-rv-grid-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 10px;
+}
+
+.pcr-rv-grid-heading h2 {
+    padding: 0;
+    margin: 0;
+    color: #263445;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.pcr-rv-grid-heading span {
+    color: #64748b;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+/* =========================================
+   RESULTS TABLE
+   Matches PCR Vendor Details table design
+   Uses independent pcr-rv- class names
+========================================= */
+
+.pcr-rv-table-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    height: 420px;
+    overflow: auto;
+    overscroll-behavior: contain;
+    border: 1px solid #e0e6ef;
+    border-radius: 6px;
+    background: #fff;
+    scrollbar-gutter: stable;
+}
+
+/* Table sizing */
+
+.pcr-rv-table {
+    width: 100%;
+    min-width: 1400px;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #fff;
+    font-size: 12px;
+}
+
+/* Frozen table header */
+
+.pcr-rv-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    height: 38px;
+    padding: 10px;
+    border-right: 1px solid #dbe3ed;
+    border-bottom: 1px solid #cbd7e5;
+    background: #edf3fa;
+    color: #34465a;
+    text-align: left;
+    white-space: nowrap;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* Table body cells */
+
+.pcr-rv-table tbody td {
+    height: 36px;
+    padding: 9px 10px;
+    border-right: 1px solid #edf0f5;
+    border-bottom: 1px solid #edf0f5;
+    background: #fff;
+    color: #46566a;
+    text-align: left;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+/* Alternating row backgrounds */
+
+.pcr-rv-table tbody tr:nth-child(even) td {
+    background: #f8fafc;
+}
+
+/* Row hover */
+
+.pcr-rv-table tbody tr:hover td {
+    background: #eef5ff;
+}
+
+/* Avoid double bottom border */
+
+.pcr-rv-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Empty and loading rows */
+
+.pcr-rv-table .pcr-rv-empty {
+    height: 90px !important;
+    padding: 20px !important;
+    background: #fff !important;
+    color: #78879a !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    white-space: normal !important;
+}
+
+/* Compact table when there are no records.
+   Add this class to the wrapper when appropriate. */
+
+.pcr-rv-table-wrapper-empty {
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-gutter: auto;
+}
+
+.pcr-rv-table-wrapper-empty .pcr-rv-table {
+    margin-bottom: 0;
+}
+
+.pcr-rv-table-wrapper-empty .pcr-rv-empty {
+    height: auto !important;
+    padding: 12px !important;
+}
+
+/* =========================================
+   TABLE SCROLLBAR STYLING
+========================================= */
+
+.pcr-rv-table-wrapper::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+.pcr-rv-table-wrapper::-webkit-scrollbar-track {
+    background: #f0f3f7;
+    border-radius: 6px;
+}
+
+.pcr-rv-table-wrapper::-webkit-scrollbar-thumb {
+    background: #bcc8d6;
+    border: 2px solid #f0f3f7;
+    border-radius: 6px;
+}
+
+.pcr-rv-table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #8e9fb3;
+}
+
+/* Firefox */
+
+.pcr-rv-table-wrapper {
+    scrollbar-width: auto;
+    scrollbar-color: #bcc8d6 #f0f3f7;
+}
+
+/* =========================================
+   RESPONSIVE LAYOUT
+========================================= */
+
+@media (max-width: 1200px) {
+    .pcr-rv-filter-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 760px) {
+    .pcr-requisition-page {
+        padding: 3px;
+    }
+
+    .pcr-requisition-topbar {
+        margin-bottom: 3px;
+        padding: 0 2px;
+    }
+
+    .pcr-requisition-topbar .pcr-rv-btn-secondary {
+        min-height: 28px;
+        height: 28px;
+        padding: 4px 10px;
+        font-size: 12px;
+    }
+
+    .pcr-rv-panel {
+        padding: 9px;
+        margin-bottom: 9px;
+    }
+
+    .pcr-rv-filter-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .pcr-rv-date-action-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .pcr-rv-date-fields {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        width: 100%;
+    }
+
+    .pcr-rv-actions {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .pcr-rv-actions .pcr-rv-btn {
+        flex: 1;
+    }
+
+    /* Preserve table scrolling on mobile */
+
+    .pcr-rv-table-wrapper {
+        width: 100%;
+        height: 420px;
+        overflow: auto;
+    }
+
+    .pcr-rv-table {
+        min-width: 1400px;
+    }
+
+    /* Preserve compact empty state */
+
+    .pcr-rv-table-wrapper-empty {
+        height: auto;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scrollbar-gutter: auto;
+    }
+}
+
+@media (max-width: 420px) {
+    .pcr-rv-filter-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pcr-rv-date-fields {
+        grid-template-columns: 1fr;
+    }
+}

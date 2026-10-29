@@ -43,6 +43,7 @@ import SearchInvoice from '../SearchInvoice/SearchInvoice'
 import TrainingManual from '../TrainingManual/TrainingManual'
 import SubDealerView from '../SubDealer/SubDealerView'
 import PCRVendorDetails from '../PCRVendorDetails/PCRVendorDetails'
+import PCRRefurbishVendorMaster from '../PCRVendorDetails/PCRRefurbishVendorMaster'
 // import VendorCreation from '../Vendor/Creation'
 
 function RouteKeyPage() {
@@ -188,6 +189,9 @@ const setFranchiseView = (view) => {
 
         '/pcr-vendor-details':
             PCRVendorDetails,
+
+        '/pcr-refurbish-vendor-master':
+            PCRRefurbishVendorMaster,
 
         // '/vendor/creation': 
         // VendorCreation,

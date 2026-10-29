@@ -40,6 +40,7 @@ import SearchInvoice from './pages/SearchInvoice/SearchInvoice'
 import TrainingManual from './pages/TrainingManual/TrainingManual'
 import SubDealerView from './pages/SubDealer/SubDealerView'
 import PCRVendorDetails from './pages/PCRVendorDetails/PCRVendorDetails'
+import PCRRefurbishVendorMaster from './pages/PCRVendorDetails/PCRRefurbishVendorMaster'
 // import Creation from './pages/Vendor/Creation'
 import ProtectedRoute from './components/ProtectedRoute'
 
@@ -313,6 +314,11 @@ function App() {
                     <Route
                         path="/pcr-vendor-details"
                         element={<PCRVendorDetails />}
+                    />
+
+                    <Route
+                        path="/pcr-refurbish-vendor-master"
+                        element={<PCRRefurbishVendorMaster />}
                     />
 
                     {/* <Route 

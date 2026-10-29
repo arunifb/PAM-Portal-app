@@ -1,0 +1,491 @@
+/* =========================================
+   PCR REFURBISH VENDOR MASTER
+   COMPACT DESIGN
+========================================= */
+
+.pcr-refurbish-page,
+.pcr-refurbish-page * {
+    box-sizing: border-box;
+}
+
+.pcr-refurbish-page {
+    width: 100%;
+    padding: 4px;
+    color: #333;
+    font-size: 13px;
+}
+
+/* =========================================
+   PANELS
+========================================= */
+
+.pcr-refurbish-panel {
+    width: 100%;
+    margin-bottom: 8px;
+    padding: 8px 10px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+}
+
+/* =========================================
+   BACK BUTTON HEADER - TOP RIGHT
+========================================= */
+
+.pcr-refurbish-page-header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+    margin: 0 0 3px;
+    padding: 0 2px;
+}
+
+/* =========================================
+   BACK BUTTON
+   Same styling as Technician Edit page
+========================================= */
+
+.pcr-refurbish-page-header .technician-edit-back-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+    margin: 0;
+    padding: 4px 11px;
+    background-color: #6b7280 !important;
+    color: #ffffff !important;
+    border: 1px solid #6b7280 !important;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.3;
+    text-align: center;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.pcr-refurbish-page-header .technician-edit-back-btn:hover:not(:disabled) {
+    background-color: #4b5563 !important;
+    border-color: #4b5563 !important;
+    color: #ffffff !important;
+}
+
+.pcr-refurbish-page-header .technician-edit-back-btn:active:not(:disabled) {
+    background-color: #374151 !important;
+    border-color: #374151 !important;
+}
+
+.pcr-refurbish-page-header .technician-edit-back-btn:focus-visible {
+    outline: 2px solid #6b7280;
+    outline-offset: 2px;
+}
+
+.pcr-refurbish-page-header .technician-edit-back-btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+/* =========================================
+   MESSAGES
+========================================= */
+
+.pcr-refurbish-message {
+    margin-bottom: 7px;
+    padding: 7px 9px;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+.pcr-refurbish-message.success {
+    color: #3c763d;
+    background: #dff0d8;
+    border-color: #d6e9c6;
+}
+
+.pcr-refurbish-message.error {
+    color: #a94442;
+    background: #f2dede;
+    border-color: #ebccd1;
+}
+
+/* =========================================
+   SEARCH
+========================================= */
+
+.pcr-refurbish-search-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.pcr-refurbish-search-field {
+    display: flex;
+    flex: 0 1 300px;
+    flex-direction: column;
+    gap: 3px;
+    max-width: 300px;
+}
+
+.pcr-refurbish-search-field label {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.pcr-refurbish-search-field input {
+    width: 100%;
+    min-height: 29px;
+    padding: 4px 8px;
+    color: #555;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 12px;
+    outline: none;
+}
+
+.pcr-refurbish-search-field input:focus,
+.pcr-refurbish-grid-input:focus,
+.pcr-refurbish-grid-select:focus {
+    border-color: #66afe9;
+    outline: 0;
+    box-shadow: 0 0 5px rgba(102, 175, 233, 0.45);
+}
+
+.pcr-refurbish-search-actions {
+    display: flex;
+    gap: 6px;
+}
+
+/* =========================================
+   BUTTONS
+========================================= */
+
+.pcr-refurbish-primary-button,
+.pcr-refurbish-secondary-button {
+    min-height: 29px;
+    padding: 4px 11px;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.3;
+    cursor: pointer;
+}
+
+.pcr-refurbish-primary-button {
+    color: #fff;
+    background: #337ab7;
+    border-color: #2e6da4;
+}
+
+.pcr-refurbish-primary-button:hover:not(:disabled) {
+    background: #286090;
+    border-color: #204d74;
+}
+
+.pcr-refurbish-secondary-button {
+    color: #333;
+    background: #fff;
+    border-color: #ccc;
+}
+
+.pcr-refurbish-secondary-button:hover:not(:disabled) {
+    background: #e6e6e6;
+    border-color: #adadad;
+}
+
+.pcr-refurbish-primary-button:disabled,
+.pcr-refurbish-secondary-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* =========================================
+   TABLE CONTAINER
+========================================= */
+
+.pcr-refurbish-table-container {
+    width: 100%;
+    margin-top: 0;
+    overflow-x: auto;
+}
+
+/* =========================================
+   TABLE
+========================================= */
+
+.pcr-refurbish-table {
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+    border-spacing: 0;
+    background: #fff;
+    font-size: 12px;
+}
+
+.pcr-refurbish-table th,
+.pcr-refurbish-table td {
+    padding: 5px 7px;
+    border: 1px solid #b8c7d3;
+    text-align: left;
+    vertical-align: middle;
+    line-height: 1.25;
+}
+
+.pcr-refurbish-table thead th {
+    padding-top: 6px;
+    padding-bottom: 6px;
+    color: #222;
+    background: #81a6c7;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.pcr-refurbish-table tbody tr:nth-child(even) {
+    background: #f5f5f5;
+}
+
+.pcr-refurbish-table tbody tr:hover {
+    background: #eaf2f8;
+}
+
+.pcr-refurbish-table th:first-child,
+.pcr-refurbish-table td:first-child {
+    width: 60px;
+    text-align: center;
+}
+
+.pcr-refurbish-table th:last-child,
+.pcr-refurbish-table td:last-child {
+    width: 85px;
+    text-align: center;
+}
+
+.pcr-refurbish-empty {
+    padding: 14px !important;
+    color: #777;
+    text-align: center !important;
+}
+
+/* =========================================
+   GRID INPUTS AND DROPDOWNS
+========================================= */
+
+.pcr-refurbish-grid-input,
+.pcr-refurbish-grid-select {
+    display: block;
+    width: 100%;
+    min-width: 100px;
+    min-height: 27px;
+    padding: 3px 6px;
+    color: #555;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 12px;
+    line-height: 1.3;
+    outline: none;
+}
+
+.pcr-refurbish-grid-select {
+    cursor: pointer;
+}
+
+/* =========================================
+   ADD NEW ROW
+========================================= */
+
+.pcr-refurbish-footer-row {
+    background: #f9f9f9 !important;
+}
+
+.pcr-refurbish-footer-row:hover {
+    background: #f9f9f9 !important;
+}
+
+.pcr-refurbish-footer-row td {
+    padding: 4px 6px;
+}
+
+/* =========================================
+   EDITING ROW
+========================================= */
+
+.pcr-refurbish-editing-row {
+    background: #fffbe8 !important;
+}
+
+.pcr-refurbish-editing-row:hover {
+    background: #fffbe8 !important;
+}
+
+.pcr-refurbish-editing-row td {
+    padding: 4px 6px;
+}
+
+/* =========================================
+   FIELD VALIDATION
+========================================= */
+
+.pcr-refurbish-field-error {
+    display: block;
+    margin-top: 2px;
+    color: #a94442;
+    font-size: 11px;
+    line-height: 1.2;
+}
+
+/* =========================================
+   ROW ACTION ICONS
+========================================= */
+
+.pcr-refurbish-actions-cell {
+    white-space: nowrap;
+}
+
+.pcr-refurbish-icon-button {
+    display: inline-flex;
+    width: 26px;
+    height: 26px;
+    margin: 0 1px;
+    padding: 4px;
+    align-items: center;
+    justify-content: center;
+    color: #337ab7;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.pcr-refurbish-icon-button:hover:not(:disabled) {
+    background: #e8f1f8;
+    border-color: #c5d9e8;
+}
+
+.pcr-refurbish-icon-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.pcr-refurbish-add-button {
+    color: #337ab7;
+}
+
+.pcr-refurbish-save-button {
+    color: #3c763d;
+}
+
+.pcr-refurbish-cancel-button {
+    color: #a94442;
+}
+
+.pcr-refurbish-edit-button {
+    color: #337ab7;
+}
+
+/* =========================================
+   PAGINATION
+========================================= */
+
+.pcr-refurbish-pagination {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 3px;
+    margin-top: 7px;
+}
+
+.pcr-refurbish-pagination button {
+    min-width: 27px;
+    min-height: 26px;
+    padding: 3px 7px;
+    color: #337ab7;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.pcr-refurbish-pagination button:hover:not(:disabled) {
+    background: #eee;
+}
+
+.pcr-refurbish-pagination button.active {
+    color: #fff;
+    background: #337ab7;
+    border-color: #337ab7;
+}
+
+.pcr-refurbish-pagination button:disabled {
+    color: #999;
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 640px) {
+    .pcr-refurbish-page {
+        padding: 3px;
+    }
+
+    .pcr-refurbish-panel {
+        padding: 6px;
+        margin-bottom: 6px;
+    }
+
+    .pcr-refurbish-page-header {
+        margin-bottom: 3px;
+        padding: 0 2px;
+    }
+
+    .pcr-refurbish-page-header .technician-edit-back-btn {
+        min-height: 28px;
+        padding: 4px 10px;
+        font-size: 12px;
+    }
+
+    .pcr-refurbish-search-form {
+        align-items: stretch;
+        gap: 6px;
+    }
+
+    .pcr-refurbish-search-field {
+        flex: 1 1 100%;
+        max-width: none;
+    }
+
+    .pcr-refurbish-search-actions {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .pcr-refurbish-table th,
+    .pcr-refurbish-table td {
+        padding: 4px 5px;
+    }
+
+    .pcr-refurbish-grid-input,
+    .pcr-refurbish-grid-select {
+        min-width: 90px;
+        min-height: 26px;
+        padding: 3px 5px;
+    }
+
+    .pcr-refurbish-pagination {
+        justify-content: center;
+    }
+}

@@ -556,3 +556,135 @@ export async function printPCR(printData) {
 
     return readPCRFileResponse(response);
 }
+
+
+// =========================================
+// PCR REFURBISH VENDOR MASTER
+// =========================================
+
+// GET REFURBISH VENDOR MASTER LIST
+export async function getPCRRefurbishVendorMasterList(
+    searchText = ''
+) {
+    const response = await authFetch(
+        `${API_BASE_URL}/api/PCRSegregation/refurbish-vendor-master?searchText=${encodeURIComponent(searchText)}`
+    );
+
+    const data = await readResponse(response);
+
+    if (!response.ok) {
+        throw new Error(
+            data.message ||
+            'Unable to load PCR refurbish vendor master list.'
+        );
+    }
+
+    return data;
+}
+
+
+// GET CONFIG VENDORS
+// Reuse the existing vendors endpoint.
+export async function getPCRConfigVendors() {
+    return getPCRVendors();
+}
+
+
+// ADD OR UPDATE REFURBISH VENDOR MASTER
+export async function savePCRRefurbishVendorMaster(
+    vendorData,
+    action,
+    userId
+) {
+    const payload = {
+        ...vendorData,
+        Action: action,
+        UserId: Number(userId) || 0
+    }
+
+    const response = await authFetch(
+        `${API_BASE_URL}/api/PCRSegregation/refurbish-vendor-master`,
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        }
+    )
+
+    const data = await readResponse(response)
+
+    if (!response.ok) {
+        throw new Error(
+            data.message ||
+            data.Message ||
+            'Unable to save PCR refurbish vendor master.'
+        )
+    }
+
+    return data
+}
+
+
+// =========================================
+// PCR PART CATEGORY MASTER
+// Separate from the existing RoleID 6 workflow
+// =========================================
+
+// GET PART CATEGORY MASTER LIST
+export async function getPCRPartCategoryMasterList(
+    searchText = ''
+) {
+    const response = await authFetch(
+        `${API_BASE_URL}/api/PCRSegregation/part-category-master?searchText=${encodeURIComponent(searchText)}`
+    )
+
+    const data = await readResponse(response)
+
+    if (!response.ok) {
+        throw new Error(
+            data.message ||
+            data.Message ||
+            'Unable to load PCR Part Category Master.'
+        )
+    }
+
+    return data
+}
+
+// ADD OR UPDATE PART CATEGORY MASTER
+export async function savePCRPartCategoryMaster(
+    categoryData,
+    action,
+    userId
+) {
+    const payload = {
+        ...categoryData,
+        Action: action,
+        UserId: Number(userId) || 0
+    }
+
+    const response = await authFetch(
+        `${API_BASE_URL}/api/PCRSegregation/part-category-master`,
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        }
+    )
+
+    const data = await readResponse(response)
+
+    if (!response.ok) {
+        throw new Error(
+            data.message ||
+            data.Message ||
+            'Unable to save PCR Part Category Master.'
+        )
+    }
+
+    return data
+}

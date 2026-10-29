@@ -498,7 +498,7 @@
    Empty state: compact
 ========================================= */
 
-.pcr-table-wrapper {
+.pcr-vendor-grid-wrapper {
     position: relative;
     width: 100%;
     max-width: 100%;
@@ -512,7 +512,7 @@
 }
 
 /* Normal table sizing */
-.pcr-table {
+.pcr-vendor-grid {
     width: 100%;
     min-width: 1400px;
     border-collapse: separate;
@@ -522,7 +522,7 @@
 }
 
 /* Frozen header */
-.pcr-table thead th {
+.pcr-vendor-grid thead th {
     position: sticky;
     top: 0;
     z-index: 5;
@@ -539,7 +539,7 @@
 }
 
 /* Body cells */
-.pcr-table tbody td {
+.pcr-vendor-grid tbody td {
     height: 36px;
     padding: 9px 10px;
     border-right: 1px solid #edf0f5;
@@ -552,23 +552,23 @@
 }
 
 /* Alternating row background */
-.pcr-table tbody tr:nth-child(even) td {
+.pcr-vendor-grid tbody tr:nth-child(even) td {
     background: #f8fafc;
 }
 
 /* Hover state */
-.pcr-table tbody tr:hover td {
+.pcr-vendor-grid tbody tr:hover td {
     background: #eef5ff;
 }
 
 /* Avoid double bottom border */
-.pcr-table tbody tr:last-child td {
+.pcr-vendor-grid tbody tr:last-child td {
     border-bottom: none;
 }
 
 /* Checkbox column */
-.pcr-table th:first-child,
-.pcr-table td:first-child {
+.pcr-vendor-grid th:first-child,
+.pcr-vendor-grid td:first-child {
     width: 42px;
     min-width: 42px;
     max-width: 42px;
@@ -576,7 +576,7 @@
 }
 
 /* Checkbox */
-.pcr-table input[type='checkbox'] {
+.pcr-vendor-grid input[type='checkbox'] {
     width: 15px;
     height: 15px;
     margin: 0;
@@ -585,7 +585,7 @@
     vertical-align: middle;
 }
 
-.pcr-table input[type='checkbox']:disabled {
+.pcr-vendor-grid input[type='checkbox']:disabled {
     cursor: not-allowed;
 }
 
@@ -602,7 +602,7 @@
 
 /* Compact table when no records are available.
    This class must be added by React to the wrapper. */
-.pcr-table-wrapper-empty {
+.pcr-vendor-grid-wrapper-empty {
     height: auto;
     min-height: 0;
     max-height: none;
@@ -611,11 +611,11 @@
     scrollbar-gutter: auto;
 }
 
-.pcr-table-wrapper-empty .pcr-table {
+.pcr-vendor-grid-wrapper-empty .pcr-vendor-grid {
     margin-bottom: 0;
 }
 
-.pcr-table-wrapper-empty .pcr-empty-cell {
+.pcr-vendor-grid-wrapper-empty .pcr-empty-cell {
     height: auto !important;
     padding: 12px !important;
 }
@@ -641,28 +641,28 @@
    TABLE SCROLLBAR STYLING
 ========================================= */
 
-.pcr-table-wrapper::-webkit-scrollbar {
+.pcr-vendor-grid-wrapper::-webkit-scrollbar {
     width: 12px;
     height: 12px;
 }
 
-.pcr-table-wrapper::-webkit-scrollbar-track {
+.pcr-vendor-grid-wrapper::-webkit-scrollbar-track {
     background: #f0f3f7;
     border-radius: 6px;
 }
 
-.pcr-table-wrapper::-webkit-scrollbar-thumb {
+.pcr-vendor-grid-wrapper::-webkit-scrollbar-thumb {
     background: #bcc8d6;
     border: 2px solid #f0f3f7;
     border-radius: 6px;
 }
 
-.pcr-table-wrapper::-webkit-scrollbar-thumb:hover {
+.pcr-vendor-grid-wrapper::-webkit-scrollbar-thumb:hover {
     background: #8e9fb3;
 }
 
 /* Firefox */
-.pcr-table-wrapper {
+.pcr-vendor-grid-wrapper {
     scrollbar-width: auto;
     scrollbar-color: #bcc8d6 #f0f3f7;
 }
@@ -730,12 +730,12 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .pcr-table-wrapper {
+    .pcr-vendor-grid-wrapper {
         height: 420px;
     }
 
     /* Keep the empty state compact at smaller screen sizes too */
-    .pcr-table-wrapper-empty {
+    .pcr-vendor-grid-wrapper-empty {
         height: auto;
         overflow-x: auto;
         overflow-y: hidden;
@@ -833,21 +833,21 @@
     }
 
     /* Preserve table scrolling on mobile */
-    .pcr-table-wrapper {
+    .pcr-vendor-grid-wrapper {
         width: 100%;
         height: 420px;
         overflow: auto;
     }
 
     /* Do not override the compact empty state on mobile */
-    .pcr-table-wrapper-empty {
+    .pcr-vendor-grid-wrapper-empty {
         height: auto;
         overflow-x: auto;
         overflow-y: hidden;
         scrollbar-gutter: auto;
     }
 
-    .pcr-table {
+    .pcr-vendor-grid {
         min-width: 1400px;
     }
 }
