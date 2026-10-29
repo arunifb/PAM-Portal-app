@@ -318,9 +318,14 @@ function PCRVendorDetails() {
     
     
 
-    const [activePage, setActivePage] = useState(() => {
-    return sessionStorage.getItem('pcrActivePage') || 'vendor-details'
-    })
+    // const [activePage, setActivePage] = useState(() => {
+    // return sessionStorage.getItem('pcrActivePage') || 'vendor-details'
+    // })
+
+    const [activePage, setActivePage] = useState('vendor-details')
+    useEffect(() => {
+    sessionStorage.setItem('pcrActivePage', 'vendor-details')
+    }, [])
 
     const handlePartVendor = () => {
         sessionStorage.setItem('pcrActivePage', 'vendor-master')
