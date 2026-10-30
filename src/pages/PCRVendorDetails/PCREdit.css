@@ -1,0 +1,459 @@
+
+.pcr-edit-page,
+.pcr-edit-page * {
+    box-sizing: border-box;
+}
+
+.pcr-edit-page {
+    width: 100%;
+    padding: 6px 10px;
+    color: #263445;
+}
+
+.pcr-edit-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.pcr-edit-heading h1 {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 600;
+}
+
+.pcr-edit-panel {
+    margin-bottom: 8px;
+    padding: 12px;
+    background: #fff;
+    border: 1px solid #dce3eb;
+    border-radius: 6px;
+}
+
+.pcr-edit-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 10px 12px;
+    align-items: end;
+}
+
+.pcr-edit-field {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.pcr-edit-field > span {
+    color: #344256;
+    line-height: 1.3;
+}
+
+.pcr-edit-field input {
+    width: 100%;
+    min-width: 0;
+    height: 32px;
+    padding: 5px 7px;
+    color: #263445;
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 400;
+}
+
+.pcr-edit-field input:focus {
+    border-color: #337ab7;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(51, 122, 183, 0.1);
+}
+
+.pcr-edit-field input[readonly] {
+    background: #f4f6f8;
+    color: #566476;
+}
+
+.pcr-edit-field b {
+    color: #d93025;
+}
+
+.pcr-edit-error {
+    color: #d93025;
+    font-size: 11px;
+    font-weight: 400;
+}
+
+.pcr-edit-inline-actions {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    gap: 6px;
+    padding-bottom: 1px;
+}
+
+.pcr-edit-inline-actions {
+    grid-column: 4 / 7;
+}
+
+.pcr-edit-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 32px;
+    padding: 6px 10px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.pcr-edit-btn-primary {
+    color: #fff;
+    background: #337ab7;
+    border-color: #337ab7;
+}
+
+.pcr-edit-btn-primary:hover {
+    background: #286090;
+}
+
+.pcr-edit-btn-secondary {
+    color: #344256;
+    background: #fff;
+    border-color: #cbd5e1;
+}
+
+.pcr-edit-btn-secondary:hover {
+    background: #f4f6f8;
+}
+
+.pcr-edit-btn-danger {
+    color: #c62828;
+    background: #fff;
+    border-color: #c62828;
+}
+
+.pcr-edit-btn-danger:hover {
+    background: #fff5f5;
+}
+
+.pcr-edit-message {
+    margin-bottom: 8px;
+    padding: 8px 12px;
+    color: #245b36;
+    background: #edf7ef;
+    border: 1px solid #c8e6ce;
+    border-radius: 5px;
+    font-size: 12px;
+}
+
+/* Six columns on large screens */
+@media (max-width: 1400px) {
+    .pcr-edit-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 1000px) {
+    .pcr-edit-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+    }
+}
+
+@media (max-width: 650px) {
+    .pcr-edit-page {
+        padding: 6px;
+    }
+
+    .pcr-edit-panel {
+        padding: 9px;
+    }
+
+    .pcr-edit-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .pcr-edit-inline-actions {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 420px) {
+    .pcr-edit-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pcr-edit-inline-actions {
+        grid-column: auto;
+    }
+
+    .pcr-edit-inline-actions .pcr-edit-btn {
+        flex: 1;
+    }
+}
+
+
+/* Branch Remark occupies the width of two fields */
+.pcr-edit-branch-remark {
+    grid-column: span 2;
+    min-width: 0;
+}
+
+.pcr-edit-branch-remark input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Back button at the top-right corner */
+.pcr-edit-heading {
+    justify-content: flex-end;
+}
+
+.pcr-edit-btn-back {
+    margin-left: auto;
+    color: #fff;
+    background: #6b7280;
+    border-color: #6b7280;
+}
+
+.pcr-edit-btn-back:hover {
+    background: #4b5563;
+    border-color: #4b5563;
+}
+
+
+/* =========================================
+   UNCREDITABLE CONFIRMATION MODAL
+========================================= */
+
+.pcr-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(3px);
+    animation: pcrOverlayFade 0.2s ease-out;
+}
+
+.pcr-modal {
+    width: 100%;
+    max-width: 460px;
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(15, 23, 42, 0.22);
+    animation: pcrModalEnter 0.22s ease-out;
+}
+
+/* Header */
+
+.pcr-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 22px 22px 18px;
+    background: #ffffff;
+    border-bottom: 1px solid #edf0f4;
+}
+
+.pcr-modal-icon {
+    display: flex;
+    flex: 0 0 42px;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    color: #b42318;
+    background: #fef3f2;
+    border: 1px solid #fee4e2;
+    border-radius: 50%;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.pcr-modal-title-section {
+    flex: 1;
+    min-width: 0;
+}
+
+.pcr-modal-title-section h2 {
+    margin: 0;
+    color: #1e293b;
+    font-size: 17px;
+    font-weight: 650;
+    line-height: 1.4;
+}
+
+.pcr-modal-title-section p {
+    margin: 4px 0 0;
+    color: #64748b;
+    font-size: 12px;
+}
+
+.pcr-modal-close {
+    display: flex;
+    flex: 0 0 30px;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    color: #64748b;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    font-size: 25px;
+    cursor: pointer;
+}
+
+.pcr-modal-close:hover:not(:disabled) {
+    color: #1e293b;
+    background: #f1f5f9;
+}
+
+.pcr-modal-close:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Body */
+
+.pcr-modal-body {
+    padding: 22px;
+}
+
+.pcr-modal-body > p {
+    margin: 0;
+    color: #334155;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.pcr-modal-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 18px;
+    padding: 12px;
+    color: #475569;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 7px;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.pcr-modal-notice-icon {
+    display: flex;
+    flex: 0 0 18px;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    margin-top: 1px;
+    color: #ffffff;
+    background: #64748b;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* Footer actions */
+
+.pcr-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 22px;
+    background: #f8fafc;
+    border-top: 1px solid #edf0f4;
+}
+
+.pcr-modal-actions .pcr-edit-btn {
+    min-width: 90px;
+    min-height: 36px;
+    padding: 8px 15px;
+    font-size: 13px;
+}
+
+.pcr-modal-confirm {
+    color: #ffffff;
+    background: #c62828;
+    border: 1px solid #c62828;
+}
+
+.pcr-modal-confirm:hover:not(:disabled) {
+    background: #a91f1f;
+    border-color: #a91f1f;
+}
+
+.pcr-modal-confirm:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+/* Animations */
+
+@keyframes pcrOverlayFade {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes pcrModalEnter {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Small screens */
+
+@media (max-width: 480px) {
+    .pcr-modal-overlay {
+        padding: 14px;
+    }
+
+    .pcr-modal-header {
+        gap: 10px;
+        padding: 17px;
+    }
+
+    .pcr-modal-body {
+        padding: 18px 17px;
+    }
+
+    .pcr-modal-actions {
+        padding: 14px 17px;
+    }
+
+    .pcr-modal-title-section h2 {
+        font-size: 15px;
+    }
+}

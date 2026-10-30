@@ -688,3 +688,25 @@ export async function savePCRPartCategoryMaster(
 
     return data
 }
+
+// =========================================
+// PCR EDIT - SAVE DETAILS
+// POST: /api/PCRSegregation/edit-save
+// =========================================
+
+export async function savePCREdit(editData) {
+    return postPCRRequest('edit-save', editData)
+}
+
+
+// =========================================
+// PCR EDIT - MARK AS UNCREDITABLE
+// POST: /api/PCRSegregation/mark-uncreditable
+// =========================================
+
+export async function markPCRUncreditable(uncreditableData) {
+    return postPCRRequest(
+        'mark-uncreditable',
+        uncreditableData
+    )
+}

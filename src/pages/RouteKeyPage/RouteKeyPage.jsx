@@ -88,6 +88,19 @@ const setFranchiseView = (view) => {
     }
 }
 
+
+// =========================================
+// PCR VENDOR DETAILS STATE
+// =========================================
+
+const [pcrView, setPcrView] = useState(
+    () => location.state?.pcrView || 'vendor-details'
+)
+
+const [pcrSelectedRecord, setPcrSelectedRecord] = useState(
+    () => location.state?.pcrSelectedRecord || null
+)
+
     const [technicianView, setTechnicianView] = useState('list')
     const [technicianListState, setTechnicianListState] = useState(null)
     const [refreshAfterAdd, setRefreshAfterAdd] = useState(0)
@@ -347,6 +360,25 @@ useEffect(() => {
 }, [routeKey, location.pathname])
 
 
+
+
+// =========================================
+// RESET PCR STATE WHEN LEAVING PCR MENU
+// =========================================
+
+useEffect(() => {
+    if (!menuItem) return
+
+    const currentReactUrl = menuItem.reactUrl
+        ?.toLowerCase()
+        .trim()
+
+    if (currentReactUrl !== '/pcr-vendor-details') {
+        setPcrView('vendor-details')
+        setPcrSelectedRecord(null)
+    }
+}, [menuItem, routeKey, location.pathname])
+
     // =========================================
     // LOADING
     // =========================================
@@ -599,7 +631,29 @@ useEffect(() => {
             return <SubDealerView />
         }
 
-    return <PageComponent />
+    if (reactUrl === '/pcr-vendor-details') {
+    return (
+        <PCRVendorDetails
+            activePage={pcrView}
+            selectedPCRRecord={pcrSelectedRecord}
+            onChangePage={(page, record = null) => {
+                setPcrView(page)
+                setPcrSelectedRecord(record)
+
+                navigate(location.pathname, {
+                    replace: true,
+                    state: {
+                        ...location.state,
+                        pcrView: page,
+                        pcrSelectedRecord: record
+                    }
+                })
+            }}
+        />
+    )
+}
+
+return <PageComponent />
 
     }
 

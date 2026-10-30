@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import PCRRefurbishVendorMaster from './PCRRefurbishVendorMaster'
 import PartCategory from './PartCategory'
 import PCRRequisitionView from './PCRRequisitionView'
+import PCREdit from './PCREdit'
 import DashboardLayout from '../../components/DashboardLayout/DashboardLayout'
 
 import {
@@ -208,24 +209,49 @@ function getRowId(row) {
 }
 
 function getRowStatus(row) {
-    return String(row?.status ?? row?.Status ?? '')
+    return String(
+        row?.status ??
+        row?.Status ??
+        row?.statusName ??
+        row?.StatusName ??
+        ''
+    )
 }
 
 function getRowMarking(row) {
-    return String(row?.marking ?? row?.Marking ?? '')
+    return String(
+        row?.marking ??
+        row?.Marking ??
+        row?.markingName ??
+        row?.MarkingName ??
+        row?.marking_name ??
+        row?.markingname ??
+        ''
+    )
 }
+
 
 function getRowMarkingName(row) {
     return String(
         row?.marking_name ??
         row?.markingName ??
         row?.MarkingName ??
+        row?.marking ??
+        row?.Marking ??
         ''
     )
 }
 
 function getRowRemark(row) {
-    return String(row?.remark ?? row?.Remark ?? '')
+    return String(
+        row?.remark ??
+        row?.Remark ??
+        row?.remarks ??
+        row?.Remarks ??
+        row?.remarkText ??
+        row?.RemarkText ??
+        ''
+    )
 }
 
 function saveBlob(blob, filename) {
@@ -314,43 +340,49 @@ function roleExists(roles, roleId) {
 // PCR VENDOR DETAILS
 // =========================================
 
-function PCRVendorDetails() {
-    
-    
-
-    // const [activePage, setActivePage] = useState(() => {
-    // return sessionStorage.getItem('pcrActivePage') || 'vendor-details'
-    // })
-
-    const [activePage, setActivePage] = useState('vendor-details')
-    useEffect(() => {
-    sessionStorage.setItem('pcrActivePage', 'vendor-details')
-    }, [])
-
+function PCRVendorDetails({
+    activePage = 'vendor-details',
+    selectedPCRRecord = null,
+    onChangePage
+}) {
     const handlePartVendor = () => {
-        sessionStorage.setItem('pcrActivePage', 'vendor-master')
-        setActivePage('vendor-master')
+        onChangePage?.('vendor-master')
     }
 
     const handleBackToVendorDetails = () => {
-        sessionStorage.setItem('pcrActivePage', 'vendor-details')
-        setActivePage('vendor-details')
+        onChangePage?.('vendor-details', null)
     }
 
     const handlePartCategory = () => {
-    sessionStorage.setItem('pcrActivePage', 'part-category')
-    setActivePage('part-category')
+        onChangePage?.('part-category')
     }
 
     const handleBackFromPartCategory = () => {
-        sessionStorage.setItem('pcrActivePage', 'vendor-details')
-        setActivePage('vendor-details')
+        onChangePage?.('vendor-details', null)
     }
 
     const handleViewPage = () => {
-    sessionStorage.setItem('pcrActivePage', 'pcr-requisition-view')
-    setActivePage('pcr-requisition-view')
+        onChangePage?.('pcr-requisition-view')
     }
+
+    const handleOpenPCR = () => {
+        onChangePage?.('vendor-details', null)
+    }
+
+    const resetPCRToVendorDetails = () => {
+        onChangePage?.('vendor-details', null)
+    }
+
+    // Keep the rest of your existing code below this line.
+
+    // const [selectedPCRRecord, setSelectedPCRRecord] = useState(() => {
+    // try {
+    //     const savedRecord = sessionStorage.getItem('pcrSelectedRecord')
+    //     return savedRecord ? JSON.parse(savedRecord) : null
+    // } catch {
+    //     return null
+    // }
+    // })
 
     const userId = getSessionValue('userId', 'UserID')
     const bpCode = getSessionValue('bpCode', 'BPCode')
@@ -375,13 +407,13 @@ function PCRVendorDetails() {
     const storedRoles = getStoredRoles()
 
     const isBranchRole =
-        roleId === '6' || roleExists(storedRoles, '6')
+    roleId === 6 || roleExists(storedRoles, '6')
 
     const isFranchiseRole =
-        roleId === '5' || roleExists(storedRoles, '5')
+    roleId === 5 || roleExists(storedRoles, '5')
 
     const isBranchOrFranchiseRole =
-        isBranchRole || isFranchiseRole
+    isBranchRole || isFranchiseRole
 
     // =========================================
     // STATE
@@ -805,6 +837,9 @@ function PCRVendorDetails() {
             const request = buildSearchRequest()
             const data = await searchPCRComponents(request)
 
+            console.log('PCR API full response:', data)
+            console.log('First PCR row:', getArray(data)[0])
+
             setRows(getArray(data))
             setSelectedIds([])
 
@@ -1126,43 +1161,62 @@ function PCRVendorDetails() {
     // EXPORT
     // =========================================
 
-    const handleExport = async type => {
-        setError('')
-        setMessage('')
+    // =========================================
+// EXPORT
+// =========================================
 
-        try {
-            const selectedPlant = plants.find(
-                item => getOptionValue(item) === filters.PlantCode
+const handleExport = async type => {
+    setError('')
+    setMessage('')
+
+    // Legacy behavior: format is required only for Export (New).
+    if (type === 'new' && !formatType) {
+        setError('Please select a format before downloading.')
+        return
+    }
+
+    try {
+        const selectedPlant = plants.find(item =>
+            sameCode(getOptionValue(item), filters.PlantCode)
+        )
+
+        const baseRequest = {
+            ...buildSearchRequest(),
+            PlantName: selectedPlant
+                ? getOptionText(selectedPlant)
+                : ''
+        }
+
+        let blob
+        let filename
+
+        if (type === 'old') {
+            // Export (Old) does not depend on Select Format.
+            blob = await exportPCROld(
+                baseRequest,
+                filters.BranchCode || bpCode
             )
 
+            filename = 'PCR.xlsx'
+        } else {
+            // Export (New) sends the selected format to the API.
             const request = {
-                ...buildSearchRequest(),
-                FormatType: formatType,
-                PlantName: selectedPlant
-                    ? getOptionText(selectedPlant)
-                    : ''
+                ...baseRequest,
+                FormatType: formatType
             }
 
-            const blob = type === 'old'
-                ? await exportPCROld(
-                    request,
-                    filters.BranchCode || bpCode
-                )
-                : await exportPCRNew(request)
-
-            saveBlob(
-                blob,
-                type === 'old'
-                    ? 'PCR_Old.xlsx'
-                    : 'PCR_New.xlsx'
-            )
-        } catch (err) {
-            setError(
-                err?.message ||
-                'Unable to export PCR data.'
-            )
+            blob = await exportPCRNew(request)
+            filename = 'PCR.xlsx'
         }
+
+        saveBlob(blob, filename)
+    } catch (err) {
+        setError(
+            err?.message ||
+            'Unable to export PCR data.'
+        )
     }
+}
 
     // =========================================
     // PRINT
@@ -1190,31 +1244,27 @@ function PCRVendorDetails() {
     }
 
     // =========================================
-    // VIEW RECORD
+    // VIEW / EDIT PCR RECORD
     // =========================================
 
     const handleView = row => {
-        const detail = {
-            RefId: getRowId(row),
-            TicketNo: row?.TikectNo ?? row?.TicketNo ?? '',
-            ProductName: row?.ProductName ?? '',
-            Serial: row?.Serial ?? '',
-            ItemNo: row?.item_no ?? '',
-            ItemDescription: row?.item_desc ?? '',
-            Franchise: row?.Franchise ?? '',
-            Vendor: row?.vendor ?? '',
-            Quantity: row?.Quantity ?? '',
-            Status: row?.Status ?? '',
-            Marking: row?.marking ?? '',
-            Remark: row?.remark ?? ''
-        }
-
-        window.alert(
-            Object.entries(detail)
-                .map(([key, value]) => `${key}: ${value}`)
-                .join('\n')
-        )
+    const detail = {
+        RefId: getRowId(row),
+        TicketNo: row?.TikectNo ?? row?.TicketNo ?? '',
+        ProductName: row?.ProductName ?? '',
+        Serial: row?.Serial ?? '',
+        ItemNo: row?.item_no ?? '',
+        ItemDescription: row?.item_desc ?? '',
+        Franchise: row?.Franchise ?? '',
+        Vendor: row?.vendor ?? '',
+        Quantity: row?.Quantity ?? '',
+        Status: row?.Status ?? '',
+        Marking: row?.marking ?? row?.Marking ?? '',
+        Remark: row?.remark ?? row?.Remark ?? ''
     }
+
+    onChangePage?.('pcr-edit', detail)
+}
 
     // =========================================
     // UI
@@ -1244,6 +1294,15 @@ function PCRVendorDetails() {
             />
         )
     }
+
+    if (activePage === 'pcr-edit') {
+    return (
+        <PCREdit
+            record={selectedPCRRecord}
+            onBack={() => onChangePage?.('vendor-details')}
+        />
+    )
+}
 
     return (
         <DashboardLayout>
@@ -1839,16 +1898,14 @@ function PCRVendorDetails() {
                                                         disabled={!id}
                                                     />
                                                 </td>
-                                                <td>
-                                                    {row?.TikectNo ?? row?.TicketNo ?? ''}
-                                                </td>
-                                                <td>{row?.ProductName ?? ''}</td>
-                                                <td>{row?.Serial ?? ''}</td>
-                                                <td>{row?.item_no ?? ''}</td>
-                                                <td>{row?.item_desc ?? ''}</td>
-                                                <td>{row?.Franchise ?? ''}</td>
-                                                <td>{row?.vendor ?? ''}</td>
-                                                <td>{row?.Quantity ?? ''}</td>
+                                                <td>{row?.tikectNo ?? row?.ticketNo ?? row?.TicketNo ?? ''}</td>
+                                                <td>{row?.productName ?? row?.ProductName ?? ''}</td>
+                                                <td>{row?.serial ?? row?.Serial ?? ''}</td>
+                                                <td>{row?.item_no ?? row?.itemNo ?? row?.ItemNo ?? ''}</td>
+                                                <td>{row?.item_desc ?? row?.itemDesc ?? row?.ItemDescription ?? ''}</td>
+                                                <td>{row?.franchise ?? row?.Franchise ?? row?.franchiseName ?? ''}</td>
+                                                <td>{row?.vendor ?? row?.Vendor ?? row?.vendorName ?? ''}</td>
+                                                <td>{row?.quantity ?? row?.Quantity ?? row?.qty ?? ''}</td>
                                                 <td>{getRowStatus(row)}</td>
                                                 <td>{getRowMarking(row)}</td>
                                                 <td>{getRowRemark(row)}</td>
