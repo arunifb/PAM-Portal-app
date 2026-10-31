@@ -143,16 +143,22 @@ export async function searchFranchises(
 // =============================================
 
 
+// =============================================
+// UPDATE FRANCHISE
+// POST /api/FranchiseView
+// =============================================
+
 export async function updateFranchise(request) {
     const payload = {
-    FrCode: request.FrCode,
-    Status: request.Status,
-    UpdatedBy: request.UpdatedBy,
-    RoleId: String(request.RoleId)
-}
+        FrCode: request.FrCode,
+        Status: request.Status,
+        UpdatedBy: request.UpdatedBy,
+        RoleId: String(request.RoleId)
+    }
 
-    // Include contact details only when they are provided.
-    // Role ID 6 sends only FrCode, Status and UpdatedBy.
+    // Include contact details only when provided.
+    // Role ID 6 sends only FrCode, Status and UpdatedBy,
+    // along with RoleId as currently included in the payload.
     if (request.MobileNo !== undefined) {
         payload.MobileNo = request.MobileNo
     }
@@ -168,7 +174,7 @@ export async function updateFranchise(request) {
     const response = await authFetch(
         `${API_BASE_URL}/api/FranchiseView`,
         {
-            method: 'PUT',
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -190,17 +196,9 @@ export async function updateFranchise(request) {
         }
     }
 
-    if (!response.ok) {
+    if (!response.ok || data?.isSuccess === false) {
         throw new Error(
-            data?.message ||
-            'Unable to update franchise.'
-        )
-    }
-
-    if (!data?.isSuccess) {
-        throw new Error(
-            data?.message ||
-            'Franchise update failed.'
+            data?.message || 'Unable to update franchise.'
         )
     }
 

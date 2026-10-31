@@ -9,6 +9,7 @@ import {
 } from 'react-router-dom'
 
 import { getDashboardMenu } from '../../api/dashboardApi'
+import { logout } from '../../api/authApi'
 
 import Click2Call from '../Click2Call/Click2Call'
 import CallSummary from '../CallSummary/CallSummary'
@@ -51,6 +52,22 @@ function RouteKeyPage() {
     const { routeKey } = useParams()
 
     const navigate = useNavigate()
+
+
+    const handleBackToLogin = async () => {
+    const userId = sessionStorage.getItem('userId')
+
+        try {
+            if (userId) {
+                await logout(userId)
+            }
+        } catch (error) {
+            console.error('Logout error:', error)
+        } finally {
+            sessionStorage.clear()
+            navigate('/', { replace: true })
+        }
+    }
 
 
     const location = useLocation()
@@ -404,59 +421,78 @@ useEffect(() => {
     // ERROR
     // =========================================
 
-    if (error) {
+    // =========================================
+    // 404 NOT FOUND DESIGN
+    // =========================================
 
+    if (error || !menuItem) {
         return (
-
             <div
                 style={{
-                    padding: '40px',
-                    textAlign: 'center'
+                    minHeight: '100vh',
+                    width: '100%',
+                    backgroundColor: '#ffffff',
+                    color: '#000000',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    textAlign: 'center',
+                    padding: '20px',
+                    boxSizing: 'border-box',
+                    fontFamily: 'Arial, sans-serif'
                 }}
             >
+                <h1
+                    style={{
+                        fontSize: 'clamp(90px, 15vw, 180px)',
+                        fontWeight: 400,
+                        lineHeight: 0.9,
+                        letterSpacing: '-8px',
+                        margin: '0 0 30px',
+                        color: '#000000'
+                    }}
+                >
+                    404
+                </h1>
 
-                <h2>
-                    Unable to open page
-                </h2>
-
-                <p>
-                    {error}
-                </p>
+                <h4
+                    style={{
+                        fontSize: 'clamp(16px, 2vw, 24px)',
+                        fontWeight: 700,
+                        letterSpacing: '6px',
+                        textTransform: 'uppercase',
+                        margin: '0 0 35px',
+                        color: '#000000'
+                    }}
+                >
+                    NOT FOUND
+                </h4>
 
                 <button
                     type="button"
-                    onClick={() =>
-                        navigate('/dashboard')
-                    }
+                    onClick={handleBackToLogin}
+                    style={{
+                        backgroundColor: '#000000',
+                        color: '#ffffff',
+                        border: '2px solid #000000',
+                        padding: '14px 34px',
+                        fontSize: '14px',
+                        fontWeight: 700,
+                        letterSpacing: '2px',
+                        textTransform: 'uppercase',
+                        cursor: 'pointer'
+                    }}
                 >
-                    Back to Dashboard
+                    Back to Login
                 </button>
-
             </div>
-
         )
     }
 
 
-    // =========================================
-    // NO MENU
-    // =========================================
-
-    if (!menuItem) {
-
-        return (
-
-            <div
-                style={{
-                    padding: '40px',
-                    textAlign: 'center'
-                }}
-            >
-                Menu item not found.
-            </div>
-
-        )
-    }
+    
+    
 
 
     // =========================================
@@ -478,44 +514,60 @@ useEffect(() => {
     // =========================================
 
     if (!PageComponent) {
-
-        return (
-
-            <div
+    return (
+        <div
+            style={{
+                minHeight: '100vh',
+                backgroundColor: '#ffffff',
+                color: '#000000',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                textAlign: 'center',
+                fontFamily: 'switzer, sans-serif'
+            }}
+        >
+            <h1
                 style={{
-                    padding: '40px',
-                    textAlign: 'center'
+                    fontSize: 'clamp(90px, 15vw, 180px)',
+                    fontWeight: 900,
+                    lineHeight: 0.9,
+                    margin: '0 0 45px'
                 }}
             >
+                404
+            </h1>
 
-                <h2>
-                    Page is not available
-                </h2>
+            <h4
+                style={{
+                    fontSize: 'clamp(20px, 3vw, 32px)',
+                    letterSpacing: '10px',
+                    margin: '0 0 35px'
+                }}
+            >
+                NOT FOUND
+            </h4>
 
-                <p>
-                    No React page is mapped for:
-                </p>
-
-                <strong>
-                    {menuItem.reactUrl || 'No ReactUrl'}
-                </strong>
-
-                <br />
-                <br />
-
-                <button
-                    type="button"
-                    onClick={() =>
-                        navigate('/dashboard')
-                    }
-                >
-                    Back to Dashboard
-                </button>
-
-            </div>
-
-        )
-    }
+            <button
+                type="button"
+                onClick={handleBackToLogin}
+                style={{
+                    backgroundColor: '#000000',
+                    color: '#ffffff',
+                    border: '2px solid #000000',
+                    padding: '14px 34px',
+                    fontSize: '14px',
+                    fontWeight: 700,
+                    letterSpacing: '2px',
+                    cursor: 'pointer'
+                }}
+            >
+                Back to Login
+            </button>
+        </div>
+    )
+}
 
 
     // =========================================

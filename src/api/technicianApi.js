@@ -178,9 +178,11 @@ export async function getTechnicianById(techId) {
 // PUT /api/Technician
 // =====================================================
 
+
+
 // =====================================================
 // UPDATE TECHNICIAN
-// PUT /api/Technician
+// POST /api/Technician/UpdateTechnician
 // =====================================================
 
 export async function updateTechnician(technicianData, photoFile = null) {
@@ -195,16 +197,15 @@ export async function updateTechnician(technicianData, photoFile = null) {
         )
     })
 
-    // Attach the selected image file.
+    // Attach the selected image file, if provided.
     if (photoFile) {
-        // formData.append('profilePhoto', photoFile)
         formData.append('Photo', photoFile)
     }
 
     const response = await authFetch(
-        `${API_BASE_URL}/api/Technician`,
+        `${API_BASE_URL}/api/Technician/UpdateTechnician`,
         {
-            method: 'PUT',
+            method: 'POST',
             body: formData
         }
     )
@@ -225,14 +226,16 @@ export async function updateTechnician(technicianData, photoFile = null) {
 
 
 
+
+
 // =====================================================
 // ADD TECHNICIAN
-// POST /api/Technician
+// POST /api/Technician/AddTechnician
 // =====================================================
 
 export async function addTechnician(technicianData) {
     const response = await authFetch(
-        `${API_BASE_URL}/api/Technician`,
+        `${API_BASE_URL}/api/Technician/AddTechnician`,
         {
             method: 'POST',
             body: technicianData

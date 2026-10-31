@@ -128,3 +128,32 @@ export async function searchFranchises(request) {
     return data
 }
 
+
+// =============================================
+// UPDATE FRANCHISE STATUS
+// POST /api/FranchiseMaster/status
+// =============================================
+
+export async function updateFranchiseStatus(request) {
+    const response = await authFetch(
+        `${API_BASE_URL}/api/FranchiseMaster/status`,
+        {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(request)
+        }
+    )
+
+    const data = await readResponse(response)
+
+    if (!response.ok || data.isSuccess === false) {
+        throw new Error(
+            data.message || 'Unable to update franchise status.'
+        )
+    }
+
+    return data
+}
+
