@@ -541,7 +541,7 @@ useEffect(() => {
 
             <h4
                 style={{
-                    fontSize: 'clamp(20px, 3vw, 32px)',
+                    fontSize: 'clamp(16px, 2vw, 24px)',
                     letterSpacing: '10px',
                     margin: '0 0 35px'
                 }}
