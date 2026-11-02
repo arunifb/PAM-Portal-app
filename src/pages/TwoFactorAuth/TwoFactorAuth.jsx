@@ -557,7 +557,8 @@ function TwoFactorAuth() {
                                     `two-factor-message ${messageType}`
                                 }
                             >
-                                {message}
+                               {/* {messageType === 'error' && <span>⊗ </span>} */}
+                                  ✕ {message}
                             </div>
 
                         )}

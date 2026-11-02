@@ -7,10 +7,10 @@ import ResetPassword from './pages/ResetPassword/ResetPassword'
 import TwoFactorAuth from './pages/TwoFactorAuth/TwoFactorAuth'
 import Dashboard from './pages/Dashboard/Dashboard'
 import ReportParameter from './pages/ReportParameter/ReportParameter'
-import Click2Call from './pages/Click2Call/Click2Call'
+// import Click2Call from './pages/Click2Call/Click2Call'
 import CallSummary from './pages/CallSummary/CallSummary'
 import FranchiseView from './pages/FranchiseView/FranchiseView'
-import OneSearch from './pages/OneSearch/OneSearch'
+//import OneSearch from './pages/OneSearch/OneSearch'
 import DigitalContract from './pages/DigitalContract/DigitalContract'
 import Inventory from './pages/Inventory/FranchiseeInventory'
 import EditView from './pages/SubDealer/EditView'
@@ -37,7 +37,7 @@ import EvidenceSearch from './pages/EvidenceSearch/EvidenceSearch'
 import TechnicianAdd from './pages/Technician/TechnicianAdd'
 import UploadMSMEDoc from './pages/UploadMSMEDoc/UploadMSMEDoc'
 import SearchInvoice from './pages/SearchInvoice/SearchInvoice'
-import TrainingManual from './pages/TrainingManual/TrainingManual'
+//import TrainingManual from './pages/TrainingManual/TrainingManual'
 import SubDealerView from './pages/SubDealer/SubDealerView'
 import PCRVendorDetails from './pages/PCRVendorDetails/PCRVendorDetails'
 import PCRRefurbishVendorMaster from './pages/PCRVendorDetails/PCRRefurbishVendorMaster'
@@ -55,7 +55,7 @@ function PageTitleUpdater() {
             '/2fa': 'Two Factor Authentication',
             '/dashboard': 'Dashboard',
             '/report-parameter': 'Report Parameter',
-            '/click2call': 'Click2Call',
+            // '/click2call': 'Click2Call',
             '/call-summary': 'Call Summary',
             '/franchise-view': 'Franchise View',
             '/one-search': 'One Search',
@@ -161,10 +161,10 @@ function App() {
                         CLICK 2 CALL
                     ========================================= */}
 
-                    <Route
+                    {/* <Route
                         path="/click2call"
                         element={<Click2Call />}
-                    />
+                    /> */}
 
                     <Route
                         path="/call-summary"
@@ -176,10 +176,10 @@ function App() {
                         element={<FranchiseView />}
                     />
 
-                    <Route
+                    {/* <Route
                         path="/one-search"
                         element={<OneSearch />}
-                    />
+                    /> */}
 
                     <Route
                         path="/digital-contract"
@@ -301,10 +301,10 @@ function App() {
                         element={<SearchInvoice />}
                     />
 
-                    <Route
+                    {/* <Route
                         path="/training-manual"
                         element={<TrainingManual />}
-                    />
+                    /> */}
 
                     <Route
                         path="/sub-dealer-view"

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense} from 'react'
 //import { useEffect, useState, useRef } from 'react'
 // import { useParams, useNavigate } from 'react-router-dom'
 import {
@@ -11,10 +11,10 @@ import {
 import { getDashboardMenu } from '../../api/dashboardApi'
 import { logout } from '../../api/authApi'
 
-import Click2Call from '../Click2Call/Click2Call'
+//import Click2Call from '../Click2Call/Click2Call'
 import CallSummary from '../CallSummary/CallSummary'
 import FranchiseView from '../FranchiseView/FranchiseView'
-import OneSearch from '../OneSearch/OneSearch'
+//import OneSearch from '../OneSearch/OneSearch'
 import DigitalContract from '../DigitalContract/DigitalContract'
 import Inventory from '../Inventory/FranchiseeInventory'
 import EditView from '../SubDealer/EditView'
@@ -41,10 +41,13 @@ import EvidenceSearch from '../EvidenceSearch/EvidenceSearch'
 import TechnicianAdd from '../Technician/TechnicianAdd'
 import UploadMSMEDoc from '../UploadMSMEDoc/UploadMSMEDoc'
 import SearchInvoice from '../SearchInvoice/SearchInvoice'
-import TrainingManual from '../TrainingManual/TrainingManual'
+//import TrainingManual from '../TrainingManual/TrainingManual'
 import SubDealerView from '../SubDealer/SubDealerView'
 import PCRVendorDetails from '../PCRVendorDetails/PCRVendorDetails'
 import PCRRefurbishVendorMaster from '../PCRVendorDetails/PCRRefurbishVendorMaster'
+import {
+    getPageByReactUrl
+} from '../../routes/pageRegistry'
 // import VendorCreation from '../Vendor/Creation'
 
 function RouteKeyPage() {
@@ -130,8 +133,8 @@ const [pcrSelectedRecord, setPcrSelectedRecord] = useState(
 
     const routeComponents = {
 
-        '/click2call':
-            Click2Call,
+        // '/click2call':
+        //     Click2Call,
 
         '/call-summary':
             CallSummary,
@@ -139,8 +142,8 @@ const [pcrSelectedRecord, setPcrSelectedRecord] = useState(
         '/franchise-view':
             FranchiseView,
 
-        '/one-search':
-            OneSearch,
+        // '/one-search':
+        //     OneSearch,
 
         '/digital-contract':
             DigitalContract,
@@ -211,8 +214,8 @@ const [pcrSelectedRecord, setPcrSelectedRecord] = useState(
                 
         '/search-invoice': SearchInvoice,
 
-        '/training-manual':
-            TrainingManual,
+        // '/training-manual':
+        //     TrainingManual,
 
         '/sub-dealer-view':
             SubDealerView,
@@ -505,8 +508,12 @@ useEffect(() => {
             .trim()
 
 
+    // const PageComponent =
+    //     routeComponents[reactUrl]
+
     const PageComponent =
-        routeComponents[reactUrl]
+    routeComponents[reactUrl] ||
+    getPageByReactUrl(reactUrl)
 
 
     // =========================================
@@ -705,7 +712,17 @@ useEffect(() => {
     )
 }
 
-return <PageComponent />
+return (
+    <Suspense
+        fallback={
+            <div style={{ padding: '40px', textAlign: 'center' }}>
+                Loading page...
+            </div>
+        }
+    >
+        <PageComponent />
+    </Suspense>
+)
 
     }
 
