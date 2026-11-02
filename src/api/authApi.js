@@ -258,10 +258,87 @@ export async function login(
 // VERIFY TWO FACTOR
 // =========================================
 
-export async function verifyTwoFactor(
-    userId,
-    code
-) {
+// export async function verifyTwoFactor(
+//     userId,
+//     code
+// ) {
+
+//     const accessToken = getStoredAccessToken()
+
+//     const expiresAt = Number(
+//         sessionStorage.getItem('accessTokenExpiresAt')
+//     )
+
+//     if (expiresAt > 0 && Date.now() >= expiresAt) {
+//         await logoutAndRedirect()
+
+//         throw new Error(
+//             'Your session has expired. Please login again.'
+//         )
+//     }
+
+//     const response = await fetch(
+//         `${API_BASE_URL}/api/Auth/verify-2fa`,
+//         {
+//             method: 'POST',
+
+//             headers: {
+//                 'Content-Type': 'application/json',
+//                 'Accept': 'application/json',
+//                 'Authorization': `Bearer ${accessToken}`
+//             },
+
+//             body: JSON.stringify({
+//                 userId,
+//                 code
+//             })
+//         }
+//     )
+
+
+//     // =========================================
+//     // READ RESPONSE SAFELY
+//     // =========================================
+
+//     const contentType =
+//         response.headers.get('content-type') || ''
+
+//     let data = {}
+
+//     if (contentType.includes('application/json')) {
+//         data = await response.json()
+//     }
+
+
+//     // =========================================
+//     // CHECK RESPONSE
+//     // =========================================
+
+//     if (response.status === 401) {
+//         await logoutAndRedirect()
+
+//         throw new Error(
+//             'Your session has expired. Please login again.'
+//         )
+//     }
+
+//     if (!response.ok) {
+//         throw new Error(
+//             data.message ||
+//             data.error_description ||
+//             data.error ||
+//             'Two-factor authentication failed.'
+//         )
+//     }
+
+//     return data
+// }
+
+// =========================================
+// VERIFY TWO FACTOR
+// =========================================
+
+export async function verifyTwoFactor(userId, code) {
 
     const accessToken = getStoredAccessToken()
 
@@ -269,11 +346,10 @@ export async function verifyTwoFactor(
         sessionStorage.getItem('accessTokenExpiresAt')
     )
 
+    // Check token expiry before calling the API.
     if (expiresAt > 0 && Date.now() >= expiresAt) {
-        await logoutAndRedirect()
-
         throw new Error(
-            'Your session has expired. Please login again.'
+            'Your login session has expired. Please login again.'
         )
     }
 
@@ -295,11 +371,7 @@ export async function verifyTwoFactor(
         }
     )
 
-
-    // =========================================
-    // READ RESPONSE SAFELY
-    // =========================================
-
+    // Read response safely.
     const contentType =
         response.headers.get('content-type') || ''
 
@@ -309,25 +381,15 @@ export async function verifyTwoFactor(
         data = await response.json()
     }
 
-
-    // =========================================
-    // CHECK RESPONSE
-    // =========================================
-
-    if (response.status === 401) {
-        await logoutAndRedirect()
-
-        throw new Error(
-            'Your session has expired. Please login again.'
-        )
-    }
-
+    // Do not automatically redirect on every 401.
+    // An invalid authentication code should show an error
+    // on the TwoFactorAuth page.
     if (!response.ok) {
         throw new Error(
             data.message ||
             data.error_description ||
             data.error ||
-            'Two-factor authentication failed.'
+            'Invalid or expired authentication code.'
         )
     }
 

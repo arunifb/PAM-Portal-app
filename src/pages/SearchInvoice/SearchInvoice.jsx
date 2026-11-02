@@ -525,7 +525,7 @@ function SearchInvoice() {
                     <div className="invoice-search-actions">
                         <button
                             type="submit"
-                            className="invoice-btn invoice-btn-primary"
+                            className="btn-search invoice-btn invoice-btn-primary"
                             disabled={searching || loadingPlants}
                         >
                             {searching ? 'Searching...' : 'Search'}

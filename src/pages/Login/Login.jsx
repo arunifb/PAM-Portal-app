@@ -505,7 +505,7 @@ console.log('Roles:', data.roles)
                                 name="username"
                                 className="form-input"
                                 autoComplete="off"
-                                placeholder="Enter your username"
+                                placeholder="Enter your loginID"
                                 value={username}
                                 onChange={(event) => {
 

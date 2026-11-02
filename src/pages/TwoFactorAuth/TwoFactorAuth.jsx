@@ -352,28 +352,45 @@ function TwoFactorAuth() {
             )
 
         }
+        // catch (error) {
+
+        //     console.error(
+        //         '2FA verification error:',
+        //         error
+        //     )
+
+
+        //     setMessage(
+        //         error.message ||
+        //         'Invalid or expired authentication code.'
+        //     )
+
+        //     setMessageType(
+        //         'error'
+        //     )
+
+        // }
+        // finally {
+
+        //     setIsLoading(false)
+
+        // }
+
         catch (error) {
-
-            console.error(
-                '2FA verification error:',
-                error
-            )
-
+            console.error('2FA verification error:', error)
 
             setMessage(
                 error.message ||
                 'Invalid or expired authentication code.'
             )
 
-            setMessageType(
-                'error'
-            )
+            setMessageType('error')
 
+            // Keep the error visible for at least 5 seconds.
+            await new Promise(resolve => setTimeout(resolve, 5000))
         }
         finally {
-
             setIsLoading(false)
-
         }
 
     }
@@ -559,7 +576,7 @@ function TwoFactorAuth() {
                                 <label
                                     htmlFor="authenticationCode"
                                 >
-                                    Authentication Code
+                                    {/* Authentication Code */}
                                 </label>
 
 
