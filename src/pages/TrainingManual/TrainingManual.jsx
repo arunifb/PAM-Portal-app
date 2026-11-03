@@ -5,8 +5,8 @@ import {
     getCompanyDivisions,
     getProcessNoteAreas,
     getProcessNoteModules,
-    getProcessNoteFolders,
-    getProcessNoteSubfolders,
+    // getProcessNoteFolders,
+    // getProcessNoteSubfolders,
     searchProcessNotes,
     downloadProcessNote
 } from '../../api/processNoteApi'
@@ -233,49 +233,43 @@ function TrainingManual() {
         }
     }
 
-    const handleModuleChange = async value => {
-        setFilters(previous => ({
-            ...previous,
-            moduleId: value,
-            folderId: '0',
-            subfolderId: '0'
-        }))
+    const handleModuleChange = value => {
+    setFilters(previous => ({
+        ...previous,
+        moduleId: value,
+        folderId: '0',
+        subfolderId: '0'
+    }))
 
-        setFolders([])
-        setSubfolders([])
-        setError('')
-        setNotice('')
+    // Folder and Subfolder menus are not required for now.
+    // setFolders([])
+    // setSubfolders([])
+    setError('')
+    setNotice('')
 
-        if (value === '0') return
+    // Do not call getProcessNoteFolders(value) here.
+}
 
-        try {
-            const data = await getProcessNoteFolders(value)
-            setFolders(getRows(data))
-        } catch (err) {
-            setError(err.message || 'Unable to load folders.')
-        }
-    }
+    // const handleFolderChange = async value => {
+    //     setFilters(previous => ({
+    //         ...previous,
+    //         folderId: value,
+    //         subfolderId: '0'
+    //     }))
 
-    const handleFolderChange = async value => {
-        setFilters(previous => ({
-            ...previous,
-            folderId: value,
-            subfolderId: '0'
-        }))
+    //     setSubfolders([])
+    //     setError('')
+    //     setNotice('')
 
-        setSubfolders([])
-        setError('')
-        setNotice('')
+    //     if (value === '0') return
 
-        if (value === '0') return
-
-        try {
-            const data = await getProcessNoteSubfolders(value)
-            setSubfolders(getRows(data))
-        } catch (err) {
-            setError(err.message || 'Unable to load subfolders.')
-        }
-    }
+    //     try {
+    //         const data = await getProcessNoteSubfolders(value)
+    //         setSubfolders(getRows(data))
+    //     } catch (err) {
+    //         setError(err.message || 'Unable to load subfolders.')
+    //     }
+    // }
 
     const handleSearch = async event => {
         event.preventDefault()
@@ -439,7 +433,7 @@ function TrainingManual() {
                             </select>
                         </div>
 
-                        <div className="tm-field">
+                        {/* <div className="tm-field">
                             <label htmlFor="tm-folder">
                                 Folder
                                 <span className="tm-required">*</span>
@@ -464,9 +458,9 @@ function TrainingManual() {
                                     </option>
                                 ))}
                             </select>
-                        </div>
+                        </div> */}
 
-                        <div className="tm-field">
+                        {/* <div className="tm-field">
                             <label htmlFor="tm-subfolder">
                                 Subfolder
                                 <span className="tm-required">*</span>
@@ -491,7 +485,7 @@ function TrainingManual() {
                                     </option>
                                 ))}
                             </select>
-                        </div>
+                        </div> */}
 
                         <div className="tm-field">
                             <label htmlFor="tm-process-for">Process Note</label>

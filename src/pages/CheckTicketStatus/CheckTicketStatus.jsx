@@ -15,6 +15,15 @@ import './CheckTicketStatus.css'
 
 function CheckTicketStatus() {
 
+    const roleId =
+        sessionStorage.getItem('roleId') ||
+        sessionStorage.getItem('RoleID')
+
+    const pageTitle =
+        String(roleId) === '7'
+            ? 'Check Ticket Status With Spare'
+            : 'Check Ticket Status'
+
     // =====================================================
     // STATE
     // =====================================================
@@ -232,7 +241,7 @@ function CheckTicketStatus() {
     // =====================================================
 
     return (
-        <DashboardLayout title="Check Ticket Status With Spare">
+        <DashboardLayout title={pageTitle}>
 
             <div className="check-ticket-status-page">
 
