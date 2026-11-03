@@ -12,16 +12,16 @@ import { getDashboardMenu } from '../../api/dashboardApi'
 import { logout } from '../../api/authApi'
 
 //import Click2Call from '../Click2Call/Click2Call'
-import CallSummary from '../CallSummary/CallSummary'
+//import CallSummary from '../CallSummary/CallSummary'
 import FranchiseView from '../FranchiseView/FranchiseView'
 //import OneSearch from '../OneSearch/OneSearch'
-import DigitalContract from '../DigitalContract/DigitalContract'
+//import DigitalContract from '../DigitalContract/DigitalContract'
 import Inventory from '../Inventory/FranchiseeInventory'
 import EditView from '../SubDealer/EditView'
 import SkillSetView from '../SkillSetView/SkillSetView'
 import BomExplodedView from '../BomExplodedView/BomExplodedView'
 import DDRRegion from '../DDRRegion/DDRRegion'
-import DigitalICR from '../DigitalICR/DigitalICR'
+//import DigitalICR from '../DigitalICR/DigitalICR'
 import SparesStock from '../SparesStock/SparesStock'
 import Technician from '../Technician/Technician'
 import TechnicianEdit from '../Technician/TechnicianEdit'
@@ -32,7 +32,7 @@ import Supersession from '../Supersession/Supersession'
 import PCR from '../PCR/PCR'
 import PCRDownload from '../PCRDownload/PCRDownload'
 import AddPartCategory from '../AddPartCategory/AddPartCategory'
-import LegalCase from '../LegalCase/LegalCase'
+//import LegalCase from '../LegalCase/LegalCase'
 import ReportData from '../ReportData/ReportData'
 import AddFranchise from '../AddFranchise/AddFranchise'
 import FranchiseList from '../Franchise/FranchiseList'
@@ -136,8 +136,8 @@ const [pcrSelectedRecord, setPcrSelectedRecord] = useState(
         // '/click2call':
         //     Click2Call,
 
-        '/call-summary':
-            CallSummary,
+        // '/call-summary':
+        //     CallSummary,
 
         '/franchise-view':
             FranchiseView,
@@ -145,8 +145,8 @@ const [pcrSelectedRecord, setPcrSelectedRecord] = useState(
         // '/one-search':
         //     OneSearch,
 
-        '/digital-contract':
-            DigitalContract,
+        // '/digital-contract':
+        //     DigitalContract,
 
         '/inventory':
             Inventory,
@@ -163,8 +163,8 @@ const [pcrSelectedRecord, setPcrSelectedRecord] = useState(
         '/ddr-region':
             DDRRegion,
 
-        '/digital-icr':
-            DigitalICR,
+        // '/digital-icr':
+        //     DigitalICR,
 
         '/spares-stock':
             SparesStock,
@@ -196,8 +196,8 @@ const [pcrSelectedRecord, setPcrSelectedRecord] = useState(
         '/add-part-category':
             AddPartCategory,
 
-        '/legal-case':
-            LegalCase,
+        // '/legal-case':
+        //     LegalCase,
 
         '/add-franchise': AddFranchise,
 

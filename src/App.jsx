@@ -8,16 +8,16 @@ import TwoFactorAuth from './pages/TwoFactorAuth/TwoFactorAuth'
 import Dashboard from './pages/Dashboard/Dashboard'
 import ReportParameter from './pages/ReportParameter/ReportParameter'
 // import Click2Call from './pages/Click2Call/Click2Call'
-import CallSummary from './pages/CallSummary/CallSummary'
+//import CallSummary from './pages/CallSummary/CallSummary'
 import FranchiseView from './pages/FranchiseView/FranchiseView'
 //import OneSearch from './pages/OneSearch/OneSearch'
-import DigitalContract from './pages/DigitalContract/DigitalContract'
+//import DigitalContract from './pages/DigitalContract/DigitalContract'
 import Inventory from './pages/Inventory/FranchiseeInventory'
 import EditView from './pages/SubDealer/EditView'
 import SkillSetView from './pages/SkillSetView/SkillSetView'
 import BomExplodedView from './pages/BomExplodedView/BomExplodedView'
 import DDRRegion from './pages/DDRRegion/DDRRegion'
-import DigitalICR from './pages/DigitalICR/DigitalICR'
+//import DigitalICR from './pages/DigitalICR/DigitalICR'
 import SparesStock from './pages/SparesStock/SparesStock'
 import Technician from './pages/Technician/Technician'
 import SparesSearch from './pages/SparesSearch/SparesSearch'
@@ -27,7 +27,7 @@ import Supersession from './pages/Supersession/Supersession'
 import PCR from './pages/PCR/PCR'
 import PCRDownload from './pages/PCRDownload/PCRDownload'
 import AddPartCategory from './pages/AddPartCategory/AddPartCategory'
-import LegalCase from './pages/LegalCase/LegalCase'
+//import LegalCase from './pages/LegalCase/LegalCase'
 import RouteKeyPage from './pages/RouteKeyPage/RouteKeyPage'
 import AddFranchise from './pages/AddFranchise/AddFranchise'
 import FranchiseList from './pages/Franchise/FranchiseList'
@@ -56,10 +56,10 @@ function PageTitleUpdater() {
             '/dashboard': 'Dashboard',
             '/report-parameter': 'Report Parameter',
             // '/click2call': 'Click2Call',
-            '/call-summary': 'Call Summary',
+            //'/call-summary': 'Call Summary',
             '/franchise-view': 'Franchise View',
             '/one-search': 'One Search',
-            '/digital-contract': 'Digital Contract',
+            // '/digital-contract': 'Digital Contract',
             '/inventory': 'Inventory',
             '/ddr-region': 'DDR Region',
             '/digital-icr': 'Digital ICR',
@@ -74,7 +74,7 @@ function PageTitleUpdater() {
             '/pcr': 'PCR',
             '/pcr-download': 'PCR Download',
             '/add-part-category': 'Add Part Category',
-            '/legal-case': 'Legal Case',
+            // '/legal-case': 'Legal Case',
             '/add-franchise': 'Add Franchise',
             '/franchise-list': 'Franchise List',
             '/subdealer/editview': 'Subdealer',
@@ -166,10 +166,10 @@ function App() {
                         element={<Click2Call />}
                     /> */}
 
-                    <Route
+                    {/* <Route
                         path="/call-summary"
                         element={<CallSummary />}
-                    />
+                    /> */}
 
                     <Route
                         path="/franchise-view"
@@ -181,10 +181,10 @@ function App() {
                         element={<OneSearch />}
                     /> */}
 
-                    <Route
+                    {/* <Route
                         path="/digital-contract"
                         element={<DigitalContract />}
-                    />
+                    /> */}
 
                     <Route
                         path="/inventory"
@@ -196,10 +196,10 @@ function App() {
                         element={<DDRRegion />}
                     />
 
-                    <Route
+                    {/* <Route
                         path="/digital-icr"
                         element={<DigitalICR />}
-                    />
+                    /> */}
 
                     <Route
                         path="/spares-stock"
@@ -261,10 +261,10 @@ function App() {
                         element={<AddPartCategory />}
                     />
 
-                    <Route
+                    {/* <Route
                         path="/legal-case"
                         element={<LegalCase />}
-                    />
+                    /> */}
 
                     <Route
                         path="/add-franchise"

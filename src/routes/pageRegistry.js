@@ -10,7 +10,6 @@ function normalizeUrl(url) {
         .toLowerCase()}`
 }
 
-// Treat kebab-case and non-hyphenated URLs as equivalent
 function normalizeUrlKey(url) {
     return normalizeUrl(url).replace(/-/g, '')
 }
@@ -24,17 +23,32 @@ function toKebabCase(value) {
 const pageRegistry = new Map()
 
 Object.entries(pageFiles).forEach(([filePath, loader]) => {
-    const fileName = filePath
-        .split('/')
-        .pop()
+    // Remove the pages directory prefix and JSX extension
+    const relativePath = filePath
+        .replace(/^.*\/pages\//, '')
         .replace(/\.jsx$/i, '')
 
-    const reactUrl = normalizeUrl(toKebabCase(fileName))
+    const segments = relativePath
+        .split('/')
+        .map(toKebabCase)
+
+    // Preserve the folder structure in the URL
+    // Exception: a page whose filename matches its folder
+    // uses only the folder URL, e.g. LegalCase/LegalCase.jsx
+    if (
+        segments.length > 1 &&
+        segments[segments.length - 1] === segments[segments.length - 2]
+    ) {
+        segments.pop()
+    }
+
+    const reactUrl = normalizeUrl(segments.join('/'))
     const urlKey = normalizeUrlKey(reactUrl)
 
     if (pageRegistry.has(urlKey)) {
         console.warn(
-            `Duplicate automatically discovered URL: ${reactUrl}`
+            `Duplicate automatically discovered URL: ${reactUrl}`,
+            filePath
         )
         return
     }
@@ -47,5 +61,5 @@ export function getPageByReactUrl(reactUrl) {
 }
 
 export function getDiscoveredPageUrls() {
-    return [...pageRegistry.values()]
+    return [...pageRegistry.keys()]
 }

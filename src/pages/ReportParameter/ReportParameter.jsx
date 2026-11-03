@@ -814,6 +814,7 @@ const loggedInRoleId = String(
     // =================================================
 
     const REGION_ROLE_ID = '1'
+    const ROLE_2_ID = '2'
     const FRANCHISE_ROLE_ID = '5'
     const BRANCH_ROLE_ID = '6'
     const FACTORY_ROLE_ID = '7'
@@ -822,6 +823,9 @@ const loggedInRoleId = String(
 
     const isRegionUser =
         String(loggedInRoleId) === REGION_ROLE_ID
+
+        const isRole2 =
+    loggedInRoleId === ROLE_2_ID
 
     const isBranchUser =
         String(loggedInRoleId) === BRANCH_ROLE_ID
@@ -835,8 +839,11 @@ const loggedInRoleId = String(
     const isRole3 =
     String(loggedInRoleId) === ROLE_3_ID
 
+    const isFactoryLikeUser =
+    isFactoryUser || isRole2
+
     const isRegionOrFactoryUser =
-        isRegionUser || isFactoryUser
+        isRegionUser || isFactoryLikeUser
 
     // =================================================
     // DATE CALENDAR LIMITS
@@ -1035,7 +1042,7 @@ useEffect(() => {
             console.log('Logged-in region code:', loggedInRegionCode)
             console.log('Logged-in role ID:', loggedInRoleId)
 
-            if (isFactoryUser) {
+            if (isFactoryLikeUser) {
                 setSelectedRegion('All')
                 return
             }
@@ -1100,7 +1107,7 @@ useEffect(() => {
     loggedInUserId,
     loggedInRegionCode,
     loggedInRoleId,
-    isFactoryUser,
+    isFactoryLikeUser,
     isRole3,
     isBranchUser,
     isFranchiseUser
@@ -2137,7 +2144,7 @@ useEffect(() => {
                         .toLowerCase() ===
                         'region'
             ) &&
-            !selectedRegion && !isFactoryUser
+            !selectedRegion && !isFactoryLikeUser
         ) {
             missingParameter = 'Region'
         }
@@ -2855,12 +2862,12 @@ useEffect(() => {
                                                             : 'Select Region'}
                                                 </option> */}
 
-                                                <option value={isFactoryUser ? 'All' : ''}>
+                                                <option value={isFactoryLikeUser ? 'All' : ''}>
                                                     {regionLoading
                                                         ? 'Loading region...'
                                                         : regionError
                                                             ? 'Unable to load region'
-                                                            : isFactoryUser
+                                                            : isFactoryLikeUser
                                                                 ? 'All'
                                                                 : 'Select Region'}
                                                 </option>
