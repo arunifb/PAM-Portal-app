@@ -424,38 +424,17 @@ body {
 }
 
 
-
-
 /* =========================================================
-   FORM LABEL WITH ICON
+   FORM LABEL
 ========================================================= */
 
 .form-label {
-    display: inline-flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: flex-start;
-    gap: 8px;
-
+    display: block;
     margin-bottom: 8px;
     color: #111111;
     font-size: 14px;
     font-weight: 700;
     text-align: left;
-    white-space: nowrap;
-}
-
-.form-label svg {
-    display: inline-block;
-    width: 18px;
-    height: 18px;
-    flex-shrink: 0;
-    color: #000000;
-    stroke-width: 2.5;
-}
-
-.form-label span {
-    display: inline-block;
 }
 
 
@@ -465,6 +444,46 @@ body {
 
 .input-wrapper {
     position: relative;
+}
+
+
+/* =========================================================
+   INPUT ICON BESIDE PLACEHOLDER
+========================================================= */
+
+.input-icon-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.input-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+
+    width: 18px;
+    height: 18px;
+
+    color: #a1a8b3; /* Same as placeholder color */
+    stroke-width: 2.5;
+
+    flex-shrink: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Space for the icon inside the input */
+.input-icon-wrapper .form-input {
+    width: 100%;
+    padding-left: 42px;
+}
+
+/* Keep space for the Show/Hide password button */
+.input-icon-wrapper .form-input.password-input {
+    padding-right: 65px;
 }
 
 

@@ -496,30 +496,31 @@ console.log('Roles:', data.roles)
                                 className="form-label"
                                 htmlFor="username"
                             >
-                                <UserRound size={16} strokeWidth={1.8} />
-                                <span>Login-ID</span>
+                                Login-ID
                             </label>
 
+                            <div className="input-icon-wrapper">
+                                <UserRound size={18} strokeWidth={2.5} className="input-icon" />
+                                <input
+                                    type="text"
+                                    id="username"
+                                    name="username"
+                                    className="form-input"
+                                    autoComplete="off"
+                                    placeholder="Enter your loginID"
+                                    value={username}
+                                    onChange={(event) => {
 
-                            <input
-                                type="text"
-                                id="username"
-                                name="username"
-                                className="form-input"
-                                autoComplete="off"
-                                placeholder="Enter your loginID"
-                                value={username}
-                                onChange={(event) => {
+                                        setUsername(
+                                            event.target.value
+                                        )
 
-                                    setUsername(
-                                        event.target.value
-                                    )
+                                        setMessage('')
 
-                                    setMessage('')
-
-                                }}
-                                disabled={isLoading}
-                            />
+                                    }}
+                                    disabled={isLoading}
+                                />
+                            </div>
 
                         </div>
 
@@ -530,17 +531,16 @@ console.log('Roles:', data.roles)
 
                         <div className="form-group">
 
-                           <label
+                            <label
                                 className="form-label"
                                 htmlFor="password"
                             >
-                                <KeyRound size={16} strokeWidth={1.8} />
-                                
-                                <span>Password</span>
+                                Password
                             </label>
 
 
-                            <div className="input-wrapper">
+                            <div className="input-icon-wrapper">
+                                <KeyRound size={18} strokeWidth={2.5} className="input-icon" />
 
                                 <input
                                     type={
