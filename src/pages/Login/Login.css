@@ -424,22 +424,38 @@ body {
 }
 
 
+
+
 /* =========================================================
-   FORM LABEL
+   FORM LABEL WITH ICON
 ========================================================= */
 
 .form-label {
-    display: block;
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start;
+    gap: 8px;
 
     margin-bottom: 8px;
-
-    color: #374151;
-
-    font-size: 13px;
-
-    font-weight: 600;
-
+    color: #111111;
+    font-size: 14px;
+    font-weight: 700;
     text-align: left;
+    white-space: nowrap;
+}
+
+.form-label svg {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    color: #000000;
+    stroke-width: 2.5;
+}
+
+.form-label span {
+    display: inline-block;
 }
 
 

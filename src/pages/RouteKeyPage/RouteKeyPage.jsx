@@ -472,6 +472,19 @@ useEffect(() => {
                     NOT FOUND
                 </h4>
 
+                <p
+                style={{
+                    fontSize: '15px',
+                    fontWeight: 400,
+                    color: '#555555',
+                    margin: '-15px 0 30px',
+                    lineHeight: 1.6,
+                    maxWidth: '500px'
+                }}
+            >
+                The page you are looking for was moved, removed, renamed or might never existed
+            </p>
+
                 <button
                     type="button"
                     onClick={handleBackToLogin}

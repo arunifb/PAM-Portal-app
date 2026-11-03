@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import './Login.css'
 
 import ifbLogo from '../../assets/ifb-logo.png'
+import { UserRound, KeyRound } from 'lucide-react'
 
 import { login } from '../../api/authApi'
 
@@ -495,7 +496,8 @@ console.log('Roles:', data.roles)
                                 className="form-label"
                                 htmlFor="username"
                             >
-                                Login-ID
+                                <UserRound size={16} strokeWidth={1.8} />
+                                <span>Login-ID</span>
                             </label>
 
 
@@ -528,11 +530,13 @@ console.log('Roles:', data.roles)
 
                         <div className="form-group">
 
-                            <label
+                           <label
                                 className="form-label"
                                 htmlFor="password"
                             >
-                                Password
+                                <KeyRound size={16} strokeWidth={1.8} />
+                                
+                                <span>Password</span>
                             </label>
 
 
