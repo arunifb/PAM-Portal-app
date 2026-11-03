@@ -356,6 +356,7 @@ const isRole1 = sessionRoles.includes(1)
 const isRole3 = sessionRoles.includes(3)
 const isRole5 = sessionRoles.includes(5)
 const isRole6 = sessionRoles.includes(6)
+const isRole7 = sessionRoles.includes(7)
 
 const storedRoleId = Number(
     getSessionValue('roleId', 'RoleID')
@@ -383,17 +384,23 @@ const sessionRolesKey = sessionRoles.join(',')
     // =================================================
 
     const [regionCode, setRegionCode] = useState(
-        restoredListState?.regionCode ??
-        ((isRole3 || isRole5 || isRole6) ? sessionRegionCode : '')
-    )
+    restoredListState?.regionCode ??
+    (isRole7
+        ? 'All'
+        : (isRole3 || isRole5 || isRole6)
+            ? sessionRegionCode
+            : '')
+)
 
-    const [branchCode, setBranchCode] = useState(
-        restoredListState?.branchCode ?? ''
-    )
+const [branchCode, setBranchCode] = useState(
+    restoredListState?.branchCode ??
+    (isRole7 ? 'All' : '')
+)
 
-    const [franchiseCode, setFranchiseCode] = useState(
-        restoredListState?.franchiseCode ?? ''
-    )
+const [franchiseCode, setFranchiseCode] = useState(
+    restoredListState?.franchiseCode ??
+    (isRole7 ? 'All' : '')
+)
 
     const [status, setStatus] = useState(
         restoredListState?.status ??
@@ -468,6 +475,12 @@ useEffect(() => {
                 return
             }
 
+            // Role 7 defaults to All regions.
+            if (isRole7) {
+                setRegionCode('All')
+                return
+            }
+
             // Automatically select the logged-in user's region.
             if (isRole3 || isRole5 || isRole6) {
                 const loggedInRegionCode = String(
@@ -512,6 +525,7 @@ useEffect(() => {
     isRole3,
     isRole5,
     isRole6,
+    isRole7,
     restoredListState
 ])
     // =================================================
@@ -528,22 +542,31 @@ useEffect(() => {
     async function loadBranches() {
         if (!regionCode) {
             setBranches([])
-            setBranchCode('')
+            setBranchCode(isRole7 ? 'All' : '')
             setFranchises([])
-            setFranchiseCode('')
+            setFranchiseCode(isRole7 ? 'All' : '')
             return
         }
 
         try {
             const response = await getBranches(
                 sessionUserId,
-                regionCode
+                regionCode === 'All' ? '' : regionCode
             )
 
             if (cancelled) return
 
             const branchList = getArrayFromResponse(response)
             setBranches(branchList)
+
+
+            // Role 7: show all branches and keep All selected by default.
+            if (isRole7) {
+                setBranchCode('All')
+                setFranchises([])
+                setFranchiseCode('All')
+                return
+            }
 
             // Restore the branch when returning from Edit.
             if (
@@ -598,14 +621,14 @@ useEffect(() => {
             setFranchises([])
             setFranchiseCode('')
         } catch (err) {
-            if (!cancelled) {
-                setBranches([])
-                setBranchCode('')
-                setFranchises([])
-                setFranchiseCode('')
-                setError(err?.message || 'Unable to load branches.')
-            }
-        }
+    if (!cancelled) {
+        setBranches([])
+        setBranchCode(isRole7 ? 'All' : '')
+        setFranchises([])
+        setFranchiseCode(isRole7 ? 'All' : '')
+        setError(err?.message || 'Unable to load branches.')
+    }
+}
     }
 
     loadBranches()
@@ -620,6 +643,7 @@ useEffect(() => {
     isRole3,
     isRole5,
     isRole6,
+    isRole7,
     restoredListState
 ])
 
@@ -644,7 +668,16 @@ useEffect(() => {
         setError('')
 
         if (!regionCode) {
-            setFranchiseCode('')
+            setFranchiseCode(isRole7 ? 'All' : '')
+            setLoadingFranchises(false)
+            return
+        }
+
+        // Role 7 with Branch = All should not call the
+        // branch-specific franchise API.
+        if (isRole7 && branchCode === 'All') {
+            setFranchises([])
+            setFranchiseCode('All')
             setLoadingFranchises(false)
             return
         }
@@ -774,6 +807,12 @@ useEffect(() => {
                 )
             }
             // Other roles: allow the user to select a franchise.
+            // Role 7: select All and allow the user to choose a
+            // specific franchise when a specific branch is selected.
+            else if (isRole7) {
+                setFranchiseCode('All')
+            }
+            // Other roles: preserve existing behavior.
             else {
                 setFranchiseCode('')
             }
@@ -811,6 +850,7 @@ useEffect(() => {
     isRole3,
     isRole5,
     isRole6,
+    isRole7,
     restoredListState
 ])
 
@@ -870,56 +910,56 @@ useEffect(() => {
     // =================================================
 
     async function handleSearch() {
-        setError('')
-        setSuccessMessage('')
+    setError('')
+    setSuccessMessage('')
 
-        if (!regionCode) {
-            setError('Region is required.')
-            return
-        }
-
-        setLoading(true)
-
-        try {
-            const searchParams = {
-                regionCode,
-                branchCode,
-                franchiseCode,
-                name: technicianName.trim(),
-                mobileNo: mobileNo.trim(),
-                status,
-                roleId
-            }
-
-            console.log(
-                'Technician search request:',
-                searchParams
-            )
-
-            const response = await searchTechnicians(searchParams)
-
-            console.log(
-                'Technician search response:',
-                response
-            )
-
-            const technicianList = getArrayFromResponse(response)
-
-            const filteredTechnicians = filterTechniciansByStatus(
-                technicianList,
-                status
-            )
-
-            setTechnicians(filteredTechnicians)
-        } catch (err) {
-            setTechnicians([])
-            setError(
-                err?.message || 'Unable to load technician data.'
-            )
-        } finally {
-            setLoading(false)
-        }
+    if (!regionCode) {
+        setError('Region is required.')
+        return
     }
+
+    setLoading(true)
+
+    try {
+        const searchParams = {
+            regionCode,
+            branchCode: branchCode === 'All' ? '' : branchCode,
+            franchiseCode: franchiseCode === 'All' ? '' : franchiseCode,
+            name: technicianName.trim(),
+            mobileNo: mobileNo.trim(),
+            status,
+            roleId
+        }
+
+        console.log(
+            'Technician search request:',
+            searchParams
+        )
+
+        const response = await searchTechnicians(searchParams)
+
+        console.log(
+            'Technician search response:',
+            response
+        )
+
+        const technicianList = getArrayFromResponse(response)
+
+        const filteredTechnicians = filterTechniciansByStatus(
+            technicianList,
+            status
+        )
+
+        setTechnicians(filteredTechnicians)
+    } catch (err) {
+        setTechnicians([])
+        setError(
+            err?.message || 'Unable to load technician data.'
+        )
+    } finally {
+        setLoading(false)
+    }
+}
 
     // =================================================
     // RESTORE LIST STATE WHEN RETURNING FROM EDIT
@@ -1015,28 +1055,30 @@ useEffect(() => {
     // =================================================
 
     function handleBranchChange(event) {
-        setBranchCode(event.target.value)
-        setFranchiseCode('')
-        setTechnicians([])
-        setError('')
-        setSuccessMessage('')
-    }
+    const selectedBranch = event.target.value
 
-    function handleRegionChange(event) {
-        const selectedRegion = event.target.value
+    setBranchCode(selectedBranch)
+    setFranchiseCode(isRole7 ? 'All' : '')
+    setFranchises([])
+    setTechnicians([])
+    setError('')
+    setSuccessMessage('')
+}
 
-        setRegionCode(selectedRegion)
+function handleRegionChange(event) {
+    const selectedRegion = event.target.value
 
-        setBranchCode('')
-        setBranches([])
+    setRegionCode(selectedRegion)
+    setBranches([])
+    setFranchises([])
+    setTechnicians([])
 
-        setFranchiseCode('')
-        setFranchises([])
+    setBranchCode(isRole7 ? 'All' : '')
+    setFranchiseCode(isRole7 ? 'All' : '')
 
-        setTechnicians([])
-        setError('')
-        setSuccessMessage('')
-    }
+    setError('')
+    setSuccessMessage('')
+}
 
     // =================================================
     // EDIT
@@ -1367,25 +1409,38 @@ useEffect(() => {
                         <label>Region</label>
 
                         <select
-                            value={regionCode}
-                            onChange={handleRegionChange}
-                        >
-                            <option value="">Select Region</option>
+    value={regionCode}
+    onChange={handleRegionChange}
+>
+    {isRole7 ? (
+        <option value="All">All</option>
+    ) : (
+        <option value="">Select Region</option>
+    )}
 
-                            {regions.map((region, index) => {
-                                const code = getRegionCode(region)
-                                const name = getRegionName(region)
+    {regions
+        .filter(region => {
+            const code = getRegionCode(region)
 
-                                return (
-                                    <option
-                                        key={`${code}-${index}`}
-                                        value={code}
-                                    >
-                                        {name || code}
-                                    </option>
-                                )
-                            })}
-                        </select>
+            return !(
+                isRole7 &&
+                code.trim().toLowerCase() === 'all'
+            )
+        })
+        .map((region, index) => {
+            const code = getRegionCode(region)
+            const name = getRegionName(region)
+
+            return (
+                <option
+                    key={`${code}-${index}`}
+                    value={code}
+                >
+                    {name || code}
+                </option>
+            )
+        })}
+</select>
                     </div>
 
                     {/* BRANCH */}
@@ -1394,34 +1449,34 @@ useEffect(() => {
                         <label>Branch</label>
 
                         <select
-                            value={branchCode}
-                            onChange={handleBranchChange}
-                            disabled={!regionCode || isRole6}
-                        >
-                            {!isRole5 && (
-                                <option value="">All</option>
-                            )}
+    value={branchCode}
+    onChange={handleBranchChange}
+    disabled={!regionCode || isRole6}
+>
+    {isRole7 ? (
+        <option value="All">All</option>
+    ) : isRole5 ? (
+        branches.length === 0 && (
+            <option value="">No branches available</option>
+        )
+    ) : (
+        <option value="">All</option>
+    )}
 
-                            {isRole5 && branches.length === 0 && (
-                                <option value="">
-                                    No branches available
-                                </option>
-                            )}
+    {branches.map((branch, index) => {
+        const code = getBranchCode(branch)
+        const name = getBranchName(branch)
 
-                            {branches.map((branch, index) => {
-                                const code = getBranchCode(branch)
-                                const name = getBranchName(branch)
-
-                                return (
-                                    <option
-                                        key={`${code}-${index}`}
-                                        value={code}
-                                    >
-                                        {name || code}
-                                    </option>
-                                )
-                            })}
-                        </select>
+        return (
+            <option
+                key={`${code}-${index}`}
+                value={code}
+            >
+                {name || code}
+            </option>
+        )
+    })}
+</select>
                     </div>
 
                     {/* FRANCHISE */}
@@ -1430,30 +1485,35 @@ useEffect(() => {
                         <label>Franchise</label>
 
                         <select
-                            value={franchiseCode}
-                            onChange={event => setFranchiseCode(event.target.value)}
-                            disabled={
-                                !regionCode ||
-                                isRole5 ||
-                                ((isRole1 || isRole3) && !branchCode)
-                            }
-                        >
-                            <option value="">All</option>
+    value={franchiseCode}
+    onChange={event => {
+        setFranchiseCode(event.target.value)
+        setTechnicians([])
+        setError('')
+        setSuccessMessage('')
+    }}
+    disabled={
+        !regionCode ||
+        isRole5 ||
+        ((isRole1 || isRole3) && !branchCode)
+    }
+>
+    <option value={isRole7 ? 'All' : ''}>All</option>
 
-                            {franchises.map((franchise, index) => {
-                                const code = getFranchiseCode(franchise)
-                                const name = getFranchiseName(franchise)
+    {franchises.map((franchise, index) => {
+        const code = getFranchiseCode(franchise)
+        const name = getFranchiseName(franchise)
 
-                                return (
-                                    <option
-                                        key={`${code}-${index}`}
-                                        value={code}
-                                    >
-                                        {name || code}
-                                    </option>
-                                )
-                            })}
-                        </select>
+        return (
+            <option
+                key={`${code}-${index}`}
+                value={code}
+            >
+                {name || code}
+            </option>
+        )
+    })}
+</select>
                     </div>
 
                     {/* STATUS */}
@@ -1634,17 +1694,19 @@ useEffect(() => {
                                             <th>SNo</th>
                                             <th className="technician-franchise-column">Franchise</th>
                                             <th>BpExt.</th>
-                                            {!isRole3 && <th>PartnerID</th>}
+                                            {!isRole3 && !isRole7 && <th>PartnerID</th>}
                                             <th className="technician-name-column">Name</th>
-                                            {isRole3 && <th>Profile Image</th>}
+                                            {(isRole3 || isRole7) && (
+                                                <th>Profile Image</th>
+                                            )}
                                             <th>MobileNo</th>
                                             <th>Status</th>
 
-                                            {isRole3 && (
+                                            {(isRole3 || isRole7) && (
                                                 <th>Created Date</th>
                                             )}
 
-                                            {!isRole6 && (
+                                            {!isRole6 && !isRole7 && (
                                                 <th>Action</th>
                                             )}
                                         </tr>
@@ -1697,7 +1759,7 @@ useEffect(() => {
                                                     </td>
 
                                                     <td>{techId || '-'}</td>
-                                                    {!isRole3 && (
+                                                    {!isRole3 && !isRole7 && (
                                                     <td>
                                                         {partnerId &&
                                                         String(partnerId).length > 1 ? (
@@ -1728,7 +1790,7 @@ useEffect(() => {
                                                             '-'}
                                                     </td>
 
-                                                    {isRole3 && (
+                                                    {(isRole3 || isRole7) && (
                                                         <td className="technician-image-cell">
                                                             {(() => {
                                                                 // const imageUrl =
@@ -1851,7 +1913,7 @@ useEffect(() => {
                                                         })()}
                                                     </td>
 
-                                                    {isRole3 && (
+                                                    {(isRole3 || isRole7) && (
                                                         <td>
                                                             {formatCreatedDate(
                                                                 getTechnicianCreatedDate(
@@ -1861,7 +1923,7 @@ useEffect(() => {
                                                         </td>
                                                     )}
 
-                                                    {!isRole6 && (
+                                                    {!isRole6 && !isRole7 && (
                                                         <td>
                                                             <div className="technician-row-actions">
                                                                 {!isEditing ? (
