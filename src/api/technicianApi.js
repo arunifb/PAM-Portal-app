@@ -25,6 +25,11 @@ async function readResponse(response) {
 // GET /api/Technician/search
 // =====================================================
 
+// =====================================================
+// SEARCH TECHNICIANS
+// GET /api/Technician/search
+// =====================================================
+
 export async function searchTechnicians(searchData) {
     const params = new URLSearchParams()
 
@@ -34,7 +39,6 @@ export async function searchTechnicians(searchData) {
     params.append('name', searchData.name || '')
     params.append('mobileNo', searchData.mobileNo || '')
     params.append('status', searchData.status ?? '')
-    params.append('roleId', searchData.roleId || 1)
 
     const response = await authFetch(
         `${API_BASE_URL}/api/Technician/search?${params.toString()}`,
@@ -68,7 +72,6 @@ export async function exportTechnicians(searchData) {
     params.append('name', searchData.name || '')
     params.append('mobileNo', searchData.mobileNo || '')
     params.append('status', searchData.status ?? '')
-    params.append('roleId', searchData.roleId || 1)
 
     const response = await authFetch(
         `${API_BASE_URL}/api/Technician/export?${params.toString()}`,

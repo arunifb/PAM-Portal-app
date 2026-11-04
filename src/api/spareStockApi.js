@@ -74,3 +74,32 @@ export async function searchSpareStock(
 
     return data
 }
+
+// =========================================
+// GET PLANTS BY REGION
+// =========================================
+
+export async function getSpareStockPlants(regionCode = '') {
+
+    const query = new URLSearchParams({
+        regionCode: regionCode || ''
+    })
+
+    const response = await authFetch(
+        `${API_BASE_URL}/api/SpareStock/plants?${query.toString()}`,
+        {
+            method: 'GET'
+        }
+    )
+
+    const data = await readResponse(response)
+
+    if (!response.ok) {
+        throw new Error(
+            data.message ||
+            'Unable to load branches.'
+        )
+    }
+
+    return data
+}

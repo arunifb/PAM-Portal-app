@@ -253,29 +253,31 @@ function filterTechniciansByStatus(technicians, selectedStatus) {
         const rawStatus =
             technician?.status ??
             technician?.Status ??
+            technician?.statusName ??
+            technician?.StatusName ??
+            technician?.statusDescription ??
+            technician?.StatusDescription ??
+            technician?.actionStatus ??
+            technician?.ActionStatus ??
             ''
 
-        if (
-            statusId !== null &&
-            statusId !== undefined &&
-            String(statusId) !== ''
-        ) {
-            return String(statusId) === String(selectedStatus)
+        const selectedId = String(selectedStatus).trim()
+        const actualId = String(statusId ?? '').trim()
+
+        // Match the status ID when available.
+        if (actualId !== '') {
+            return actualId === selectedId
         }
 
-        if (/^\d+$/.test(String(rawStatus).trim())) {
-            return String(rawStatus).trim() === String(selectedStatus)
+        // Otherwise, match numeric status values.
+        const description = String(rawStatus).trim().toLowerCase()
+
+        if (/^\d+$/.test(description)) {
+            return description === selectedId
         }
 
-        const description = String(rawStatus).toLowerCase()
-        const keywords = statusLabels[String(selectedStatus)] || []
-
-        if (selectedStatus === '5') {
-            return (
-                description.includes('ready for review') ||
-                description.includes('skill set')
-            )
-        }
+        // Otherwise, match the status description.
+        const keywords = statusLabels[selectedId] || []
 
         return keywords.some(keyword =>
             description.includes(keyword)
@@ -402,9 +404,13 @@ const [franchiseCode, setFranchiseCode] = useState(
     (isRole7 ? 'All' : '')
 )
 
+    // const [status, setStatus] = useState(
+    //     restoredListState?.status ??
+    //     (roleId === 3 || roleId === 5 ? '5' : '1')
+    // )
     const [status, setStatus] = useState(
-        restoredListState?.status ??
-        (roleId === 3 || roleId === 5 ? '5' : '1')
+    restoredListState?.status ??
+    (roleId === 3 || roleId === 5 ? '' : '1')
     )
 
     const [technicianName, setTechnicianName] = useState(
@@ -922,35 +928,50 @@ useEffect(() => {
 
     try {
         const searchParams = {
-            regionCode,
+            regionCode: regionCode === 'All' ? '' : regionCode,
             branchCode: branchCode === 'All' ? '' : branchCode,
             franchiseCode: franchiseCode === 'All' ? '' : franchiseCode,
             name: technicianName.trim(),
             mobileNo: mobileNo.trim(),
-            status,
-            roleId
+            status
         }
 
-        console.log(
-            'Technician search request:',
-            searchParams
-        )
+        console.log('Technician search request:', searchParams)
 
         const response = await searchTechnicians(searchParams)
 
-        console.log(
-            'Technician search response:',
-            response
+        console.log('Technician search response:', response)
+
+        console.log('Selected Status:', status)
+console.log('API Count:', response?.count)
+console.log('API Data Length:', response?.data?.length)
+
+console.log(
+    'Statuses Returned:',
+    [...new Set(
+        (response?.data || []).map(item =>
+            item.statusId ??
+            item.StatusId ??
+            item.status ??
+            item.Status
         )
+    )]
+)
 
         const technicianList = getArrayFromResponse(response)
 
-        const filteredTechnicians = filterTechniciansByStatus(
-            technicianList,
-            status
-        )
+        
 
-        setTechnicians(filteredTechnicians)
+        const filteredTechnicians = status === ''
+    ? technicianList
+    : filterTechniciansByStatus(technicianList, status)
+
+console.log('API Count:', response?.count)
+console.log('API Data Length:', technicianList.length)
+console.log('Selected Status:', status)
+console.log('Grid Records:', filteredTechnicians.length)
+
+setTechnicians(filteredTechnicians)
     } catch (err) {
         setTechnicians([])
         setError(
@@ -960,7 +981,6 @@ useEffect(() => {
         setLoading(false)
     }
 }
-
     // =================================================
     // RESTORE LIST STATE WHEN RETURNING FROM EDIT
     // =================================================
@@ -1010,13 +1030,12 @@ useEffect(() => {
 
             try {
                 const response = await searchTechnicians({
-                    regionCode,
-                    branchCode,
-                    franchiseCode,
+                    regionCode: regionCode === 'All' ? '' : regionCode,
+                    branchCode: branchCode === 'All' ? '' : branchCode,
+                    franchiseCode: franchiseCode === 'All' ? '' : franchiseCode,
                     name: technicianName.trim(),
                     mobileNo: mobileNo.trim(),
-                    status: refreshStatus,
-                    roleId
+                    status: refreshStatus
                 })
 
                 if (cancelled) return
@@ -1331,13 +1350,12 @@ function handleRegionChange(event) {
 
         try {
             const blob = await exportTechnicians({
-                regionCode,
-                branchCode,
-                franchiseCode,
+                regionCode: regionCode === 'All' ? '' : regionCode,
+                branchCode: branchCode === 'All' ? '' : branchCode,
+                franchiseCode: franchiseCode === 'All' ? '' : franchiseCode,
                 name: technicianName.trim(),
                 mobileNo: mobileNo.trim(),
-                status,
-                roleId
+                status
             })
 
             if (!blob || blob.size === 0) {

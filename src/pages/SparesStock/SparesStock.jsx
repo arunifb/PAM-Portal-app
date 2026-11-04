@@ -5,12 +5,12 @@ import './SparesStock.css'
 import DashboardLayout from '../../components/DashboardLayout/DashboardLayout'
 
 import {
-    getRegions,
-    getBranches
+    getRegions 
 } from '../../api/reportsApi'
 
 import {
-    searchSpareStock
+    searchSpareStock,
+    getSpareStockPlants
 } from '../../api/spareStockApi'
 
 
@@ -275,127 +275,117 @@ function SparesStock() {
     }, [])
 
 
+    
+
     // =========================================
-    // LOAD BRANCHES
+    // LOAD BRANCHES USING SPARE STOCK PLANTS API
     // =========================================
 
-    const loadBranches = async (selectedRegionCode) => {
-        if (!selectedRegionCode) {
-            setBranches([
-                {
-                    bpCode: 'All',
-                    branchName: 'All'
-                }
-            ])
-
-            setBranchCode('All')
-            return
-        }
-
-        try {
-            setLoadingBranches(true)
-            setError('')
-
-            const viewerUserId = getViewerUserId()
-
-            if (!viewerUserId) {
-                setBranches([
-                    {
-                        bpCode: 'All',
-                        branchName: 'All'
-                    }
-                ])
-
-                setBranchCode('All')
-                setError('User ID is not available.')
-                return
+const loadBranches = async (selectedRegionCode) => {
+    if (!selectedRegionCode) {
+        setBranches([
+            {
+                bpCode: 'All',
+                branchName: 'All'
             }
+        ])
 
-            const response = await getBranches(
-                viewerUserId,
-                selectedRegionCode
-            )
+        setBranchCode('All')
+        return
+    }
 
-            const branchData = Array.isArray(response)
-                ? response
-                : Array.isArray(response?.data)
-                    ? response.data
+    try {
+        setLoadingBranches(true)
+        setError('')
+
+        // Call the new Plants API.
+        // The API returns BPCode and BranchName.
+
+        const response = await getSpareStockPlants(
+            selectedRegionCode
+        )
+
+        const branchData = Array.isArray(response)
+            ? response
+            : Array.isArray(response?.data)
+                ? response.data
+                : Array.isArray(response?.Data)
+                    ? response.Data
                     : []
 
-            // Remove any existing All entries from API data.
+        // Remove any existing All entries.
 
-            const filteredBranches = branchData.filter(item => {
-                const code = String(
-                    getBranchCode(item)
-                ).trim().toLowerCase()
+        const filteredBranches = branchData.filter(item => {
+            const code = String(
+                getBranchCode(item)
+            ).trim().toLowerCase()
 
-                return code !== 'all'
-            })
+            return code !== 'all'
+        })
 
-            // Add exactly one All option.
+        // Keep the Branch dropdown and add All as its first option.
 
-            setBranches([
-                {
-                    bpCode: 'All',
-                    branchName: 'All'
-                },
-                ...filteredBranches
-            ])
+        setBranches([
+            {
+                bpCode: 'All',
+                branchName: 'All'
+            },
+            ...filteredBranches
+        ])
 
-            // =====================================
-            // ROLE 6: AUTO-SELECT SESSION BRANCH
-            // =====================================
+        // Role 6: automatically select logged-in user's branch.
 
-            if (isBranchRole) {
-                const normalizedSessionBpCode =
-                    String(sessionBpCode).trim().toLowerCase()
+        if (isBranchRole) {
+            const normalizedSessionBpCode =
+                String(sessionBpCode).trim().toLowerCase()
 
-                const matchingBranch = normalizedSessionBpCode
-                    ? filteredBranches.find(item =>
-                        String(getBranchCode(item))
-                            .trim()
-                            .toLowerCase() === normalizedSessionBpCode
-                    )
-                    : null
+            const matchingBranch = normalizedSessionBpCode
+                ? filteredBranches.find(item =>
+                    String(getBranchCode(item))
+                        .trim()
+                        .toLowerCase() === normalizedSessionBpCode
+                )
+                : null
 
-                if (matchingBranch) {
-                    setBranchCode(
-                        String(getBranchCode(matchingBranch)).trim()
-                    )
-                } else if (filteredBranches.length > 0) {
-                    setBranchCode(
-                        String(getBranchCode(filteredBranches[0])).trim()
-                    )
-                } else {
-                    setBranchCode('All')
-                }
+            if (matchingBranch) {
+                setBranchCode(
+                    String(getBranchCode(matchingBranch)).trim()
+                )
+            } else if (filteredBranches.length > 0) {
+                setBranchCode(
+                    String(getBranchCode(filteredBranches[0])).trim()
+                )
             } else {
-                // Preserve Role 1's existing default.
                 setBranchCode('All')
             }
-        } catch (error) {
-            console.error(
-                'Spares Stock branch error:',
-                error
-            )
-
-            setBranches([
-                {
-                    bpCode: 'All',
-                    branchName: 'All'
-                }
-            ])
-
+        } else {
+            // Role 1: default selection remains All.
             setBranchCode('All')
-
-            setError(
-                error.message ||
-                'Unable to load branches.'
-            )
-        } finally {
-            setLoadingBranches(false)
         }
+
+    } catch (error) {
+        console.error(
+            'Spares Stock branch error:',
+            error
+        )
+
+        setBranches([
+            {
+                bpCode: 'All',
+                branchName: 'All'
+            }
+        ])
+
+        setBranchCode('All')
+
+        setError(
+            error.message ||
+            'Unable to load branches.'
+        )
+    } finally {
+        setLoadingBranches(false)
     }
+}
 
 
     // =========================================
@@ -505,7 +495,9 @@ function SparesStock() {
             )
 
             const data = Array.isArray(response?.data)
-                ? response.data
+            ? response.data
+            : Array.isArray(response?.Data)
+                ? response.Data
                 : []
 
             setRecords(data)
@@ -761,8 +753,8 @@ function SparesStock() {
                                     <th>#</th>
                                     <th>Plant</th>
                                     <th>Name</th>
-                                    <th>MatGrp</th>
-                                    <th>Material</th>
+                                    <th>Part Group</th>
+                                    <th>Part Code</th>
                                     <th>Part</th>
                                     <th>Quantity</th>
                                     <th>Sloc</th>
