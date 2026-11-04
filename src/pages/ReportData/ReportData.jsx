@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { getReportList } from '../../api/reportsApi'
@@ -7,8 +6,18 @@ import ReportParameter from '../ReportParameter/ReportParameter'
 
 import './ReportData.css'
 
-function ReportData({ onReportCountChange }) {
+function ReportData({
+    onReportCountChange,
+    reportCategory = 'D',
+    title = 'Report Data'
+}) {
     const location = useLocation()
+
+    // Separate selected report storage for Data and Summary.
+    const selectedReportStorageKey =
+        reportCategory === 'S'
+            ? 'selectedReport_S'
+            : 'selectedReport'
 
     const [reports, setReports] = useState([])
     const [loading, setLoading] = useState(true)
@@ -20,7 +29,10 @@ function ReportData({ onReportCountChange }) {
 
     const [selectedReport, setSelectedReport] = useState(() => {
         try {
-            const savedReport = sessionStorage.getItem('selectedReport')
+            const savedReport = sessionStorage.getItem(
+                selectedReportStorageKey
+            )
+
             return savedReport ? JSON.parse(savedReport) : null
         } catch (error) {
             console.error('Failed to restore selected report:', error)
@@ -35,8 +47,8 @@ function ReportData({ onReportCountChange }) {
     useEffect(() => {
         document.title = selectedReport
             ? `eTraining-${selectedReport.reportType}`
-            : 'eTraining-Report Data'
-    }, [selectedReport])
+            : `eTraining-${title}`
+    }, [selectedReport, title])
 
     // =========================================
     // RESET SELECTED REPORT
@@ -44,10 +56,13 @@ function ReportData({ onReportCountChange }) {
 
     useEffect(() => {
         if (location.state?.resetReportData) {
-            sessionStorage.removeItem('selectedReport')
+            sessionStorage.removeItem(selectedReportStorageKey)
             setSelectedReport(null)
         }
-    }, [location.state?.resetReportData])
+    }, [
+        location.state?.resetReportData,
+        selectedReportStorageKey
+    ])
 
     // =========================================
     // LOAD REPORTS
@@ -67,8 +82,6 @@ function ReportData({ onReportCountChange }) {
                 let reportRoleId = storedRoleId
 
                 // If roleId is 0, attempt to use the stored roles.
-                // Confirm with the backend developer that this is
-                // the intended role-selection behavior.
                 if (!storedRoleId || storedRoleId === '0') {
                     let parsedRoles = []
 
@@ -108,12 +121,12 @@ function ReportData({ onReportCountChange }) {
 
                 console.log('Report List request:', {
                     roleId: reportRoleId,
-                    reportCategory: 'D'
+                    reportCategory
                 })
 
                 const data = await getReportList(
                     reportRoleId,
-                    'D'
+                    reportCategory
                 )
 
                 if (!Array.isArray(data)) {
@@ -155,7 +168,7 @@ function ReportData({ onReportCountChange }) {
         return () => {
             isMounted = false
         }
-    }, [onReportCountChange])
+    }, [onReportCountChange, reportCategory])
 
     // =========================================
     // REPORT CARD CLICK
@@ -163,7 +176,7 @@ function ReportData({ onReportCountChange }) {
 
     const handleReportClick = (report) => {
         sessionStorage.setItem(
-            'selectedReport',
+            selectedReportStorageKey,
             JSON.stringify(report)
         )
 
@@ -179,7 +192,10 @@ function ReportData({ onReportCountChange }) {
             <ReportParameter
                 report={selectedReport}
                 onBack={() => {
-                    sessionStorage.removeItem('selectedReport')
+                    sessionStorage.removeItem(
+                        selectedReportStorageKey
+                    )
+
                     setSelectedReport(null)
                 }}
             />
@@ -295,7 +311,7 @@ function ReportData({ onReportCountChange }) {
     // =========================================
 
     return (
-        <DashboardLayout title="Report Data">
+        <DashboardLayout title={title}>
             {renderContent()}
         </DashboardLayout>
     )

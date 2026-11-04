@@ -276,7 +276,9 @@ const [refreshPainKiller, setRefreshPainKiller] = useState(0)
         // =========================================
 
         '/report-data':
-            ReportData
+            ReportData,
+
+        '/report-summary': ReportData
 
     }
 
@@ -594,6 +596,32 @@ useEffect(() => {
     const PageComponent =
     routeComponents[reactUrl] ||
     getPageByReactUrl(reactUrl)
+
+
+    // =========================================
+// REPORT DATA / REPORT SUMMARY
+// =========================================
+
+if (
+    reactUrl === '/report-data' ||
+    reactUrl === '/report-summary'
+) {
+    const reportCategory =
+        reactUrl === '/report-data' ? 'D' : 'S'
+
+    return (
+        <ReportData
+            key={reactUrl}
+            reportCategory={reportCategory}
+            title={
+                menuItem.name ||
+                menuItem.menuName ||
+                menuItem.MenuName ||
+                'Reports'
+            }
+        />
+    )
+}
 
 
     // =========================================
