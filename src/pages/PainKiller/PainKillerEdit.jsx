@@ -457,7 +457,7 @@ function handleAgentRemarkChange(value) {
 
             <div className="pain-killer-page pk-edit-page">
 
-                <div className="pk-back-button-container">
+                {/* <div className="pk-back-button-container">
                     <button
                         type="button"
                         className="pk-back-button"
@@ -465,7 +465,7 @@ function handleAgentRemarkChange(value) {
                     >
                         Back
                     </button>
-                </div>
+                </div> */}
 
                 {error && (
                     <div className="pk-alert pk-alert-error">
@@ -495,8 +495,18 @@ function handleAgentRemarkChange(value) {
 
                         <div className="pk-edit-section">
 
-                            <div className="pk-section-heading">
-                                Action By Agent
+                            <div className="pk-section-header-row">
+                                <div className="pk-section-heading">
+                                    Action By Agent
+                                </div>
+
+                                <button
+                                    type="button"
+                                    className="pk-back-button"
+                                    onClick={handleBack}
+                                >
+                                    Back
+                                </button>
                             </div>
 
                             <div className="pk-agent-one-row">

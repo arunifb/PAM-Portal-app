@@ -24,6 +24,76 @@
 }
 
 /* =========================================
+   SECTION HEADING WITH BACK BUTTON
+========================================= */
+
+.pk-section-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    margin-bottom: 14px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid #d8d8d8;
+    box-sizing: border-box;
+}
+
+.pk-section-header-row .pk-section-heading {
+    flex: 1;
+    min-width: 0;
+    width: auto;
+    margin: 0;
+    padding: 0;
+    border-bottom: none;
+    text-align: left;
+}
+
+/* Back Button */
+
+.pk-edit-page .pk-section-header-row .pk-back-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 30px;
+    /* margin: 0 0 9px; */
+    padding: 3px 8px;
+    background-color: #6b7280 !important;
+    color: #ffffff !important;
+    border: 1px solid #6b7280 !important;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-align: center;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.pk-edit-page .pk-section-header-row .pk-back-button:hover:not(:disabled) {
+    background-color: #4b5563 !important;
+    border-color: #4b5563 !important;
+    color: #ffffff !important;
+}
+
+.pk-edit-page .pk-section-header-row .pk-back-button:active:not(:disabled) {
+    background-color: #4b5563 !important;
+    border-color: #4b5563 !important;
+}
+
+.pk-edit-page .pk-section-header-row .pk-back-button:focus-visible {
+    outline: 2px solid #337ab7;
+    outline-offset: 3px;
+}
+
+.pk-edit-page .pk-section-header-row .pk-back-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* =========================================
    ACTION BY AGENT - SINGLE ROW
 ========================================= */
 
@@ -225,7 +295,7 @@
 }
 
 /* =========================================
-   BACK BUTTON - RIGHT ALIGNMENT
+   BACK BUTTON - MISSING TICKET SECTION
 ========================================= */
 
 .pk-edit-page .pk-back-button-container {
@@ -237,16 +307,16 @@
     text-align: right;
 }
 
-.pk-edit-page .pk-back-button {
+.pk-edit-page .pk-back-button-container .pk-back-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     min-height: 36px;
     margin-left: auto;
     padding: 6px 14px;
-    background-color: #6b7280  !important;
+    background-color: #6b7280 !important;
     color: #ffffff !important;
-    border: 1px solid #6b7280  !important;
+    border: 1px solid #6b7280 !important;
     border-radius: 4px;
     font-size: 12px;
     font-weight: 600;
@@ -255,27 +325,13 @@
     white-space: nowrap;
     cursor: pointer;
     transition: all 0.2s ease;
+    box-sizing: border-box;
 }
 
-.pk-edit-page .pk-back-button:hover:not(:disabled) {
+.pk-edit-page .pk-back-button-container .pk-back-button:hover:not(:disabled) {
     background-color: #4b5563 !important;
     border-color: #4b5563 !important;
     color: #ffffff !important;
-}
-
-.pk-edit-page .pk-back-button:active:not(:disabled) {
-    background-color: #4b5563 !important;
-    border-color: #4b5563 !important;
-}
-
-.pk-edit-page .pk-back-button:focus-visible {
-    outline: 2px solid #337ab7;
-    outline-offset: 3px;
-}
-
-.pk-edit-page .pk-back-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
 }
 
 /* =========================================
@@ -334,5 +390,18 @@
 
     .pk-detail-item.pk-detail-address {
         grid-column: 1;
+    }
+
+    .pk-section-header-row {
+        gap: 8px;
+    }
+
+    .pk-section-header-row .pk-section-heading {
+        font-size: 15px;
+    }
+
+    .pk-edit-page .pk-section-header-row .pk-back-button {
+        padding: 3px 7px;
+        min-height: 28px;
     }
 }
