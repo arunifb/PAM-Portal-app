@@ -45,6 +45,8 @@ import SearchInvoice from '../SearchInvoice/SearchInvoice'
 import SubDealerView from '../SubDealer/SubDealerView'
 import PCRVendorDetails from '../PCRVendorDetails/PCRVendorDetails'
 import PCRRefurbishVendorMaster from '../PCRVendorDetails/PCRRefurbishVendorMaster'
+import PainKiller from '../PainKiller/PainKiller'
+import PainKillerEdit from '../PainKiller/PainKillerEdit'
 import {
     getPageByReactUrl
 } from '../../routes/pageRegistry'
@@ -125,6 +127,46 @@ const [pcrSelectedRecord, setPcrSelectedRecord] = useState(
     const [technicianListState, setTechnicianListState] = useState(null)
     const [refreshAfterAdd, setRefreshAfterAdd] = useState(0)
     const [technicianEditState, setTechnicianEditState] = useState(null)
+
+    
+
+// =========================================
+// PAIN KILLER STATE - RESTORE AFTER REFRESH
+// =========================================
+
+const PAIN_KILLER_STORAGE_KEY = 'painKillerNavigationState'
+
+const getSavedPainKillerState = () => {
+    try {
+        const saved = sessionStorage.getItem(PAIN_KILLER_STORAGE_KEY)
+
+        if (!saved) return null
+
+        const parsed = JSON.parse(saved)
+
+        if (
+            String(parsed.routeKey).toLowerCase() ===
+            String(routeKey).toLowerCase()
+        ) {
+            return parsed
+        }
+
+        return null
+    } catch (error) {
+        sessionStorage.removeItem(PAIN_KILLER_STORAGE_KEY)
+        return null
+    }
+}
+
+const [painKillerListState, setPainKillerListState] = useState(
+    () => getSavedPainKillerState()?.listState ?? null
+)
+
+const [painKillerEditState, setPainKillerEditState] = useState(
+    () => getSavedPainKillerState()?.editState ?? null
+)
+
+const [refreshPainKiller, setRefreshPainKiller] = useState(0)
 
 
     // =========================================
@@ -398,6 +440,31 @@ useEffect(() => {
         setPcrSelectedRecord(null)
     }
 }, [menuItem, routeKey, location.pathname])
+
+
+
+// =========================================
+// PAIN KILLER NAVIGATION STATE VALIDATION
+// =========================================
+
+// =========================================
+// PAIN KILLER NAVIGATION STATE VALIDATION
+// =========================================
+
+useEffect(() => {
+    if (!menuItem) return
+
+    const currentReactUrl = menuItem.reactUrl
+        ?.toLowerCase()
+        .trim()
+
+    if (currentReactUrl !== '/pain-killer') {
+        sessionStorage.removeItem(PAIN_KILLER_STORAGE_KEY)
+
+        setPainKillerEditState(null)
+        setPainKillerListState(null)
+    }
+}, [menuItem, routeKey])
 
     // =========================================
     // LOADING
@@ -691,6 +758,69 @@ useEffect(() => {
             }}
             restoreListState={technicianListState}
             refreshAfterAdd={refreshAfterAdd}
+        />
+    )
+}
+
+
+// =========================================
+// PAIN KILLER LIST / EDIT
+// =========================================
+
+// =========================================
+// PAIN KILLER LIST / EDIT
+// =========================================
+
+if (reactUrl === '/pain-killer') {
+
+    // Show Pain Killer Edit
+    if (painKillerEditState) {
+        return (
+            <PainKillerEdit
+                refid={painKillerEditState.refid}
+                listState={painKillerEditState.listState}
+                onBack={(result) => {
+
+                    setPainKillerEditState(null)
+
+                    sessionStorage.removeItem(
+                        PAIN_KILLER_STORAGE_KEY
+                    )
+
+                    if (result?.listState) {
+                        setPainKillerListState(result.listState)
+                    }
+
+                    if (result?.refreshPainKiller) {
+                        setRefreshPainKiller(prev => prev + 1)
+                    }
+                }}
+            />
+        )
+    }
+
+    // Show Pain Killer List
+    return (
+        <PainKiller
+            onEditPainKiller={(editState) => {
+
+                const savedState = {
+                    routeKey,
+                    editState,
+                    listState: editState.listState
+                }
+
+                // Save before changing React state
+                sessionStorage.setItem(
+                    PAIN_KILLER_STORAGE_KEY,
+                    JSON.stringify(savedState)
+                )
+
+                setPainKillerListState(editState.listState)
+                setPainKillerEditState(editState)
+            }}
+            restoreListState={painKillerListState}
+            refreshAfterEdit={refreshPainKiller}
         />
     )
 }
