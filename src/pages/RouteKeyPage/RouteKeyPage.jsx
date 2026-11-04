@@ -278,7 +278,11 @@ const [refreshPainKiller, setRefreshPainKiller] = useState(0)
         '/report-data':
             ReportData,
 
-        '/report-summary': ReportData
+        '/report-summary': ReportData,
+
+        // PAIN KILLER
+        '/pain-killer':
+            PainKiller
 
     }
 
