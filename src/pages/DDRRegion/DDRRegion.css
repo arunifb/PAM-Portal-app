@@ -575,3 +575,12 @@
 .ddr-region-page .react-datepicker__close-icon {
     display: none !important;
 }
+
+/* Role 6 - Disabled Region and Branch dropdowns */
+.ddr-filter-item select:disabled {
+    background-color: #e9ecef;
+    color: #6c757d;
+    border-color: #ced4da;
+    cursor: not-allowed;
+    opacity: 1;
+}
