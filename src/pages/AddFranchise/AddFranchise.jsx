@@ -20,8 +20,22 @@ function AddFranchise({ onBack }) {
     const successTimerRef = useRef(null)
 
     // LOGGED-IN USER
-    const userId = sessionStorage.getItem('userId')
-    const storedRegionCode = sessionStorage.getItem('regionCode') || ''
+    // const userId = sessionStorage.getItem('userId')
+    // const storedRegionCode = sessionStorage.getItem('regionCode') || ''
+
+    const userId = sessionStorage.getItem('userId') || ''
+
+    const storedRegionCode =
+        sessionStorage.getItem('regionCode') ||
+        sessionStorage.getItem('RegionCode') ||
+        sessionStorage.getItem('regions') ||
+        ''
+
+    const storedBpCode =
+        sessionStorage.getItem('bpCode') ||
+        sessionStorage.getItem('BPCode') ||
+        sessionStorage.getItem('branches') ||
+        ''
 
     // DROPDOWN DATA
     const [regions, setRegions] = useState([])
@@ -187,7 +201,8 @@ function AddFranchise({ onBack }) {
                 const matchingRegion = regionList.find(item =>
                     String(
                         item.regionCode ?? item.RegionCode ?? ''
-                    ) === String(storedRegionCode)
+                    ).trim().toLowerCase() ===
+                    String(storedRegionCode).trim().toLowerCase()
                 )
 
                 if (matchingRegion) {
@@ -244,10 +259,10 @@ useEffect(() => {
             setBranches(branchList)
 
             // Automatically select the logged-in user's branch
-            const storedBpCode = sessionStorage.getItem('bpCode') || ''
-
             const matchingBranch = branchList.find(branch =>
-                String(branch.bpCode ?? branch.BPCode ?? '').trim().toLowerCase() ===
+                String(
+                    branch.bpCode ?? branch.BPCode ?? ''
+                ).trim().toLowerCase() ===
                 String(storedBpCode).trim().toLowerCase()
             )
 
@@ -274,7 +289,7 @@ useEffect(() => {
     return () => {
         cancelled = true
     }
-}, [regionCode, userId])
+}, [regionCode, userId, storedBpCode])
 
     // LOAD CITIES WHEN STATE CHANGES
     useEffect(() => {
@@ -332,71 +347,78 @@ useEffect(() => {
     }
 
     // VALIDATION
-    const validateForm = () => {
-        if (!regionCode) {
-            return 'Please select a region.'
-        }
-
-        if (!bpCode) {
-            return 'Please select a branch.'
-        }
-
-        if (!form.frCode.trim()) {
-            return 'Please enter Franchise Code.'
-        }
-
-        if (!form.franchiseName.trim()) {
-            return 'Please enter Franchise Name.'
-        }
-
-        if (!form.location.trim()) {
-            return 'Please enter Address.'
-        }
-
-        if (!stateCode) {
-            return 'Please select State.'
-        }
-
-        if (!cityCode) {
-            return 'Please select City.'
-        }
-
-        if (!form.phone.trim()) {
-            return 'Please enter Telephone.'
-        }
-
-        if (!/^[0-9]{10}$/.test(form.phone.trim())) {
-            return 'Telephone must contain exactly 10 digits.'
-        }
-
-        if (!form.mobile.trim()) {
-            return 'Please enter Mobile No.'
-        }
-
-        if (!/^[0-9]{10}$/.test(form.mobile.trim())) {
-            return 'Mobile No. must contain exactly 10 digits.'
-        }
-
-        if (!form.emailID.trim()) {
-            return 'Please enter Email ID.'
-        }
-
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
-        if (!emailPattern.test(form.emailID.trim())) {
-            return 'Please enter a valid Email ID.'
-        }
-
-        if (!form.cPerson.trim()) {
-            return 'Please enter Contact Person.'
-        }
-
-        if (!userId || !Number.isInteger(Number(userId))) {
-            return 'Logged-in user ID is missing or invalid. Please log in again.'
-        }
-
-        return ''
+const validateForm = () => {
+    if (!regionCode) {
+        return 'Please select a region.'
     }
+
+    if (!bpCode) {
+        return 'Please select a branch.'
+    }
+
+    if (!form.frCode.trim()) {
+        return 'Please enter Franchise Code.'
+    }
+
+    if (!form.franchiseName.trim()) {
+        return 'Please enter Franchise Name.'
+    }
+
+    if (!form.location.trim()) {
+        return 'Please enter Address.'
+    }
+
+    if (!stateCode) {
+        return 'Please select State.'
+    }
+
+    if (!cityCode) {
+        return 'Please select City.'
+    }
+
+    const telephone = form.phone.trim()
+    const mobile = form.mobile.trim()
+
+    if (!telephone) {
+        return 'Please enter Telephone.'
+    }
+
+    if (!/^[0-9]{10}$/.test(telephone)) {
+        return 'Telephone must contain exactly 10 digits.'
+    }
+
+    if (!mobile) {
+        return 'Please enter Mobile No.'
+    }
+
+    if (!/^[0-9]{10}$/.test(mobile)) {
+        return 'Mobile No. must contain exactly 10 digits.'
+    }
+
+    if (telephone === mobile) {
+        return 'Telephone and Mobile No. cannot be the same.'
+    }
+
+    if (!form.emailID.trim()) {
+        return 'Please enter Email ID.'
+    }
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+    if (!emailPattern.test(form.emailID.trim())) {
+        return 'Please enter a valid Email ID.'
+    }
+
+    if (!form.cPerson.trim()) {
+        return 'Please enter Contact Person.'
+    }
+
+    if (!userId || !Number.isInteger(Number(userId))) {
+        return 'Logged-in user ID is missing or invalid. Please log in again.'
+    }
+
+    return ''
+}
 
     // SAVE FRANCHISE
     const handleSubmit = async event => {
@@ -535,7 +557,7 @@ useEffect(() => {
                     </div>
                 ) : (
                     <section className="af-card">
-                        <form onSubmit={handleSubmit}>
+                        <form onSubmit={handleSubmit} noValidate>
 
                             {/* ROW 1: FOUR FIELDS */}
                             <div className="af-form-row af-form-row-four">
@@ -638,7 +660,7 @@ useEffect(() => {
                                         name="frCode"
                                         value={form.frCode}
                                         onChange={handleChange}
-                                        maxLength={30}
+                                        maxLength={15}
                                         required
                                     />
                                 </div>
