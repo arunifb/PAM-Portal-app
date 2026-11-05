@@ -1426,39 +1426,40 @@ function handleRegionChange(event) {
                     <div className="technician-filter-item">
                         <label>Region</label>
 
-                        <select
-    value={regionCode}
-    onChange={handleRegionChange}
->
-    {isRole7 ? (
-        <option value="All">All</option>
-    ) : (
-        <option value="">Select Region</option>
-    )}
+                                            <select
+                                                value={regionCode}
+                                                onChange={handleRegionChange}
+                                                disabled={isRole6}
+                                            >
+                                            {isRole7 ? (
+                                                <option value="All">All</option>
+                                            ) : (
+                                                <option value="">Select Region</option>
+                                            )}
 
-    {regions
-        .filter(region => {
-            const code = getRegionCode(region)
+                                            {regions
+                                                .filter(region => {
+                                                    const code = getRegionCode(region)
 
-            return !(
-                isRole7 &&
-                code.trim().toLowerCase() === 'all'
-            )
-        })
-        .map((region, index) => {
-            const code = getRegionCode(region)
-            const name = getRegionName(region)
+                                                    return !(
+                                                        isRole7 &&
+                                                        code.trim().toLowerCase() === 'all'
+                                                    )
+                                                })
+                                                .map((region, index) => {
+                                                    const code = getRegionCode(region)
+                                                    const name = getRegionName(region)
 
-            return (
-                <option
-                    key={`${code}-${index}`}
-                    value={code}
-                >
-                    {name || code}
-                </option>
-            )
-        })}
-</select>
+                                                    return (
+                                                        <option
+                                                            key={`${code}-${index}`}
+                                                            value={code}
+                                                        >
+                                                            {name || code}
+                                                        </option>
+                                                    )
+                                                })}
+                                        </select>
                     </div>
 
                     {/* BRANCH */}

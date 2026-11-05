@@ -1968,3 +1968,11 @@ input[type="checkbox"]:checked::after {
         transform-origin: top right;
     }
 }
+
+.report-filter-field select:disabled {
+    background-color: #e9ecef;
+    color: #6c757d;
+    border-color: #ced4da;
+    cursor: not-allowed;
+    opacity: 1;
+}

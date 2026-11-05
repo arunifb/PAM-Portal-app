@@ -778,7 +778,7 @@ function Click2Call() {
                                 <select
                                     value={region}
                                     onChange={handleRegionChange}
-                                    disabled={regionLoading}
+                                    disabled={regionLoading || isRole6}
                                 >
                                     <option value="">
                                         Select Region
@@ -813,7 +813,8 @@ function Click2Call() {
                                 onChange={handleBranchChange}
                                 disabled={
                                     branchLoading ||
-                                    ((isRole1Or3 || isRole5 || isRole6) && !region) ||
+                                    isRole6 ||
+                                    ((isRole1Or3 || isRole5) && !region) ||
                                     isBranchUser
                                 }
                             >

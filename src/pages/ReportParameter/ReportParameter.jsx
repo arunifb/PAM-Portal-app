@@ -2849,9 +2849,7 @@ useEffect(() => {
                                                             event.target.value
                                                         )
                                                     }
-                                                    disabled={
-                                                        regionLoading
-                                                    }
+                                                    disabled={regionLoading || isRole3 || isBranchUser}
                                                 >
 
                                                 {/* <option value="">
