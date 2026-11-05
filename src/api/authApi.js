@@ -398,6 +398,73 @@ export async function verifyTwoFactor(userId, code) {
 
 
 // =========================================
+// RESEND TWO FACTOR CODE
+// =========================================
+
+export async function resendTwoFactorCode(loginId) {
+
+    const accessToken = getStoredAccessToken()
+
+    const expiresAt = Number(
+        sessionStorage.getItem('accessTokenExpiresAt')
+    )
+
+    if (expiresAt > 0 && Date.now() >= expiresAt) {
+        throw new Error(
+            'Your login session has expired. Please login again.'
+        )
+    }
+
+    const response = await fetch(
+        `${API_BASE_URL}/api/Auth/resend-2fa-code`,
+        {
+            method: 'POST',
+
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            },
+
+            body: JSON.stringify({
+                loginId
+            })
+        }
+    )
+
+    const contentType =
+        response.headers.get('content-type') || ''
+
+    let data = {}
+
+    if (contentType.includes('application/json')) {
+        data = await response.json()
+    }
+
+    if (!response.ok) {
+
+        const error = new Error(
+            data.message ||
+            data.error_description ||
+            data.error ||
+            'Unable to resend authentication code.'
+        )
+
+        error.retryAfterSeconds =
+            Number(
+                data.retryAfterSeconds ??
+                data.RetryAfterSeconds ??
+                response.headers.get('Retry-After') ??
+                0
+            )
+
+        throw error
+    }
+
+    return data
+}
+
+// =========================================
 // LOGOUT
 // =========================================
 

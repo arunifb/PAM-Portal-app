@@ -5,7 +5,10 @@ import './TwoFactorAuth.css'
 
 import ifbLogo from '../../assets/ifb-logo.png'
 
-import { verifyTwoFactor } from '../../api/authApi'
+import {
+    verifyTwoFactor,
+    resendTwoFactorCode
+} from '../../api/authApi'
 
 
 function TwoFactorAuth() {
@@ -28,6 +31,12 @@ function TwoFactorAuth() {
 
     const [isLoading, setIsLoading] =
         useState(false)
+
+    const [isResending, setIsResending] =
+        useState(false)
+
+    const [resendCountdown, setResendCountdown] =
+        useState(0)
 
 
     // =========================================
@@ -62,6 +71,25 @@ function TwoFactorAuth() {
         }
 
     }, [navigate])
+
+
+    // =========================================
+    // RESEND COUNTDOWN
+    // =========================================
+
+    useEffect(() => {
+
+        if (resendCountdown <= 0) {
+            return
+        }
+
+        const timer = setTimeout(() => {
+            setResendCountdown(previous => previous - 1)
+        }, 1000)
+
+        return () => clearTimeout(timer)
+
+    }, [resendCountdown])
 
 
     // =========================================
@@ -400,27 +428,83 @@ function TwoFactorAuth() {
     // RESEND CODE
     // =========================================
 
-    const handleResendCode = (event) => {
+    const handleResendCode = async (event) => {
 
         event.preventDefault()
 
+        if (isResending || resendCountdown > 0) {
+            return
+        }
 
-        /*
-         * IMPORTANT:
-         *
-         * Your current backend does not have
-         * a resend-2fa endpoint.
-         *
-         * Therefore we do not call a fake API.
-         */
+        // Get temporary Login ID
+        const loginId =
+            sessionStorage.getItem('twoFactorLoginId')
 
-        setMessage(
-            'Resend Code is not available yet.'
-        )
+        if (!loginId) {
 
-        setMessageType(
-            'error'
-        )
+            setMessage(
+                'Your login session has expired. Please login again.'
+            )
+
+            setMessageType('error')
+
+            return
+        }
+
+        try {
+
+            setIsResending(true)
+
+            setMessage('')
+            setMessageType('')
+
+            // =========================================
+            // CALL RESEND 2FA API
+            // =========================================
+
+            const data =
+                await resendTwoFactorCode(loginId)
+
+            setMessage(
+                data.message ||
+                'A new authentication code has been sent.'
+            )
+
+            setMessageType('success')
+
+            // Backend cooldown: 30 seconds
+            setResendCountdown(30)
+
+        }
+        catch (error) {
+
+            console.error(
+                'Resend 2FA code error:',
+                error
+            )
+
+            setMessage(
+                error.message ||
+                'Unable to resend authentication code.'
+            )
+
+            setMessageType('error')
+
+            // Use actual cooldown returned by backend
+            if (error.retryAfterSeconds > 0) {
+
+                setResendCountdown(
+                    error.retryAfterSeconds
+                )
+
+            }
+
+        }
+        finally {
+
+            setIsResending(false)
+
+        }
 
     }
 
@@ -558,7 +642,7 @@ function TwoFactorAuth() {
                                 }
                             >
                                {/* {messageType === 'error' && <span>⊗ </span>} */}
-                                  ✕ {message}
+                                  {messageType === 'error' ? '✕' : '✓'} {message}
                             </div>
 
                         )}
@@ -665,11 +749,30 @@ function TwoFactorAuth() {
 
                                 <a
                                     href="#"
-                                    onClick={
-                                        handleResendCode
+                                    onClick={handleResendCode}
+                                    style={{
+                                        pointerEvents:
+                                            isResending || resendCountdown > 0
+                                                ? 'none'
+                                                : 'auto',
+
+                                        opacity:
+                                            isResending || resendCountdown > 0
+                                                ? 0.6
+                                                : 1
+                                    }}
+                                    aria-disabled={
+                                        isResending || resendCountdown > 0
                                     }
                                 >
-                                    Resend Code
+                                    {
+                                        isResending
+                                            ? 'Sending...'
+                                            : resendCountdown > 0
+                                                ? `Resend Code (${resendCountdown}s)`
+                                                : 'Resend Code'
+                                    }
+
                                 </a>
 
                             </li>
