@@ -3490,7 +3490,7 @@ useEffect(() => {
                                 aria-hidden="true"
                             />
 
-                            <span>
+                            <span className="no-record-found ">
                                 No data available
                             </span>
                         </div>

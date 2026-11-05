@@ -718,10 +718,14 @@ useEffect(() => {
 
                 // Role 6 uses Boolean True/False.
                 // Other roles retain the existing 1/0 values.
+                // Role 6 uses 1/0 status values.
+                // Other roles retain the existing values.
                 status: isRole6
                     ? status === ''
                         ? ''
                         : status === 'true'
+                            ? '1'
+                            : '0'
                     : status,
 
                 isFraOwnApp,
@@ -881,7 +885,7 @@ useEffect(() => {
     return (
 
         
-        <DashboardLayout title="Franchise List">
+        <DashboardLayout>
             <div className="franchise-view-page">
 
                 {/* SEARCH BOX */}
@@ -1325,7 +1329,7 @@ useEffect(() => {
                                     <th>CPerson</th>
                                     <th>FrOWNApp</th>
                                     <th>Status</th>
-                                    <th>Action</th>
+                                    {!isRole6 && <th>Action</th>}
                                 </tr>
                             </thead>
 
@@ -1345,9 +1349,9 @@ useEffect(() => {
                                     <tr>
                                         <td
                                             colSpan={9}
-                                            className="franchise-empty"
+                                            className="no-record-found "
                                         >
-                                            No records found.
+                                            No records found!
                                         </td>
                                     </tr>
                                 )}
@@ -1515,6 +1519,7 @@ useEffect(() => {
                                             </td>
 
                                             {/* ACTION */}
+                                            {!isRole6 && (
                                             <td>
                                                 {isEditing ? (
                                                     <div className="franchise-action-buttons">
@@ -1553,6 +1558,7 @@ useEffect(() => {
                                                     </button>
                                                 )}
                                             </td>
+                                            )}
                                         </tr>
                                     )
                                 })}

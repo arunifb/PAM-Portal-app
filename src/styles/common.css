@@ -8,3 +8,15 @@
     background-color: #1d4ed8 !important;
     border-color: #1d4ed8 !important;
 }
+
+
+/* =========================================
+   COMMON NO RECORD FOUND MESSAGE
+========================================= */
+
+.no-record-found {
+    color: #dc3545 !important;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+}

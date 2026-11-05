@@ -1223,8 +1223,8 @@ function DigitalContract() {
 
                                 {!loading && details.length === 0 && (
                                     <tr>
-                                        <td colSpan="10" className="digital-contract-empty">
-                                            No record found. Change search criteria.
+                                        <td colSpan="10" className="no-record-found ">
+                                            No record found!
                                         </td>
                                     </tr>
                                 )}

@@ -1402,7 +1402,7 @@ function handleRegionChange(event) {
     // =================================================
 
     return (
-        <DashboardLayout title="Search Technician">
+        <DashboardLayout>
             <div className="technician-page">
 
                 {error && (
@@ -1715,7 +1715,7 @@ function handleRegionChange(event) {
                                             <th>BpExt.</th>
                                             {!isRole3 && !isRole7 && <th>PartnerID</th>}
                                             <th className="technician-name-column">Name</th>
-                                            {(isRole3 || isRole7) && (
+                                            {(isRole3 || isRole6 || isRole7) && (
                                                 <th>Profile Image</th>
                                             )}
                                             <th>MobileNo</th>
@@ -1809,7 +1809,7 @@ function handleRegionChange(event) {
                                                             '-'}
                                                     </td>
 
-                                                    {(isRole3 || isRole7) && (
+                                                    {(isRole3 || isRole6 || isRole7) && (
                                                         <td className="technician-image-cell">
                                                             {(() => {
                                                                 // const imageUrl =
@@ -1995,7 +1995,7 @@ function handleRegionChange(event) {
                                 </table>
                             </div>
                         ) : (
-                            <div className="technician-no-record">
+                            <div className="no-record-found technician-no-record">
                                 No Record found!
                             </div>
                         )}

@@ -615,7 +615,7 @@ const loadBranches = async (selectedRegionCode) => {
                                 value={branchCode}
                                 onChange={handleBranchChange}
                                 disabled={
-                                    isBranchRole ||
+                                    // isBranchRole ||
                                     !regionCode ||
                                     loadingBranches
                                 }

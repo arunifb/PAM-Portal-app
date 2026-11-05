@@ -234,21 +234,22 @@ function TrainingManual() {
     }
 
     const handleModuleChange = value => {
-    setFilters(previous => ({
-        ...previous,
-        moduleId: value,
-        folderId: '0',
-        subfolderId: '0'
-    }))
+        setFilters(previous => ({
+            ...previous,
+            moduleId: value,
+            folderId: '0',
+            subfolderId: '0'
+        }))
 
-    // Folder and Subfolder menus are not required for now.
-    // setFolders([])
-    // setSubfolders([])
-    setError('')
-    setNotice('')
+        // Folder and Subfolder menus are not required for now.
+        // setFolders([])
+        // setSubfolders([])
 
-    // Do not call getProcessNoteFolders(value) here.
-}
+        setError('')
+        setNotice('')
+
+        // Do not call getProcessNoteFolders(value) here.
+    }
 
     // const handleFolderChange = async value => {
     //     setFilters(previous => ({
@@ -256,13 +257,13 @@ function TrainingManual() {
     //         folderId: value,
     //         subfolderId: '0'
     //     }))
-
+    //
     //     setSubfolders([])
     //     setError('')
     //     setNotice('')
-
+    //
     //     if (value === '0') return
-
+    //
     //     try {
     //         const data = await getProcessNoteSubfolders(value)
     //         setSubfolders(getRows(data))
@@ -290,6 +291,10 @@ function TrainingManual() {
 
             setManuals(getRows(data))
             setNotice('Search completed.')
+
+            setTimeout(() => {
+                setNotice('')
+            }, 2000)
         } catch (err) {
             setError(err.message || 'Unable to search training manuals.')
         } finally {
@@ -354,6 +359,7 @@ function TrainingManual() {
                     </div> */}
 
                     <div className="tm-filter-grid">
+                        {/* Company / Division */}
                         <div className="tm-field">
                             <label htmlFor="tm-company">
                                 Company / Division
@@ -382,6 +388,7 @@ function TrainingManual() {
                             </select>
                         </div>
 
+                        {/* Area */}
                         <div className="tm-field">
                             <label htmlFor="tm-area">
                                 Area
@@ -409,6 +416,7 @@ function TrainingManual() {
                             </select>
                         </div>
 
+                        {/* Module */}
                         <div className="tm-field">
                             <label htmlFor="tm-module">Module</label>
 
@@ -433,6 +441,7 @@ function TrainingManual() {
                             </select>
                         </div>
 
+                        {/* Folder - currently not required */}
                         {/* <div className="tm-field">
                             <label htmlFor="tm-folder">
                                 Folder
@@ -460,6 +469,7 @@ function TrainingManual() {
                             </select>
                         </div> */}
 
+                        {/* Subfolder - currently not required */}
                         {/* <div className="tm-field">
                             <label htmlFor="tm-subfolder">
                                 Subfolder
@@ -487,44 +497,60 @@ function TrainingManual() {
                             </select>
                         </div> */}
 
-                        <div className="tm-field">
-                            <label htmlFor="tm-process-for">Process Note</label>
+                        {/* Process Note + Search + Reset */}
+                        <div className="tm-field tm-process-search-group">
+                            <div className="tm-process-input">
+                                <label htmlFor="tm-process-for">
+                                    Process Note
+                                </label>
 
-                            <input
-                                id="tm-process-for"
-                                type="text"
-                                maxLength={250}
-                                placeholder="Search by process note"
-                                value={filters.processFor}
-                                onChange={event =>
-                                    updateFilter('processFor', event.target.value)
-                                }
-                            />
+                                <input
+                                    id="tm-process-for"
+                                    type="text"
+                                    maxLength={250}
+                                    placeholder="Search by process note"
+                                    value={filters.processFor}
+                                    onChange={event =>
+                                        updateFilter(
+                                            'processFor',
+                                            event.target.value
+                                        )
+                                    }
+                                />
+                            </div>
+
+                            <div className="tm-inline-buttons">
+                                <button
+                                    type="button"
+                                    className="tm-clear-button"
+                                    onClick={handleReset}
+                                    disabled={loading || searching}
+                                >
+                                    <i
+                                        className="fa fa-refresh"
+                                        aria-hidden="true"
+                                    />
+                                    {' '}Reset
+                                </button>
+
+                                <button
+                                    type="submit"
+                                    className="tm-search-button"
+                                    disabled={loading || searching}
+                                >
+                                    <i
+                                        className="fa fa-search"
+                                        aria-hidden="true"
+                                    />
+                                    {' '}
+                                    {searching ? 'Searching...' : 'Search'}
+                                </button>
+                            </div>
                         </div>
-                    </div>
-
-                    <div className="tm-button-area">
-                        <button
-                            type="button"
-                            className="tm-clear-button"
-                            onClick={handleReset}
-                            disabled={loading || searching}
-                        >
-                            <i className="fa fa-refresh" aria-hidden="true" />
-                            {' '}Reset
-                        </button>
-
-                        <button
-                            type="submit"
-                            className="tm-search-button"
-                            disabled={loading || searching}
-                        >
-                            <i className="fa fa-search" aria-hidden="true" />
-                            {' '}{searching ? 'Searching...' : 'Search'}
-                        </button>
                     </div>
                 </form>
 
+                {/* Error message */}
                 {error && (
                     <div className="tm-error" role="alert">
                         <i
@@ -535,6 +561,7 @@ function TrainingManual() {
                     </div>
                 )}
 
+                {/* Success message */}
                 {notice && !error && (
                     <div className="tm-notice" role="status">
                         <i
@@ -545,6 +572,7 @@ function TrainingManual() {
                     </div>
                 )}
 
+                {/* Training Manual List */}
                 <section className="tm-box tm-results-box">
                     <div className="tm-results-heading">
                         <h2>Training Manual List</h2>
@@ -573,20 +601,29 @@ function TrainingManual() {
                             <tbody>
                                 {loading ? (
                                     <tr>
-                                        <td colSpan="8" className="tm-table-message">
+                                        <td
+                                            colSpan="8"
+                                            className="tm-table-message"
+                                        >
                                             <div className="tm-loading">
                                                 <div className="tm-loading-dots">
                                                     <span />
                                                     <span />
                                                     <span />
                                                 </div>
-                                                <span>Loading training manuals...</span>
+
+                                                <span>
+                                                    Loading training manuals...
+                                                </span>
                                             </div>
                                         </td>
                                     </tr>
                                 ) : manuals.length === 0 ? (
                                     <tr>
-                                        <td colSpan="8" className="tm-table-message">
+                                        <td
+                                            colSpan="8"
+                                            className="tm-table-message"
+                                        >
                                             <i
                                                 className="fa fa-folder-open-o"
                                                 aria-hidden="true"
@@ -625,6 +662,7 @@ function TrainingManual() {
                                         return (
                                             <tr key={id || index}>
                                                 <td>{index + 1}</td>
+
                                                 <td>
                                                     {getField(
                                                         row,
@@ -632,15 +670,26 @@ function TrainingManual() {
                                                         'companyDivision'
                                                     )}
                                                 </td>
+
                                                 <td>
-                                                    {getField(row, 'module', 'area')}
+                                                    {getField(
+                                                        row,
+                                                        'module',
+                                                        'area'
+                                                    )}
                                                 </td>
+
                                                 <td>
-                                                    {getField(row, 'manualModule')}
+                                                    {getField(
+                                                        row,
+                                                        'manualModule'
+                                                    )}
                                                 </td>
+
                                                 <td className="tm-process-note">
                                                     {getField(row, 'processFor')}
                                                 </td>
+
                                                 <td>
                                                     <span
                                                         className={`tm-file-type ${file.className}`}
@@ -653,6 +702,7 @@ function TrainingManual() {
                                                         {' '}{file.label}
                                                     </span>
                                                 </td>
+
                                                 <td>
                                                     <span
                                                         className={`tm-status ${
@@ -661,9 +711,12 @@ function TrainingManual() {
                                                                 : 'tm-status-inactive'
                                                         }`}
                                                     >
-                                                        {isActive ? 'Active' : 'InActive'}
+                                                        {isActive
+                                                            ? 'Active'
+                                                            : 'InActive'}
                                                     </span>
                                                 </td>
+
                                                 <td>
                                                     <button
                                                         type="button"
@@ -673,7 +726,9 @@ function TrainingManual() {
                                                             String(downloadingId) ===
                                                             String(id)
                                                         }
-                                                        onClick={() => handleDownload(row)}
+                                                        onClick={() =>
+                                                            handleDownload(row)
+                                                        }
                                                     >
                                                         <i
                                                             className={`fa ${
@@ -684,7 +739,9 @@ function TrainingManual() {
                                                             }`}
                                                             aria-hidden="true"
                                                         />
+
                                                         {' '}
+
                                                         {String(downloadingId) ===
                                                         String(id)
                                                             ? 'Downloading'

@@ -1080,7 +1080,12 @@ function DigitalICR() {
                                             <td>{record.icrNo || ''}</td>
                                             <td>{record.amount || ''}</td>
                                             <td>
-                                                {formatICRDate(record.icrDate)}
+                                                {formatICRDate(
+                                                    record.icrDate ??
+                                                    record.ICRDate ??
+                                                    record.icrdate ??
+                                                    record.ICR_DATE
+                                                )}
                                             </td>
                                             <td>{record.paymentMode || ''}</td>
                                             <td>{record.type || ''}</td>
@@ -1090,9 +1095,9 @@ function DigitalICR() {
                                     <tr>
                                         <td
                                             colSpan="9"
-                                            className="digital-icr-empty"
+                                            className="no-record-found "
                                         >
-                                            no record found change search criteria
+                                            No Record found!
                                         </td>
                                     </tr>
                                 )}

@@ -104,16 +104,52 @@
 }
 
 /* =========================================
-   BUTTON AREA
+   PROCESS NOTE + INLINE BUTTONS
 ========================================= */
 
-.tm-button-area {
+.tm-process-search-group {
+    grid-column: span 3;
     display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 5px;
-    padding: 0 5px 5px;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 6px;
+    min-width: 0;
 }
+
+.tm-process-input {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.tm-process-input label {
+    margin-bottom: 5px;
+}
+
+.tm-process-input input {
+    width: 100%;
+}
+
+.tm-inline-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 5px;
+    flex-shrink: 0;
+    padding-bottom: 0;
+}
+
+.tm-inline-buttons .tm-search-button,
+.tm-inline-buttons .tm-clear-button {
+    height: 38px;
+    padding: 8px 14px;
+    white-space: nowrap;
+}
+
+/* =========================================
+   BUTTON STYLES
+========================================= */
 
 .tm-search-button,
 .tm-clear-button,
@@ -451,6 +487,10 @@
     .tm-filter-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
+
+    .tm-process-search-group {
+        grid-column: span 3;
+    }
 }
 
 @media (max-width: 700px) {
@@ -462,9 +502,26 @@
         grid-template-columns: 1fr;
     }
 
-    .tm-button-area {
-        justify-content: flex-start;
-        flex-wrap: wrap;
+    .tm-process-search-group {
+        grid-column: span 1;
+        flex-direction: row;
+        align-items: flex-end;
+    }
+
+    .tm-process-input {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .tm-inline-buttons {
+        flex-shrink: 0;
+        gap: 4px;
+    }
+
+    .tm-inline-buttons .tm-search-button,
+    .tm-inline-buttons .tm-clear-button {
+        padding: 8px 10px;
+        font-size: 12px;
     }
 
     .tm-results-heading {
@@ -478,5 +535,20 @@
     .tm-table-message {
         padding: 30px 10px !important;
         text-align: center !important;
+    }
+}
+
+@media (max-width: 420px) {
+    .tm-process-search-group {
+        flex-wrap: wrap;
+    }
+
+    .tm-process-input {
+        flex-basis: 100%;
+    }
+
+    .tm-inline-buttons {
+        width: 100%;
+        justify-content: flex-end;
     }
 }

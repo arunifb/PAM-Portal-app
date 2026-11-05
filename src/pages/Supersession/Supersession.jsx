@@ -311,6 +311,7 @@ function Supersession() {
         <DashboardLayout
             title="Supersession View"
         >
+            <div className="supersession-page">
 
             {/* =====================================================
                 MESSAGE
@@ -332,7 +333,7 @@ function Supersession() {
                 UPLOAD SECTION
             ===================================================== */}
 
-            <div className="supersession-card">
+            <div className="supersession-card supersession-upload-card">
 
                 <div className="supersession-card-header">
                     <h4>
@@ -536,7 +537,7 @@ function Supersession() {
 
                     <div className="supersession-save-row">
 
-                        <button
+                        {/* <button
                             type="button"
                             className="btn btn-success"
                             onClick={
@@ -550,7 +551,7 @@ function Supersession() {
                             {saving
                                 ? 'Inserting...'
                                 : 'Insert to Database'}
-                        </button>
+                        </button> */}
 
                     </div>
 
@@ -723,6 +724,8 @@ function Supersession() {
                     )}
 
                 </div>
+
+            </div>
 
             </div>
 

@@ -210,6 +210,61 @@ function Click2Call() {
         return `${year}-${month}-${day}`
     }
 
+
+
+    // =========================================
+    // DATE RESTRICTION HELPERS
+    // =========================================
+
+        const today = new Date()
+
+        today.setHours(0, 0, 0, 0)
+
+        // From Date minimum: Today minus one calendar month
+        const getPreviousMonthDate = (date) => {
+            const result = new Date(date)
+
+            const originalDay = result.getDate()
+
+            result.setDate(1)
+            result.setMonth(result.getMonth() - 1)
+
+            const lastDayOfPreviousMonth = new Date(
+                result.getFullYear(),
+                result.getMonth() + 1,
+                0
+            ).getDate()
+
+            result.setDate(
+                Math.min(originalDay, lastDayOfPreviousMonth)
+            )
+
+            return result
+        }
+
+        const fromMinDate = getPreviousMonthDate(today)
+
+        // To Date minimum: Today minus seven days
+        const toMinDate = new Date(today)
+        toMinDate.setDate(toMinDate.getDate() - 7)
+
+        // Maximum date: Last day of current month
+        const maxAllowedDate = new Date(
+            today.getFullYear(),
+            today.getMonth() + 1,
+            0
+        )
+
+        // Convert selected dates
+        const selectedFromDate = parseDate(fromDate)
+        const selectedToDate = parseDate(toDate)
+
+        // To Date must not be earlier than From Date
+        const effectiveToMinDate =
+            selectedFromDate && selectedFromDate > toMinDate
+                ? selectedFromDate
+                : toMinDate
+
     // =========================================
     // LOAD REGIONS
     // =========================================
@@ -882,9 +937,22 @@ function Click2Call() {
                             <div className="report-date-picker-container">
                                 <DatePicker
                                     selected={parseDate(fromDate)}
-                                    onChange={(date) =>
-                                        setFromDate(formatInputDate(date))
-                                    }
+                                    onChange={(date) => {
+                                        const formattedDate = formatInputDate(date)
+
+                                        setFromDate(formattedDate)
+
+                                        // Clear To Date if it becomes earlier than From Date
+                                        if (
+                                            date &&
+                                            selectedToDate &&
+                                            selectedToDate < date
+                                        ) {
+                                            setToDate('')
+                                        }
+                                    }}
+                                    minDate={fromMinDate}
+                                    maxDate={maxAllowedDate}
                                     dateFormat="dd/MM/yyyy"
                                     placeholderText="Select from date"
                                     className="report-filter-control report-date-control"
@@ -923,7 +991,8 @@ function Click2Call() {
                                     onChange={(date) =>
                                         setToDate(formatInputDate(date))
                                     }
-                                    minDate={parseDate(fromDate)}
+                                    minDate={effectiveToMinDate}
+                                    maxDate={maxAllowedDate}
                                     dateFormat="dd/MM/yyyy"
                                     placeholderText="Select to date"
                                     className="report-filter-control report-date-control"

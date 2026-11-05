@@ -1093,7 +1093,7 @@ function FranchiseeInventory() {
 
     return (
 
-        <DashboardLayout title="Inventory">
+        <DashboardLayout>
 
             <div className="inventory-page">
 

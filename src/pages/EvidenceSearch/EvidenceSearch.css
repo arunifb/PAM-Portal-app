@@ -27,18 +27,28 @@
 ========================================= */
 
 .evidence-search-form {
-    display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 5px;
-    padding: 5px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 10px;
+    padding: 10px;
     width: 100%;
     box-sizing: border-box;
+}
+
+.evidence-search-inline {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 10px;
+    flex-wrap: nowrap;
 }
 
 .evidence-search-field {
     display: flex;
     flex-direction: column;
-    min-width: 0;
+    flex: 1;
+    min-width: 220px;
 }
 
 .evidence-search-field label {
@@ -46,6 +56,11 @@
     font-size: 13px;
     color: #444;
     font-weight: 500;
+}
+
+.evidence-search-field label i {
+    margin-right: 3px;
+    color: #555;
 }
 
 .evidence-search-field input {
@@ -76,28 +91,33 @@
 
 .evidence-search-button-area {
     display: flex;
+    align-items: center;
     justify-content: flex-end;
     gap: 5px;
-    padding: 0 5px 5px;
+    padding: 0;
+    margin-left: auto;
+    flex-shrink: 0;
 }
 
 .evidence-search-button,
 .evidence-clear-button {
+    height: 38px;
     border: none;
     border-radius: 4px;
     padding: 8px 20px;
     font-size: 13px;
     cursor: pointer;
+    white-space: nowrap;
 }
 
-/* .evidence-search-button {
-    background: #d9534f;
+.evidence-search-button {
+    background: #337ab7;
     color: #ffffff;
-} */
+}
 
-/* .evidence-search-button:hover {
-    background: #c9302c;
-} */
+.evidence-search-button:hover:not(:disabled) {
+    background: #286090;
+}
 
 .evidence-search-button:disabled,
 .evidence-clear-button:disabled {
@@ -304,23 +324,28 @@
    RESPONSIVE
 ========================================= */
 
-@media (max-width: 1100px) {
-    .evidence-search-form {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-}
-
 @media (max-width: 700px) {
     .evidence-search-page {
         padding: 5px;
     }
 
     .evidence-search-form {
-        grid-template-columns: 1fr;
+        padding: 8px;
+    }
+
+    .evidence-search-inline {
+        flex-wrap: wrap;
+    }
+
+    .evidence-search-field {
+        flex-basis: 100%;
+        min-width: 100%;
     }
 
     .evidence-search-button-area {
-        justify-content: flex-start;
+        width: 100%;
+        justify-content: flex-end;
+        margin-left: 0;
     }
 
     .evidence-table {
@@ -329,5 +354,12 @@
 
     .evidence-section-heading {
         font-size: 14px;
+    }
+}
+
+@media (max-width: 400px) {
+    .evidence-search-button,
+    .evidence-clear-button {
+        padding: 8px 12px;
     }
 }

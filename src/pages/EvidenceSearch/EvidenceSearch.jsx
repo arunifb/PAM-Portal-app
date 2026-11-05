@@ -1,3 +1,4 @@
+
 import { useState } from 'react'
 import './EvidenceSearch.css'
 
@@ -35,7 +36,7 @@ function EvidenceSearch() {
     const handleSearch = async () => {
         setError('')
         setMessage('')
-        setResults('')
+        setResults([])
         setShowResults(true)
 
         if (!ticketNo.trim()) {
@@ -141,6 +142,7 @@ function EvidenceSearch() {
                         event.currentTarget.nextSibling.style.display = 'inline'
                     }}
                 />
+
                 <span
                     className="evidence-no-image"
                     style={{ display: 'none' }}
@@ -159,12 +161,17 @@ function EvidenceSearch() {
         <DashboardLayout title="Evidence Search">
             <div className="evidence-search-page">
 
+                
                 {/* SEARCH FORM */}
                 <div className="evidence-search-box">
-                    <div className="evidence-search-form">
+
+                    <div className="evidence-search-form evidence-search-inline">
+
+                        {/* TICKET NUMBER - FIRST ROW */}
                         <div className="evidence-search-field">
                             <label htmlFor="evidenceTicketNo">
-                                Ticket No:
+                                <i className="fa fa-search" aria-hidden="true" />
+                                {' '}Ticket No:
                                 <span className="required">*</span>
                             </label>
 
@@ -186,6 +193,34 @@ function EvidenceSearch() {
                                 maxLength={100}
                             />
                         </div>
+
+                        {/* SEARCH AND CLEAR - SECOND ROW */}
+                        <div className="evidence-search-button-area">
+                            <button
+                                type="button"
+                                className="btn-search evidence-search-button"
+                                onClick={handleSearch}
+                                disabled={loading}
+                            >
+                                {loading ? 'Searching...' : (
+                                    <>
+                                        <i className="fa fa-search" aria-hidden="true" />
+                                        {' '}Search
+                                    </>
+                                )}
+                            </button>
+
+                            <button
+                                type="button"
+                                className="evidence-clear-button"
+                                onClick={handleClear}
+                                disabled={loading}
+                            >
+                                <i className="fa fa-refresh" aria-hidden="true" />
+                                {' '}Clear
+                            </button>
+                        </div>
+
                     </div>
 
                     {/* ERROR */}
@@ -202,26 +237,6 @@ function EvidenceSearch() {
                         </div>
                     )}
 
-                    {/* BUTTONS */}
-                    <div className="evidence-search-button-area">
-                        <button
-                            type="button"
-                            className="btn-search evidence-search-button"
-                            onClick={handleSearch}
-                            disabled={loading}
-                        >
-                            {loading ? 'Searching...' : 'Search'}
-                        </button>
-
-                        <button
-                            type="button"
-                            className="evidence-clear-button"
-                            onClick={handleClear}
-                            disabled={loading}
-                        >
-                            Clear
-                        </button>
-                    </div>
                 </div>
 
                 {/* RESULTS */}
@@ -360,6 +375,7 @@ function EvidenceSearch() {
                         )}
                     </>
                 )}
+
             </div>
         </DashboardLayout>
     )
