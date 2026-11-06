@@ -255,6 +255,7 @@ function EditView() {
 
     const [regionRefId, setRegionRefId] = useState('')
     const [branchRefId, setBranchRefId] = useState('')
+    const [dealerSearchHistory, setDealerSearchHistory] = useState([])
 
     // =================================================
     // ROLE 1: INITIAL LOAD
@@ -597,47 +598,57 @@ function EditView() {
     }
 
     const handleDealerSearch = async (value) => {
-        updateCreateForm('dealerSearch', value)
-        updateCreateForm('dealerCode', '')
-        updateCreateForm('dealerName', '')
+    updateCreateForm('dealerSearch', value)
+    updateCreateForm('dealerCode', '')
+    updateCreateForm('dealerName', '')
 
-        setDealerOptions([])
-        setShowDealerOptions(false)
+    setDealerOptions([])
+    setShowDealerOptions(false)
 
-        if (value.trim().length < 2) return
+    if (value.trim().length < 2) return
 
-        try {
-            const results = await searchSubDealerDealers(value.trim())
+    try {
+        const results = await searchSubDealerDealers(value.trim())
 
-            setDealerOptions(getArray(results))
-            setShowDealerOptions(true)
-        } catch (err) {
-            console.error('Dealer search error:', err)
+        const dealerList = getArray(results)
 
-            setRole6Error(
-                err.message ||
-                'Unable to search dealers.'
-            )
-        }
+        setDealerOptions(dealerList)
+        setShowDealerOptions(true)
+    } catch (err) {
+        console.error('Dealer search error:', err)
+
+        setRole6Error(
+            err.message || 'Unable to search dealers.'
+        )
     }
+}
 
     const chooseDealer = (dealer) => {
-        const code = getDealerCode(dealer)
-        const name = getDealerName(dealer)
+    const code = getDealerCode(dealer)
+    const name = getDealerName(dealer)
 
-        setCreateForm(previous => ({
-            ...previous,
-            dealerCode: code,
-            dealerName: name,
-            dealerSearch: `${code} - ${name}`,
-            storeName: '',
-            storeSearch: ''
-        }))
+    setCreateForm(previous => ({
+        ...previous,
+        dealerCode: code,
+        dealerName: name,
+        dealerSearch: `${code} - ${name}`,
+        storeName: '',
+        storeSearch: ''
+    }))
 
-        setDealerOptions([])
-        setShowDealerOptions(false)
-        setRole6Error('')
-    }
+    setDealerSearchHistory(previous => {
+        const updated = [
+            { code, name },
+            ...previous.filter(item => item.code !== code)
+        ]
+
+        return updated.slice(0, 10)
+    })
+
+    setDealerOptions([])
+    setShowDealerOptions(false)
+    setRole6Error('')
+}
 
     // const handleStoreSearch = async (value) => {
     //     updateCreateForm('storeSearch', value)
@@ -1543,7 +1554,8 @@ function EditView() {
         <div className="subdealer-create-grid four-column-layout">
             <div className="subdealer-create-field">
                 <label htmlFor="dealerSearch">
-                    Dealer Code[Only DC-33,40 allowed]:
+                    Dealer Code <span className="required-star">[Only DC-33,40 allowed]</span>
+
                 </label>
 
                 <input
@@ -1555,7 +1567,7 @@ function EditView() {
                         handleDealerSearch(event.target.value)
                     }
                     onFocus={() => {
-                        if (dealerOptions.length) {
+                        if (dealerSearchHistory.length > 0) {
                             setShowDealerOptions(true)
                         }
                     }}
@@ -1563,17 +1575,40 @@ function EditView() {
                     required
                 />
 
-                {showDealerOptions && dealerOptions.length > 0 && (
+                {showDealerOptions && (
                     <div className="subdealer-autocomplete">
-                        {dealerOptions.map((dealer, index) => (
-                            <button
-                                type="button"
-                                key={`${getDealerCode(dealer)}-${index}`}
-                                onClick={() => chooseDealer(dealer)}
-                            >
-                                {getDealerCode(dealer)} - {getDealerName(dealer)}
-                            </button>
-                        ))}
+                        {dealerOptions.length > 0
+                            ? dealerOptions.map((dealer, index) => (
+                                <button
+                                    type="button"
+                                    key={`${getDealerCode(dealer)}-${index}`}
+                                    onMouseDown={event => {
+                                        event.preventDefault()
+                                        chooseDealer(dealer)
+                                    }}
+                                >
+                                    {getDealerCode(dealer)} - {getDealerName(dealer)}
+                                </button>
+                            ))
+                            : dealerSearchHistory
+                                .filter(item =>
+                                    item.code.toLowerCase().includes(
+                                        createForm.dealerSearch.trim().toLowerCase()
+                                    )
+                                )
+                                .map(item => (
+                                    <button
+                                        type="button"
+                                        key={item.code}
+                                        onMouseDown={event => {
+                                            event.preventDefault()
+                                            chooseDealer(item)
+                                        }}
+                                    >
+                                        {item.code} - {item.name}
+                                    </button>
+                                ))
+                        }
                     </div>
                 )}
             </div>
