@@ -375,7 +375,7 @@ function UploadMSMEDoc() {
                         <div className="msme-search-buttons">
                             <button
                                 type="button"
-                                className="msme-button msme-button-primary"
+                                className="btn-search msme-button msme-button-primary"
                                 onClick={handleSearch}
                                 disabled={loading}
                             >

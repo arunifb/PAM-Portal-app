@@ -126,6 +126,16 @@ function PainKillerEdit({ refid, onBack }) {
     const [technicianVisited, setTechnicianVisited] = useState('0')
     const [agentRemark, setAgentRemark] = useState('')
 
+    const [savedRemarks, setSavedRemarks] = useState(() => {
+        try {
+            return JSON.parse(
+                localStorage.getItem(`painKillerRemarks_${userId}`) || '[]'
+            )
+        } catch {
+            return []
+        }
+    })
+
     // =====================================
     // UI STATES
     // =====================================
@@ -307,7 +317,32 @@ function handleSubReasonChange(value) {
     }
 }
 
+function saveRemarkSuggestion(value) {
+    const remark = value.trim()
+
+    if (!remark) return
+
+    const updatedRemarks = [
+        remark,
+        ...savedRemarks.filter(
+            item => item.toLowerCase() !== remark.toLowerCase()
+        )
+    ].slice(0, 10)
+
+    setSavedRemarks(updatedRemarks)
+
+    localStorage.setItem(
+        `painKillerRemarks_${userId}`,
+        JSON.stringify(updatedRemarks)
+    )
+}
+
 function handleAgentRemarkChange(value) {
+    // Preserve the previous remark when the input is cleared.
+    if (!value.trim() && agentRemark.trim()) {
+        saveRemarkSuggestion(agentRemark)
+    }
+
     setAgentRemark(value.slice(0, 164))
 
     if (value.trim()) {
@@ -620,15 +655,24 @@ function handleAgentRemarkChange(value) {
                                     </label>
 
                                     <input
-                                        type="text"
-                                        value={agentRemark}
-                                        onChange={event =>
-                                            handleAgentRemarkChange(event.target.value)
-                                        }
-                                        maxLength={164}
-                                        placeholder="Enter Agent Remark"
-                                        disabled={saving}
-                                    />
+                                    type="text"
+                                    list="agent-remark-suggestions"
+                                    value={agentRemark}
+                                    onChange={event =>
+                                        handleAgentRemarkChange(event.target.value)
+                                    }
+                                    onBlur={() => saveRemarkSuggestion(agentRemark)}
+                                    maxLength={164}
+                                    placeholder="Enter Agent Remark"
+                                    autoComplete="off"
+                                    disabled={saving}
+                                />
+
+                                <datalist id="agent-remark-suggestions">
+                                    {savedRemarks.map((remark, index) => (
+                                        <option key={index} value={remark} />
+                                    ))}
+                                </datalist>
                                 </div>
 
                                 <div className="pk-agent-save">
@@ -684,7 +728,7 @@ function handleAgentRemarkChange(value) {
                                 />
 
                                 <DetailItem
-                                    className="pk-detail-first-row"
+                                    className="pk-detail-first-row pk-ticket-highlight"
                                     label="Ticket Number"
                                     value={detail.ticketNo ?? detail.TicketNo}
                                 />

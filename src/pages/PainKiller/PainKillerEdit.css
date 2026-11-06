@@ -405,3 +405,10 @@
         min-height: 28px;
     }
 }
+
+.pk-ticket-highlight label {
+    background-color: yellow;
+    padding: 4px 8px;
+    border-radius: 3px;
+    display: inline-block;
+}
