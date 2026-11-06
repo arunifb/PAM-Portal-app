@@ -1106,6 +1106,10 @@ function EditView() {
                 'Sub-Dealer requisition created successfully.'
             )
 
+            setTimeout(() => {
+            setSuccessMessage('')
+        }, 3000)
+
             setCreateForm(emptyCreateForm())
             setDealerOptions([])
             setStoreOptions([])
