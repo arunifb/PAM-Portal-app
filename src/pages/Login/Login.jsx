@@ -115,10 +115,10 @@ function Login() {
             console.timeEnd('reCAPTCHA')
 
 
-            console.log(
-                'Login: reCAPTCHA token received:',
-                !!recaptchaToken
-            )
+            // console.log(
+            //     'Login: reCAPTCHA token received:',
+            //     !!recaptchaToken
+            // )
 
 
             // =========================================
@@ -142,17 +142,17 @@ function Login() {
                     recaptchaToken
                 )
 
-                console.log('Role ID:', data.roleID)
-console.log('Roles:', data.roles)
+                // console.log('Role ID:', data.roleID)
+                // console.log('Roles:', data.roles)
 
 
             console.timeEnd('API Login')
 
 
-            console.log(
-                'Login API response:',
-                data
-            )
+            // console.log(
+            //     'Login API response:',
+            //     data
+            // )
 
 
             // =========================================
@@ -161,9 +161,9 @@ console.log('Roles:', data.roles)
 
             if (data.requiresTwoFactor) {
 
-                console.log(
-                    'Two-factor authentication required.'
-                )
+                // console.log(
+                //     'Two-factor authentication required.'
+                // )
 
 
                 // =========================================

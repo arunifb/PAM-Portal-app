@@ -93,10 +93,10 @@ function DashboardLayout({ title, icon: pageIcon, children }) {
                         return
                     }
                 } catch (error) {
-                    console.error(
-                        'Invalid saved dashboard menu:',
-                        error
-                    )
+                    // console.error(
+                    //     'Invalid saved dashboard menu:',
+                    //     error
+                    // )
 
                     sessionStorage.removeItem('dashboardMenu')
                 }
@@ -134,10 +134,10 @@ function DashboardLayout({ title, icon: pageIcon, children }) {
                     setMenuItems(formattedMenu)
                 }
             } catch (error) {
-                console.error(
-                    'Dashboard menu error:',
-                    error
-                )
+                // console.error(
+                //     'Dashboard menu error:',
+                //     error
+                // )
 
                 if (isMounted) {
                     setMenuError(
@@ -219,7 +219,7 @@ function DashboardLayout({ title, icon: pageIcon, children }) {
                 await logout(userId)
             }
         } catch (error) {
-            console.error('Logout error:', error)
+            // console.error('Logout error:', error)
         } finally {
             sessionStorage.clear()
             navigate('/')
@@ -241,13 +241,13 @@ function DashboardLayout({ title, icon: pageIcon, children }) {
 
         // RouteKey navigation
         if (item.routeKey) {
-            console.log(
-                'Navigating using RouteKey:',
-                item.routeKey
-            )
+            // console.log(
+            //     'Navigating using RouteKey:',
+            //     item.routeKey
+            // )
 
-            console.log('Menu Name:', item.name)
-            console.log('ReactUrl:', item.reactUrl)
+            // console.log('Menu Name:', item.name)
+            // console.log('ReactUrl:', item.reactUrl)
 
             // Reset the previous report selection when opening
 // Report Data from the sidebar.

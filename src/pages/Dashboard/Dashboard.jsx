@@ -202,15 +202,15 @@ function Dashboard() {
                 // DEBUG
                 // =========================================
 
-                console.log(
-                    'Dashboard UserID:',
-                    userId
-                )
+                // console.log(
+                //     'Dashboard UserID:',
+                //     userId
+                // )
 
-                console.log(
-                    'Dashboard menu with RouteKey:',
-                    formattedMenu
-                )
+                // console.log(
+                //     'Dashboard menu with RouteKey:',
+                //     formattedMenu
+                // )
 
 
             } catch (error) {
@@ -326,20 +326,20 @@ function Dashboard() {
             item.routeKey
         ) {
 
-            console.log(
-                'Navigating using RouteKey:',
-                item.routeKey
-            )
+            // console.log(
+            //     'Navigating using RouteKey:',
+            //     item.routeKey
+            // )
 
-            console.log(
-                'Menu Name:',
-                item.name
-            )
+            // console.log(
+            //     'Menu Name:',
+            //     item.name
+            // )
 
-            console.log(
-                'ReactUrl:',
-                item.reactUrl
-            )
+            // console.log(
+            //     'ReactUrl:',
+            //     item.reactUrl
+            // )
 
 
             navigate(
@@ -362,10 +362,10 @@ function Dashboard() {
             item.reactUrl
         ) {
 
-            console.log(
-                'RouteKey not available. Using ReactUrl:',
-                item.reactUrl
-            )
+            // console.log(
+            //     'RouteKey not available. Using ReactUrl:',
+            //     item.reactUrl
+            // )
 
 
             navigate(

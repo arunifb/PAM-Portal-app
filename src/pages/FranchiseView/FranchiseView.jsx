@@ -735,11 +735,11 @@ useEffect(() => {
                 emailId: isRole6 ? emailId.trim() : ''
             }
 
-            console.log('Franchise Search Request:', request)
+            
 
             const data = await searchFranchises(request)
 
-            console.log('Franchise Search Response:', data)
+            
 
             setFranchises(getList(data))
             setEditingFrCode(null)
@@ -850,11 +850,11 @@ useEffect(() => {
                 request.ContactPerson = editContactPerson.trim()
             }
 
-            console.log('Franchise Update Request:', request)
+            
 
             const response = await updateFranchise(request)
 
-            console.log('Franchise Update Response:', response)
+            
 
             setEditingFrCode(null)
             setEditMobile('')

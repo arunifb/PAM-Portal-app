@@ -365,18 +365,6 @@ const [refreshPainKiller, setRefreshPainKiller] = useState(0)
                     matchedMenu
                 )
 
-
-                console.log(
-                    'UserID:',
-                    userId
-                )
-
-                console.log(
-                    'RouteKey matched menu:',
-                    matchedMenu
-                )
-
-
             } catch (error) {
 
                 console.error(
