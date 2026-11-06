@@ -633,6 +633,10 @@ function Supersession() {
                                             Material
                                         </th>
 
+                                        <th>
+                                            Created Date
+                                        </th>
+
                                     </tr>
 
                                 </thead>
@@ -708,6 +712,10 @@ function Supersession() {
                                                         row.material ||
                                                         ''
                                                     }
+                                                </td>
+
+                                                <td>
+                                                    {formatDate(row.createdDate)}
                                                 </td>
 
                                             </tr>

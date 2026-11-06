@@ -106,6 +106,9 @@ const getStoreName = (item) => String(
     item?.StoreName ??
     item?.subDealerName ??
     item?.SubDealerName ??
+    item?.shipToPartyName ??
+    item?.ShipToPartyName ??
+    item?.Ship_to_Party_Name ??
     item?.name ??
     item?.Name ??
     ''
@@ -244,6 +247,11 @@ function EditView() {
     const [role6Success, setRole6Success] = useState('')
 
     const [areaLoading, setAreaLoading] = useState(false)
+
+    const [stateOptions, setStateOptions] = useState([])
+    const [districtOptions, setDistrictOptions] = useState([])
+    const [cityOptions, setCityOptions] = useState([])
+    const [areaOptions, setAreaOptions] = useState([])
 
     const [regionRefId, setRegionRefId] = useState('')
     const [branchRefId, setBranchRefId] = useState('')
@@ -631,37 +639,81 @@ function EditView() {
         setRole6Error('')
     }
 
+    // const handleStoreSearch = async (value) => {
+    //     updateCreateForm('storeSearch', value)
+    //     updateCreateForm('storeName', '')
+
+    //     setStoreOptions([])
+    //     setShowStoreOptions(false)
+
+    //     if (!createForm.dealerCode) {
+    //         setRole6Error('Please select a dealer first.')
+    //         return
+    //     }
+
+    //     if (value.trim().length < 2) return
+
+    //     try {
+    //         console.log('Store Search Term:', value.trim())
+    //         console.log('Selected Dealer Code:', createForm.dealerCode)
+    //         const results = await searchSubDealerNames(
+    //             value.trim(),
+    //             createForm.dealerCode
+    //         )
+
+    //         // console.log('Sub-Dealer Search Response:', results)
+
+    //         setStoreOptions(getArray(results))
+    //         setShowStoreOptions(true)
+    //     } catch (err) {
+    //         console.error('Sub-dealer name search error:', err)
+
+    //         setRole6Error(
+    //             err.message ||
+    //             'Unable to search sub-dealer names.'
+    //         )
+    //     }
+    // }
+
     const handleStoreSearch = async (value) => {
-        updateCreateForm('storeSearch', value)
-        updateCreateForm('storeName', '')
+    setCreateForm(previous => ({
+        ...previous,
+        storeSearch: value,
+        storeName: value
+    }))
 
-        setStoreOptions([])
-        setShowStoreOptions(false)
+    setStoreOptions([])
+    setShowStoreOptions(false)
 
-        if (!createForm.dealerCode) {
-            setRole6Error('Please select a dealer first.')
-            return
-        }
-
-        if (value.trim().length < 2) return
-
-        try {
-            const results = await searchSubDealerNames(
-                value.trim(),
-                createForm.dealerCode
-            )
-
-            setStoreOptions(getArray(results))
-            setShowStoreOptions(true)
-        } catch (err) {
-            console.error('Sub-dealer name search error:', err)
-
-            setRole6Error(
-                err.message ||
-                'Unable to search sub-dealer names.'
-            )
-        }
+    if (!createForm.dealerCode) {
+        setRole6Error('Please select a dealer first.')
+        return
     }
+
+    if (value.trim().length < 2) return
+
+    try {
+        console.log('Store Search Term:', value.trim())
+        console.log('Selected Dealer Code:', createForm.dealerCode)
+
+        const results = await searchSubDealerNames(
+            value.trim(),
+            createForm.dealerCode
+        )
+
+        console.log('Sub-Dealer Search Response:', results)
+
+        setStoreOptions(getArray(results))
+        setShowStoreOptions(true)
+    } catch (err) {
+        console.error('Sub-dealer name search error:', err)
+
+        setRole6Error(
+            err.message ||
+            'Unable to search sub-dealer names.'
+        )
+    }
+}
 
     const chooseStore = (store) => {
         const name = getStoreName(store)
@@ -678,37 +730,163 @@ function EditView() {
     }
 
     const handlePincodeBlur = async () => {
-        const pin = createForm.postalCode.trim()
+    const pin = createForm.postalCode.trim()
 
-        if (!/^\d{6}$/.test(pin)) {
-            return
-        }
+    if (!/^\d{6}$/.test(pin)) {
+        setStateOptions([])
+        setDistrictOptions([])
+        setCityOptions([])
+        setAreaOptions([])
 
-        setAreaLoading(true)
-        setRole6Error('')
+        setCreateForm(previous => ({
+            ...previous,
+            state: '',
+            district: '',
+            city: '',
+            area: ''
+        }))
 
-        try {
-            const result = await getSubDealerArea(pin)
-            const area = result?.data ?? result
+        return
+    }
+
+    setAreaLoading(true)
+    setRole6Error('')
+
+    try {
+        const result = await getSubDealerArea(pin)
+
+        const responseData = result?.data ?? result
+
+        // API returns an array of area records
+        const rows = Array.isArray(responseData)
+            ? responseData
+            : []
+
+        if (rows.length === 0) {
+            setStateOptions([])
+            setDistrictOptions([])
+            setCityOptions([])
+            setAreaOptions([])
 
             setCreateForm(previous => ({
                 ...previous,
-                state: area?.state ?? area?.State ?? '',
-                district: area?.district ?? area?.District ?? '',
-                city: area?.city ?? area?.City ?? '',
-                area: area?.area ?? area?.Area ?? ''
+                state: '',
+                district: '',
+                city: '',
+                area: ''
             }))
-        } catch (err) {
-            console.error('PIN-code lookup error:', err)
 
             setRole6Error(
-                err.message ||
-                'Unable to find details for this PIN code.'
+                'No area details found for this PIN code.'
             )
-        } finally {
-            setAreaLoading(false)
+
+            return
         }
+
+        // Get unique State values
+        const states = [
+            ...new Set(
+                rows
+                    .map(item =>
+                        item?.state ??
+                        item?.State ??
+                        ''
+                    )
+                    .map(value => String(value).trim())
+                    .filter(Boolean)
+            )
+        ]
+
+        // Get unique District values
+        const districts = [
+            ...new Set(
+                rows
+                    .map(item =>
+                        item?.district ??
+                        item?.District ??
+                        ''
+                    )
+                    .map(value => String(value).trim())
+                    .filter(Boolean)
+            )
+        ]
+
+        // Get unique City values
+        const cities = [
+            ...new Set(
+                rows
+                    .map(item =>
+                        item?.city ??
+                        item?.City ??
+                        ''
+                    )
+                    .map(value => String(value).trim())
+                    .filter(Boolean)
+            )
+        ]
+
+        // Get unique Area values
+        const areas = [
+            ...new Set(
+                rows
+                    .map(item =>
+                        item?.area ??
+                        item?.Area ??
+                        ''
+                    )
+                    .map(value => String(value).trim())
+                    .filter(Boolean)
+            )
+        ]
+
+        setStateOptions(states)
+        setDistrictOptions(districts)
+        setCityOptions(cities)
+        setAreaOptions(areas)
+
+        // Automatically select State, District and City.
+        // Area is intentionally left blank so the user
+        // must select an Area from the dropdown.
+        setCreateForm(previous => ({
+            ...previous,
+            state:
+                rows[0]?.state ??
+                rows[0]?.State ??
+                '',
+            district:
+                rows[0]?.district ??
+                rows[0]?.District ??
+                '',
+            city:
+                rows[0]?.city ??
+                rows[0]?.City ??
+                '',
+            area: ''
+        }))
+    } catch (err) {
+        console.error('PIN-code lookup error:', err)
+
+        setStateOptions([])
+        setDistrictOptions([])
+        setCityOptions([])
+        setAreaOptions([])
+
+        setCreateForm(previous => ({
+            ...previous,
+            state: '',
+            district: '',
+            city: '',
+            area: ''
+        }))
+
+        setRole6Error(
+            err.message ||
+            'Unable to find details for this PIN code.'
+        )
+    } finally {
+        setAreaLoading(false)
     }
+}
 
     // =================================================
     // ROLE 6: PRODUCT SELECTION
@@ -763,9 +941,9 @@ function EditView() {
         }
 
         if (!createForm.storeName.trim()) {
-            setRole6Error('Please select a sub-dealer name.')
-            return
-        }
+    setRole6Error('Please enter sub-dealer name.')
+    return
+}
 
         if (!/^\d{6}$/.test(createForm.postalCode.trim())) {
             setRole6Error('Please enter a valid 6-digit PIN code.')
@@ -884,7 +1062,7 @@ function EditView() {
             const duplicateResult = await searchExistingSubDealer({
                 SAPECCCode: createForm.dealerCode,
                 PinCode: createForm.postalCode.trim(),
-                ShopArea: createForm.shopArea.trim()
+                ShopArea: createForm.area.trim()
             })
 
             if (
@@ -906,7 +1084,7 @@ function EditView() {
                 Street: createForm.street.trim(),
                 Street2: createForm.street2.trim(),
                 Street3: createForm.street3.trim(),
-                ShopArea: createForm.shopArea.trim(),
+                ShopArea: createForm.area.trim(),
                 IdentificationofShop:
                     createForm.identificationOfShop.trim() ||
                     createForm.shopArea.trim(),
@@ -1047,7 +1225,7 @@ function EditView() {
                                     Loading...
                                 </div>
                             ) : records.length === 0 ? (
-                                <div className="subdealer-table-message">
+                                <div className="no-record-found subdealer-table-message">
                                     No Record Found
                                 </div>
                             ) : (
@@ -1354,165 +1532,249 @@ function EditView() {
             >
                 {/* ROW 1: SIX FIELDS */}
 
-                <div className="subdealer-create-grid">
-                    <div className="subdealer-create-field">
-                        <label htmlFor="dealerSearch">
-                            Dealer Code / Name *
-                        </label>
-                        <input
-                            id="dealerSearch"
-                            type="text"
-                            value={createForm.dealerSearch}
-                            autoComplete="off"
-                            onChange={event =>
-                                handleDealerSearch(event.target.value)
-                            }
-                            onFocus={() => {
-                                if (dealerOptions.length) {
-                                    setShowDealerOptions(true)
-                                }
-                            }}
-                            placeholder="Search dealer"
-                            required
-                        />
+        {/* =================================================
+            ROW 1: FOUR FIELDS
+        ================================================= */}
 
-                        {showDealerOptions && dealerOptions.length > 0 && (
-                            <div className="subdealer-autocomplete">
-                                {dealerOptions.map((dealer, index) => (
-                                    <button
-                                        type="button"
-                                        key={`${getDealerCode(dealer)}-${index}`}
-                                        onClick={() => chooseDealer(dealer)}
-                                    >
-                                        {getDealerCode(dealer)} - {getDealerName(dealer)}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
+        <div className="subdealer-create-grid four-column-layout">
+            <div className="subdealer-create-field">
+                <label htmlFor="dealerSearch">
+                    Dealer Code[Only DC-33,40 allowed]:
+                </label>
+
+                <input
+                    id="dealerSearch"
+                    type="text"
+                    value={createForm.dealerSearch}
+                    autoComplete="off"
+                    onChange={event =>
+                        handleDealerSearch(event.target.value)
+                    }
+                    onFocus={() => {
+                        if (dealerOptions.length) {
+                            setShowDealerOptions(true)
+                        }
+                    }}
+                    placeholder="Search dealer"
+                    required
+                />
+
+                {showDealerOptions && dealerOptions.length > 0 && (
+                    <div className="subdealer-autocomplete">
+                        {dealerOptions.map((dealer, index) => (
+                            <button
+                                type="button"
+                                key={`${getDealerCode(dealer)}-${index}`}
+                                onClick={() => chooseDealer(dealer)}
+                            >
+                                {getDealerCode(dealer)} - {getDealerName(dealer)}
+                            </button>
+                        ))}
                     </div>
+                )}
+            </div>
 
-                    <div className="subdealer-create-field">
-                        <label>Dealer Name</label>
-                        <input
-                            type="text"
-                            value={createForm.dealerName}
-                            readOnly
-                        />
+            <div className="subdealer-create-field">
+                <label>
+                    Dealer Name <span className="required-star">*</span>
+
+                </label>
+
+                <input
+                    type="text"
+                    value={createForm.dealerName}
+                    readOnly
+                />
+            </div>
+
+            <div className="subdealer-create-field">
+                <label htmlFor="storeSearch">
+                    Store Name(Sub-Dealer Name) <span className="required-star">*</span>
+                </label>
+
+                <input
+                    id="storeSearch"
+                    type="text"
+                    value={createForm.storeSearch}
+                    autoComplete="off"
+                    onChange={event =>
+                        handleStoreSearch(event.target.value)
+                    }
+                    onFocus={() => {
+                        if (storeOptions.length) {
+                            setShowStoreOptions(true)
+                        }
+                    }}
+                    placeholder="Search sub-dealer"
+                    required
+                />
+
+                {showStoreOptions && storeOptions.length > 0 && (
+                    <div className="subdealer-autocomplete">
+                        {storeOptions.map((store, index) => (
+                            <button
+                                type="button"
+                                key={`${getStoreName(store)}-${index}`}
+                                onClick={() => chooseStore(store)}
+                            >
+                                {getStoreName(store)}
+                            </button>
+                        ))}
                     </div>
+                )}
+            </div>
 
-                    <div className="subdealer-create-field">
-                        <label htmlFor="storeSearch">
-                            Sub-Dealer Name *
-                        </label>
-                        <input
-                            id="storeSearch"
-                            type="text"
-                            value={createForm.storeSearch}
-                            autoComplete="off"
-                            onChange={event =>
-                                handleStoreSearch(event.target.value)
-                            }
-                            onFocus={() => {
-                                if (storeOptions.length) {
-                                    setShowStoreOptions(true)
-                                }
-                            }}
-                            placeholder="Search sub-dealer"
-                            required
-                        />
+            <div className="subdealer-create-field">
+                <label htmlFor="postalCode">
+                    Sub-Dealer PinCode <span className="required-star">*</span>
+                </label>
 
-                        {showStoreOptions && storeOptions.length > 0 && (
-                            <div className="subdealer-autocomplete">
-                                {storeOptions.map((store, index) => (
-                                    <button
-                                        type="button"
-                                        key={`${getStoreName(store)}-${index}`}
-                                        onClick={() => chooseStore(store)}
-                                    >
-                                        {getStoreName(store)}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+                <input
+                    id="postalCode"
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={6}
+                    value={createForm.postalCode}
+                    onChange={event =>
+                        updateCreateForm(
+                            'postalCode',
+                            event.target.value.replace(/\D/g, '')
+                        )
+                    }
+                    onBlur={handlePincodeBlur}
+                    required
+                />
 
-                    <div className="subdealer-create-field">
-                        <label htmlFor="postalCode">PIN Code *</label>
-                        <input
-                            id="postalCode"
-                            type="text"
-                            inputMode="numeric"
-                            maxLength={6}
-                            value={createForm.postalCode}
-                            onChange={event =>
-                                updateCreateForm(
-                                    'postalCode',
-                                    event.target.value.replace(/\D/g, '')
-                                )
-                            }
-                            onBlur={handlePincodeBlur}
-                            required
-                        />
-                        {areaLoading && (
-                            <small>Looking up PIN code...</small>
-                        )}
-                    </div>
+                {areaLoading && (
+                    <small>Looking up PIN code...</small>
+                )}
+            </div>
+        </div>
 
-                    <div className="subdealer-create-field">
-                        <label>State *</label>
-                        <input
-                            value={createForm.state}
-                            onChange={event =>
-                                updateCreateForm('state', event.target.value)
-                            }
-                            required
-                        />
-                    </div>
 
-                    <div className="subdealer-create-field">
-                        <label>District *</label>
-                        <input
-                            value={createForm.district}
-                            onChange={event =>
-                                updateCreateForm('district', event.target.value)
-                            }
-                            required
-                        />
-                    </div>
-                </div>
+        {/* =================================================
+            ROW 2: FOUR FIELDS
+        ================================================= */}
 
-                {/* ROW 2: SIX FIELDS */}
+        <div className="subdealer-create-grid four-column-layout">
 
-                <div className="subdealer-create-grid">
-                    <div className="subdealer-create-field">
-                        <label>City *</label>
-                        <input
-                            value={createForm.city}
-                            onChange={event =>
-                                updateCreateForm('city', event.target.value)
-                            }
-                            required
-                        />
-                    </div>
+            <div className="subdealer-create-field">
+                <label>
+                    Sub-Dealer State <span className="required-star">*</span>
+                </label>
 
-                    <div className="subdealer-create-field">
-                        <label>Area *</label>
-                        <input
-                            value={createForm.area}
-                            onChange={event =>
-                                updateCreateForm('area', event.target.value)
-                            }
-                            required
-                        />
-                    </div>
+                <select
+                    value={createForm.state}
+                    onChange={event =>
+                        updateCreateForm('state', event.target.value)
+                    }
+                    required
+                >
+                    <option value="">Select State</option>
+
+                    {stateOptions.map((state, index) => (
+                        <option
+                            key={`${state}-${index}`}
+                            value={state}
+                        >
+                            {state}
+                        </option>
+                    ))}
+                </select>
+            </div>
+
+            <div className="subdealer-create-field">
+                <label>
+                    Sub-Dealer District <span className="required-star">*</span>
+                </label>
+
+                <select
+                    value={createForm.district}
+                    onChange={event =>
+                        updateCreateForm('district', event.target.value)
+                    }
+                    required
+                >
+                    <option value="">Select District</option>
+
+                    {districtOptions.map((district, index) => (
+                        <option
+                            key={`${district}-${index}`}
+                            value={district}
+                        >
+                            {district}
+                        </option>
+                    ))}
+                </select>
+            </div>
+
+            <div className="subdealer-create-field">
+                <label>
+                    Sub-Dealer City <span className="required-star">*</span>
+                </label>
+
+                <select
+                    value={createForm.city}
+                    onChange={event =>
+                        updateCreateForm('city', event.target.value)
+                    }
+                    required
+                >
+                    <option value="">Select City</option>
+
+                    {cityOptions.map((city, index) => (
+                        <option
+                            key={`${city}-${index}`}
+                            value={city}
+                        >
+                            {city}
+                        </option>
+                    ))}
+                </select>
+            </div>
+
+            <div className="subdealer-create-field">
+                <label>
+                    Sub-Dealer Area <span className="required-star">*</span>
+                </label>
+
+                <select
+                    value={createForm.area}
+                    onChange={event =>
+                        updateCreateForm('area', event.target.value)
+                    }
+                    required
+                >
+                    <option value="">Select Area</option>
+
+                    {areaOptions.map((area, index) => (
+                        <option
+                            key={`${area}-${index}`}
+                            value={area}
+                        >
+                            {area}
+                        </option>
+                    ))}
+                </select>
+            </div>
+        </div>
+
+
+        {/* =================================================
+            ROW 3: FOUR FIELDS
+        ================================================= */}
+
+                <div className="subdealer-create-grid four-column-layout">
 
                     <div className="subdealer-create-field">
                         <label>Region</label>
+
                         <select
                             value={createForm.regionCode}
                             disabled
                         >
                             <option value="">Select region</option>
+
                             {regions.map((region, index) => (
                                 <option
                                     key={`${getOptionCode(region)}-${index}`}
@@ -1526,11 +1788,13 @@ function EditView() {
 
                     <div className="subdealer-create-field">
                         <label>Branch</label>
+
                         <select
                             value={createForm.branchCode}
                             disabled
                         >
                             <option value="">Select branch</option>
+
                             {branches.map((branch, index) => (
                                 <option
                                     key={`${getOptionCode(branch)}-${index}`}
@@ -1544,6 +1808,7 @@ function EditView() {
 
                     <div className="subdealer-create-field">
                         <label>Sub-Dealer Code</label>
+
                         <input
                             type="text"
                             value="DUMMYCode"
@@ -1552,7 +1817,10 @@ function EditView() {
                     </div>
 
                     <div className="subdealer-create-field">
-                        <label htmlFor="street">Street</label>
+                        <label htmlFor="street">
+                            Street
+                        </label>
+
                         <input
                             id="street"
                             maxLength={40}
@@ -1564,11 +1832,14 @@ function EditView() {
                     </div>
                 </div>
 
+
                 {/* ROW 3: FOUR FIELDS */}
 
                 <div className="subdealer-create-grid four-column-layout">
                     <div className="subdealer-create-field">
-                        <label htmlFor="street2">Street 2 *</label>
+                        <label htmlFor="street2">
+                            Street 2 <span className="required-star">*</span>
+                        </label>
                         <input
                             id="street2"
                             maxLength={40}
@@ -1594,7 +1865,7 @@ function EditView() {
 
                     <div className="subdealer-create-field">
                         <label htmlFor="shopArea">
-                            Shop Area / Identification of Shop *
+                            Shop Area / Identification of Shop <span className="required-star">*</span>
                         </label>
                         <input
                             id="shopArea"
@@ -1607,7 +1878,7 @@ function EditView() {
                         />
                     </div>
 
-                    <div className="subdealer-create-field">
+                    {/* <div className="subdealer-create-field">
                         <label htmlFor="identificationOfShop">
                             Additional Shop Identification
                         </label>
@@ -1622,14 +1893,9 @@ function EditView() {
                                 )
                             }
                         />
-                    </div>
-                </div>
-
-                {/* ROW 4: FOUR FIELDS */}
-
-                <div className="subdealer-create-grid four-column-layout">
+                    </div> */}
                     <div className="subdealer-create-field">
-                        <label htmlFor="contactNo">Contact No. *</label>
+                        <label htmlFor="contactNo">Contact No. <span className="required-star">*</span></label>
                         <input
                             id="contactNo"
                             type="text"
@@ -1645,10 +1911,32 @@ function EditView() {
                             required
                         />
                     </div>
+                </div>
+
+                {/* ROW 4: FOUR FIELDS */}
+
+                <div className="subdealer-create-grid four-column-layout">
+                    {/* <div className="subdealer-create-field">
+                        <label htmlFor="contactNo">Contact No. <span className="required-star">*</span></label>
+                        <input
+                            id="contactNo"
+                            type="text"
+                            inputMode="numeric"
+                            maxLength={12}
+                            value={createForm.contactNo}
+                            onChange={event =>
+                                updateCreateForm(
+                                    'contactNo',
+                                    event.target.value.replace(/\D/g, '')
+                                )
+                            }
+                            required
+                        />
+                    </div> */}
 
                     <div className="subdealer-create-field">
                         <label htmlFor="contactPersonName">
-                            Contact Person Name *
+                            Contact Person Name <span className="required-star">*</span>
                         </label>
                         <input
                             id="contactPersonName"
@@ -1678,7 +1966,7 @@ function EditView() {
                     </div>
 
                     <div className="subdealer-create-field">
-                        <label htmlFor="gstn">GSTN *</label>
+                        <label htmlFor="gstn">GSTN <span className="required-star">*</span></label>
                         <input
                             id="gstn"
                             maxLength={15}

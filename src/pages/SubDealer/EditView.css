@@ -184,9 +184,9 @@
 
 .subdealer-table-message {
     padding: 35px;
-    text-align: center;
+    /* text-align: center;
     color: #6c757d;
-    font-size: 14px;
+    font-size: 14px; */
 }
 
 /* =========================================
@@ -1235,4 +1235,9 @@
 
 .subdealer-view-page-button:hover {
     background: #0b5ed7;
+}
+
+.required-star {
+    color: red;
+    font-weight: bold;
 }
