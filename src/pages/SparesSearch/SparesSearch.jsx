@@ -791,8 +791,8 @@ function SparesSearch() {
                 ================================================= */}
 
                 {spareInfo &&
-                    Array.isArray(spareInfo.Modelname) &&
-                    spareInfo.Modelname.length > 0 && (
+                    Array.isArray(spareInfo.modelname) &&
+                    spareInfo.modelname.length > 0 && (
 
                         <div className="spares-report-section">
 
@@ -818,7 +818,7 @@ function SparesSearch() {
 
                                     <tbody>
 
-                                        {spareInfo.Modelname.map(
+                                        {spareInfo.modelname.map(
                                             (model, index) => (
                                                 <tr
                                                     key={`${model}-${index}`}
