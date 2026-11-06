@@ -827,7 +827,7 @@ function Dashboard() {
 
                 <footer className="dashboard-footer">
 
-                    © IFB Industries Ltd.
+                    © {new Date().getFullYear()} IFB Industries Ltd.
                     &nbsp;|&nbsp;
                     e-Training Application
 

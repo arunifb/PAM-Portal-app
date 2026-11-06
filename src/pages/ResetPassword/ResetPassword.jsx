@@ -101,14 +101,15 @@ function ResetPassword() {
                 error
             )
 
+            setShowVerification(false)
+            setRequestSubmitted(false)
+
             setMessage(
                 error.message ||
                 'Unable to request password reset.'
             )
 
-            setMessageType(
-                'error'
-            )
+            setMessageType('error')
 
         }
         finally {
@@ -290,6 +291,19 @@ function ResetPassword() {
                     </div>
 
 
+                                        {/* =========================================
+                        LOGIN ID ERROR MESSAGE
+                    ========================================= */}
+
+                    {message && !showVerification && (
+
+                        <div className={`reset-message ${messageType}`}>
+                            {message}
+                        </div>
+
+                    )}
+
+
                     {/* =========================================
                         LOGIN ID FORM
                     ========================================= */}
@@ -354,6 +368,9 @@ function ResetPassword() {
                         )}
 
                     </form>
+
+
+                    
 
 
                     {/* =========================================
