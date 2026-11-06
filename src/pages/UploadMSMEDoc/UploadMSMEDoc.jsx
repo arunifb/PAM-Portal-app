@@ -32,10 +32,15 @@ function UploadMSMEDoc() {
     // SEARCH STATE
     // =========================================
 
+    
     const [refNo, setRefNo] = useState('')
     const [results, setResults] = useState([])
     const [loading, setLoading] = useState(false)
     const [showResults, setShowResults] = useState(false)
+
+    // Previously searched Ref Nos
+    const [refNoHistory, setRefNoHistory] = useState([])
+    const [showRefNoSuggestions, setShowRefNoSuggestions] = useState(false)
 
     // =========================================
     // MESSAGE STATE
@@ -101,6 +106,56 @@ function UploadMSMEDoc() {
     }
 
     // =========================================
+// REF NO HISTORY / SUGGESTIONS
+// =========================================
+
+const addRefNoToHistory = (value) => {
+    const ref = value.trim()
+
+    if (!ref) return
+
+    setRefNoHistory((previous) => {
+        const updated = [
+            ref,
+            ...previous.filter((item) => item !== ref)
+        ]
+
+        // Keep only the latest 10 searched Ref Nos
+        return updated.slice(0, 10)
+    })
+}
+
+const getRefNoSuggestions = () => {
+    const searchValue = refNo.trim()
+
+    if (!searchValue) {
+        return refNoHistory
+    }
+
+    return refNoHistory.filter((item) =>
+        item.startsWith(searchValue)
+    )
+}
+
+const handleRefNoChange = (value) => {
+    if (!/^\d*$/.test(value)) {
+        return
+    }
+
+    setRefNo(value)
+    setError('')
+    setMessage('')
+    setShowRefNoSuggestions(true)
+}
+
+const handleRefNoSuggestionSelect = (value) => {
+    setRefNo(value)
+    setError('')
+    setMessage('')
+    setShowRefNoSuggestions(false)
+}
+
+    // =========================================
     // SEARCH
     // =========================================
 
@@ -135,13 +190,17 @@ function UploadMSMEDoc() {
 
             setResults(records)
 
-            if (records.length === 0) {
-                setMessage(
-                    response.Message ||
-                    response.message ||
-                    'NO RECORDS FOUND!!'
-                )
+            if (records.length > 0) {
+                addRefNoToHistory(refNo)
             }
+
+            // if (records.length === 0) {
+            //     setMessage(
+            //         response.Message ||
+            //         response.message ||
+            //         'NO RECORDS FOUND!'
+            //     )
+            // }
         } catch (err) {
             console.error('MSME search error:', err)
 
@@ -342,34 +401,67 @@ function UploadMSMEDoc() {
                     </div>
 
                     <div className="msme-search-form">
-                        <div className="msme-field">
+                        <div className="msme-field msme-refno-field">
                             <label htmlFor="msmeRefNo">
                                 Ref No <span className="msme-required">*</span>
                             </label>
 
-                            <input
-                                id="msmeRefNo"
-                                type="text"
-                                inputMode="numeric"
-                                value={refNo}
-                                maxLength={18}
-                                placeholder="Enter Ref No"
-                                onChange={(event) => {
-                                    const value = event.target.value
+                            <div className="msme-refno-wrapper">
+                                <input
+                                    id="msmeRefNo"
+                                    type="text"
+                                    inputMode="numeric"
+                                    value={refNo}
+                                    maxLength={18}
+                                    placeholder="Enter Ref No"
+                                    autoComplete="off"
+                                    onFocus={() => {
+                                        if (refNoHistory.length > 0) {
+                                            setShowRefNoSuggestions(true)
+                                        }
+                                    }}
+                                    onChange={(event) => {
+                                        handleRefNoChange(event.target.value)
+                                    }}
+                                    onKeyDown={(event) => {
+                                        if (event.key === 'Enter') {
+                                            event.preventDefault()
+                                            setShowRefNoSuggestions(false)
+                                            handleSearch()
+                                        }
 
-                                    if (/^\d*$/.test(value)) {
-                                        setRefNo(value)
-                                        setError('')
-                                        setMessage('')
-                                    }
-                                }}
-                                onKeyDown={(event) => {
-                                    if (event.key === 'Enter') {
-                                        event.preventDefault()
-                                        handleSearch()
-                                    }
-                                }}
-                            />
+                                        if (event.key === 'Escape') {
+                                            setShowRefNoSuggestions(false)
+                                        }
+                                    }}
+                                    onBlur={() => {
+                                        setTimeout(() => {
+                                            setShowRefNoSuggestions(false)
+                                        }, 150)
+                                    }}
+                                />
+
+                                {showRefNoSuggestions &&
+                                    getRefNoSuggestions().length > 0 && (
+                                        <div className="msme-refno-suggestions">
+                                            {getRefNoSuggestions().map((suggestion) => (
+                                                <div
+                                                    key={suggestion}
+                                                    className="msme-refno-suggestion"
+                                                    onMouseDown={(event) => {
+                                                        event.preventDefault()
+
+                                                        handleRefNoSuggestionSelect(
+                                                            suggestion
+                                                        )
+                                                    }}
+                                                >
+                                                    {suggestion}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                            </div>
                         </div>
 
                         <div className="msme-search-buttons">
@@ -569,8 +661,8 @@ function UploadMSMEDoc() {
                                 </table>
                             </div>
                         ) : (
-                            <div className="msme-no-records">
-                                NO RECORDS FOUND!!
+                            <div className="no-record-found msme-no-records">
+                                NO RECORDS FOUND!
                             </div>
                         )}
                     </div>
