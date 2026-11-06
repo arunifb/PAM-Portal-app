@@ -36,7 +36,7 @@ import AddTechSkill from './pages/AddTechSkill/AddTechSkill'
 import EvidenceSearch from './pages/EvidenceSearch/EvidenceSearch'
 import TechnicianAdd from './pages/Technician/TechnicianAdd'
 import UploadMSMEDoc from './pages/UploadMSMEDoc/UploadMSMEDoc'
-import SearchInvoice from './pages/SearchInvoice/SearchInvoice'
+//import SearchInvoice from './pages/SearchInvoice/SearchInvoice'
 //import TrainingManual from './pages/TrainingManual/TrainingManual'
 import SubDealerView from './pages/SubDealer/SubDealerView'
 import PCRVendorDetails from './pages/PCRVendorDetails/PCRVendorDetails'
@@ -296,10 +296,10 @@ function App() {
                         element={<UploadMSMEDoc />}
                     />
 
-                    <Route
+                    {/* <Route
                         path="/search-invoice"
                         element={<SearchInvoice />}
-                    />
+                    /> */}
 
                     {/* <Route
                         path="/training-manual"

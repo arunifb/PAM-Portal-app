@@ -40,7 +40,7 @@ import AddTechSkill from '../AddTechSkill/AddTechSkill'
 import EvidenceSearch from '../EvidenceSearch/EvidenceSearch'
 import TechnicianAdd from '../Technician/TechnicianAdd'
 import UploadMSMEDoc from '../UploadMSMEDoc/UploadMSMEDoc'
-import SearchInvoice from '../SearchInvoice/SearchInvoice'
+//import SearchInvoice from '../SearchInvoice/SearchInvoice'
 //import TrainingManual from '../TrainingManual/TrainingManual'
 import SubDealerView from '../SubDealer/SubDealerView'
 import PCRVendorDetails from '../PCRVendorDetails/PCRVendorDetails'
@@ -254,7 +254,7 @@ const [refreshPainKiller, setRefreshPainKiller] = useState(0)
         '/upload-msme-doc':
                 UploadMSMEDoc,
                 
-        '/search-invoice': SearchInvoice,
+        // '/search-invoice': SearchInvoice,
 
         // '/training-manual':
         //     TrainingManual,
