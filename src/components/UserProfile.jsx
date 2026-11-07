@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { logout } from '../api/authApi'
@@ -24,6 +25,72 @@ function getSessionValue(...keys) {
 
 }
 
+// =========================================
+// GET ROLE NAMES FROM SESSION
+// =========================================
+
+// =========================================
+// GET ROLE IDs AND ROLE NAMES FROM SESSION
+// =========================================
+
+function getUserRoles() {
+
+    const roleNameMap = {
+        '1': 'Region User',
+        '3': 'Trainer User',
+        '5': 'Franchise User',
+        '6': 'Branch User',
+        '2': 'Call Center User',
+        '7': 'Factory User'
+    }
+
+    try {
+
+        // First check whether API has supplied roleNames
+        const roleNames = JSON.parse(
+            sessionStorage.getItem('roleNames') || '[]'
+        )
+
+        if (Array.isArray(roleNames) && roleNames.length > 0) {
+            return roleNames.join(', ')
+        }
+
+        // Otherwise use existing role IDs
+        const roles = JSON.parse(
+            sessionStorage.getItem('roles') || '[]'
+        )
+
+        if (Array.isArray(roles) && roles.length > 0) {
+
+            return roles
+                .map(roleId => roleNameMap[String(roleId)] || `Role ${roleId}`)
+                .join(', ')
+
+        }
+
+        // Fallback for older session data
+        const roleId = getSessionValue('roleId', 'roleID', 'RoleID')
+
+        if (roleId && roleId !== '0') {
+            return roleNameMap[roleId] || `Role ${roleId}`
+        }
+
+        return 'N/A'
+
+    } catch (error) {
+
+        console.error('Unable to read user roles:', error)
+
+        return 'N/A'
+
+    }
+
+}
+
+// =========================================
+// USER PROFILE
+// =========================================
+
 function UserProfile() {
 
     const navigate = useNavigate()
@@ -47,32 +114,13 @@ function UserProfile() {
     const email =
         getSessionValue('emailId', 'EmailID', 'email', 'Email')
 
-    const roleId =
-        getSessionValue('roleId', 'RoleID')
+    const roleName = getUserRoles()
 
     const regionCode =
         getSessionValue('regionCode', 'RegionCode')
 
     const bpCode =
         getSessionValue('bpCode', 'BPCode')
-
-    // =========================================
-    // ROLE NAME
-    // =========================================
-
-    const getRoleName = () => {
-
-        const roles = {
-            '1': 'Region User',
-            '3': 'Branch User',
-            '5': 'Franchise User',
-            '6': 'Branch User',
-            '7': 'Factory User'
-        }
-
-        return roles[roleId] || 'N/A'
-
-    }
 
     // =========================================
     // USER MENU
@@ -262,7 +310,6 @@ function UserProfile() {
 
                 </button>
 
-
                 {/* DROPDOWN */}
 
                 {showUserMenu && (
@@ -286,7 +333,6 @@ function UserProfile() {
 
                         </button>
 
-
                         <button
                             type="button"
                             className="user-menu-item"
@@ -304,9 +350,7 @@ function UserProfile() {
 
                         </button>
 
-
                         <hr />
-
 
                         <button
                             type="button"
@@ -331,17 +375,17 @@ function UserProfile() {
 
             </div>
 
-
             {/* =========================================
                 PROFILE MODAL
             ========================================= */}
 
-           
             {showProfileModal && (
+
                 <div
                     className="profile-modal-overlay"
                     onClick={handleCloseProfile}
                 >
+
                     <div
                         className="profile-modal"
                         role="dialog"
@@ -349,6 +393,7 @@ function UserProfile() {
                         aria-labelledby="profile-modal-title"
                         onClick={(event) => event.stopPropagation()}
                     >
+
                         {/* HEADER */}
 
                         <div className="profile-modal-header">
@@ -356,7 +401,10 @@ function UserProfile() {
                             <div className="profile-modal-heading">
 
                                 <div className="profile-modal-icon">
-                                    <i className="fa fa-user" aria-hidden="true"></i>
+                                    <i
+                                        className="fa fa-user"
+                                        aria-hidden="true"
+                                    ></i>
                                 </div>
 
                                 <div className="profile-heading-details">
@@ -367,8 +415,12 @@ function UserProfile() {
 
                                     <p>
                                         {username}
-                                        <span className="profile-role-separator">•</span>
-                                        {getRoleName()}
+
+                                        <span className="profile-role-separator">
+                                            •
+                                        </span>
+
+                                        {roleName}
                                     </p>
 
                                 </div>
@@ -401,7 +453,10 @@ function UserProfile() {
                                 <div className="profile-info-card">
 
                                     <div className="profile-field-icon">
-                                        <i className="fa fa-user-o" aria-hidden="true"></i>
+                                        <i
+                                            className="fa fa-user-o"
+                                            aria-hidden="true"
+                                        ></i>
                                     </div>
 
                                     <div className="profile-field-content">
@@ -419,7 +474,10 @@ function UserProfile() {
                                 <div className="profile-info-card">
 
                                     <div className="profile-field-icon">
-                                        <i className="fa fa-id-card-o" aria-hidden="true"></i>
+                                        <i
+                                            className="fa fa-id-card-o"
+                                            aria-hidden="true"
+                                        ></i>
                                     </div>
 
                                     <div className="profile-field-content">
@@ -437,7 +495,10 @@ function UserProfile() {
                                 <div className="profile-info-card">
 
                                     <div className="profile-field-icon">
-                                        <i className="fa fa-mobile" aria-hidden="true"></i>
+                                        <i
+                                            className="fa fa-mobile"
+                                            aria-hidden="true"
+                                        ></i>
                                     </div>
 
                                     <div className="profile-field-content">
@@ -455,7 +516,10 @@ function UserProfile() {
                                 <div className="profile-info-card">
 
                                     <div className="profile-field-icon">
-                                        <i className="fa fa-envelope-o" aria-hidden="true"></i>
+                                        <i
+                                            className="fa fa-envelope-o"
+                                            aria-hidden="true"
+                                        ></i>
                                     </div>
 
                                     <div className="profile-field-content">
@@ -486,9 +550,10 @@ function UserProfile() {
                         </div>
 
                     </div>
-                </div>
-            )}
 
+                </div>
+
+            )}
 
         </>
 
