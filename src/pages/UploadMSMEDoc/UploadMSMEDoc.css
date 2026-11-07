@@ -71,6 +71,19 @@
     font-weight: 600;
 }
 
+
+/* Search Vendor Heading Icon */
+
+.msme-search-heading {
+    justify-content: flex-start;
+    gap: 9px;
+}
+
+.msme-search-heading i {
+    color: #000;
+    font-size: 14px;
+}
+
 .msme-record-count {
     padding: 0;
     border-radius: 0;

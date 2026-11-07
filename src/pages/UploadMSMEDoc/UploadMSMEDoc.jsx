@@ -396,8 +396,9 @@ const handleRefNoSuggestionSelect = (value) => {
 
                 {/* SEARCH FORM */}
                 <div className="msme-card">
-                    <div className="msme-section-heading">
-                        Search Vendor
+                    <div className="msme-section-heading msme-search-heading">
+                        <i className="fa fa-search" aria-hidden="true"></i>
+                        <span>Search Vendor</span>
                     </div>
 
                     <div className="msme-search-form">

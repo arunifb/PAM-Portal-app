@@ -4,6 +4,26 @@ import { logout } from '../api/authApi'
 
 import './UserProfile.css'
 
+// =========================================
+// SESSION HELPER
+// =========================================
+
+function getSessionValue(...keys) {
+
+    for (const key of keys) {
+
+        const value = sessionStorage.getItem(key)
+
+        if (value) {
+            return value
+        }
+
+    }
+
+    return ''
+
+}
+
 function UserProfile() {
 
     const navigate = useNavigate()
@@ -13,16 +33,55 @@ function UserProfile() {
     // =========================================
 
     const username =
-        sessionStorage.getItem('username') || 'User'
+        getSessionValue('username', 'UserName') || 'User'
 
     const loginId =
-        sessionStorage.getItem('loginId') || ''
+        getSessionValue('loginId', 'LoginID')
+
+    const userId =
+        getSessionValue('userId', 'UserID')
+
+    const mobile =
+        getSessionValue('mobileNo', 'MobileNo', 'mobile', 'Mobile')
+
+    const email =
+        getSessionValue('emailId', 'EmailID', 'email', 'Email')
+
+    const roleId =
+        getSessionValue('roleId', 'RoleID')
+
+    const regionCode =
+        getSessionValue('regionCode', 'RegionCode')
+
+    const bpCode =
+        getSessionValue('bpCode', 'BPCode')
+
+    // =========================================
+    // ROLE NAME
+    // =========================================
+
+    const getRoleName = () => {
+
+        const roles = {
+            '1': 'Region User',
+            '3': 'Branch User',
+            '5': 'Franchise User',
+            '6': 'Branch User',
+            '7': 'Factory User'
+        }
+
+        return roles[roleId] || 'N/A'
+
+    }
 
     // =========================================
     // USER MENU
     // =========================================
 
     const [showUserMenu, setShowUserMenu] =
+        useState(false)
+
+    const [showProfileModal, setShowProfileModal] =
         useState(false)
 
     const userMenuRef = useRef(null)
@@ -39,7 +98,9 @@ function UserProfile() {
                 userMenuRef.current &&
                 !userMenuRef.current.contains(event.target)
             ) {
+
                 setShowUserMenu(false)
+
             }
 
         }
@@ -67,6 +128,17 @@ function UserProfile() {
     const handleProfile = () => {
 
         setShowUserMenu(false)
+        setShowProfileModal(true)
+
+    }
+
+    // =========================================
+    // CLOSE PROFILE MODAL
+    // =========================================
+
+    const handleCloseProfile = () => {
+
+        setShowProfileModal(false)
 
     }
 
@@ -74,9 +146,35 @@ function UserProfile() {
     // SETTINGS
     // =========================================
 
-    const handleSettings = () => {
+    const handleSettings = async () => {
 
         setShowUserMenu(false)
+
+        const currentUserId =
+            sessionStorage.getItem('userId')
+
+        try {
+
+            if (currentUserId) {
+
+                await logout(currentUserId)
+
+            }
+
+        } catch (error) {
+
+            console.error(
+                'Logout error:',
+                error
+            )
+
+        } finally {
+
+            sessionStorage.clear()
+
+            navigate('/reset-password')
+
+        }
 
     }
 
@@ -86,14 +184,14 @@ function UserProfile() {
 
     const handleLogout = async () => {
 
-        const userId =
+        const currentUserId =
             sessionStorage.getItem('userId')
 
         try {
 
-            if (userId) {
+            if (currentUserId) {
 
-                await logout(userId)
+                await logout(currentUserId)
 
             }
 
@@ -120,141 +218,279 @@ function UserProfile() {
 
     return (
 
-        <div
-            className="dashboard-user-area"
-            ref={userMenuRef}
-        >
-
-            {/* =================================
-                USER PROFILE BUTTON
-            ================================= */}
-
-            <button
-                type="button"
-                className="user-profile-button"
-                onClick={() =>
-                    setShowUserMenu(
-                        !showUserMenu
-                    )
-                }
+        <>
+            <div
+                className="dashboard-user-area"
+                ref={userMenuRef}
             >
 
-                {/* AVATAR */}
+                {/* USER PROFILE BUTTON */}
 
-                <div className="user-avatar">
+                <button
+                    type="button"
+                    className="user-profile-button"
+                    onClick={() =>
+                        setShowUserMenu(!showUserMenu)
+                    }
+                >
 
-                    {username
-                        .charAt(0)
-                        .toUpperCase()}
+                    <div className="user-avatar">
 
-                </div>
+                        {username.charAt(0).toUpperCase()}
 
+                    </div>
 
-                {/* USER DETAILS */}
+                    <div className="user-details">
 
-                <div className="user-details">
+                        <span className="welcome-text">
+                            Welcome,
+                        </span>
 
-                    <span className="welcome-text">
-                        Welcome,
+                        <strong>
+                            {username}
+                        </strong>
+
+                    </div>
+
+                    <span
+                        className={`user-arrow ${
+                            showUserMenu ? 'open' : ''
+                        }`}
+                    >
+                        ▼
                     </span>
 
-                    <strong>
-                        {username}
-                    </strong>
-
-                </div>
+                </button>
 
 
-                {/* ARROW */}
+                {/* DROPDOWN */}
 
-                <span
-                    className={`user-arrow ${
-                        showUserMenu
-                            ? 'open'
-                            : ''
-                    }`}
+                {showUserMenu && (
+
+                    <div className="user-dropdown">
+
+                        <button
+                            type="button"
+                            className="user-menu-item"
+                            onClick={handleProfile}
+                        >
+
+                            <i
+                                className="fa fa-user"
+                                aria-hidden="true"
+                            ></i>
+
+                            <span>
+                                Profile
+                            </span>
+
+                        </button>
+
+
+                        <button
+                            type="button"
+                            className="user-menu-item"
+                            onClick={handleSettings}
+                        >
+
+                            <i
+                                className="fa fa-cog"
+                                aria-hidden="true"
+                            ></i>
+
+                            <span>
+                                Settings
+                            </span>
+
+                        </button>
+
+
+                        <hr />
+
+
+                        <button
+                            type="button"
+                            className="user-menu-item logout-item"
+                            onClick={handleLogout}
+                        >
+
+                            <i
+                                className="fa fa-sign-out"
+                                aria-hidden="true"
+                            ></i>
+
+                            <span>
+                                Logout
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                )}
+
+            </div>
+
+
+            {/* =========================================
+                PROFILE MODAL
+            ========================================= */}
+
+           
+            {showProfileModal && (
+                <div
+                    className="profile-modal-overlay"
+                    onClick={handleCloseProfile}
                 >
-                    ▼
-                </span>
-
-            </button>
-
-
-            {/* =================================
-                DROPDOWN
-            ================================= */}
-
-            {showUserMenu && (
-
-                <div className="user-dropdown">
-
-                    {/* PROFILE */}
-
-                    <button
-                        type="button"
-                        className="user-menu-item"
-                        onClick={handleProfile}
+                    <div
+                        className="profile-modal"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="profile-modal-title"
+                        onClick={(event) => event.stopPropagation()}
                     >
+                        {/* HEADER */}
 
-                        <i
-                            className="fa fa-user"
-                            aria-hidden="true"
-                        ></i>
+                        <div className="profile-modal-header">
 
-                        <span>
-                            Profile
-                        </span>
+                            <div className="profile-modal-heading">
 
-                    </button>
+                                <div className="profile-modal-icon">
+                                    <i className="fa fa-user" aria-hidden="true"></i>
+                                </div>
 
+                                <div className="profile-heading-details">
 
-                    {/* SETTINGS */}
+                                    <h2 id="profile-modal-title">
+                                        My Profile
+                                    </h2>
 
-                    <button
-                        type="button"
-                        className="user-menu-item"
-                        onClick={handleSettings}
-                    >
+                                    <p>
+                                        {username}
+                                        <span className="profile-role-separator">•</span>
+                                        {getRoleName()}
+                                    </p>
 
-                        <i
-                            className="fa fa-cog"
-                            aria-hidden="true"
-                        ></i>
+                                </div>
 
-                        <span>
-                            Settings
-                        </span>
+                            </div>
 
-                    </button>
+                            <button
+                                type="button"
+                                className="profile-modal-close"
+                                onClick={handleCloseProfile}
+                                aria-label="Close profile"
+                            >
+                                &times;
+                            </button>
 
+                        </div>
 
-                    <hr />
+                        {/* PROFILE CONTENT */}
 
+                        <div className="profile-modal-body">
 
-                    {/* LOGOUT */}
+                            <div className="profile-info-heading">
+                                Personal Information
+                            </div>
 
-                    <button
-                        type="button"
-                        className="user-menu-item logout-item"
-                        onClick={handleLogout}
-                    >
+                            <div className="profile-info-grid">
 
-                        <i
-                            className="fa fa-sign-out"
-                            aria-hidden="true"
-                        ></i>
+                                {/* FULL NAME */}
 
-                        <span>
-                            Logout
-                        </span>
+                                <div className="profile-info-card">
 
-                    </button>
+                                    <div className="profile-field-icon">
+                                        <i className="fa fa-user-o" aria-hidden="true"></i>
+                                    </div>
 
+                                    <div className="profile-field-content">
+
+                                        <label>Full Name</label>
+
+                                        <p>{username}</p>
+
+                                    </div>
+
+                                </div>
+
+                                {/* LOGIN ID */}
+
+                                <div className="profile-info-card">
+
+                                    <div className="profile-field-icon">
+                                        <i className="fa fa-id-card-o" aria-hidden="true"></i>
+                                    </div>
+
+                                    <div className="profile-field-content">
+
+                                        <label>Login ID</label>
+
+                                        <p>{loginId || 'N/A'}</p>
+
+                                    </div>
+
+                                </div>
+
+                                {/* MOBILE NUMBER */}
+
+                                <div className="profile-info-card">
+
+                                    <div className="profile-field-icon">
+                                        <i className="fa fa-mobile" aria-hidden="true"></i>
+                                    </div>
+
+                                    <div className="profile-field-content">
+
+                                        <label>Mobile Number</label>
+
+                                        <p>{mobile || 'N/A'}</p>
+
+                                    </div>
+
+                                </div>
+
+                                {/* EMAIL ADDRESS */}
+
+                                <div className="profile-info-card">
+
+                                    <div className="profile-field-icon">
+                                        <i className="fa fa-envelope-o" aria-hidden="true"></i>
+                                    </div>
+
+                                    <div className="profile-field-content">
+
+                                        <label>Email Address</label>
+
+                                        <p>{email || 'N/A'}</p>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        {/* FOOTER */}
+
+                        <div className="profile-modal-footer">
+
+                            <button
+                                type="button"
+                                onClick={handleCloseProfile}
+                            >
+                                Close
+                            </button>
+
+                        </div>
+
+                    </div>
                 </div>
-
             )}
 
-        </div>
+
+        </>
 
     )
 

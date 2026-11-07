@@ -696,7 +696,8 @@ function handleAgentRemarkChange(value) {
                         <div className="pk-edit-section">
 
                             <div className="pk-section-heading">
-                                Customer & Ticket Details
+                                Customer & Ticket Details - {detail.ticketNo ?? detail.TicketNo}
+
                             </div>
 
                             <div className="pk-details-grid">
@@ -728,7 +729,7 @@ function handleAgentRemarkChange(value) {
                                 />
 
                                 <DetailItem
-                                    className="pk-detail-first-row pk-ticket-highlight"
+                                    className="pk-detail-first-row "
                                     label="Ticket Number"
                                     value={detail.ticketNo ?? detail.TicketNo}
                                 />
