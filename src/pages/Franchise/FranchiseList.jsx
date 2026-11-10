@@ -542,6 +542,7 @@ function FranchiseList({ onAddFranchise }) {
                                     name="RegionCode"
                                     value={filters.RegionCode}
                                     onChange={handleChange}
+                                    disabled
                                 >
                                     <option value="">All Regions</option>
 
@@ -576,11 +577,12 @@ function FranchiseList({ onAddFranchise }) {
                                     name="BPCode"
                                     value={filters.BPCode}
                                     onChange={handleChange}
-                                    disabled={
-                                        !filters.RegionCode ||
-                                        loadingBranches ||
-                                        branches.length === 0
-                                    }
+                                    // disabled={
+                                    //     !filters.RegionCode ||
+                                    //     loadingBranches ||
+                                    //     branches.length === 0
+                                    // }
+                                    disabled={true}
                                 >
                                     <option value="">
                                         {!filters.RegionCode

@@ -574,6 +574,7 @@ const validateForm = () => {
                                             setError('')
                                             clearSuccessMessage()
                                         }}
+                                        disabled={true}
                                         required
                                     >
                                         <option value="">Select Region</option>
@@ -613,6 +614,7 @@ const validateForm = () => {
                                             clearSuccessMessage()
                                         }}
                                         disabled={
+                                            true ||
                                             !regionCode ||
                                             loadingBranches ||
                                             branches.length === 0

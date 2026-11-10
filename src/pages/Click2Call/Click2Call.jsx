@@ -736,7 +736,7 @@ function Click2Call() {
             console.log('Click2Call Response:', data)
 
             if (!Array.isArray(data) || data.length === 0) {
-                setMessage('No records found.')
+                // setMessage('No records found.')
                 return
             }
 
@@ -817,7 +817,7 @@ function Click2Call() {
     // =========================================
 
     return (
-        <DashboardLayout title="Click 2 Call">
+        <DashboardLayout>
             <div className="click2call-page">
                 <div className="click2call-box">
                     <div className="click2call-form">
@@ -833,7 +833,7 @@ function Click2Call() {
                                 <select
                                     value={region}
                                     onChange={handleRegionChange}
-                                    disabled={regionLoading || isRole6}
+                                    disabled={regionLoading || isRole3 || isRole5 || isRole6}
                                 >
                                     <option value="">
                                         Select Region
@@ -868,6 +868,8 @@ function Click2Call() {
                                 onChange={handleBranchChange}
                                 disabled={
                                     branchLoading ||
+                                    isRole3 ||
+                                    isRole5 ||
                                     isRole6 ||
                                     ((isRole1Or3 || isRole5) && !region) ||
                                     isBranchUser
@@ -1163,7 +1165,7 @@ function Click2Call() {
                                         <tr>
                                             <td
                                                 colSpan="11"
-                                                className="click2call-no-record"
+                                                className="no-record-found click2call-no-record"
                                             >
                                                 No records found.
                                             </td>

@@ -2928,6 +2928,7 @@ useEffect(() => {
                                                     !selectedRegion ||
                                                     branchLoading ||
                                                     isBranchUser ||
+                                                    isRole3 ||
                                                     isFranchiseUser
                                                 }
                                             >

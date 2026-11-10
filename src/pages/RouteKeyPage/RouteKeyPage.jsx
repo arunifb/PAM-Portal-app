@@ -123,10 +123,48 @@ const [pcrSelectedRecord, setPcrSelectedRecord] = useState(
     () => location.state?.pcrSelectedRecord || null
 )
 
-    const [technicianView, setTechnicianView] = useState('list')
-    const [technicianListState, setTechnicianListState] = useState(null)
-    const [refreshAfterAdd, setRefreshAfterAdd] = useState(0)
-    const [technicianEditState, setTechnicianEditState] = useState(null)
+// =========================================
+// TECHNICIAN NAVIGATION STATE
+// Restore Edit page after browser refresh
+// =========================================
+const TECHNICIAN_STORAGE_KEY = 'technicianNavigationState'
+const getSavedTechnicianState = () => {
+    try {
+        const saved = sessionStorage.getItem(
+            TECHNICIAN_STORAGE_KEY
+        )
+
+        if (!saved) return null
+
+        const parsed = JSON.parse(saved)
+
+        if (
+            String(parsed.routeKey).toLowerCase() ===
+            String(routeKey).toLowerCase()
+        ) {
+            return parsed
+        }
+
+        return null
+    } catch (error) {
+        sessionStorage.removeItem(TECHNICIAN_STORAGE_KEY)
+        return null
+    }
+}
+
+const [technicianView, setTechnicianView] = useState(
+    () => getSavedTechnicianState()?.view ?? 'list'
+)
+
+const [technicianListState, setTechnicianListState] = useState(
+    () => getSavedTechnicianState()?.listState ?? null
+)
+
+const [refreshAfterAdd, setRefreshAfterAdd] = useState(0)
+
+const [technicianEditState, setTechnicianEditState] = useState(
+    () => getSavedTechnicianState()?.editState ?? null
+)
 
     
 
@@ -408,12 +446,28 @@ useEffect(() => {
     }
 }, [menuItem])
 
+// =========================================
+// TECHNICIAN NAVIGATION STATE VALIDATION
+// Clear saved state only when leaving Technician
+// =========================================
+
 useEffect(() => {
-    // Reset Technician Management to its default list view
-    setTechnicianView('list')
-    setTechnicianEditState(null)
-    setTechnicianListState(null)
-}, [routeKey, location.pathname])
+    if (!menuItem) return
+
+    const currentReactUrl = menuItem.reactUrl
+        ?.toLowerCase()
+        .trim()
+
+    if (currentReactUrl !== '/technician') {
+        sessionStorage.removeItem(
+            TECHNICIAN_STORAGE_KEY
+        )
+
+        setTechnicianView('list')
+        setTechnicianEditState(null)
+        setTechnicianListState(null)
+    }
+}, [menuItem, routeKey])
 
 
 
@@ -736,6 +790,9 @@ if (
         return (
             <TechnicianAdd
                 onBack={(result) => {
+
+                    sessionStorage.removeItem(TECHNICIAN_STORAGE_KEY)
+
                     setTechnicianView('list')
 
                     if (result?.listState) {
@@ -759,6 +816,11 @@ if (
                 profileMode={technicianEditState.profileMode}
                 listState={technicianEditState.listState}
                 onBack={() => {
+
+                    sessionStorage.removeItem(
+                        TECHNICIAN_STORAGE_KEY
+                    )
+
                     setTechnicianEditState(null)
                 }}
             />
@@ -769,13 +831,40 @@ if (
     return (
         <Technician
             onAddTechnician={(listState) => {
+
+                const savedState = {
+                    routeKey,
+                    view: 'add',
+                    listState
+                }
+
+                sessionStorage.setItem(
+                    TECHNICIAN_STORAGE_KEY,
+                    JSON.stringify(savedState)
+                )
+
                 setTechnicianListState(listState)
                 setTechnicianView('add')
             }}
             onEditTechnician={(editState) => {
-                setTechnicianListState(editState.listState)
-                setTechnicianEditState(editState)
-            }}
+
+    const savedState = {
+        routeKey,
+        view: 'edit',
+        editState,
+        listState: editState.listState
+    }
+
+    // Save Technician Edit navigation state
+    // before changing React state.
+    sessionStorage.setItem(
+        TECHNICIAN_STORAGE_KEY,
+        JSON.stringify(savedState)
+    )
+
+    setTechnicianListState(editState.listState)
+    setTechnicianEditState(editState)
+}}
             restoreListState={technicianListState}
             refreshAfterAdd={refreshAfterAdd}
         />

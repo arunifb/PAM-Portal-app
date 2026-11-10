@@ -1426,40 +1426,40 @@ function handleRegionChange(event) {
                     <div className="technician-filter-item">
                         <label>Region</label>
 
-                                            <select
-                                                value={regionCode}
-                                                onChange={handleRegionChange}
-                                                disabled={isRole6}
-                                            >
-                                            {isRole7 ? (
-                                                <option value="All">All</option>
-                                            ) : (
-                                                <option value="">Select Region</option>
-                                            )}
+                            <select
+                                value={regionCode}
+                                onChange={handleRegionChange}
+                                disabled={isRole3 || isRole5 || isRole6}
+                            >
+                            {isRole7 ? (
+                                <option value="All">All</option>
+                            ) : (
+                                <option value="">Select Region</option>
+                            )}
 
-                                            {regions
-                                                .filter(region => {
-                                                    const code = getRegionCode(region)
+                            {regions
+                                .filter(region => {
+                                    const code = getRegionCode(region)
 
-                                                    return !(
-                                                        isRole7 &&
-                                                        code.trim().toLowerCase() === 'all'
-                                                    )
-                                                })
-                                                .map((region, index) => {
-                                                    const code = getRegionCode(region)
-                                                    const name = getRegionName(region)
+                                    return !(
+                                        isRole7 &&
+                                        code.trim().toLowerCase() === 'all'
+                                    )
+                                })
+                                .map((region, index) => {
+                                    const code = getRegionCode(region)
+                                    const name = getRegionName(region)
 
-                                                    return (
-                                                        <option
-                                                            key={`${code}-${index}`}
-                                                            value={code}
-                                                        >
-                                                            {name || code}
-                                                        </option>
-                                                    )
-                                                })}
-                                        </select>
+                                    return (
+                                        <option
+                                            key={`${code}-${index}`}
+                                            value={code}
+                                        >
+                                            {name || code}
+                                        </option>
+                                    )
+                                })}
+                        </select>
                     </div>
 
                     {/* BRANCH */}
@@ -1468,34 +1468,34 @@ function handleRegionChange(event) {
                         <label>Branch</label>
 
                         <select
-    value={branchCode}
-    onChange={handleBranchChange}
-    disabled={!regionCode || isRole6}
->
-    {isRole7 ? (
-        <option value="All">All</option>
-    ) : isRole5 ? (
-        branches.length === 0 && (
-            <option value="">No branches available</option>
-        )
-    ) : (
-        <option value="">All</option>
-    )}
+                            value={branchCode}
+                            onChange={handleBranchChange}
+                            disabled={!regionCode || isRole3 || isRole5 || isRole6}
+                        >
+                            {isRole7 ? (
+                                <option value="All">All</option>
+                            ) : isRole5 ? (
+                                branches.length === 0 && (
+                                    <option value="">No branches available</option>
+                                )
+                            ) : (
+                                <option value="">All</option>
+                            )}
 
-    {branches.map((branch, index) => {
-        const code = getBranchCode(branch)
-        const name = getBranchName(branch)
+                            {branches.map((branch, index) => {
+                                const code = getBranchCode(branch)
+                                const name = getBranchName(branch)
 
-        return (
-            <option
-                key={`${code}-${index}`}
-                value={code}
-            >
-                {name || code}
-            </option>
-        )
-    })}
-</select>
+                                return (
+                                    <option
+                                        key={`${code}-${index}`}
+                                        value={code}
+                                    >
+                                        {name || code}
+                                    </option>
+                                )
+                            })}
+                        </select>
                     </div>
 
                     {/* FRANCHISE */}

@@ -568,7 +568,9 @@ const isRole5 = roleId === 5 || sessionRoles.includes(5)
             !form.qualification?.trim() ||
             !form.address?.trim() ||
             !form.emailId?.trim() ||
-            !form.insurance
+            !form.insurance ||
+            !form.doj ||
+            !form.dob
         ) {
             return
         }
@@ -607,7 +609,7 @@ const isRole5 = roleId === 5 || sessionRoles.includes(5)
         }
 
         if (isRole3 && !form.actionStatus) {
-            setError('Please select an action status.')
+            setError('Please select an action.')
             return
         }
 
@@ -908,7 +910,7 @@ const isRole5 = roleId === 5 || sessionRoles.includes(5)
                                             {/* Insurance: required for both Role 3 and Role 5 */}
                                             <div className="technician-field">
                                                 <label className="form-label">
-                                                    Insurance
+                                                    ICICI Lombard Insurance Is
                                                     <span className="text-danger"> *</span>
                                                 </label>
                                                 <select
@@ -952,7 +954,7 @@ const isRole5 = roleId === 5 || sessionRoles.includes(5)
                                             {/* Date of Joining */}
                                             <div className="technician-field">
                                                 <label className="form-label">
-                                                    Date of Joining
+                                                    Date of Joining<span className="text-danger"> *</span>
                                                 </label>
 
                                                 <div className="technician-date-picker-container">
@@ -989,12 +991,15 @@ const isRole5 = roleId === 5 || sessionRoles.includes(5)
                                                         <CalendarDays size={17} />
                                                     </button>
                                                 </div>
+                                                {!form.doj && (
+                                                    <span className="field-help">Please fill this</span>
+                                                )}
                                             </div>
 
                                             {/* Date of Birth */}
                                             <div className="technician-field">
                                                 <label className="form-label">
-                                                    Date of Birth
+                                                    Date of Birth<span className="text-danger"> *</span>
                                                 </label>
 
                                                 <div className="technician-date-picker-container">
@@ -1031,12 +1036,15 @@ const isRole5 = roleId === 5 || sessionRoles.includes(5)
                                                         <CalendarDays size={17} />
                                                     </button>
                                                 </div>
+                                                {!form.dob && (
+                                                    <span className="field-help">Please fill this</span>
+                                                )}
                                             </div>
 
                                             {/* Address */}
                                             <div className="technician-field technician-field-full">
                                                 <label className="form-label">
-                                                    Address
+                                                    Address<span className="text-danger"> *</span>
                                                 </label>
                                                 <input
                                                     type="text"
@@ -1170,7 +1178,7 @@ const isRole5 = roleId === 5 || sessionRoles.includes(5)
                                             <div className="technician-fields-grid">
                                                 <div className="technician-field">
                                                     <label className="form-label">
-                                                        {isRole5 ? 'Action' : 'Action Status'}
+                                                        {isRole5 ? 'Action' : 'Action'}
                                                         <span className="text-danger"> *</span>
                                                     </label>
 
