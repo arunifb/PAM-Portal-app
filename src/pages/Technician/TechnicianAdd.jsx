@@ -15,7 +15,7 @@ const SERVICE_TYPES = [
 const MARITAL_STATUSES = [
     { label: 'Single', value: '1' },
     { label: 'Married', value: '2' },
-    { label: 'Divorced', value: '3' }
+    { label: 'Separated', value: '3' }
 ]
 
 function getSessionValue(...keys) {
