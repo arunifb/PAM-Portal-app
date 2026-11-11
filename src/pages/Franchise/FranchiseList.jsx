@@ -102,14 +102,43 @@ function getCreatedDateTimestamp(franchise) {
 }
 
 // Sort newest first and return no more than 40 records.
-function getLatest40Franchises(data) {
-    return (Array.isArray(data) ? [...data] : [])
-        .sort(
-            (a, b) =>
-                getCreatedDateTimestamp(b) -
-                getCreatedDateTimestamp(a)
+// function getLatest40Franchises(data) {
+//     return (Array.isArray(data) ? [...data] : [])
+//         .sort(
+//             (a, b) =>
+//                 getCreatedDateTimestamp(b) -
+//                 getCreatedDateTimestamp(a)
+//         )
+//         .slice(0, 40)
+// }
+
+function getActiveFranchises(data) {
+    return (Array.isArray(data) ? [...data] : []).filter(franchise => {
+        const status = getValue(
+            franchise,
+            'isActive',
+            'IsActive',
+            'isactive',
+            'Active',
+            'active',
+            'status',
+            'Status',
+            'franchiseStatus',
+            'FranchiseStatus'
         )
-        .slice(0, 40)
+
+        const normalizedStatus = String(
+            status ?? ''
+        ).trim().toLowerCase()
+
+        return (
+            status === true ||
+            normalizedStatus === '1' ||
+            normalizedStatus === 'true' ||
+            normalizedStatus === 'active' ||
+            normalizedStatus === 'yes'
+        )
+    })
 }
 
 function FranchiseList({ onAddFranchise }) {
@@ -210,7 +239,7 @@ function FranchiseList({ onAddFranchise }) {
 
                     // Initial page load: latest 40 records.
                     setFranchises(
-                        getLatest40Franchises(franchiseData)
+                        getActiveFranchises(franchiseData)
                     )
                 } else {
                     setError(
@@ -431,7 +460,7 @@ function FranchiseList({ onAddFranchise }) {
         try {
             const data = await getFranchiseList(sessionBpCode)
 
-            setFranchises(getLatest40Franchises(data))
+            setFranchises(getActiveFranchises(data))
         } catch (err) {
             setFranchises([])
             setError(
