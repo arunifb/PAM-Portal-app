@@ -59,7 +59,12 @@ function Click2Call() {
         sessionStorage.getItem('branches') ||
         ''
 
-    const loginId = sessionStorage.getItem('loginId') || ''
+    //const loginId = sessionStorage.getItem('loginId') || ''
+    const loginId =
+    sessionStorage.getItem('loginId') ||
+    sessionStorage.getItem('LoginID') ||
+    sessionStorage.getItem('LoginId') ||
+    ''
 
     // =========================================
     // USER TYPE
@@ -169,14 +174,16 @@ function Click2Call() {
     // =========================================
 
     const getFranchiseCode = (item) => (
-        item.frCode ??
-        item.Frcode ??
-        item.FRCode ??
-        item.frcode ??
-        item.loginId ??
-        item.LoginID ??
-        ''
-    )
+    item.frCode ??
+    item.FrCode ??
+    item.Frcode ??
+    item.FRCode ??
+    item.frcode ??
+    item.loginId ??
+    item.LoginID ??
+    item.LoginId ??
+    ''
+)
 
     const getFranchiseName = (item) => (
         item.franchiseName ??

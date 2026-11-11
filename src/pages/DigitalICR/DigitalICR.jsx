@@ -462,6 +462,34 @@ function DigitalICR() {
                     'franchises'
                 )
 
+
+
+                // Debug Role 5 Franchise Details
+if (isFranchiseRole) {
+    console.log('========== ROLE 5 FRANCHISE DEBUG ==========')
+
+    console.log('Role ID:', roles)
+    console.log('Login ID:', loginId)
+    console.log('BP Code:', bpCode)
+    console.log('Franchise BP Code:', franchiseBpCode)
+
+    console.log('Raw Franchise API Response:', response)
+
+    console.log('Parsed Franchise Data:', franchiseData)
+
+    console.log(
+        'Franchise Codes:',
+        franchiseData.map(item => getFranchiseCode(item))
+    )
+
+    console.log(
+        'Franchise Names:',
+        franchiseData.map(item => getFranchiseName(item))
+    )
+
+    console.log('============================================')
+}
+
                 console.log(
                     'Digital ICR franchise response:',
                     response
@@ -508,6 +536,15 @@ function DigitalICR() {
                             loginId
                         )
                     )
+
+
+                    console.log('Role 5 Matched Franchise:', userFranchise)
+console.log(
+    'Role 5 Selected Franchise Code:',
+    userFranchise
+        ? getFranchiseCode(userFranchise)
+        : 'No matching franchise found'
+)
 
                     setFranchiseCode(
                         userFranchise
@@ -670,7 +707,7 @@ function DigitalICR() {
             setRecords(data)
 
             if (data.length === 0) {
-                setMessage('No records found.')
+                //setMessage('No records found.')
             }
         } catch (err) {
             console.error(

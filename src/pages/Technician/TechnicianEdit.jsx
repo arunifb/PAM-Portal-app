@@ -569,6 +569,7 @@ const isRole5 = roleId === 5 || sessionRoles.includes(5)
             !form.address?.trim() ||
             !form.emailId?.trim() ||
             !form.insurance ||
+            !form.maritalStatus ||
             !form.doj ||
             !form.dob
         ) {
@@ -584,6 +585,8 @@ const isRole5 = roleId === 5 || sessionRoles.includes(5)
             setError('Please enter the technician name.')
             return
         }
+
+        
 
         if (!/^\d{10}$/.test(form.mobileNo.trim())) {
             setError('Please enter a valid 10-digit mobile number.')
@@ -935,13 +938,14 @@ const isRole5 = roleId === 5 || sessionRoles.includes(5)
                                             {/* Marital Status */}
                                             <div className="technician-field">
                                                 <label className="form-label">
-                                                    Marital Status
+                                                    Marital Status<span className="text-danger"> *</span>
                                                 </label>
                                                 <select
                                                     name="maritalStatus"
                                                     className="form-select"
                                                     value={form.maritalStatus}
                                                     onChange={handleChange}
+                                                    
                                                 >
                                                     <option value="">
                                                         Select Marital Status
@@ -949,6 +953,9 @@ const isRole5 = roleId === 5 || sessionRoles.includes(5)
                                                     <option value="1">Single</option>
                                                     <option value="2">Married</option>
                                                 </select>
+                                                {!form.maritalStatus?.trim() && (
+                                                    <span className="field-help">Please fill this</span>
+                                                )}
                                             </div>
 
                                             {/* Date of Joining */}

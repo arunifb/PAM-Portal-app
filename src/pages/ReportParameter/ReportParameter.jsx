@@ -808,6 +808,7 @@ const loggedInRoleId = String(
     sessionStorage.getItem('franchiseCode') ||
     sessionStorage.getItem('FrCode') ||
     ''
+    
 
     // =================================================
     // ROLE IDs
@@ -1677,23 +1678,25 @@ useEffect(() => {
             })
 
             setFranchises(franchiseData)
+            
 
             if (isFranchiseUser) {
-                const matchingFranchise = loggedInFranchiseCode
-                    ? franchiseData.find((franchise) => {
-                        const code =
-                            franchise.frCode ??
-                            franchise.FrCode ??
-                            franchise.franchiseCode ??
-                            franchise.FranchiseCode ??
-                            ''
+                const franchiseCodeToMatch =
+    loggedInFranchiseCode || loggedInLoginId
 
-                        return (
-                            String(code).trim() ===
-                            String(loggedInFranchiseCode).trim()
-                        )
-                    })
-                    : null
+const matchingFranchise = franchiseData.find((franchise) => {
+    const code =
+        franchise.frCode ??
+        franchise.FrCode ??
+        franchise.franchiseCode ??
+        franchise.FranchiseCode ??
+        ''
+
+    return (
+        String(code).trim() ===
+        String(franchiseCodeToMatch).trim()
+    )
+})
 
                 const selectedFranchiseData =
                     matchingFranchise || franchiseData[0]
@@ -2849,7 +2852,7 @@ useEffect(() => {
                                                             event.target.value
                                                         )
                                                     }
-                                                    disabled={regionLoading || isRole3 || isBranchUser}
+                                                    disabled={regionLoading || isRole3 || isBranchUser || isFranchiseUser}
                                                 >
 
                                                 {/* <option value="">
