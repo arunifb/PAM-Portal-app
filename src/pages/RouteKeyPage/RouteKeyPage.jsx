@@ -41,7 +41,8 @@ import EvidenceSearch from '../EvidenceSearch/EvidenceSearch'
 import TechnicianAdd from '../Technician/TechnicianAdd'
 import UploadMSMEDoc from '../UploadMSMEDoc/UploadMSMEDoc'
 //import SearchInvoice from '../SearchInvoice/SearchInvoice'
-//import TrainingManual from '../TrainingManual/TrainingManual'
+import TrainingManual from '../TrainingManual/TrainingManual'
+import TrainingManualAdd from '../TrainingManual/TrainingManualAdd'
 import SubDealerView from '../SubDealer/SubDealerView'
 import PCRVendorDetails from '../PCRVendorDetails/PCRVendorDetails'
 import PCRRefurbishVendorMaster from '../PCRVendorDetails/PCRRefurbishVendorMaster'
@@ -109,6 +110,50 @@ const setFranchiseView = (view) => {
         setSearchParams({})
     }
 }
+
+
+// =========================================
+// TRAINING MANUAL NAVIGATION STATE
+// Restore Add/List page after browser refresh
+// =========================================
+
+const TRAINING_MANUAL_STORAGE_KEY =
+    'trainingManualNavigationState'
+
+const getSavedTrainingManualState = () => {
+    try {
+        const saved =
+            sessionStorage.getItem(
+                TRAINING_MANUAL_STORAGE_KEY
+            )
+
+        if (!saved) return null
+
+        const parsed = JSON.parse(saved)
+
+        if (
+            String(parsed.routeKey).toLowerCase() ===
+            String(routeKey).toLowerCase()
+        ) {
+            return parsed
+        }
+
+        return null
+    } catch (error) {
+        sessionStorage.removeItem(
+            TRAINING_MANUAL_STORAGE_KEY
+        )
+
+        return null
+    }
+}
+
+const [trainingManualView, setTrainingManualView] =
+    useState(
+        () =>
+            getSavedTrainingManualState()?.view ??
+            'list'
+    )
 
 
 // =========================================
@@ -294,8 +339,8 @@ const [refreshPainKiller, setRefreshPainKiller] = useState(0)
                 
         // '/search-invoice': SearchInvoice,
 
-        // '/training-manual':
-        //     TrainingManual,
+        '/training-manual':
+            TrainingManual,
 
         '/sub-dealer-view':
             SubDealerView,
@@ -511,6 +556,30 @@ useEffect(() => {
 
         setPainKillerEditState(null)
         setPainKillerListState(null)
+    }
+}, [menuItem, routeKey])
+
+
+// =========================================
+// TRAINING MANUAL NAVIGATION STATE VALIDATION
+// Clear saved state when leaving Training Manual
+// =========================================
+
+useEffect(() => {
+    if (!menuItem) return
+
+    const currentReactUrl =
+        menuItem.reactUrl
+            ?.toLowerCase()
+            .trim()
+
+    if (currentReactUrl !== '/training-manual') {
+
+        sessionStorage.removeItem(
+            TRAINING_MANUAL_STORAGE_KEY
+        )
+
+        setTrainingManualView('list')
     }
 }, [menuItem, routeKey])
 
@@ -750,6 +819,57 @@ if (
             />
         )
     }
+
+
+
+    // =========================================
+// TRAINING MANUAL LIST / ADD
+// =========================================
+
+if (reactUrl === '/training-manual') {
+
+    // =========================================
+    // SHOW ADD PAGE
+    // =========================================
+
+    if (trainingManualView === 'add') {
+        return (
+            <TrainingManualAdd
+                onBack={() => {
+
+                    sessionStorage.removeItem(
+                        TRAINING_MANUAL_STORAGE_KEY
+                    )
+
+                    setTrainingManualView('list')
+                }}
+            />
+        )
+    }
+
+    // =========================================
+    // SHOW LIST PAGE
+    // =========================================
+
+    return (
+        <TrainingManual
+            onAdd={() => {
+
+                const savedState = {
+                    routeKey,
+                    view: 'add'
+                }
+
+                sessionStorage.setItem(
+                    TRAINING_MANUAL_STORAGE_KEY,
+                    JSON.stringify(savedState)
+                )
+
+                setTrainingManualView('add')
+            }}
+        />
+    )
+}
 
 
 

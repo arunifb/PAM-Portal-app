@@ -1,12 +1,12 @@
+
 import { useCallback, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import DashboardLayout from '../../components/DashboardLayout/DashboardLayout'
 import {
     getProcessNotes,
     getCompanyDivisions,
     getProcessNoteAreas,
     getProcessNoteModules,
-    // getProcessNoteFolders,
-    // getProcessNoteSubfolders,
     searchProcessNotes,
     downloadProcessNote
 } from '../../api/processNoteApi'
@@ -19,6 +19,57 @@ const EMPTY_FILTERS = {
     folderId: '0',
     subfolderId: '0',
     processFor: ''
+}
+
+// =========================================
+// GET LOGGED-IN USER ROLE
+// =========================================
+
+function getLoggedInRole() {
+    let storedRoles = []
+
+    try {
+        const rolesValue = sessionStorage.getItem('roles')
+
+        if (rolesValue) {
+            try {
+                storedRoles = JSON.parse(rolesValue)
+            } catch {
+                storedRoles = rolesValue
+            }
+        }
+    } catch {
+        storedRoles = []
+    }
+
+    if (!Array.isArray(storedRoles)) {
+        storedRoles = [storedRoles]
+    }
+
+    const roleIds = storedRoles
+        .map(role => {
+            if (typeof role === 'object' && role !== null) {
+                return Number(
+                    role.roleId ??
+                    role.RoleID ??
+                    role.rolesID ??
+                    role.RolesID
+                )
+            }
+
+            return Number(role)
+        })
+        .filter(Number.isFinite)
+
+    if (roleIds.includes(8)) return 8
+    if (roleIds.includes(6)) return 6
+
+    return Number(
+        sessionStorage.getItem('roleId') ||
+        sessionStorage.getItem('RoleID') ||
+        sessionStorage.getItem('roleID') ||
+        6
+    )
 }
 
 function getRows(data) {
@@ -134,7 +185,33 @@ function getDownloadFilename(row) {
     return `training-manual${extension ? String(extension) : ''}`
 }
 
-function TrainingManual() {
+// =========================================
+// FORMAT UPLOADED DATE
+// =========================================
+
+function formatUploadedDate(value) {
+    if (!value) return '-'
+
+    const date = new Date(value)
+
+    if (Number.isNaN(date.getTime())) return '-'
+
+    return date.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+    })
+}
+
+// =========================================
+// TRAINING MANUAL
+// =========================================
+
+function TrainingManual({ onAdd }) {
+    const navigate = useNavigate()
+    const loggedInRole = getLoggedInRole()
+    const isRole8 = loggedInRole === 8
+
     const [filters, setFilters] = useState({ ...EMPTY_FILTERS })
 
     const [companyDivisions, setCompanyDivisions] = useState([])
@@ -157,6 +234,10 @@ function TrainingManual() {
         }))
     }
 
+    // =========================================
+    // LOAD INITIAL DATA
+    // =========================================
+
     const loadInitialData = useCallback(async () => {
         setLoading(true)
         setError('')
@@ -165,7 +246,7 @@ function TrainingManual() {
         try {
             const [divisionData, noteData] = await Promise.all([
                 getCompanyDivisions(),
-                getProcessNotes(6)
+                getProcessNotes(loggedInRole)
             ])
 
             setCompanyDivisions(getRows(divisionData))
@@ -175,11 +256,15 @@ function TrainingManual() {
         } finally {
             setLoading(false)
         }
-    }, [])
+    }, [loggedInRole])
 
     useEffect(() => {
         loadInitialData()
     }, [loadInitialData])
+
+    // =========================================
+    // COMPANY / DIVISION CHANGE
+    // =========================================
 
     const handleCompanyChange = async value => {
         setFilters(previous => ({
@@ -208,6 +293,10 @@ function TrainingManual() {
         }
     }
 
+    // =========================================
+    // AREA CHANGE
+    // =========================================
+
     const handleAreaChange = async value => {
         setFilters(previous => ({
             ...previous,
@@ -233,6 +322,10 @@ function TrainingManual() {
         }
     }
 
+    // =========================================
+    // MODULE CHANGE
+    // =========================================
+
     const handleModuleChange = value => {
         setFilters(previous => ({
             ...previous,
@@ -241,36 +334,13 @@ function TrainingManual() {
             subfolderId: '0'
         }))
 
-        // Folder and Subfolder menus are not required for now.
-        // setFolders([])
-        // setSubfolders([])
-
         setError('')
         setNotice('')
-
-        // Do not call getProcessNoteFolders(value) here.
     }
 
-    // const handleFolderChange = async value => {
-    //     setFilters(previous => ({
-    //         ...previous,
-    //         folderId: value,
-    //         subfolderId: '0'
-    //     }))
-    //
-    //     setSubfolders([])
-    //     setError('')
-    //     setNotice('')
-    //
-    //     if (value === '0') return
-    //
-    //     try {
-    //         const data = await getProcessNoteSubfolders(value)
-    //         setSubfolders(getRows(data))
-    //     } catch (err) {
-    //         setError(err.message || 'Unable to load subfolders.')
-    //     }
-    // }
+    // =========================================
+    // SEARCH
+    // =========================================
 
     const handleSearch = async event => {
         event.preventDefault()
@@ -302,6 +372,10 @@ function TrainingManual() {
         }
     }
 
+    // =========================================
+    // RESET
+    // =========================================
+
     const handleReset = async () => {
         setFilters({ ...EMPTY_FILTERS })
         setAreas([])
@@ -313,6 +387,10 @@ function TrainingManual() {
 
         await loadInitialData()
     }
+
+    // =========================================
+    // DOWNLOAD
+    // =========================================
 
     const handleDownload = async row => {
         const id = getField(row, 'id', 'processNoteId')
@@ -339,7 +417,7 @@ function TrainingManual() {
             anchor.remove()
 
             window.URL.revokeObjectURL(objectUrl)
-            setNotice('Download started.')
+            //setNotice('Download started.')
         } catch (err) {
             setError(err.message || 'Unable to download the file.')
         } finally {
@@ -347,18 +425,29 @@ function TrainingManual() {
         }
     }
 
+    // =========================================
+    // RENDER
+    // =========================================
+
     return (
         <DashboardLayout title="Training Manual">
             <div className="training-manual-page">
-                <form className="tm-box" onSubmit={handleSearch}>
-                    {/* <div className="tm-section-heading">
-                        <h2>
-                            <i className="fa fa-bell" aria-hidden="true" />
-                            {' '}Notification &amp; Training Manual Process Note
-                        </h2>
-                    </div> */}
+                {isRole8 && (
+                    <div className="tm-top-actions">
+                        <button
+                            type="button"
+                            className="tm-add-button"
+                            onClick={onAdd}
+                        >
+                            <i className="fa fa-plus" aria-hidden="true" />
+                            {' '}Add
+                        </button>
+                    </div>
+                )}
 
+                <form className="tm-box" onSubmit={handleSearch}>
                     <div className="tm-filter-grid">
+
                         {/* Company / Division */}
                         <div className="tm-field">
                             <label htmlFor="tm-company">
@@ -440,62 +529,6 @@ function TrainingManual() {
                                 ))}
                             </select>
                         </div>
-
-                        {/* Folder - currently not required */}
-                        {/* <div className="tm-field">
-                            <label htmlFor="tm-folder">
-                                Folder
-                                <span className="tm-required">*</span>
-                            </label>
-
-                            <select
-                                id="tm-folder"
-                                value={filters.folderId}
-                                disabled={filters.moduleId === '0'}
-                                onChange={event =>
-                                    handleFolderChange(event.target.value)
-                                }
-                            >
-                                <option value="0">Select Folder</option>
-
-                                {folders.map((item, index) => (
-                                    <option
-                                        key={`${getId(item)}-${index}`}
-                                        value={getId(item)}
-                                    >
-                                        {getLabel(item)}
-                                    </option>
-                                ))}
-                            </select>
-                        </div> */}
-
-                        {/* Subfolder - currently not required */}
-                        {/* <div className="tm-field">
-                            <label htmlFor="tm-subfolder">
-                                Subfolder
-                                <span className="tm-required">*</span>
-                            </label>
-
-                            <select
-                                id="tm-subfolder"
-                                value={filters.subfolderId}
-                                disabled={filters.folderId === '0'}
-                                onChange={event =>
-                                    updateFilter('subfolderId', event.target.value)
-                                }
-                            >
-                                <option value="0">Select Subfolder</option>
-
-                                {subfolders.map((item, index) => (
-                                    <option
-                                        key={`${getId(item)}-${index}`}
-                                        value={getId(item)}
-                                    >
-                                        {getLabel(item)}
-                                    </option>
-                                ))}
-                            </select>
-                        </div> */}
 
                         {/* Process Note + Search + Reset */}
                         <div className="tm-field tm-process-search-group">
@@ -593,7 +626,17 @@ function TrainingManual() {
                                     <th>Module</th>
                                     <th>Process Note</th>
                                     <th>Type</th>
-                                    <th>Status</th>
+
+                                    {isRole8 && (
+                                        <>
+                                            <th>Uploaded By</th>
+                                            <th>Created Date</th>
+                                        </>
+                                    )}
+
+                                    {isRole8 && <th>Status</th>}
+
+                                    <th>{isRole8 ? 'Is Active' : 'Status'}</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -602,7 +645,7 @@ function TrainingManual() {
                                 {loading ? (
                                     <tr>
                                         <td
-                                            colSpan="8"
+                                            colSpan={isRole8 ? 11 : 8}
                                             className="tm-table-message"
                                         >
                                             <div className="tm-loading">
@@ -621,7 +664,7 @@ function TrainingManual() {
                                 ) : manuals.length === 0 ? (
                                     <tr>
                                         <td
-                                            colSpan="8"
+                                            colSpan={isRole8 ? 11 : 8}
                                             className="tm-table-message"
                                         >
                                             <i
@@ -649,14 +692,23 @@ function TrainingManual() {
 
                                         const activeValue = getField(
                                             row,
-                                            'isActive',
-                                            'status'
+                                            'isActive'
                                         )
 
                                         const isActive =
                                             activeValue === true ||
                                             ['true', 'active', '1'].includes(
                                                 String(activeValue).toLowerCase()
+                                            )
+
+                                        const statusValue = getField(
+                                            row,
+                                            'status'
+                                        )
+
+                                        const isPublished =
+                                            ['1', 'published'].includes(
+                                                String(statusValue).toLowerCase()
                                             )
 
                                         return (
@@ -703,6 +755,44 @@ function TrainingManual() {
                                                     </span>
                                                 </td>
 
+                                                {/* Role 8 additional columns */}
+                                                {isRole8 && (
+                                                    <>
+                                                        <td>
+                                                            {getField(
+                                                                row,
+                                                                'createdBy',
+                                                                'uploadedBy'
+                                                            ) || '-'}
+                                                        </td>
+
+                                                        <td>
+                                                            {formatUploadedDate(
+                                                                getField(
+                                                                    row,
+                                                                    'createdDate',
+                                                                    'uploadedDate'
+                                                                )
+                                                            )}
+                                                        </td>
+
+                                                        <td>
+                                                            <span
+                                                                className={`tm-status ${
+                                                                    isPublished
+                                                                        ? 'tm-status-active'
+                                                                        : 'tm-status-inactive'
+                                                                }`}
+                                                            >
+                                                                {isPublished
+                                                                    ? 'Published'
+                                                                    : 'Yet Not Publish'}
+                                                            </span>
+                                                        </td>
+                                                    </>
+                                                )}
+
+                                                {/* Status / IsActive */}
                                                 <td>
                                                     <span
                                                         className={`tm-status ${
@@ -717,36 +807,70 @@ function TrainingManual() {
                                                     </span>
                                                 </td>
 
+                                                {/* Action */}
                                                 <td>
-                                                    <button
-                                                        type="button"
-                                                        className="tm-download-button"
-                                                        title="Download file"
-                                                        disabled={
-                                                            String(downloadingId) ===
-                                                            String(id)
-                                                        }
-                                                        onClick={() =>
-                                                            handleDownload(row)
-                                                        }
-                                                    >
-                                                        <i
-                                                            className={`fa ${
-                                                                String(downloadingId) ===
-                                                                String(id)
-                                                                    ? 'fa-spinner fa-spin'
-                                                                    : 'fa-download'
-                                                            }`}
-                                                            aria-hidden="true"
-                                                        />
+                                                    {isRole8 ? (
+                                                        <div className="tm-role8-actions">
+                                                            <button
+                                                                type="button"
+                                                                title="Download"
+                                                                disabled={String(downloadingId) === String(id)}
+                                                                onClick={() => handleDownload(row)}
+                                                            >
+                                                                <i
+                                                                    className={`fa ${
+                                                                        String(downloadingId) === String(id)
+                                                                            ? 'fa-spinner fa-spin'
+                                                                            : 'fa-download'
+                                                                    }`}
+                                                                    aria-hidden="true"
+                                                                />
+                                                            </button>
 
-                                                        {' '}
+                                                            <button
+                                                                type="button"
+                                                                title="Stop Sharing"
+                                                                onClick={() => {
+                                                                    // Stop Sharing API integration pending
+                                                                }}
+                                                            >
+                                                                <i className="fa fa-stop" aria-hidden="true" />
+                                                            </button>
 
-                                                        {String(downloadingId) ===
-                                                        String(id)
-                                                            ? 'Downloading'
-                                                            : 'Download'}
-                                                    </button>
+                                                            <button
+                                                                type="button"
+                                                                title="Delete"
+                                                                onClick={() => {
+                                                                    // Delete API integration pending
+                                                                }}
+                                                            >
+                                                                <i className="fa fa-trash" aria-hidden="true" />
+                                                            </button>
+                                                        </div>
+                                                    ) : (
+                                                        <button
+                                                            type="button"
+                                                            className="tm-download-button"
+                                                            title="Download file"
+                                                            disabled={String(downloadingId) === String(id)}
+                                                            onClick={() => handleDownload(row)}
+                                                        >
+                                                            <i
+                                                                className={`fa ${
+                                                                    String(downloadingId) === String(id)
+                                                                        ? 'fa-spinner fa-spin'
+                                                                        : 'fa-download'
+                                                                }`}
+                                                                aria-hidden="true"
+                                                            />
+
+                                                            {' '}
+
+                                                            {String(downloadingId) === String(id)
+                                                                ? 'Downloading'
+                                                                : 'Download'}
+                                                        </button>
+                                                    )}
                                                 </td>
                                             </tr>
                                         )
