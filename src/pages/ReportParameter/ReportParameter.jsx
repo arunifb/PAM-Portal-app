@@ -819,6 +819,7 @@ const loggedInRoleId = String(
     const FRANCHISE_ROLE_ID = '5'
     const BRANCH_ROLE_ID = '6'
     const FACTORY_ROLE_ID = '7'
+    const ROLE_8_ID = '8'
     const ROLE_3_ID = '3'
 
 
@@ -837,11 +838,14 @@ const loggedInRoleId = String(
     const isFactoryUser =
         String(loggedInRoleId) === FACTORY_ROLE_ID
 
+    const isRole8 =
+        String(loggedInRoleId) === ROLE_8_ID
+
     const isRole3 =
     String(loggedInRoleId) === ROLE_3_ID
 
     const isFactoryLikeUser =
-    isFactoryUser || isRole2
+    isFactoryUser || isRole2 || isRole8
 
     const isRegionOrFactoryUser =
         isRegionUser || isFactoryLikeUser
