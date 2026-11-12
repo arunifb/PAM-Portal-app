@@ -56,6 +56,20 @@
     overflow: hidden;
 }
 
+
+/* Allow Ref No suggestions to display outside the search card */
+.msme-page > .msme-card:first-child {
+    position: relative;
+    z-index: 2;
+    overflow: visible;
+}
+
+/* Keep the vendor records below the search dropdown */
+.msme-results-card {
+    position: relative;
+    z-index: 1;
+}
+
 .msme-section-heading {
     display: flex;
     justify-content: space-between;

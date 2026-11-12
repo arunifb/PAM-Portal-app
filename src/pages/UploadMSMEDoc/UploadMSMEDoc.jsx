@@ -21,12 +21,53 @@ const ALLOWED_FILE_EXTENSIONS = [
 
 const MAX_FILE_SIZE = 3 * 1024 * 1024
 
+function getSessionRoles() {
+    try {
+        const storedRoles = sessionStorage.getItem('roles')
+
+        if (!storedRoles) return []
+
+        const parsedRoles = JSON.parse(storedRoles)
+
+        if (Array.isArray(parsedRoles)) {
+            return parsedRoles
+                .map(role => {
+                    if (typeof role === 'object' && role !== null) {
+                        return Number(
+                            role.roleID ??
+                            role.RoleID ??
+                            role.roleId ??
+                            role.RoleId ??
+                            role.id ??
+                            role.Id
+                        )
+                    }
+
+                    return Number(role)
+                })
+                .filter(roleId =>
+                    Number.isInteger(roleId) && roleId > 0
+                )
+        }
+
+        return []
+    } catch (error) {
+        console.error('Unable to read session roles:', error)
+        return []
+    }
+}
+
 function UploadMSMEDoc() {
     // =========================================
     // SESSION VALUES
     // =========================================
 
     const userId = sessionStorage.getItem('userId') || ''
+
+    const sessionRoles = getSessionRoles()
+
+    const isRole6 = sessionRoles.includes(6)
+    const isRole8 = sessionRoles.includes(8)
 
     // =========================================
     // SEARCH STATE
@@ -39,7 +80,21 @@ function UploadMSMEDoc() {
     const [showResults, setShowResults] = useState(false)
 
     // Previously searched Ref Nos
-    const [refNoHistory, setRefNoHistory] = useState([])
+    //const [refNoHistory, setRefNoHistory] = useState([])
+
+    const [refNoHistory, setRefNoHistory] = useState(() => {
+    try {
+        const history = JSON.parse(
+            localStorage.getItem('msmeRefNoHistory') || '[]'
+        )
+
+        return Array.isArray(history) ? history : []
+    } catch {
+        return []
+    }
+})
+
+
     const [showRefNoSuggestions, setShowRefNoSuggestions] = useState(false)
 
     // =========================================
@@ -118,10 +173,14 @@ const addRefNoToHistory = (value) => {
         const updated = [
             ref,
             ...previous.filter((item) => item !== ref)
-        ]
+        ].slice(0, 10)
 
-        // Keep only the latest 10 searched Ref Nos
-        return updated.slice(0, 10)
+        localStorage.setItem(
+            'msmeRefNoHistory',
+            JSON.stringify(updated)
+        )
+
+        return updated
     })
 }
 
@@ -160,6 +219,7 @@ const handleRefNoSuggestionSelect = (value) => {
     // =========================================
 
     const handleSearch = async () => {
+        setShowRefNoSuggestions(false)
         setError('')
         setMessage('')
         setResults([])
@@ -190,9 +250,11 @@ const handleRefNoSuggestionSelect = (value) => {
 
             setResults(records)
 
-            if (records.length > 0) {
-                addRefNoToHistory(refNo)
-            }
+            addRefNoToHistory(refNo)
+
+            // if (records.length > 0) {
+            //     addRefNoToHistory(refNo)
+            // }
 
             // if (records.length === 0) {
             //     setMessage(
@@ -388,7 +450,7 @@ const handleRefNoSuggestionSelect = (value) => {
     // =========================================
 
     return (
-        <DashboardLayout title="Upload MSME Doc">
+        <DashboardLayout >
             <div className="msme-page">
 
                 {/* PAGE HEADING */}
@@ -528,22 +590,103 @@ const handleRefNoSuggestionSelect = (value) => {
                             <div className="msme-table-wrapper">
                                 <table className="msme-table">
                                     <thead>
-                                        <tr>
-                                            <th>Ref No</th>
-                                            <th>Vendor Code</th>
-                                            <th>Name</th>
-                                            <th>Address</th>
-                                            <th>MSME Reg No.</th>
-                                            <th>MSME Doc Upload</th>
-                                            <th>Action</th>
-                                        </tr>
+                                        {isRole8 ? (
+                                            <tr>
+                                                <th>Ref No</th>
+                                                <th>Vendor Code</th>
+                                                <th>Name</th>
+                                                <th>Search Term1</th>
+                                                <th>Address</th>
+                                                <th>MSME Reg No.</th>
+                                                <th>MSME Doc</th>
+                                                <th>TDS Doc</th>
+                                            </tr>
+                                        ) : (
+                                            <tr>
+                                                <th>Ref No</th>
+                                                <th>Vendor Code</th>
+                                                <th>Name</th>
+                                                <th>Address</th>
+                                                <th>MSME Reg No.</th>
+                                                <th>MSME Doc Upload</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        )}
                                     </thead>
 
                                     <tbody>
                                         {results.map((item, index) => {
-                                            const id = String(
-                                                getValue(item, 'Id', 'id')
-                                            )
+                                            const id = String(getValue(item, 'Id', 'id'))
+
+                                            // =========================================
+                                            // ROLE 8 - DOWNLOAD MSME DOC
+                                            // =========================================
+
+                                            if (isRole8) {
+                                                return (
+                                                    <tr key={`${id}-${index}`}>
+                                                        <td>{id}</td>
+
+                                                        <td>
+                                                            {getValue(
+                                                                item,
+                                                                'VendorCode',
+                                                                'vendorCode',
+                                                                'vendorcode'
+                                                            )}
+                                                        </td>
+
+                                                        <td>
+                                                            {getValue(item, 'Name', 'name')}
+                                                        </td>
+
+                                                        <td>
+                                                            {getValue(
+                                                                item,
+                                                                'Searchterm1',
+                                                                'SearchTerm1',
+                                                                'searchterm1',
+                                                                'searchTerm1'
+                                                            )}
+                                                        </td>
+
+                                                        <td className="msme-address">
+                                                            {getValue(item, 'Address', 'address')}
+                                                        </td>
+
+                                                        <td>
+                                                            {getValue(item, 'MSMERegNo', 'msmeRegNo') || '-'}
+                                                        </td>
+
+                                                        <td>
+                                                            <button
+                                                                type="button"
+                                                                className="msme-button msme-button-primary msme-upload-button"
+                                                                disabled
+                                                                title="Download API is not implemented yet"
+                                                            >
+                                                                No File
+                                                            </button>
+                                                        </td>
+
+                                                        <td>
+                                                            <button
+                                                                type="button"
+                                                                className="msme-button msme-button-primary msme-upload-button"
+                                                                disabled
+                                                                title="Download API is not implemented yet"
+                                                            >
+                                                                No File
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            }
+
+                                            // =========================================
+                                            // ROLE 6 - EXISTING UPLOAD MSME DOC
+                                            // =========================================
+
                                             const form = getRowForm(item)
                                             const isUploading = uploadingId === id
 
@@ -561,19 +704,11 @@ const handleRefNoSuggestionSelect = (value) => {
                                                     </td>
 
                                                     <td>
-                                                        {getValue(
-                                                            item,
-                                                            'Name',
-                                                            'name'
-                                                        )}
+                                                        {getValue(item, 'Name', 'name')}
                                                     </td>
 
                                                     <td className="msme-address">
-                                                        {getValue(
-                                                            item,
-                                                            'Address',
-                                                            'address'
-                                                        )}
+                                                        {getValue(item, 'Address', 'address')}
                                                     </td>
 
                                                     <td>
@@ -584,10 +719,7 @@ const handleRefNoSuggestionSelect = (value) => {
                                                             maxLength={20}
                                                             placeholder="UDYAM-XX-YY-XXXXXXX"
                                                             onChange={(event) =>
-                                                                handleRegNoChange(
-                                                                    item,
-                                                                    event.target.value
-                                                                )
+                                                                handleRegNoChange(item, event.target.value)
                                                             }
                                                             disabled={isUploading}
                                                         />
@@ -606,7 +738,6 @@ const handleRefNoSuggestionSelect = (value) => {
                                                                     event.target.files?.[0] || null
                                                                 )
 
-                                                                // Allows selecting the same file again.
                                                                 event.target.value = ''
                                                             }}
                                                             disabled={isUploading}
@@ -627,30 +758,20 @@ const handleRefNoSuggestionSelect = (value) => {
                                                         <button
                                                             type="button"
                                                             className="msme-button msme-button-primary msme-upload-button"
-                                                            onClick={() =>
-                                                                handleUpload(item)
-                                                            }
+                                                            onClick={() => handleUpload(item)}
                                                             disabled={isUploading}
                                                         >
-                                                            {isUploading
-                                                                ? 'Uploading...'
-                                                                : 'Upload'}
+                                                            {isUploading ? 'Uploading...' : 'Upload'}
                                                         </button>
 
                                                         {form.validationError && (
-                                                            <div
-                                                                className="msme-row-error"
-                                                                role="alert"
-                                                            >
+                                                            <div className="msme-row-error" role="alert">
                                                                 {form.validationError}
                                                             </div>
                                                         )}
 
                                                         {form.uploadMessage && (
-                                                            <div
-                                                                className="msme-row-success"
-                                                                role="status"
-                                                            >
+                                                            <div className="msme-row-success" role="status">
                                                                 {form.uploadMessage}
                                                             </div>
                                                         )}
