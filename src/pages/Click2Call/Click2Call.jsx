@@ -75,12 +75,14 @@ function Click2Call() {
     const isRole5 = roleId === 5
     const isRole6 = roleId === 6
     const isRole7 = roleId === 7
+    const isRole29 = roleId === 29
 
     const isBranchUser =
         !isRole1Or3 &&
         !isRole5 &&
         !isRole6 &&
-        !isRole7
+        !isRole7 &&
+        !isRole29
 
     // =========================================
     // REGION STATE
@@ -89,7 +91,7 @@ function Click2Call() {
     const [regions, setRegions] = useState([])
 
     const [region, setRegion] = useState(
-        isRole3 || isRole5 || isRole6
+        isRole3 || isRole5 || isRole6 || isRole29
             ? sessionRegionCode
             : ''
     )
@@ -103,12 +105,14 @@ function Click2Call() {
     const [ticketNumber, setTicketNumber] = useState('')
 
     const [branch, setBranch] = useState(
-        isRole3 || isRole5 || isRole6
+    isRole29
+        ? 'ALL'
+        : isRole3 || isRole5 || isRole6
             ? bpCode
             : isBranchUser
                 ? bpCode
                 : ''
-    )
+)
 
     const [franchise, setFranchise] = useState('')
     const [fromDate, setFromDate] = useState('')
@@ -303,7 +307,7 @@ function Click2Call() {
 
                 // Roles 3, 5 and 6:
                 // Select the logged-in user's region.
-                if (isRole3 || isRole5 || isRole6) {
+                if (isRole3 || isRole5 || isRole6 || isRole29) {
                     const matchingRegion = data.find(
                         item =>
                             String(getRegionCode(item)).trim().toLowerCase() ===
@@ -349,7 +353,8 @@ function Click2Call() {
         sessionRegionCode,
         isRole3,
         isRole5,
-        isRole6
+        isRole6,
+        isRole29
     ])
 
     // =========================================
@@ -361,7 +366,7 @@ function Click2Call() {
 
         const loadBranches = async () => {
             // Roles 1 and 3 require a selected region.
-            if (isRole1Or3 && !region) {
+            if ((isRole1Or3 || isRole29) && !region) {
                 setBranches([])
                 setBranch('')
                 setFranchises([])
@@ -386,7 +391,7 @@ function Click2Call() {
 
                 let data = []
 
-                if (isRole1Or3 || isRole5 || isRole6) {
+                if (isRole1Or3 || isRole5 || isRole6 || isRole29) {
                     // Load branches for the selected region.
                     console.log('Click2Call Loading regional branches:', {
                         userId: sessionUserId,
@@ -436,7 +441,20 @@ function Click2Call() {
                         getBranchName(item)
                 )
 
-                setBranches(validBranches)
+                const finalBranches =
+                    isRole29
+                        ? [
+                            {
+                                bpCode: 'ALL',
+                                branchName: 'All'
+                            },
+                            ...validBranches
+                        ]
+                        : validBranches
+
+                setBranches(finalBranches)
+
+                // setBranches(validBranches)
 
                 // Roles 3, 5 and 6:
                 // Select the logged-in user's branch when available.
@@ -452,7 +470,10 @@ function Click2Call() {
                             ? String(getBranchCode(matchingBranch))
                             : ''
                     )
-                } else {
+                } else if (isRole29) {
+                    setBranch('ALL')
+                }
+                else {
                     // Roles 1 and 7 select their branch manually.
                     setBranch('')
                 }
@@ -498,7 +519,8 @@ function Click2Call() {
         isRole5,
         isRole6,
         isRole7,
-        isBranchUser
+        isBranchUser,
+        isRole29
     ])
 
     // =========================================
@@ -537,8 +559,10 @@ function Click2Call() {
 
                 // Roles 5 and 6 retain the existing BPCode behavior.
                 const franchiseBpCode =
-                    isRole5 || isRole6
-                        ? bpCode
+                isRole5 || isRole6
+                    ? bpCode
+                    : branch === 'ALL'
+                        ? ''
                         : branch
 
                 const data = await getClick2CallFranchises(
@@ -597,9 +621,9 @@ function Click2Call() {
                 setFranchises([])
                 setFranchise('')
 
-                setError(
-                    error.message || 'Unable to load franchises.'
-                )
+                // setError(
+                //     error.message || 'Unable to load franchises.'
+                // )
             } finally {
                 if (!cancelled) {
                     setFranchiseLoading(false)
@@ -621,7 +645,8 @@ function Click2Call() {
         isRole5,
         isRole6,
         isRole7,
-        isBranchUser
+        isBranchUser,
+        isRole29
     ])
 
     // =========================================
@@ -687,13 +712,13 @@ function Click2Call() {
         setIsTicketSearch(isTicket)
 
         // Roles 1, 3 and 7 require a selected region.
-        if ((isRole1Or3 || isRole7) && !region) {
+        if ((isRole1Or3 || isRole7 || isRole29) && !region) {
             setError('Please select a region.')
             return
         }
 
         // Branch is mandatory for every role.
-        if (!branch) {
+        if (!isRole29 && !branch) {
             setError('Please select a branch.')
             return
         }
@@ -716,11 +741,14 @@ function Click2Call() {
         }
 
         const searchRegionCode =
-            isRole1Or3 || isRole7
+            isRole1Or3 || isRole7 || isRole29
                 ? region
                 : sessionRegionCode
 
-        const searchBpCode = branch || bpCode
+        const searchBpCode =
+            isRole29
+                ? ''
+                : branch || bpCode
 
         const request = {
             roleId,
@@ -788,6 +816,12 @@ function Click2Call() {
             return
         }
 
+        if (isRole29) {
+        setRegion(sessionRegionCode)
+        setBranch('ALL')
+        return
+    }
+
         setBranch(bpCode || '')
     }
 
@@ -830,7 +864,7 @@ function Click2Call() {
                     <div className="click2call-form">
 
                         {/* REGION */}
-                        {(isRole1Or3 || isRole5 || isRole6 || isRole7) && (
+                        {(isRole1Or3 || isRole5 || isRole6 || isRole7 || isRole29) && (
                             <div className="click2call-field">
                                 <label>
                                     Select Region:
@@ -840,7 +874,7 @@ function Click2Call() {
                                 <select
                                     value={region}
                                     onChange={handleRegionChange}
-                                    disabled={regionLoading || isRole3 || isRole5 || isRole6}
+                                    disabled={regionLoading || isRole3 || isRole5 || isRole6 || isRole29}
                                 >
                                     <option value="">
                                         Select Region
@@ -864,6 +898,7 @@ function Click2Call() {
                         )}
 
                         {/* BRANCH */}
+                        
                         <div className="click2call-field">
                             <label>
                                 Select Branch:
@@ -878,13 +913,15 @@ function Click2Call() {
                                     isRole3 ||
                                     isRole5 ||
                                     isRole6 ||
-                                    ((isRole1Or3 || isRole5) && !region) ||
+                                    ((isRole1Or3 || isRole5 || isRole29) && !region) ||
                                     isBranchUser
                                 }
                             >
+                                {!isRole29 && (
                                 <option value="">
                                     Select Branch
                                 </option>
+                                )}
 
                                 {branches.map((item, index) => (
                                     <option
@@ -896,6 +933,7 @@ function Click2Call() {
                                 ))}
                             </select>
                         </div>
+                    
 
                         {/* FRANCHISE */}
                         <div className="click2call-field">
@@ -906,7 +944,7 @@ function Click2Call() {
                                 onChange={handleFranchiseChange}
                                 disabled={
                                     franchiseLoading ||
-                                    !branch ||
+                                    (!branch && !isRole29) ||
                                     isRole5
                                 }
                             >
