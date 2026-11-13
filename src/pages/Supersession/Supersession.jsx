@@ -537,7 +537,7 @@ function Supersession() {
 
                     <div className="supersession-save-row">
 
-                        {/* <button
+                        <button
                             type="button"
                             className="btn btn-success"
                             onClick={
@@ -551,7 +551,7 @@ function Supersession() {
                             {saving
                                 ? 'Inserting...'
                                 : 'Insert to Database'}
-                        </button> */}
+                        </button>
 
                     </div>
 
