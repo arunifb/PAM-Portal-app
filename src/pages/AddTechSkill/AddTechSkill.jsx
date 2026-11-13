@@ -77,6 +77,7 @@ function AddTechSkill() {
 
     const isRole3 = hasAssignedRole(3)
     const isRole7 = hasAssignedRole(7)
+    const isRole29 = hasAssignedRole(29)
 
     // Role 3 keeps its existing automatic selection behavior.
     const shouldAutoSelectRegionBranch = isRole3
@@ -92,21 +93,21 @@ function AddTechSkill() {
     const [region, setRegion] = useState(
         isRole7
             ? 'All'
-            : shouldAutoSelectRegionBranch
+            : (isRole3 || isRole29)
                 ? sessionRegionCode
                 : ''
     )
 
     const [branch, setBranch] = useState(
-        isRole7
+        isRole7 || isRole29
             ? 'All'
-            : shouldAutoSelectRegionBranch
+            : isRole3
                 ? bpCode
                 : ''
     )
 
     const [franchise, setFranchise] = useState(
-        isRole7 ? 'All' : ''
+        isRole7 || isRole29 ? 'All' : ''
     )
 
     const [regionLoading, setRegionLoading] = useState(false)
@@ -188,7 +189,7 @@ function AddTechSkill() {
 
                 if (isRole7) {
                     setRegion('All')
-                } else if (shouldAutoSelectRegionBranch) {
+                } else if (isRole29 || shouldAutoSelectRegionBranch) {
                     const matchingRegion = data.find(
                         item =>
                             String(getRegionCode(item)).trim().toLowerCase() ===
@@ -198,14 +199,21 @@ function AddTechSkill() {
                     setRegion(
                         matchingRegion
                             ? String(getRegionCode(matchingRegion))
-                            : ''
+                            : sessionRegionCode
                     )
                 }
             } catch (err) {
                 if (cancelled) return
 
                 setRegions([])
-                setRegion(isRole7 ? 'All' : '')
+
+                setRegion(
+                    isRole7
+                        ? 'All'
+                        : isRole29
+                            ? sessionRegionCode
+                            : ''
+                )
 
                 setError(err.message || 'Unable to load regions.')
             } finally {
@@ -223,6 +231,7 @@ function AddTechSkill() {
     }, [
         sessionUserId,
         isRole7,
+        isRole29,
         shouldAutoSelectRegionBranch,
         sessionRegionCode
     ])
@@ -236,9 +245,9 @@ function AddTechSkill() {
 
         const loadBranches = async () => {
             setBranches([])
-            setBranch(isRole7 ? 'All' : '')
+            setBranch(isRole7 || isRole29 ? 'All' : '')
             setFranchises([])
-            setFranchise(isRole7 ? 'All' : '')
+            setFranchise(isRole7 || isRole29 ? 'All' : '')
             setProducts([])
             setTechnicians([])
 
@@ -252,8 +261,8 @@ function AddTechSkill() {
                 setError('')
                 setMessage('')
 
-                // An empty region parameter requests all available
-                // branches for Role 7's Region = All selection.
+                // Role 7: All regions.
+                // Role 29: Logged-in user's selected region.
                 const regionParameter = region === 'All' ? '' : region
 
                 const data = await getBranches(
@@ -277,7 +286,7 @@ function AddTechSkill() {
 
                 setBranches(validBranches)
 
-                if (isRole7) {
+                if (isRole7 || isRole29) {
                     setBranch('All')
                 } else if (shouldAutoSelectRegionBranch) {
                     const matchingBranch = validBranches.find(
@@ -296,7 +305,7 @@ function AddTechSkill() {
                 if (cancelled) return
 
                 setBranches([])
-                setBranch(isRole7 ? 'All' : '')
+                setBranch(isRole7 || isRole29 ? 'All' : '')
 
                 setError(err.message || 'Unable to load branches.')
             } finally {
@@ -315,6 +324,7 @@ function AddTechSkill() {
         region,
         sessionUserId,
         isRole7,
+        isRole29,
         shouldAutoSelectRegionBranch,
         bpCode
     ])
@@ -329,7 +339,7 @@ function AddTechSkill() {
 
         const loadFranchises = async () => {
             setFranchises([])
-            setFranchise(isRole7 ? 'All' : '')
+            setFranchise(isRole7 || isRole29 ? 'All' : '')
             setProducts([])
             setTechnicians([])
 
@@ -338,8 +348,7 @@ function AddTechSkill() {
                 return
             }
 
-            // For Role 7, Branch = All means Franchise = All.
-            // No branch-specific franchise request is necessary.
+            // Role 7: Branch = All does not need a franchise API call.
             if (isRole7 && branch === 'All') {
                 setFranchise('All')
                 setFranchiseLoading(false)
@@ -351,7 +360,18 @@ function AddTechSkill() {
                 setError('')
                 setMessage('')
 
-                const data = await getFranchises(branch, loginId)
+                // Role 29:
+                // Branch = All -> empty BPCode requests all franchises.
+                // Specific branch -> requests franchises for that branch.
+                const franchiseBpCode =
+                    isRole29 && branch === 'All'
+                        ? ''
+                        : branch
+
+                const data = await getFranchises(
+                    franchiseBpCode,
+                    loginId
+                )
 
                 if (cancelled) return
 
@@ -369,11 +389,11 @@ function AddTechSkill() {
 
                 setFranchises(sortedFranchises)
 
-                if (isRole7) {
-                    // Specific branch: offer All plus each franchise.
+                if (isRole7 || isRole29) {
+                    // Keep All selected by default.
                     setFranchise('All')
                 } else {
-                    // Preserve the existing LoginID matching behavior.
+                    // Preserve existing LoginID matching behavior.
                     const normalizedLoginId = String(loginId)
                         .trim()
                         .toLowerCase()
@@ -410,7 +430,7 @@ function AddTechSkill() {
                 if (cancelled) return
 
                 setFranchises([])
-                setFranchise(isRole7 ? 'All' : '')
+                setFranchise(isRole7 || isRole29 ? 'All' : '')
 
                 setError(err.message || 'Unable to load franchises.')
             } finally {
@@ -425,7 +445,7 @@ function AddTechSkill() {
         return () => {
             cancelled = true
         }
-    }, [branch, loginId, isRole7])
+    }, [branch, loginId, isRole7, isRole29])
 
     // =========================================
     // LOAD SKILL MATRIX WHEN FRANCHISE CHANGES
@@ -438,9 +458,12 @@ function AddTechSkill() {
             setProducts([])
             setTechnicians([])
 
-            // "All" is a filter value, not a specific franchise ID.
-            // Do not call the single-franchise matrix API for it.
-            if (!franchise || (isRole7 && franchise === 'All')) {
+            // All is a filter value, not a specific franchise ID.
+            // The current matrix API accepts one franchise at a time.
+            if (
+                !franchise ||
+                ((isRole7 || isRole29) && franchise === 'All')
+            ) {
                 setMatrixLoading(false)
                 return
             }
@@ -499,13 +522,15 @@ function AddTechSkill() {
         return () => {
             cancelled = true
         }
-    }, [franchise, isRole7])
+    }, [franchise, isRole7, isRole29])
 
     // =========================================
     // REGION CHANGE
     // =========================================
 
     const handleRegionChange = event => {
+        if (isRole29) return
+
         const selectedRegion = event.target.value
 
         setRegion(selectedRegion)
@@ -527,7 +552,7 @@ function AddTechSkill() {
         const selectedBranch = event.target.value
 
         setBranch(selectedBranch)
-        setFranchise(isRole7 ? 'All' : '')
+        setFranchise(isRole7 || isRole29 ? 'All' : '')
         setFranchises([])
         setProducts([])
         setTechnicians([])
@@ -592,8 +617,8 @@ function AddTechSkill() {
             return
         }
 
-        if (!franchise) {
-            setError('Please select a franchise.')
+        if (!franchise || franchise === 'All') {
+            setError('Please select a specific franchise.')
             return
         }
 
@@ -659,16 +684,14 @@ function AddTechSkill() {
             return
         }
 
-        if (!franchise) {
-            setError('Please select a franchise.')
+        if (!franchise || franchise === 'All') {
+            setError('Please select a specific franchise.')
             return
         }
 
         try {
             setDownloading(true)
 
-            // For Role 7, this passes "All" when All is selected.
-            // The API must support the All filter values.
             await downloadTechnicianSkillSet(branch, franchise)
         } catch (err) {
             setError(
@@ -701,11 +724,18 @@ function AddTechSkill() {
                             <select
                                 value={region}
                                 onChange={handleRegionChange}
-                                disabled={regionLoading || saving}
+                                disabled={
+                                    regionLoading ||
+                                    saving ||
+                                    isRole3 ||
+                                    isRole29
+                                }
                             >
-                                <option value="">
-                                    {isRole7 ? 'All' : 'Select Region'}
-                                </option>
+                                {isRole7 ? (
+                                    <option value="All">All</option>
+                                ) : (
+                                    <option value="">Select Region</option>
+                                )}
 
                                 {regions
                                     .filter(item =>
@@ -744,10 +774,11 @@ function AddTechSkill() {
                                 disabled={
                                     !region ||
                                     branchLoading ||
-                                    saving
+                                    saving ||
+                                    isRole3
                                 }
                             >
-                                {isRole7 ? (
+                                {(isRole7 || isRole29) ? (
                                     <option value="All">All</option>
                                 ) : (
                                     <option value="">Select Branch</option>
@@ -793,7 +824,7 @@ function AddTechSkill() {
                                     saving
                                 }
                             >
-                                {isRole7 ? (
+                                {(isRole7 || isRole29) ? (
                                     <option value="All">All</option>
                                 ) : (
                                     <option value="">Select Franchise</option>
@@ -849,7 +880,10 @@ function AddTechSkill() {
                     {/* SKILL TABLE */}
                     {!matrixLoading &&
                         franchise &&
-                        !(isRole7 && franchise === 'All') && (
+                        !(
+                            (isRole7 || isRole29) &&
+                            franchise === 'All'
+                        ) && (
                             <div className="add-tech-skill-table-wrapper">
                                 <table className="add-tech-skill-table">
                                     <thead>
@@ -943,27 +977,27 @@ function AddTechSkill() {
                             </div>
                         )}
 
-                    
-                    {/* ROLE 7: DOWNLOAD ONLY AFTER DATA IS LOADED */}
-{isRole7 &&
-    franchise &&
-    !matrixLoading &&
-    technicians.length > 0 && (
-        <div className="add-tech-skill-actions">
-            <button
-                type="button"
-                className="add-tech-skill-download"
-                onClick={handleDownload}
-                disabled={saving || downloading}
-            >
-                {downloading ? 'Downloading...' : 'Download'}
-            </button>
-        </div>
-    )}
+                    {/* ROLE 7: DOWNLOAD ONLY */}
+                    {isRole7 &&
+                        franchise &&
+                        !matrixLoading &&
+                        technicians.length > 0 && (
+                            <div className="add-tech-skill-actions">
+                                <button
+                                    type="button"
+                                    className="add-tech-skill-download"
+                                    onClick={handleDownload}
+                                    disabled={saving || downloading}
+                                >
+                                    {downloading ? 'Downloading...' : 'Download'}
+                                </button>
+                            </div>
+                        )}
 
-                    {/* OTHER ROLES: EXISTING DOWNLOAD + SAVE */}
+                    {/* OTHER ROLES: DOWNLOAD + SAVE */}
                     {!isRole7 &&
                         franchise &&
+                        franchise !== 'All' &&
                         !matrixLoading &&
                         technicians.length > 0 && (
                             <div className="add-tech-skill-actions">
