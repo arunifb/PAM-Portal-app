@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { logout } from '../api/authApi'
+import { getRoles } from '../api/userManagementApi'
 
 import './UserProfile.css'
 
@@ -25,67 +26,10 @@ function getSessionValue(...keys) {
 
 }
 
-// =========================================
-// GET ROLE NAMES FROM SESSION
-// =========================================
 
-// =========================================
-// GET ROLE IDs AND ROLE NAMES FROM SESSION
-// =========================================
 
-function getUserRoles() {
 
-    const roleNameMap = {
-        '1': 'Region User',
-        '3': 'Trainer User',
-        '5': 'Franchise User',
-        '6': 'Branch User',
-        '2': 'Call Center User',
-        '7': 'Factory User'
-    }
 
-    try {
-
-        // First check whether API has supplied roleNames
-        const roleNames = JSON.parse(
-            sessionStorage.getItem('roleNames') || '[]'
-        )
-
-        if (Array.isArray(roleNames) && roleNames.length > 0) {
-            return roleNames.join(', ')
-        }
-
-        // Otherwise use existing role IDs
-        const roles = JSON.parse(
-            sessionStorage.getItem('roles') || '[]'
-        )
-
-        if (Array.isArray(roles) && roles.length > 0) {
-
-            return roles
-                .map(roleId => roleNameMap[String(roleId)] || `Role ${roleId}`)
-                .join(', ')
-
-        }
-
-        // Fallback for older session data
-        const roleId = getSessionValue('roleId', 'roleID', 'RoleID')
-
-        if (roleId && roleId !== '0') {
-            return roleNameMap[roleId] || `Role ${roleId}`
-        }
-
-        return 'N/A'
-
-    } catch (error) {
-
-        console.error('Unable to read user roles:', error)
-
-        return 'N/A'
-
-    }
-
-}
 
 // =========================================
 // USER PROFILE
@@ -94,6 +38,8 @@ function getUserRoles() {
 function UserProfile() {
 
     const navigate = useNavigate()
+
+    const [roleName, setRoleName] = useState('N/A')
 
     // =========================================
     // USER DETAILS
@@ -114,7 +60,7 @@ function UserProfile() {
     const email =
         getSessionValue('emailId', 'EmailID', 'email', 'Email')
 
-    const roleName = getUserRoles()
+    // const roleName = getUserRoles()
 
     const regionCode =
         getSessionValue('regionCode', 'RegionCode')
@@ -168,6 +114,95 @@ function UserProfile() {
         }
 
     }, [])
+
+
+    // =========================================
+// LOAD ROLE NAMES FROM API
+// =========================================
+
+useEffect(() => {
+
+    const loadUserRoles = async () => {
+
+        try {
+
+            // Get role IDs from session
+            const storedRoles = JSON.parse(
+                sessionStorage.getItem('roles') || '[]'
+            )
+
+            const sessionRoleId = getSessionValue(
+                'roleId',
+                'roleID',
+                'RoleID'
+            )
+
+            // Support both single and multiple roles
+            const roleIds = [
+                ...(Array.isArray(storedRoles) ? storedRoles : []),
+                ...(sessionRoleId && sessionRoleId !== '0'
+                    ? [sessionRoleId]
+                    : [])
+            ]
+                .map(role => {
+                    if (typeof role === 'object' && role !== null) {
+                        return String(role.roleID ?? role.RoleID ?? '')
+                    }
+
+                    return String(role)
+                })
+                .filter(Boolean)
+
+            const uniqueRoleIds = [...new Set(roleIds)]
+
+            if (uniqueRoleIds.length === 0) {
+                setRoleName('N/A')
+                return
+            }
+
+            // Fetch role names from API
+            const response = await getRoles()
+
+            const roleList = Array.isArray(response?.data)
+                ? response.data
+                : []
+
+            // Match session role IDs with API role IDs
+            const matchedRoleNames = uniqueRoleIds
+                .map(roleId => {
+
+                    const matchedRole = roleList.find(
+                        role =>
+                            String(role.roleID) === roleId
+                    )
+
+                    return matchedRole?.roleName
+
+                })
+                .filter(Boolean)
+
+            setRoleName(
+                matchedRoleNames.length > 0
+                    ? [...new Set(matchedRoleNames)].join(', ')
+                    : 'N/A'
+            )
+
+        } catch (error) {
+
+            console.error(
+                'Unable to load user roles:',
+                error
+            )
+
+            setRoleName('N/A')
+
+        }
+
+    }
+
+    loadUserRoles()
+
+}, [])
 
     // =========================================
     // PROFILE

@@ -1,3 +1,4 @@
+
 /* =========================================
    ONE SEARCH PAGE
 ========================================= */
@@ -44,8 +45,7 @@
 
 .one-search-form-grid {
     display: grid;
-    grid-template-columns:
-        repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 10px;
     align-items: end;
 }
@@ -59,6 +59,7 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
+    min-width: 0;
 }
 
 
@@ -114,6 +115,7 @@
 .one-search-button-wrapper {
     display: flex;
     align-items: flex-end;
+    min-width: 0;
 }
 
 
@@ -158,15 +160,10 @@
 
 .one-search-message {
     width: 100%;
-
     padding: 8px 12px;
-
     margin-bottom: 10px;
-
     border-radius: 5px;
-
     box-sizing: border-box;
-
     font-size: 13px;
 }
 
@@ -208,11 +205,8 @@
 
 .one-search-result-field {
     display: flex;
-
     align-items: center;
-
     gap: 10px;
-
     min-width: 0;
 }
 
@@ -243,23 +237,19 @@
     border-radius: 5px;
 
     background: #f3f4f6;
-
     color: #374151;
 
     font-size: 13px;
 
     box-sizing: border-box;
-
     outline: none;
 }
 
 
 .one-search-result-field input:disabled {
     opacity: 1;
-
     background: #f3f4f6;
     color: #374151;
-
     cursor: default;
 }
 
@@ -271,30 +261,41 @@
 .one-search-no-result,
 .one-search-loading {
     width: 100%;
-
     padding: 18px 10px;
-
     text-align: center;
-
     color: #6b7280;
-
     font-size: 13px;
 }
 
 
 /* =========================================
-   RESPONSIVE
+   TABLET RESPONSIVE
+   Keep 5 items in the same row
 ========================================= */
 
-@media (max-width: 1100px) {
+@media (max-width: 1100px) and (min-width: 651px) {
 
     .one-search-form-grid {
-        grid-template-columns:
-            repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 6px;
+    }
+
+    .one-search-field input {
+        padding: 5px;
+        font-size: 12px;
+    }
+
+    .one-search-button {
+        padding: 5px 8px;
+        font-size: 12px;
     }
 
 }
 
+
+/* =========================================
+   RESULT RESPONSIVE
+========================================= */
 
 @media (max-width: 900px) {
 
@@ -305,43 +306,39 @@
 }
 
 
+/* =========================================
+   MOBILE RESPONSIVE
+========================================= */
+
 @media (max-width: 650px) {
 
     .one-search-page {
         padding: 4px 8px 8px;
     }
 
-
     .one-search-box {
         padding: 10px;
     }
-
 
     .one-search-form-grid {
         grid-template-columns: 1fr;
         gap: 10px;
     }
 
-
     .one-search-button-wrapper {
         margin-top: 2px;
     }
 
-
     .one-search-result-field {
         flex-direction: column;
-
         align-items: stretch;
-
         gap: 4px;
     }
-
 
     .one-search-result-field label {
         width: 100%;
         min-width: 0;
     }
-
 
     .one-search-result-field input {
         width: 100%;

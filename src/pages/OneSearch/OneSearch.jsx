@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react'
 
 import DashboardLayout from '../../components/DashboardLayout/DashboardLayout'
@@ -20,6 +21,9 @@ function OneSearch() {
         useState('')
 
     const [customerName, setCustomerName] =
+        useState('')
+
+    const [searchMobileNumber, setSearchMobileNumber] =
         useState('')
 
 
@@ -106,7 +110,6 @@ function OneSearch() {
 
         event?.preventDefault()
 
-
         setMessage('')
         setMessageType('')
 
@@ -118,7 +121,8 @@ function OneSearch() {
         if (
             !ticketNo.trim() &&
             !serialNo.trim() &&
-            !customerName.trim()
+            !customerName.trim() &&
+            !searchMobileNumber.trim()
         ) {
 
             clearResult()
@@ -158,6 +162,9 @@ function OneSearch() {
 
                     name:
                         customerName.trim(),
+
+                    mobileNumber:
+                        searchMobileNumber.trim(),
 
                     regionCode
                 })
@@ -225,14 +232,6 @@ function OneSearch() {
 
     // =========================================
     // AUTO LOAD
-    //
-    // Old WebForms page called btnSearch_Click
-    // on first load when session values existed.
-    //
-    // We intentionally do not auto-search here
-    // because the old search fields are empty and
-    // the old validation would immediately show:
-    // "You must enter at least one field!"
     // =========================================
 
     useEffect(() => {
@@ -247,29 +246,34 @@ function OneSearch() {
     // =========================================
 
     const ResultField = ({
-        label,
-        value
-    }) => {
+    label,
+    value
+}) => {
 
-        return (
+    const displayValue =
+        value === null ||
+        value === undefined ||
+        String(value).trim() === ''
+            ? 'NA'
+            : value
 
-            <div className="one-search-result-field">
+    return (
+        <div className="one-search-result-field">
 
-                <label>
-                    {label}
-                </label>
+            <label>
+                {label}
+            </label>
 
-                <input
-                    type="text"
-                    value={value ?? ''}
-                    readOnly
-                    disabled
-                />
+            <input
+                type="text"
+                value={displayValue}
+                readOnly
+                disabled
+            />
 
-            </div>
-
-        )
-    }
+        </div>
+    )
+}
 
 
     // =========================================
@@ -290,11 +294,6 @@ function OneSearch() {
                 ================================= */}
 
                 <div className="one-search-box">
-
-                    {/* <div className="one-search-section-title">
-                        One Search
-                    </div> */}
-
 
                     <form
                         onSubmit={handleSearch}
@@ -322,6 +321,30 @@ function OneSearch() {
                                     }
                                     maxLength={10}
                                     placeholder="Enter ticket number"
+                                />
+
+                            </div>
+
+
+                            {/* MOBILE NUMBER */}
+
+                            <div className="one-search-field">
+
+                                <label htmlFor="searchMobileNumber">
+                                    Mobile Number
+                                </label>
+
+                                <input
+                                    id="searchMobileNumber"
+                                    type="text"
+                                    value={searchMobileNumber}
+                                    onChange={event =>
+                                        setSearchMobileNumber(
+                                            event.target.value
+                                        )
+                                    }
+                                    maxLength={15}
+                                    placeholder="Enter mobile number"
                                 />
 
                             </div>
@@ -438,8 +461,8 @@ function OneSearch() {
 
                         <div className="one-search-no-result">
 
-                            Enter a Ticket Number, Serial Number,
-                            or Customer Name and click Search.
+                            Enter a Ticket Number, Mobile Number,
+                            Serial Number, or Customer Name and click Search.
 
                         </div>
 
@@ -463,7 +486,7 @@ function OneSearch() {
 
 
                             {/* =================================
-                                ROW 1
+                                CUSTOMER DETAILS
                             ================================= */}
 
                             <ResultField
@@ -477,6 +500,51 @@ function OneSearch() {
                             />
 
                             <ResultField
+                                label="Customer Mobile Number"
+                                value={
+                                    getValue(
+                                        searchResult,
+                                        'CustomerMobileNumber'
+                                    )
+                                }
+                            />
+
+                            <ResultField
+                                label="Alternate Number"
+                                value={
+                                    getValue(
+                                        searchResult,
+                                        'AltNumber'
+                                    )
+                                }
+                            />
+
+                            <ResultField
+                                label="Email ID"
+                                value={
+                                    getValue(
+                                        searchResult,
+                                        'EmailId'
+                                    )
+                                }
+                            />
+
+                            <ResultField
+                                label="Address"
+                                value={
+                                    getValue(
+                                        searchResult,
+                                        'Address'
+                                    )
+                                }
+                            />
+
+
+                            {/* =================================
+                                ROW 1
+                            ================================= */}
+
+                            <ResultField
                                 label="Ticket No."
                                 value={
                                     getValue(
@@ -485,11 +553,6 @@ function OneSearch() {
                                     )
                                 }
                             />
-
-
-                            {/* =================================
-                                ROW 2
-                            ================================= */}
 
                             <ResultField
                                 label="Call Type"
@@ -501,6 +564,11 @@ function OneSearch() {
                                 }
                             />
 
+
+                            {/* =================================
+                                ROW 2
+                            ================================= */}
+
                             <ResultField
                                 label="Product"
                                 value={
@@ -510,11 +578,6 @@ function OneSearch() {
                                     )
                                 }
                             />
-
-
-                            {/* =================================
-                                ROW 3
-                            ================================= */}
 
                             <ResultField
                                 label="Model"
@@ -526,6 +589,11 @@ function OneSearch() {
                                 }
                             />
 
+
+                            {/* =================================
+                                ROW 3
+                            ================================= */}
+
                             <ResultField
                                 label="Serial No."
                                 value={
@@ -535,11 +603,6 @@ function OneSearch() {
                                     )
                                 }
                             />
-
-
-                            {/* =================================
-                                ROW 4
-                            ================================= */}
 
                             <ResultField
                                 label="Machine Status"
@@ -551,6 +614,11 @@ function OneSearch() {
                                 }
                             />
 
+
+                            {/* =================================
+                                ROW 4
+                            ================================= */}
+
                             <ResultField
                                 label="DOP"
                                 value={
@@ -560,11 +628,6 @@ function OneSearch() {
                                     )
                                 }
                             />
-
-
-                            {/* =================================
-                                ROW 5
-                            ================================= */}
 
                             <ResultField
                                 label="DOI"
@@ -576,6 +639,11 @@ function OneSearch() {
                                 }
                             />
 
+
+                            {/* =================================
+                                ROW 5
+                            ================================= */}
+
                             <ResultField
                                 label="Ticket Status"
                                 value={
@@ -585,11 +653,6 @@ function OneSearch() {
                                     )
                                 }
                             />
-
-
-                            {/* =================================
-                                ROW 6
-                            ================================= */}
 
                             <ResultField
                                 label="Call Book Date"
@@ -601,6 +664,11 @@ function OneSearch() {
                                 }
                             />
 
+
+                            {/* =================================
+                                ROW 6
+                            ================================= */}
+
                             <ResultField
                                 label="Branch"
                                 value={
@@ -610,11 +678,6 @@ function OneSearch() {
                                     )
                                 }
                             />
-
-
-                            {/* =================================
-                                ROW 7
-                            ================================= */}
 
                             <ResultField
                                 label="Franchise"
@@ -626,6 +689,11 @@ function OneSearch() {
                                 }
                             />
 
+
+                            {/* =================================
+                                ROW 7
+                            ================================= */}
+
                             <ResultField
                                 label="Branch Exe.Name"
                                 value={
@@ -635,11 +703,6 @@ function OneSearch() {
                                     )
                                 }
                             />
-
-
-                            {/* =================================
-                                ROW 8
-                            ================================= */}
 
                             <ResultField
                                 label="Technician Name"
@@ -651,6 +714,11 @@ function OneSearch() {
                                 }
                             />
 
+
+                            {/* =================================
+                                ROW 8
+                            ================================= */}
+
                             <ResultField
                                 label="Assign On"
                                 value={
@@ -660,11 +728,6 @@ function OneSearch() {
                                     )
                                 }
                             />
-
-
-                            {/* =================================
-                                ROW 9
-                            ================================= */}
 
                             <ResultField
                                 label="Cancelled On"
@@ -676,6 +739,11 @@ function OneSearch() {
                                 }
                             />
 
+
+                            {/* =================================
+                                ROW 9
+                            ================================= */}
+
                             <ResultField
                                 label="Soft Closer On"
                                 value={
@@ -685,11 +753,6 @@ function OneSearch() {
                                     )
                                 }
                             />
-
-
-                            {/* =================================
-                                ROW 10
-                            ================================= */}
 
                             <ResultField
                                 label="Closed On"
@@ -701,6 +764,11 @@ function OneSearch() {
                                 }
                             />
 
+
+                            {/* =================================
+                                ROW 10
+                            ================================= */}
+
                             <ResultField
                                 label="Request Can.Date"
                                 value={
@@ -710,11 +778,6 @@ function OneSearch() {
                                     )
                                 }
                             />
-
-
-                            {/* =================================
-                                ROW 11
-                            ================================= */}
 
                             <ResultField
                                 label="Status Reason"
@@ -726,6 +789,11 @@ function OneSearch() {
                                 }
                             />
 
+
+                            {/* =================================
+                                ROW 11
+                            ================================= */}
+
                             <ResultField
                                 label="Dealer Name"
                                 value={
@@ -735,11 +803,6 @@ function OneSearch() {
                                     )
                                 }
                             />
-
-
-                            {/* =================================
-                                ROW 12
-                            ================================= */}
 
                             <ResultField
                                 label="Service Type"
@@ -751,6 +814,11 @@ function OneSearch() {
                                 }
                             />
 
+
+                            {/* =================================
+                                ROW 12
+                            ================================= */}
+
                             <ResultField
                                 label="Cancel Reason"
                                 value={
@@ -761,11 +829,6 @@ function OneSearch() {
                                 }
                             />
 
-
-                            {/* =================================
-                                ROW 13
-                            ================================= */}
-
                             <ResultField
                                 label="Esclation Reason"
                                 value={
@@ -775,6 +838,11 @@ function OneSearch() {
                                     )
                                 }
                             />
+
+
+                            {/* =================================
+                                ROW 13
+                            ================================= */}
 
                             <ResultField
                                 label="Medium/Source"

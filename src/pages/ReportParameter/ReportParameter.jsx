@@ -821,6 +821,7 @@ const loggedInRoleId = String(
     const FACTORY_ROLE_ID = '7'
     const ROLE_8_ID = '8'
     const ROLE_3_ID = '3'
+    const ROLE_17_ID = '17'
 
 
     const isRegionUser =
@@ -845,7 +846,7 @@ const loggedInRoleId = String(
     String(loggedInRoleId) === ROLE_3_ID
 
     const isFactoryLikeUser =
-    isFactoryUser || isRole2 || isRole8
+    isFactoryUser || isRole2 || isRole8 || loggedInRoleId === ROLE_17_ID
 
     const isRegionOrFactoryUser =
         isRegionUser || isFactoryLikeUser
