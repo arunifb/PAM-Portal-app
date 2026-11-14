@@ -52,6 +52,7 @@ import {
     getPageByReactUrl
 } from '../../routes/pageRegistry'
 // import VendorCreation from '../Vendor/Creation'
+// import DemapSpare from '../SparesSearch/DemapSpare'
 
 function RouteKeyPage() {
 
@@ -302,6 +303,9 @@ const [refreshPainKiller, setRefreshPainKiller] = useState(0)
 
         '/spares-search':
             SparesSearch,
+
+            // '/spares-search/demap-spare':
+            //     DemapSpare,
 
         '/user-management':
             UserManagement,

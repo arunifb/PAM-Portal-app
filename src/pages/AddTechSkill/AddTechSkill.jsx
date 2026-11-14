@@ -432,7 +432,7 @@ function AddTechSkill() {
                 setFranchises([])
                 setFranchise(isRole7 || isRole29 ? 'All' : '')
 
-                setError(err.message || 'Unable to load franchises.')
+                //setError(err.message || 'Unable to load franchises.')
             } finally {
                 if (!cancelled) {
                     setFranchiseLoading(false)
