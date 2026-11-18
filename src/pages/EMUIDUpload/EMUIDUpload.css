@@ -1,0 +1,576 @@
+
+/* =====================================================
+   EMUID UPLOAD PAGE
+===================================================== */
+
+.emuid-upload-page {
+    width: 100%;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+/* =====================================================
+   CARD
+===================================================== */
+
+.emuid-card {
+    width: 100%;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 7px;
+    padding: 7px;
+    box-sizing: border-box;
+}
+
+.emuid-search-card {
+    padding: 7px;
+}
+
+.emuid-grid-card {
+    padding: 7px;
+    overflow: hidden;
+}
+
+/* =====================================================
+   ALERT
+===================================================== */
+
+.emuid-alert {
+    margin: 0 0 7px;
+    padding: 7px 10px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.emuid-alert-success {
+    color: #0f5132;
+    background: #d1e7dd;
+    border-color: #badbcc;
+}
+
+.emuid-alert-danger {
+    color: #842029;
+    background: #f8d7da;
+    border-color: #f1b0b7;
+}
+
+.emuid-alert-warning {
+    color: #664d03;
+    background: #fff3cd;
+    border-color: #ffecb5;
+}
+
+/* =====================================================
+   UPLOAD FORM
+===================================================== */
+
+.emuid-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Period, Type and File Name - Same Row */
+
+.emuid-form-top-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    width: 100%;
+}
+
+/* Individual Form Fields */
+
+.emuid-form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.emuid-form-row label {
+    margin: 0;
+    color: #343a40;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.emuid-field {
+    width: 100%;
+    min-width: 0;
+}
+
+/* Remark and File Upload - Full Row */
+
+.emuid-full-row {
+    width: 100%;
+}
+
+/* Input and Select */
+
+.emuid-input {
+    display: block;
+    width: 100%;
+    height: 32px;
+    padding: 4px 7px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+    color: #333;
+    font-size: 12px;
+    outline: none;
+}
+
+.emuid-input:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.12);
+}
+
+.emuid-input:disabled {
+    background: #e9ecef;
+    color: #495057;
+    cursor: not-allowed;
+}
+
+/* File Input */
+
+.emuid-file-input {
+    display: block;
+    width: 100%;
+    min-height: 32px;
+    padding: 3px 5px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+    color: #333;
+    font-size: 12px;
+}
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+
+.emuid-button-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: 100%;
+}
+
+.emuid-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 29px;
+    padding: 5px 11px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.3;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.emuid-btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+/* Upload Button */
+
+.emuid-btn-success {
+    color: #fff;
+    background: #198754;
+    border-color: #198754;
+}
+
+.emuid-btn-success:hover {
+    background: #157347;
+    border-color: #146c43;
+}
+
+/* Search Button */
+
+.emuid-btn-primary {
+    color: #fff;
+    background: #2563eb;
+    border-color: #2563eb;
+}
+
+.emuid-btn-primary:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+}
+
+/* Edit Button */
+
+.emuid-btn-edit {
+    color: #fff;
+    background: #2563eb;
+    border-color: #2563eb;
+}
+
+.emuid-btn-edit:hover {
+    background: #1d4ed8;
+}
+
+/* Update Button */
+
+.emuid-btn-update {
+    color: #fff;
+    background: #198754;
+    border-color: #198754;
+}
+
+.emuid-btn-update:hover {
+    background: #157347;
+}
+
+/* Cancel Button */
+
+.emuid-btn-cancel {
+    color: #fff;
+    background: #343a40;
+    border-color: #343a40;
+}
+
+.emuid-btn-cancel:hover {
+    background: #23272b;
+}
+
+/* =====================================================
+   SEARCH SECTION
+===================================================== */
+
+.emuid-search-row {
+    display: grid;
+    grid-template-columns: minmax(200px, 300px) auto;
+    align-items: end;
+    gap: 8px;
+}
+
+.emuid-search-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.emuid-search-field label {
+    margin: 0;
+    color: #343a40;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.emuid-search-button {
+    display: flex;
+    align-items: flex-end;
+}
+
+/* =====================================================
+   RESULTS TABLE
+===================================================== */
+
+.emuid-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.emuid-table {
+    width: 100%;
+    min-width: 900px;
+    border-collapse: collapse;
+    background: #fff;
+    font-size: 12px;
+}
+
+.emuid-table th {
+    padding: 8px 7px;
+    border: 1px solid #ddd;
+    background: #f5f5f5;
+    color: #343a40;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.emuid-table td {
+    padding: 7px;
+    border: 1px solid #ddd;
+    color: #333;
+    font-size: 12px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.emuid-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.emuid-no-data {
+    padding: 15px !important;
+    color: #777 !important;
+    text-align: center !important;
+}
+
+/* =====================================================
+   DOWNLOAD BUTTON
+===================================================== */
+
+.emuid-download-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 27px;
+    height: 27px;
+    border: 1px solid #2563eb;
+    border-radius: 4px;
+    background: #2563eb;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.emuid-download-btn:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+}
+
+/* =====================================================
+   REVIEW REMARK
+===================================================== */
+
+.emuid-review-input {
+    width: 100%;
+    min-width: 120px;
+    height: 30px;
+    padding: 4px 7px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 12px;
+    outline: none;
+}
+
+.emuid-review-input:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.12);
+}
+
+/* =====================================================
+   EDIT ACTIONS
+===================================================== */
+
+.emuid-edit-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 1200px) {
+    .emuid-form-top-row {
+        gap: 8px;
+    }
+}
+
+@media (max-width: 768px) {
+    .emuid-form-top-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .emuid-form-top-row {
+        grid-template-columns: 1fr;
+    }
+
+    .emuid-search-row {
+        grid-template-columns: 1fr;
+    }
+
+    .emuid-search-button {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 420px) {
+    .emuid-upload-page {
+        padding: 5px;
+    }
+
+    .emuid-card {
+        padding: 6px;
+    }
+
+    .emuid-btn {
+        padding: 5px 9px;
+        font-size: 11px;
+    }
+
+    .emuid-edit-actions {
+        flex-wrap: wrap;
+    }
+}
+
+
+/* =====================================================
+   UPLOAD FILE + BUTTON - SAME ROW
+===================================================== */
+
+.emuid-file-upload-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 10px;
+    width: 100%;
+}
+
+.emuid-file-upload-field {
+    min-width: 0;
+}
+
+.emuid-file-upload-button {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    padding-bottom: 0;
+}
+
+.emuid-file-upload-button .emuid-btn {
+    min-width: 75px;
+    height: 32px;
+}
+
+/* Responsive */
+
+@media (max-width: 600px) {
+    .emuid-file-upload-row {
+        grid-template-columns: 1fr;
+    }
+
+    .emuid-file-upload-button {
+        justify-content: flex-start;
+    }
+}
+
+
+/* =========================================
+   EMUID PERIOD DATE PICKER
+========================================= */
+
+.emuid-upload-page .emuid-date-picker-container {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+}
+
+.emuid-upload-page .emuid-date-picker-wrapper,
+.emuid-upload-page .emuid-date-picker-wrapper .react-datepicker__input-container {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.emuid-upload-page .emuid-date-control {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    height: 32px;
+    box-sizing: border-box;
+    padding: 5px 36px 5px 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+    color: #333;
+    font-family: inherit;
+    font-size: 12px;
+    outline: none;
+    cursor: pointer;
+}
+
+.emuid-upload-page .emuid-date-control:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08);
+}
+
+.emuid-upload-page .emuid-calendar-icon {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 24px;
+    padding: 2px;
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.emuid-upload-page .emuid-calendar-icon:hover {
+    color: #2563eb;
+}
+
+.emuid-upload-page .react-datepicker-popper {
+    z-index: 99999 !important;
+}
+
+.emuid-upload-page .react-datepicker__close-icon {
+    display: none !important;
+}
+
+/* =========================================
+   DOWNLOAD BUTTON - SAME AS ORALOG
+========================================= */
+
+.emuid-download-btn {
+    width: 27px;
+    height: 27px;
+    padding: 0;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 4px;
+
+    background-color: #0d6efd;
+    color: #fff;
+
+    cursor: pointer;
+
+    transition: background-color 0.2s ease;
+}
+
+.emuid-download-btn:hover {
+    background-color: #0b5ed7;
+}
+
+.emuid-download-btn:active {
+    background-color: #0a58ca;
+}
+
+.emuid-download-btn svg {
+    width: 15px;
+    height: 15px;
+    stroke-width: 2;
+}

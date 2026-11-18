@@ -1,6 +1,5 @@
-import { useEffect, useState, Suspense} from 'react'
-//import { useEffect, useState, useRef } from 'react'
-// import { useParams, useNavigate } from 'react-router-dom'
+import { useEffect, useState, Suspense } from 'react'
+
 import {
     useParams,
     useNavigate,
@@ -11,48 +10,12 @@ import {
 import { getDashboardMenu } from '../../api/dashboardApi'
 import { logout } from '../../api/authApi'
 
-//import Click2Call from '../Click2Call/Click2Call'
-//import CallSummary from '../CallSummary/CallSummary'
-import FranchiseView from '../FranchiseView/FranchiseView'
-//import OneSearch from '../OneSearch/OneSearch'
-//import DigitalContract from '../DigitalContract/DigitalContract'
-import Inventory from '../Inventory/FranchiseeInventory'
-import EditView from '../SubDealer/EditView'
-import SkillSetView from '../SkillSetView/SkillSetView'
-import BomExplodedView from '../BomExplodedView/BomExplodedView'
-import DDRRegion from '../DDRRegion/DDRRegion'
-//import DigitalICR from '../DigitalICR/DigitalICR'
-import SparesStock from '../SparesStock/SparesStock'
-import Technician from '../Technician/Technician'
-import TechnicianEdit from '../Technician/TechnicianEdit'
-import SparesSearch from '../SparesSearch/SparesSearch'
-import UserManagement from '../UserManagement/UserManagement'
-import CheckTicketStatus from '../CheckTicketStatus/CheckTicketStatus'
-import Supersession from '../Supersession/Supersession'
-import PCR from '../PCR/PCR'
-import PCRDownload from '../PCRDownload/PCRDownload'
-import AddPartCategory from '../AddPartCategory/AddPartCategory'
-//import LegalCase from '../LegalCase/LegalCase'
-import ReportData from '../ReportData/ReportData'
-import AddFranchise from '../AddFranchise/AddFranchise'
-import FranchiseList from '../Franchise/FranchiseList'
-import AddTechSkill from '../AddTechSkill/AddTechSkill'
-import EvidenceSearch from '../EvidenceSearch/EvidenceSearch'
-import TechnicianAdd from '../Technician/TechnicianAdd'
-import UploadMSMEDoc from '../UploadMSMEDoc/UploadMSMEDoc'
-//import SearchInvoice from '../SearchInvoice/SearchInvoice'
-import TrainingManual from '../TrainingManual/TrainingManual'
-import TrainingManualAdd from '../TrainingManual/TrainingManualAdd'
-import SubDealerView from '../SubDealer/SubDealerView'
-import PCRVendorDetails from '../PCRVendorDetails/PCRVendorDetails'
-import PCRRefurbishVendorMaster from '../PCRVendorDetails/PCRRefurbishVendorMaster'
-import PainKiller from '../PainKiller/PainKiller'
-import PainKillerEdit from '../PainKiller/PainKillerEdit'
 import {
     getPageByReactUrl
 } from '../../routes/pageRegistry'
-// import VendorCreation from '../Vendor/Creation'
-// import DemapSpare from '../SparesSearch/DemapSpare'
+
+// import EMUIDUpload from '../../pages/EMUIDUpload/EMUIDUpload'
+
 
 function RouteKeyPage() {
 
@@ -62,24 +25,38 @@ function RouteKeyPage() {
 
 
     const handleBackToLogin = async () => {
-    const userId = sessionStorage.getItem('userId')
+
+        const userId =
+            sessionStorage.getItem('userId')
 
         try {
+
             if (userId) {
                 await logout(userId)
             }
+
         } catch (error) {
-            console.error('Logout error:', error)
+
+            console.error(
+                'Logout error:',
+                error
+            )
+
         } finally {
+
             sessionStorage.clear()
-            navigate('/', { replace: true })
+
+            navigate(
+                '/',
+                { replace: true }
+            )
+
         }
     }
 
 
     const location = useLocation()
 
-    // const previousRouteKey = useRef(routeKey)
 
     const showSubDealerView =
         location.state?.showSubDealerView === true
@@ -98,159 +75,261 @@ function RouteKeyPage() {
     const [menuItem, setMenuItem] =
         useState(null)
 
-    const [searchParams, setSearchParams] = useSearchParams()
+    const [searchParams, setSearchParams] =
+        useSearchParams()
 
-// Default to Add Franchise; preserve the selected view on refresh.
-const franchiseView =
-    searchParams.get('view') === 'list' ? 'list' : 'add'
 
-const setFranchiseView = (view) => {
-    if (view === 'list') {
-        setSearchParams({ view: 'list' })
-    } else {
-        setSearchParams({})
+    // =========================================
+    // FRANCHISE NAVIGATION STATE
+    // =========================================
+
+    // Default to Add Franchise;
+    // preserve the selected view on refresh.
+
+    const franchiseView =
+        searchParams.get('view') === 'list'
+            ? 'list'
+            : 'add'
+
+
+    const setFranchiseView = (view) => {
+
+        if (view === 'list') {
+
+            setSearchParams({
+                view: 'list'
+            })
+
+        } else {
+
+            setSearchParams({})
+
+        }
+
     }
-}
 
 
-// =========================================
-// TRAINING MANUAL NAVIGATION STATE
-// Restore Add/List page after browser refresh
-// =========================================
+    // =========================================
+    // TRAINING MANUAL NAVIGATION STATE
+    // Restore Add/List page after browser refresh
+    // =========================================
 
-const TRAINING_MANUAL_STORAGE_KEY =
-    'trainingManualNavigationState'
+    const TRAINING_MANUAL_STORAGE_KEY =
+        'trainingManualNavigationState'
 
-const getSavedTrainingManualState = () => {
-    try {
-        const saved =
-            sessionStorage.getItem(
+
+    const getSavedTrainingManualState = () => {
+
+        try {
+
+            const saved =
+                sessionStorage.getItem(
+                    TRAINING_MANUAL_STORAGE_KEY
+                )
+
+            if (!saved) {
+                return null
+            }
+
+            const parsed =
+                JSON.parse(saved)
+
+            if (
+                String(parsed.routeKey).toLowerCase() ===
+                String(routeKey).toLowerCase()
+            ) {
+
+                return parsed
+
+            }
+
+            return null
+
+        } catch (error) {
+
+            sessionStorage.removeItem(
                 TRAINING_MANUAL_STORAGE_KEY
             )
 
-        if (!saved) return null
+            return null
 
-        const parsed = JSON.parse(saved)
-
-        if (
-            String(parsed.routeKey).toLowerCase() ===
-            String(routeKey).toLowerCase()
-        ) {
-            return parsed
         }
 
-        return null
-    } catch (error) {
-        sessionStorage.removeItem(
-            TRAINING_MANUAL_STORAGE_KEY
+    }
+
+
+    const [trainingManualView, setTrainingManualView] =
+        useState(
+            () =>
+                getSavedTrainingManualState()?.view ??
+                'list'
         )
 
-        return null
-    }
-}
 
-const [trainingManualView, setTrainingManualView] =
-    useState(
-        () =>
-            getSavedTrainingManualState()?.view ??
-            'list'
-    )
+    // =========================================
+    // PCR VENDOR DETAILS STATE
+    // =========================================
 
-
-// =========================================
-// PCR VENDOR DETAILS STATE
-// =========================================
-
-const [pcrView, setPcrView] = useState(
-    () => location.state?.pcrView || 'vendor-details'
-)
-
-const [pcrSelectedRecord, setPcrSelectedRecord] = useState(
-    () => location.state?.pcrSelectedRecord || null
-)
-
-// =========================================
-// TECHNICIAN NAVIGATION STATE
-// Restore Edit page after browser refresh
-// =========================================
-const TECHNICIAN_STORAGE_KEY = 'technicianNavigationState'
-const getSavedTechnicianState = () => {
-    try {
-        const saved = sessionStorage.getItem(
-            TECHNICIAN_STORAGE_KEY
+    const [pcrView, setPcrView] =
+        useState(
+            () =>
+                location.state?.pcrView ||
+                'vendor-details'
         )
 
-        if (!saved) return null
 
-        const parsed = JSON.parse(saved)
+    const [pcrSelectedRecord, setPcrSelectedRecord] =
+        useState(
+            () =>
+                location.state?.pcrSelectedRecord ||
+                null
+        )
 
-        if (
-            String(parsed.routeKey).toLowerCase() ===
-            String(routeKey).toLowerCase()
-        ) {
-            return parsed
+
+    // =========================================
+    // TECHNICIAN NAVIGATION STATE
+    // Restore Edit page after browser refresh
+    // =========================================
+
+    const TECHNICIAN_STORAGE_KEY =
+        'technicianNavigationState'
+
+
+    const getSavedTechnicianState = () => {
+
+        try {
+
+            const saved =
+                sessionStorage.getItem(
+                    TECHNICIAN_STORAGE_KEY
+                )
+
+            if (!saved) {
+                return null
+            }
+
+            const parsed =
+                JSON.parse(saved)
+
+            if (
+                String(parsed.routeKey).toLowerCase() ===
+                String(routeKey).toLowerCase()
+            ) {
+
+                return parsed
+
+            }
+
+            return null
+
+        } catch (error) {
+
+            sessionStorage.removeItem(
+                TECHNICIAN_STORAGE_KEY
+            )
+
+            return null
+
         }
 
-        return null
-    } catch (error) {
-        sessionStorage.removeItem(TECHNICIAN_STORAGE_KEY)
-        return null
     }
-}
 
-const [technicianView, setTechnicianView] = useState(
-    () => getSavedTechnicianState()?.view ?? 'list'
-)
 
-const [technicianListState, setTechnicianListState] = useState(
-    () => getSavedTechnicianState()?.listState ?? null
-)
+    const [technicianView, setTechnicianView] =
+        useState(
+            () =>
+                getSavedTechnicianState()?.view ??
+                'list'
+        )
 
-const [refreshAfterAdd, setRefreshAfterAdd] = useState(0)
 
-const [technicianEditState, setTechnicianEditState] = useState(
-    () => getSavedTechnicianState()?.editState ?? null
-)
+    const [technicianListState, setTechnicianListState] =
+        useState(
+            () =>
+                getSavedTechnicianState()?.listState ??
+                null
+        )
 
-    
 
-// =========================================
-// PAIN KILLER STATE - RESTORE AFTER REFRESH
-// =========================================
+    const [refreshAfterAdd, setRefreshAfterAdd] =
+        useState(0)
 
-const PAIN_KILLER_STORAGE_KEY = 'painKillerNavigationState'
 
-const getSavedPainKillerState = () => {
-    try {
-        const saved = sessionStorage.getItem(PAIN_KILLER_STORAGE_KEY)
+    const [technicianEditState, setTechnicianEditState] =
+        useState(
+            () =>
+                getSavedTechnicianState()?.editState ??
+                null
+        )
 
-        if (!saved) return null
 
-        const parsed = JSON.parse(saved)
+    // =========================================
+    // PAIN KILLER STATE
+    // RESTORE AFTER REFRESH
+    // =========================================
 
-        if (
-            String(parsed.routeKey).toLowerCase() ===
-            String(routeKey).toLowerCase()
-        ) {
-            return parsed
+    const PAIN_KILLER_STORAGE_KEY =
+        'painKillerNavigationState'
+
+
+    const getSavedPainKillerState = () => {
+
+        try {
+
+            const saved =
+                sessionStorage.getItem(
+                    PAIN_KILLER_STORAGE_KEY
+                )
+
+            if (!saved) {
+                return null
+            }
+
+            const parsed =
+                JSON.parse(saved)
+
+            if (
+                String(parsed.routeKey).toLowerCase() ===
+                String(routeKey).toLowerCase()
+            ) {
+
+                return parsed
+
+            }
+
+            return null
+
+        } catch (error) {
+
+            sessionStorage.removeItem(
+                PAIN_KILLER_STORAGE_KEY
+            )
+
+            return null
+
         }
 
-        return null
-    } catch (error) {
-        sessionStorage.removeItem(PAIN_KILLER_STORAGE_KEY)
-        return null
     }
-}
 
-const [painKillerListState, setPainKillerListState] = useState(
-    () => getSavedPainKillerState()?.listState ?? null
-)
 
-const [painKillerEditState, setPainKillerEditState] = useState(
-    () => getSavedPainKillerState()?.editState ?? null
-)
+    const [painKillerListState, setPainKillerListState] =
+        useState(
+            () =>
+                getSavedPainKillerState()?.listState ??
+                null
+        )
 
-const [refreshPainKiller, setRefreshPainKiller] = useState(0)
+
+    const [painKillerEditState, setPainKillerEditState] =
+        useState(
+            () =>
+                getSavedPainKillerState()?.editState ??
+                null
+        )
+
+
+    const [refreshPainKiller, setRefreshPainKiller] =
+        useState(0)
 
 
     // =========================================
@@ -259,117 +338,11 @@ const [refreshPainKiller, setRefreshPainKiller] = useState(0)
 
     const routeComponents = {
 
-        // '/click2call':
-        //     Click2Call,
+        // =====================================
+        // EMUID UPLOAD
+        // =====================================
 
-        // '/call-summary':
-        //     CallSummary,
-
-        '/franchise-view':
-            FranchiseView,
-
-        // '/one-search':
-        //     OneSearch,
-
-        // '/digital-contract':
-        //     DigitalContract,
-
-        '/inventory':
-            Inventory,
-
-        '/subdealer/editview':
-            EditView,
-
-        '/skill-set-view':
-            SkillSetView,
-
-        '/bom-exploded-view':
-            BomExplodedView,
-
-        '/ddr-region':
-            DDRRegion,
-
-        // '/digital-icr':
-        //     DigitalICR,
-
-        '/spares-stock':
-            SparesStock,
-
-        '/technician':
-            Technician,
-
-        '/technician/add':
-            TechnicianAdd,
-
-        '/spares-search':
-            SparesSearch,
-
-            // '/spares-search/demap-spare':
-            //     DemapSpare,
-
-        '/user-management':
-            UserManagement,
-
-        '/check-ticket-status':
-            CheckTicketStatus,
-
-        '/supersession':
-            Supersession,
-
-        '/pcr':
-            PCR,
-
-        '/pcr-download':
-            PCRDownload,
-
-        '/add-part-category':
-            AddPartCategory,
-
-        // '/legal-case':
-        //     LegalCase,
-
-        '/add-franchise': AddFranchise,
-
-        '/franchise-list': FranchiseList,
-
-        '/add-tech-skill':
-                 AddTechSkill,
-
-        '/evidence-search':
-                EvidenceSearch,
-
-        '/upload-msme-doc':
-                UploadMSMEDoc,
-                
-        // '/search-invoice': SearchInvoice,
-
-        '/training-manual':
-            TrainingManual,
-
-        '/sub-dealer-view':
-            SubDealerView,
-
-        '/pcr-vendor-details':
-            PCRVendorDetails,
-
-        '/pcr-refurbish-vendor-master':
-            PCRRefurbishVendorMaster,
-
-        // '/vendor/creation': 
-        // VendorCreation,
-
-        // =========================================
-        // REPORT DATA
-        // =========================================
-
-        '/report-data':
-            ReportData,
-
-        '/report-summary': ReportData,
-
-        // PAIN KILLER
-        '/pain-killer':
-            PainKiller
+        // '/emuid-upload': EMUIDUpload
 
     }
 
@@ -395,6 +368,7 @@ const [refreshPainKiller, setRefreshPainKiller] = useState(0)
                 setLoading(false)
 
                 return
+
             }
 
 
@@ -407,6 +381,7 @@ const [refreshPainKiller, setRefreshPainKiller] = useState(0)
                 setLoading(false)
 
                 return
+
             }
 
 
@@ -421,10 +396,8 @@ const [refreshPainKiller, setRefreshPainKiller] = useState(0)
                     throw new Error(
                         'Invalid dashboard menu response.'
                     )
+
                 }
-
-
-                
 
 
                 // =========================================
@@ -436,7 +409,7 @@ const [refreshPainKiller, setRefreshPainKiller] = useState(0)
                         (item) =>
                             item.routeKey &&
                             item.routeKey.toLowerCase() ===
-                                routeKey.toLowerCase()
+                            routeKey.toLowerCase()
                     )
 
 
@@ -445,12 +418,14 @@ const [refreshPainKiller, setRefreshPainKiller] = useState(0)
                     throw new Error(
                         'The requested menu was not found for your user.'
                     )
+
                 }
 
 
                 setMenuItem(
                     matchedMenu
                 )
+
 
             } catch (error) {
 
@@ -469,6 +444,7 @@ const [refreshPainKiller, setRefreshPainKiller] = useState(0)
                 setLoading(false)
 
             }
+
         }
 
 
@@ -480,112 +456,188 @@ const [refreshPainKiller, setRefreshPainKiller] = useState(0)
 
 
     // =========================================
-// UPDATE BROWSER TAB TITLE FROM MENU NAME
-// =========================================
+    // UPDATE BROWSER TAB TITLE FROM MENU NAME
+    // =========================================
 
-useEffect(() => {
-    if (menuItem) {
-        const menuName =
-            menuItem.menuName ||
-            menuItem.MenuName
+    useEffect(() => {
 
-        if (menuName) {
-            document.title = `eTraining-${menuName}`
+        if (menuItem) {
+
+            const menuName =
+                menuItem.menuName ||
+                menuItem.MenuName
+
+
+            if (menuName) {
+
+                document.title =
+                    `eTraining-${menuName}`
+
+            }
+
         }
-    }
-}, [menuItem])
 
-// =========================================
-// TECHNICIAN NAVIGATION STATE VALIDATION
-// Clear saved state only when leaving Technician
-// =========================================
-
-useEffect(() => {
-    if (!menuItem) return
-
-    const currentReactUrl = menuItem.reactUrl
-        ?.toLowerCase()
-        .trim()
-
-    if (currentReactUrl !== '/technician') {
-        sessionStorage.removeItem(
-            TECHNICIAN_STORAGE_KEY
-        )
-
-        setTechnicianView('list')
-        setTechnicianEditState(null)
-        setTechnicianListState(null)
-    }
-}, [menuItem, routeKey])
+    }, [
+        menuItem
+    ])
 
 
+    // =========================================
+    // TECHNICIAN NAVIGATION STATE VALIDATION
+    // Clear saved state only when leaving Technician
+    // =========================================
+
+    useEffect(() => {
+
+        if (!menuItem) {
+            return
+        }
 
 
-// =========================================
-// RESET PCR STATE WHEN LEAVING PCR MENU
-// =========================================
-
-useEffect(() => {
-    if (!menuItem) return
-
-    const currentReactUrl = menuItem.reactUrl
-        ?.toLowerCase()
-        .trim()
-
-    if (currentReactUrl !== '/pcr-vendor-details') {
-        setPcrView('vendor-details')
-        setPcrSelectedRecord(null)
-    }
-}, [menuItem, routeKey, location.pathname])
+        const currentReactUrl =
+            menuItem.reactUrl
+                ?.toLowerCase()
+                .trim()
 
 
+        if (
+            currentReactUrl !==
+            '/technician'
+        ) {
 
-// =========================================
-// PAIN KILLER NAVIGATION STATE VALIDATION
-// =========================================
+            sessionStorage.removeItem(
+                TECHNICIAN_STORAGE_KEY
+            )
 
-// =========================================
-// PAIN KILLER NAVIGATION STATE VALIDATION
-// =========================================
+            setTechnicianView('list')
 
-useEffect(() => {
-    if (!menuItem) return
+            setTechnicianEditState(null)
 
-    const currentReactUrl = menuItem.reactUrl
-        ?.toLowerCase()
-        .trim()
+            setTechnicianListState(null)
 
-    if (currentReactUrl !== '/pain-killer') {
-        sessionStorage.removeItem(PAIN_KILLER_STORAGE_KEY)
+        }
 
-        setPainKillerEditState(null)
-        setPainKillerListState(null)
-    }
-}, [menuItem, routeKey])
+    }, [
+        menuItem,
+        routeKey
+    ])
 
 
-// =========================================
-// TRAINING MANUAL NAVIGATION STATE VALIDATION
-// Clear saved state when leaving Training Manual
-// =========================================
+    // =========================================
+    // RESET PCR STATE WHEN LEAVING PCR MENU
+    // =========================================
 
-useEffect(() => {
-    if (!menuItem) return
+    useEffect(() => {
 
-    const currentReactUrl =
-        menuItem.reactUrl
-            ?.toLowerCase()
-            .trim()
+        if (!menuItem) {
+            return
+        }
 
-    if (currentReactUrl !== '/training-manual') {
 
-        sessionStorage.removeItem(
-            TRAINING_MANUAL_STORAGE_KEY
-        )
+        const currentReactUrl =
+            menuItem.reactUrl
+                ?.toLowerCase()
+                .trim()
 
-        setTrainingManualView('list')
-    }
-}, [menuItem, routeKey])
+
+        if (
+            currentReactUrl !==
+            '/pcr-vendor-details'
+        ) {
+
+            setPcrView(
+                'vendor-details'
+            )
+
+            setPcrSelectedRecord(
+                null
+            )
+
+        }
+
+    }, [
+        menuItem,
+        routeKey,
+        location.pathname
+    ])
+
+
+    // =========================================
+    // PAIN KILLER NAVIGATION STATE VALIDATION
+    // =========================================
+
+    useEffect(() => {
+
+        if (!menuItem) {
+            return
+        }
+
+
+        const currentReactUrl =
+            menuItem.reactUrl
+                ?.toLowerCase()
+                .trim()
+
+
+        if (
+            currentReactUrl !==
+            '/pain-killer'
+        ) {
+
+            sessionStorage.removeItem(
+                PAIN_KILLER_STORAGE_KEY
+            )
+
+            setPainKillerEditState(null)
+
+            setPainKillerListState(null)
+
+        }
+
+    }, [
+        menuItem,
+        routeKey
+    ])
+
+
+    // =========================================
+    // TRAINING MANUAL NAVIGATION STATE VALIDATION
+    // Clear saved state when leaving Training Manual
+    // =========================================
+
+    useEffect(() => {
+
+        if (!menuItem) {
+            return
+        }
+
+
+        const currentReactUrl =
+            menuItem.reactUrl
+                ?.toLowerCase()
+                .trim()
+
+
+        if (
+            currentReactUrl !==
+            '/training-manual'
+        ) {
+
+            sessionStorage.removeItem(
+                TRAINING_MANUAL_STORAGE_KEY
+            )
+
+            setTrainingManualView(
+                'list'
+            )
+
+        }
+
+    }, [
+        menuItem,
+        routeKey
+    ])
+
 
     // =========================================
     // LOADING
@@ -605,19 +657,18 @@ useEffect(() => {
             </div>
 
         )
+
     }
 
-
-    // =========================================
-    // ERROR
-    // =========================================
 
     // =========================================
     // 404 NOT FOUND DESIGN
     // =========================================
 
     if (error || !menuItem) {
+
         return (
+
             <div
                 style={{
                     minHeight: '100vh',
@@ -634,9 +685,11 @@ useEffect(() => {
                     fontFamily: 'Arial, sans-serif'
                 }}
             >
+
                 <h1
                     style={{
-                        fontSize: 'clamp(90px, 15vw, 180px)',
+                        fontSize:
+                            'clamp(90px, 15vw, 180px)',
                         fontWeight: 400,
                         lineHeight: 0.9,
                         letterSpacing: '-8px',
@@ -647,9 +700,11 @@ useEffect(() => {
                     404
                 </h1>
 
+
                 <h4
                     style={{
-                        fontSize: 'clamp(16px, 2vw, 24px)',
+                        fontSize:
+                            'clamp(16px, 2vw, 24px)',
                         fontWeight: 700,
                         letterSpacing: '6px',
                         textTransform: 'uppercase',
@@ -660,18 +715,21 @@ useEffect(() => {
                     NOT FOUND
                 </h4>
 
+
                 <p
-                style={{
-                    fontSize: '15px',
-                    fontWeight: 400,
-                    color: '#555555',
-                    margin: '-15px 0 30px',
-                    lineHeight: 1.6,
-                    maxWidth: '500px'
-                }}
-            >
-                The page you are looking for was moved, removed, renamed or might never existed
-            </p>
+                    style={{
+                        fontSize: '15px',
+                        fontWeight: 400,
+                        color: '#555555',
+                        margin: '-15px 0 30px',
+                        lineHeight: 1.6,
+                        maxWidth: '500px'
+                    }}
+                >
+                    The page you are looking for was moved,
+                    removed, renamed or might never existed
+                </p>
+
 
                 <button
                     type="button"
@@ -690,13 +748,12 @@ useEffect(() => {
                 >
                     Back to Login
                 </button>
+
             </div>
+
         )
+
     }
-
-
-    
-    
 
 
     // =========================================
@@ -709,38 +766,44 @@ useEffect(() => {
             .trim()
 
 
-    // const PageComponent =
-    //     routeComponents[reactUrl]
-
     const PageComponent =
-    routeComponents[reactUrl] ||
-    getPageByReactUrl(reactUrl)
+        routeComponents[reactUrl] ||
+        getPageByReactUrl(reactUrl)
 
 
     // =========================================
-// REPORT DATA / REPORT SUMMARY
-// =========================================
+    // REPORT DATA / REPORT SUMMARY
+    // =========================================
 
-if (
-    reactUrl === '/report-data' ||
-    reactUrl === '/report-summary'
-) {
-    const reportCategory =
-        reactUrl === '/report-data' ? 'D' : 'S'
+    if (
+        reactUrl === '/report-data' ||
+        reactUrl === '/report-summary'
+    ) {
 
-    return (
-        <ReportData
-            key={reactUrl}
-            reportCategory={reportCategory}
-            title={
-                menuItem.name ||
-                menuItem.menuName ||
-                menuItem.MenuName ||
-                'Reports'
-            }
-        />
-    )
-}
+        const reportCategory =
+            reactUrl === '/report-data'
+                ? 'D'
+                : 'S'
+
+
+        return (
+
+            <ReportData
+                key={reactUrl}
+                reportCategory={
+                    reportCategory
+                }
+                title={
+                    menuItem.name ||
+                    menuItem.menuName ||
+                    menuItem.MenuName ||
+                    'Reports'
+                }
+            />
+
+        )
+
+    }
 
 
     // =========================================
@@ -748,359 +811,596 @@ if (
     // =========================================
 
     if (!PageComponent) {
-    return (
-        <div
-            style={{
-                minHeight: '100vh',
-                backgroundColor: '#ffffff',
-                color: '#000000',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                textAlign: 'center',
-                fontFamily: 'switzer, sans-serif'
-            }}
-        >
-            <h1
-                style={{
-                    fontSize: 'clamp(90px, 15vw, 180px)',
-                    fontWeight: 900,
-                    lineHeight: 0.9,
-                    margin: '0 0 45px'
-                }}
-            >
-                404
-            </h1>
 
-            <h4
-                style={{
-                    fontSize: 'clamp(16px, 2vw, 24px)',
-                    letterSpacing: '10px',
-                    margin: '0 0 35px'
-                }}
-            >
-                NOT FOUND
-            </h4>
+        return (
 
-            <button
-                type="button"
-                onClick={handleBackToLogin}
+            <div
                 style={{
-                    backgroundColor: '#000000',
-                    color: '#ffffff',
-                    border: '2px solid #000000',
-                    padding: '14px 34px',
-                    fontSize: '14px',
-                    fontWeight: 700,
-                    letterSpacing: '2px',
-                    cursor: 'pointer'
+                    minHeight: '100vh',
+                    backgroundColor: '#ffffff',
+                    color: '#000000',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    textAlign: 'center',
+                    fontFamily: 'switzer, sans-serif'
                 }}
             >
-                Back to Login
-            </button>
-        </div>
-    )
-}
+
+                <h1
+                    style={{
+                        fontSize:
+                            'clamp(90px, 15vw, 180px)',
+                        fontWeight: 900,
+                        lineHeight: 0.9,
+                        margin: '0 0 45px'
+                    }}
+                >
+                    404
+                </h1>
+
+
+                <h4
+                    style={{
+                        fontSize:
+                            'clamp(16px, 2vw, 24px)',
+                        letterSpacing: '10px',
+                        margin: '0 0 35px'
+                    }}
+                >
+                    NOT FOUND
+                </h4>
+
+
+                <button
+                    type="button"
+                    onClick={handleBackToLogin}
+                    style={{
+                        backgroundColor: '#000000',
+                        color: '#ffffff',
+                        border: '2px solid #000000',
+                        padding: '14px 34px',
+                        fontSize: '14px',
+                        fontWeight: 700,
+                        letterSpacing: '2px',
+                        cursor: 'pointer'
+                    }}
+                >
+                    Back to Login
+                </button>
+
+            </div>
+
+        )
+
+    }
 
 
     // =========================================
-    // RENDER FRANCHISE PAGES WITHOUT URL CHANGE
+    // RENDER FRANCHISE PAGES
+    // WITHOUT URL CHANGE
     // =========================================
 
-    if (reactUrl === '/add-franchise') {
-        if (franchiseView === 'list') {
+    if (
+        reactUrl === '/add-franchise'
+    ) {
+
+        if (
+            franchiseView === 'list'
+        ) {
+
             return (
+
                 <FranchiseList
-                    onAddFranchise={() => setFranchiseView('add')}
+                    onAddFranchise={() =>
+                        setFranchiseView(
+                            'add'
+                        )
+                    }
                 />
+
             )
+
         }
 
+
         return (
+
             <AddFranchise
-                onBack={() => setFranchiseView('list')}
+                onBack={() =>
+                    setFranchiseView(
+                        'list'
+                    )
+                }
             />
+
         )
+
     }
 
 
-
     // =========================================
-// TRAINING MANUAL LIST / ADD
-// =========================================
-
-if (reactUrl === '/training-manual') {
-
-    // =========================================
-    // SHOW ADD PAGE
+    // TRAINING MANUAL LIST / ADD
     // =========================================
 
-    if (trainingManualView === 'add') {
+    if (
+        reactUrl === '/training-manual'
+    ) {
+
+        // =====================================
+        // SHOW ADD PAGE
+        // =====================================
+
+        if (
+            trainingManualView === 'add'
+        ) {
+
+            return (
+
+                <TrainingManualAdd
+                    onBack={() => {
+
+                        sessionStorage.removeItem(
+                            TRAINING_MANUAL_STORAGE_KEY
+                        )
+
+                        setTrainingManualView(
+                            'list'
+                        )
+
+                    }}
+                />
+
+            )
+
+        }
+
+
+        // =====================================
+        // SHOW LIST PAGE
+        // =====================================
+
         return (
-            <TrainingManualAdd
-                onBack={() => {
 
-                    sessionStorage.removeItem(
-                        TRAINING_MANUAL_STORAGE_KEY
+            <TrainingManual
+                onAdd={() => {
+
+                    const savedState = {
+                        routeKey,
+                        view: 'add'
+                    }
+
+
+                    sessionStorage.setItem(
+                        TRAINING_MANUAL_STORAGE_KEY,
+                        JSON.stringify(
+                            savedState
+                        )
                     )
 
-                    setTrainingManualView('list')
-                }}
-            />
-        )
-    }
 
-    // =========================================
-    // SHOW LIST PAGE
-    // =========================================
-
-    return (
-        <TrainingManual
-            onAdd={() => {
-
-                const savedState = {
-                    routeKey,
-                    view: 'add'
-                }
-
-                sessionStorage.setItem(
-                    TRAINING_MANUAL_STORAGE_KEY,
-                    JSON.stringify(savedState)
-                )
-
-                setTrainingManualView('add')
-            }}
-        />
-    )
-}
-
-
-
-    // if (reactUrl === '/technician') {
-    //     if (technicianView === 'add') {
-    //         return (
-    //             <TechnicianAdd
-    //                 onBack={(result) => {
-    //                     setTechnicianView('list')
-
-    //                     if (result?.listState) {
-    //                         setTechnicianListState(result.listState)
-    //                     }
-
-    //                     if (result?.refreshTechnicians) {
-    //                         setRefreshAfterAdd((prev) => prev + 1)
-    //                     }
-    //                 }}
-    //                 listState={technicianListState}
-    //             />
-    //         )
-    //     }
-
-    //     return (
-    //         <Technician
-    //             onAddTechnician={(listState) => {
-    //                 setTechnicianListState(listState)
-    //                 setTechnicianView('add')
-    //             }}
-    //             restoreListState={technicianListState}
-    //             refreshAfterAdd={refreshAfterAdd}
-    //         />
-    //     )
-    // }
-
-    if (reactUrl === '/technician') {
-    if (technicianView === 'add') {
-        return (
-            <TechnicianAdd
-                onBack={(result) => {
-
-                    sessionStorage.removeItem(TECHNICIAN_STORAGE_KEY)
-
-                    setTechnicianView('list')
-
-                    if (result?.listState) {
-                        setTechnicianListState(result.listState)
-                    }
-
-                    if (result?.refreshTechnicians) {
-                        setRefreshAfterAdd((prev) => prev + 1)
-                    }
-                }}
-                listState={technicianListState}
-            />
-        )
-    }
-
-    // Show Technician Edit without changing the URL
-    if (technicianEditState) {
-        return (
-            <TechnicianEdit
-                techId={technicianEditState.techId}
-                profileMode={technicianEditState.profileMode}
-                listState={technicianEditState.listState}
-                onBack={() => {
-
-                    sessionStorage.removeItem(
-                        TECHNICIAN_STORAGE_KEY
+                    setTrainingManualView(
+                        'add'
                     )
 
-                    setTechnicianEditState(null)
                 }}
             />
+
         )
+
     }
 
-    // Show Technician list
-    return (
-        <Technician
-            onAddTechnician={(listState) => {
 
-                const savedState = {
-                    routeKey,
-                    view: 'add',
-                    listState
-                }
+    // =========================================
+    // TECHNICIAN LIST / ADD / EDIT
+    // =========================================
 
-                sessionStorage.setItem(
-                    TECHNICIAN_STORAGE_KEY,
-                    JSON.stringify(savedState)
-                )
+    if (
+        reactUrl === '/technician'
+    ) {
 
-                setTechnicianListState(listState)
-                setTechnicianView('add')
-            }}
-            onEditTechnician={(editState) => {
+        // =====================================
+        // SHOW ADD PAGE
+        // =====================================
 
-    const savedState = {
-        routeKey,
-        view: 'edit',
-        editState,
-        listState: editState.listState
-    }
+        if (
+            technicianView === 'add'
+        ) {
 
-    // Save Technician Edit navigation state
-    // before changing React state.
-    sessionStorage.setItem(
-        TECHNICIAN_STORAGE_KEY,
-        JSON.stringify(savedState)
-    )
+            return (
 
-    setTechnicianListState(editState.listState)
-    setTechnicianEditState(editState)
-}}
-            restoreListState={technicianListState}
-            refreshAfterAdd={refreshAfterAdd}
-        />
-    )
-}
+                <TechnicianAdd
+                    onBack={(result) => {
+
+                        sessionStorage.removeItem(
+                            TECHNICIAN_STORAGE_KEY
+                        )
 
 
-// =========================================
-// PAIN KILLER LIST / EDIT
-// =========================================
+                        setTechnicianView(
+                            'list'
+                        )
 
-// =========================================
-// PAIN KILLER LIST / EDIT
-// =========================================
 
-if (reactUrl === '/pain-killer') {
+                        if (
+                            result?.listState
+                        ) {
 
-    // Show Pain Killer Edit
-    if (painKillerEditState) {
+                            setTechnicianListState(
+                                result.listState
+                            )
+
+                        }
+
+
+                        if (
+                            result?.refreshTechnicians
+                        ) {
+
+                            setRefreshAfterAdd(
+                                (prev) =>
+                                    prev + 1
+                            )
+
+                        }
+
+                    }}
+                    listState={
+                        technicianListState
+                    }
+                />
+
+            )
+
+        }
+
+
+        // =====================================
+        // SHOW EDIT PAGE
+        // =====================================
+
+        if (
+            technicianEditState
+        ) {
+
+            return (
+
+                <TechnicianEdit
+                    techId={
+                        technicianEditState.techId
+                    }
+                    profileMode={
+                        technicianEditState.profileMode
+                    }
+                    listState={
+                        technicianEditState.listState
+                    }
+                    onBack={() => {
+
+                        sessionStorage.removeItem(
+                            TECHNICIAN_STORAGE_KEY
+                        )
+
+
+                        setTechnicianEditState(
+                            null
+                        )
+
+                    }}
+                />
+
+            )
+
+        }
+
+
+        // =====================================
+        // SHOW TECHNICIAN LIST
+        // =====================================
+
         return (
-            <PainKillerEdit
-                refid={painKillerEditState.refid}
-                listState={painKillerEditState.listState}
-                onBack={(result) => {
 
-                    setPainKillerEditState(null)
+            <Technician
+                onAddTechnician={(listState) => {
 
-                    sessionStorage.removeItem(
-                        PAIN_KILLER_STORAGE_KEY
+                    const savedState = {
+                        routeKey,
+                        view: 'add',
+                        listState
+                    }
+
+
+                    sessionStorage.setItem(
+                        TECHNICIAN_STORAGE_KEY,
+                        JSON.stringify(
+                            savedState
+                        )
                     )
 
-                    if (result?.listState) {
-                        setPainKillerListState(result.listState)
-                    }
 
-                    if (result?.refreshPainKiller) {
-                        setRefreshPainKiller(prev => prev + 1)
-                    }
+                    setTechnicianListState(
+                        listState
+                    )
+
+                    setTechnicianView(
+                        'add'
+                    )
+
                 }}
-            />
-        )
-    }
 
-    // Show Pain Killer List
-    return (
-        <PainKiller
-            onEditPainKiller={(editState) => {
 
-                const savedState = {
-                    routeKey,
-                    editState,
-                    listState: editState.listState
+                onEditTechnician={(editState) => {
+
+                    const savedState = {
+                        routeKey,
+                        view: 'edit',
+                        editState,
+                        listState:
+                            editState.listState
+                    }
+
+
+                    // Save Technician Edit
+                    // navigation state
+                    // before changing React state.
+
+                    sessionStorage.setItem(
+                        TECHNICIAN_STORAGE_KEY,
+                        JSON.stringify(
+                            savedState
+                        )
+                    )
+
+
+                    setTechnicianListState(
+                        editState.listState
+                    )
+
+                    setTechnicianEditState(
+                        editState
+                    )
+
+                }}
+
+
+                restoreListState={
+                    technicianListState
                 }
 
-                // Save before changing React state
-                sessionStorage.setItem(
-                    PAIN_KILLER_STORAGE_KEY,
-                    JSON.stringify(savedState)
-                )
+                refreshAfterAdd={
+                    refreshAfterAdd
+                }
 
-                setPainKillerListState(editState.listState)
-                setPainKillerEditState(editState)
-            }}
-            restoreListState={painKillerListState}
-            refreshAfterEdit={refreshPainKiller}
-        />
-    )
-}
+            />
 
+        )
+
+    }
+
+
+    // =========================================
+    // PAIN KILLER LIST / EDIT
+    // =========================================
+
+    if (
+        reactUrl === '/pain-killer'
+    ) {
+
+        // =====================================
+        // SHOW PAIN KILLER EDIT
+        // =====================================
+
+        if (
+            painKillerEditState
+        ) {
+
+            return (
+
+                <PainKillerEdit
+                    refid={
+                        painKillerEditState.refid
+                    }
+                    listState={
+                        painKillerEditState.listState
+                    }
+                    onBack={(result) => {
+
+                        setPainKillerEditState(
+                            null
+                        )
+
+
+                        sessionStorage.removeItem(
+                            PAIN_KILLER_STORAGE_KEY
+                        )
+
+
+                        if (
+                            result?.listState
+                        ) {
+
+                            setPainKillerListState(
+                                result.listState
+                            )
+
+                        }
+
+
+                        if (
+                            result?.refreshPainKiller
+                        ) {
+
+                            setRefreshPainKiller(
+                                prev =>
+                                    prev + 1
+                            )
+
+                        }
+
+                    }}
+                />
+
+            )
+
+        }
+
+
+        // =====================================
+        // SHOW PAIN KILLER LIST
+        // =====================================
+
+        return (
+
+            <PainKiller
+                onEditPainKiller={(editState) => {
+
+                    const savedState = {
+                        routeKey,
+                        editState,
+                        listState:
+                            editState.listState
+                    }
+
+
+                    // Save before changing
+                    // React state
+
+                    sessionStorage.setItem(
+                        PAIN_KILLER_STORAGE_KEY,
+                        JSON.stringify(
+                            savedState
+                        )
+                    )
+
+
+                    setPainKillerListState(
+                        editState.listState
+                    )
+
+                    setPainKillerEditState(
+                        editState
+                    )
+
+                }}
+
+
+                restoreListState={
+                    painKillerListState
+                }
+
+
+                refreshAfterEdit={
+                    refreshPainKiller
+                }
+
+            />
+
+        )
+
+    }
+
+
+    // =========================================
+    // SUB DEALER VIEW
+    // =========================================
 
     if (
         reactUrl === '/subdealer/editview' &&
         showSubDealerView
-            ) {
-            return <SubDealerView />
-        }
+    ) {
 
-    if (reactUrl === '/pcr-vendor-details') {
-    return (
-        <PCRVendorDetails
-            activePage={pcrView}
-            selectedPCRRecord={pcrSelectedRecord}
-            onChangePage={(page, record = null) => {
-                setPcrView(page)
-                setPcrSelectedRecord(record)
-
-                navigate(location.pathname, {
-                    replace: true,
-                    state: {
-                        ...location.state,
-                        pcrView: page,
-                        pcrSelectedRecord: record
-                    }
-                })
-            }}
-        />
-    )
-}
-
-return (
-    <Suspense
-        fallback={
-            <div style={{ padding: '40px', textAlign: 'center' }}>
-                Loading page...
-            </div>
-        }
-    >
-        <PageComponent />
-    </Suspense>
-)
+        return (
+            <SubDealerView />
+        )
 
     }
+
+
+    // =========================================
+    // PCR VENDOR DETAILS
+    // =========================================
+
+    if (
+        reactUrl === '/pcr-vendor-details'
+    ) {
+
+        return (
+
+            <PCRVendorDetails
+                activePage={
+                    pcrView
+                }
+
+                selectedPCRRecord={
+                    pcrSelectedRecord
+                }
+
+                onChangePage={(
+                    page,
+                    record = null
+                ) => {
+
+                    setPcrView(
+                        page
+                    )
+
+                    setPcrSelectedRecord(
+                        record
+                    )
+
+
+                    navigate(
+                        location.pathname,
+                        {
+                            replace: true,
+                            state: {
+                                ...location.state,
+                                pcrView:
+                                    page,
+                                pcrSelectedRecord:
+                                    record
+                            }
+                        }
+                    )
+
+                }}
+
+            />
+
+        )
+
+    }
+
+
+    // =========================================
+    // DEFAULT REACT PAGE
+    // =========================================
+
+    return (
+
+        <Suspense
+            fallback={
+
+                <div
+                    style={{
+                        padding: '40px',
+                        textAlign: 'center'
+                    }}
+                >
+                    Loading page...
+                </div>
+
+            }
+        >
+
+            <PageComponent />
+
+        </Suspense>
+
+    )
+
+}
 
 
 export default RouteKeyPage
