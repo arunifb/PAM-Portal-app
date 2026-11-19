@@ -15,8 +15,11 @@
 
 body {
     font-family: Arial, Helvetica, sans-serif;
+
     min-height: 100vh;
+
     color: #1f2937;
+
     background: #ffffff;
 }
 
@@ -34,7 +37,6 @@ body {
 
     padding: 30px;
 
-    /* MAIN ROOT BACKGROUND */
     background: #ffffff;
 }
 
@@ -45,14 +47,14 @@ body {
 
 .login-card {
     width: 100%;
-    max-width: 1080px;
-    min-height: 620px;
+    max-width: 1120px;
+    min-height: 650px;
 
     display: flex;
 
     background: #ffffff;
 
-    border-radius: 22px;
+    border-radius: 20px;
 
     overflow: hidden;
 
@@ -62,30 +64,32 @@ body {
 
 
 /* =========================================================
-   LEFT BRAND SECTION
+   LEFT / PAM BRAND SECTION
 ========================================================= */
 
 .login-brand-section {
-    width: 45%;
+    width: 47%;
 
     position: relative;
+
     overflow: hidden;
 
-    padding: 50px;
+    padding: 52px;
 
     color: #1f2937;
 
-    /* LEFT SECTION WHITE */
     background: #ffffff;
 
     display: flex;
+
     flex-direction: column;
+
     justify-content: space-between;
 }
 
 
 /* =========================================================
-   DECORATIVE CIRCLE - TOP RIGHT
+   DECORATIVE TOP CIRCLE
 ========================================================= */
 
 .login-brand-section::before {
@@ -93,20 +97,22 @@ body {
 
     position: absolute;
 
-    width: 360px;
-    height: 360px;
+    width: 430px;
+    height: 430px;
 
     border-radius: 50%;
 
-    right: -170px;
-    top: -150px;
+    right: -230px;
+    top: -210px;
 
     background: rgba(0, 0, 0, 0.025);
+
+    pointer-events: none;
 }
 
 
 /* =========================================================
-   DECORATIVE CIRCLE - BOTTOM LEFT
+   DECORATIVE BOTTOM CIRCLE
 ========================================================= */
 
 .login-brand-section::after {
@@ -114,26 +120,29 @@ body {
 
     position: absolute;
 
-    width: 300px;
-    height: 300px;
+    width: 340px;
+    height: 340px;
 
     border-radius: 50%;
 
-    left: -160px;
-    bottom: -170px;
+    left: -190px;
+    bottom: -200px;
 
     background: rgba(0, 0, 0, 0.025);
+
+    pointer-events: none;
 }
 
 
 /* =========================================================
-   KEEP CONTENT ABOVE DECORATIVE CIRCLES
+   CONTENT ABOVE DECORATION
 ========================================================= */
 
 .brand-content,
 .welcome-content,
 .brand-security {
     position: relative;
+
     z-index: 2;
 }
 
@@ -144,6 +153,7 @@ body {
 
 .ifb-logo {
     width: 145px;
+
     height: auto;
 
     display: block;
@@ -157,12 +167,12 @@ body {
 ========================================================= */
 
 .brand-divider {
-    width: 50px;
+    width: 55px;
     height: 4px;
 
-    border-radius: 10px;
+    margin-top: 16px;
 
-    margin-top: 15px;
+    border-radius: 10px;
 
     background: #dc3545;
 }
@@ -175,42 +185,76 @@ body {
 .brand-subtitle {
     margin-top: 12px;
 
-    font-size: 13px;
+    font-size: 14px;
 
-    color: #6b7280;
+    font-weight: 600;
+
+    color: #374151;
+
+    letter-spacing: 0.2px;
 }
 
 
 /* =========================================================
-   WELCOME
+   WELCOME CONTENT
 ========================================================= */
 
-.welcome-content h1 {
-    font-size: 42px;
+.welcome-content {
+    max-width: 430px;
+}
 
-    line-height: 1.12;
+
+/* =========================================================
+   PORTAL LABEL
+========================================================= */
+
+.portal-label {
+    margin-bottom: 12px;
+
+    font-size: 11px;
 
     font-weight: 700;
 
-    margin-bottom: 18px;
+    color: #dc3545;
 
-    color: #172033;
-}
-
-
-.welcome-content p {
-    max-width: 390px;
-
-    font-size: 15px;
-
-    line-height: 1.8;
-
-    color: #6b7280;
+    letter-spacing: 1.5px;
 }
 
 
 /* =========================================================
-   SECURITY CARD
+   WELCOME HEADING
+========================================================= */
+
+.welcome-content h1 {
+    margin-bottom: 18px;
+
+    color: #172033;
+
+    font-size: 43px;
+
+    line-height: 1.1;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   WELCOME DESCRIPTION
+========================================================= */
+
+.welcome-content p {
+    max-width: 400px;
+
+    color: #6b7280;
+
+    font-size: 14px;
+
+    line-height: 1.9;
+}
+
+
+/* =========================================================
+   SECURITY INFORMATION
 ========================================================= */
 
 .brand-security {
@@ -218,18 +262,21 @@ body {
 
     align-items: flex-start;
 
-    gap: 12px;
+    gap: 13px;
+
+    width: 100%;
+    max-width: 410px;
 
     padding: 16px 18px;
 
-    border-radius: 12px;
-
     border: 1px solid #e5e7eb;
 
-    background: #f3f4f6;
+    border-radius: 12px;
+
+    background: #f8f9fa;
 
     box-shadow:
-        0 4px 15px rgba(0, 0, 0, 0.08);
+        0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
 
@@ -238,8 +285,8 @@ body {
 ========================================================= */
 
 .security-icon {
-    width: 35px;
-    height: 35px;
+    width: 36px;
+    height: 36px;
 
     flex-shrink: 0;
 
@@ -248,9 +295,9 @@ body {
     align-items: center;
     justify-content: center;
 
-    border-radius: 8px;
+    border-radius: 9px;
 
-    background: rgba(220, 53, 69, 0.10);
+    background: #fff1f2;
 
     color: #dc3545;
 
@@ -267,31 +314,31 @@ body {
 
     margin-bottom: 4px;
 
-    font-size: 13px;
-
     color: #172033;
+
+    font-size: 13px;
 }
 
 
 .security-text span {
     display: block;
 
-    font-size: 12px;
-
-    line-height: 1.5;
-
     color: #6b7280;
+
+    font-size: 11px;
+
+    line-height: 1.6;
 }
 
 
 /* =========================================================
-   RIGHT LOGIN SECTION
+   RIGHT / LOGIN SECTION
 ========================================================= */
 
 .login-form-section {
-    width: 55%;
+    width: 53%;
 
-    padding: 55px 65px;
+    padding: 55px 70px;
 
     display: flex;
 
@@ -299,8 +346,7 @@ body {
 
     justify-content: center;
 
-    /* RIGHT SECTION ASH */
-    background: #f3f4f6;
+    background: #f4f5f7;
 }
 
 
@@ -309,88 +355,210 @@ body {
 ========================================================= */
 
 .login-header {
-    margin-bottom: 28px;
+    margin-bottom: 24px;
 }
 
 
 .login-header .small-title {
+    margin-bottom: 9px;
+
     color: #dc3545;
 
-    font-size: 12px;
+    font-size: 11px;
 
-    font-weight: 700;
+    font-weight: 800;
 
     text-transform: uppercase;
 
-    letter-spacing: 1.2px;
-
-    margin-bottom: 8px;
+    letter-spacing: 1.5px;
 }
 
 
 .login-header h2 {
-    font-size: 30px;
-
-    font-weight: 700;
+    margin-bottom: 8px;
 
     color: #172033;
 
-    margin-bottom: 8px;
+    font-size: 30px;
+
+    font-weight: 700;
 }
 
 
 .login-header p {
-    font-size: 14px;
-
     color: #6b7280;
+
+    font-size: 13px;
 }
 
 
 /* =========================================================
-   SECURITY NOTICE
+   PAM REVIEW CARD
 ========================================================= */
 
-.security-notice {
+.pam-review {
+    position: relative;
+
     display: flex;
 
-    align-items: flex-start;
+    align-items: center;
 
-    gap: 12px;
+    width: 100%;
+    min-height: 62px;
 
-    padding: 14px 16px;
+    margin-bottom: 25px;
 
-    margin-bottom: 24px;
+    padding: 11px 14px;
 
-    border: 1px solid #f2d58b;
+    overflow: hidden;
 
-    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    border-left: 4px solid #dc3545;
 
-    background: #fffaf0;
+    border-radius: 9px;
 
-    color: #725400;
+    background: #ffffff;
+
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 
-.notice-icon {
+/* =========================================================
+   PAM DECORATIVE CIRCLE
+========================================================= */
+
+.pam-review::after {
+    content: "";
+
+    position: absolute;
+
+    width: 100px;
+    height: 100px;
+
+    right: -45px;
+    top: -50px;
+
+    border-radius: 50%;
+
+    background: rgba(220, 53, 69, 0.045);
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   PAM ICON
+========================================================= */
+
+.pam-review-icon {
+    position: relative;
+
+    z-index: 2;
+
+    width: 38px;
+    height: 38px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    margin-right: 12px;
+
+    border: 1px solid #fecdd3;
+
+    border-radius: 9px;
+
+    background: #fff1f2;
+
+    color: #dc3545;
+
     font-size: 17px;
+}
+
+
+/* =========================================================
+   PAM CONTENT
+========================================================= */
+
+.pam-review-content {
+    position: relative;
+
+    z-index: 2;
+
+    display: flex;
+
+    flex-direction: column;
+
+    min-width: 0;
+}
+
+
+/* =========================================================
+   PAM TITLE
+========================================================= */
+
+.pam-review-title {
+    color: #172033;
+
+    font-size: 13px;
+
+    font-weight: 700;
 
     line-height: 1.3;
 }
 
 
-.notice-text {
-    font-size: 12px;
+/* =========================================================
+   PAM SUBTITLE
+========================================================= */
 
-    line-height: 1.6;
+.pam-review-subtitle {
+    margin-top: 3px;
+
+    color: #dc3545;
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.8px;
 }
 
 
-.notice-text strong {
-    display: block;
+/* =========================================================
+   PAM BADGE
+========================================================= */
 
-    margin-bottom: 2px;
+.pam-review-badge {
+    position: relative;
 
-    font-size: 13px;
+    z-index: 2;
+
+    margin-left: auto;
+
+    flex-shrink: 0;
+
+    padding: 5px 9px;
+
+    border: 1px solid #fecaca;
+
+    border-radius: 5px;
+
+    background: #fef2f2;
+
+    color: #dc3545;
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    letter-spacing: 0.8px;
 }
 
 
@@ -403,15 +571,17 @@ body {
 
     margin-bottom: 18px;
 
-    border-radius: 8px;
-
     border: 1px solid #fecdd3;
+
+    border-radius: 8px;
 
     background: #fff1f2;
 
     color: #be123c;
 
     font-size: 13px;
+
+    line-height: 1.5;
 }
 
 
@@ -420,6 +590,8 @@ body {
 ========================================================= */
 
 .form-group {
+    width: 100%;
+
     margin-bottom: 20px;
 }
 
@@ -430,60 +602,56 @@ body {
 
 .form-label {
     display: block;
+
     margin-bottom: 8px;
+
     color: #111111;
+
     font-size: 14px;
+
     font-weight: 700;
+
+    line-height: 1.2;
+
     text-align: left;
 }
 
 
 /* =========================================================
-   INPUT WRAPPER
-========================================================= */
-
-.input-wrapper {
-    position: relative;
-}
-
-
-/* =========================================================
-   INPUT ICON BESIDE PLACEHOLDER
+   INPUT ICON WRAPPER
 ========================================================= */
 
 .input-icon-wrapper {
     position: relative;
-    display: flex;
-    align-items: center;
+
     width: 100%;
+
+    display: block;
 }
 
-.input-icon {
+
+/* =========================================================
+   INPUT ICON
+========================================================= */
+
+.input-icon-wrapper .input-icon {
     position: absolute;
+
     left: 14px;
     top: 50%;
-    transform: translateY(-50%);
 
     width: 18px;
     height: 18px;
 
-    color: #a1a8b3; /* Same as placeholder color */
+    transform: translateY(-50%);
+
+    color: #a1a8b3;
+
     stroke-width: 2.5;
 
-    flex-shrink: 0;
     pointer-events: none;
-    z-index: 1;
-}
 
-/* Space for the icon inside the input */
-.input-icon-wrapper .form-input {
-    width: 100%;
-    padding-left: 42px;
-}
-
-/* Keep space for the Show/Hide password button */
-.input-icon-wrapper .form-input.password-input {
-    padding-right: 65px;
+    z-index: 2;
 }
 
 
@@ -491,12 +659,13 @@ body {
    INPUT
 ========================================================= */
 
-.form-input {
-    width: 100%;
+.input-icon-wrapper .form-input {
+    display: block;
 
+    width: 100%;
     height: 48px;
 
-    padding: 0 14px;
+    padding: 0 14px 0 46px;
 
     border: 1px solid #d5dbe3;
 
@@ -508,7 +677,11 @@ body {
 
     color: #1f2937;
 
+    font-family: Arial, Helvetica, sans-serif;
+
     font-size: 14px;
+
+    line-height: normal;
 
     transition:
         border-color 0.2s ease,
@@ -517,12 +690,22 @@ body {
 }
 
 
-.form-input::placeholder {
+/* =========================================================
+   INPUT PLACEHOLDER
+========================================================= */
+
+.input-icon-wrapper .form-input::placeholder {
     color: #a1a8b3;
+
+    opacity: 1;
 }
 
 
-.form-input:focus {
+/* =========================================================
+   INPUT FOCUS
+========================================================= */
+
+.input-icon-wrapper .form-input:focus {
     border-color: #dc3545;
 
     background: #ffffff;
@@ -530,6 +713,38 @@ body {
     box-shadow:
         0 0 0 3px
         rgba(220, 53, 69, 0.10);
+}
+
+
+/* =========================================================
+   INPUT DISABLED
+========================================================= */
+
+.input-icon-wrapper .form-input:disabled {
+    cursor: not-allowed;
+
+    background: #f8f9fa;
+
+    opacity: 0.75;
+}
+
+
+/* =========================================================
+   PASSWORD INPUT
+========================================================= */
+
+.input-icon-wrapper .form-input[type="password"],
+.input-icon-wrapper .form-input[type="text"] {
+    padding-right: 14px;
+}
+
+
+/* =========================================================
+   PASSWORD FIELD WITH SHOW/HIDE BUTTON
+========================================================= */
+
+.input-icon-wrapper:has(.password-toggle) .form-input {
+    padding-right: 70px;
 }
 
 
@@ -543,7 +758,11 @@ body {
     top: 50%;
     right: 13px;
 
+    z-index: 3;
+
     transform: translateY(-50%);
+
+    padding: 4px 0;
 
     border: none;
 
@@ -551,9 +770,13 @@ body {
 
     color: #dc3545;
 
+    font-family: Arial, Helvetica, sans-serif;
+
     font-size: 12px;
 
     font-weight: 600;
+
+    line-height: 1;
 
     cursor: pointer;
 }
@@ -561,6 +784,18 @@ body {
 
 .password-toggle:hover {
     text-decoration: underline;
+}
+
+
+.password-toggle:focus {
+    outline: none;
+}
+
+
+.password-toggle:disabled {
+    cursor: not-allowed;
+
+    opacity: 0.6;
 }
 
 
@@ -611,10 +846,14 @@ body {
     color: #8a919c;
 
     font-size: 11px;
+
+    line-height: 1.4;
 }
 
 
 .captcha-info-icon {
+    flex-shrink: 0;
+
     font-size: 13px;
 }
 
@@ -625,7 +864,6 @@ body {
 
 .login-button {
     width: 100%;
-
     height: 49px;
 
     border: none;
@@ -635,6 +873,8 @@ body {
     background: #dc3545;
 
     color: #ffffff;
+
+    font-family: Arial, Helvetica, sans-serif;
 
     font-size: 14px;
 
@@ -667,6 +907,8 @@ body {
     cursor: not-allowed;
 
     opacity: 0.65;
+
+    box-shadow: none;
 }
 
 
@@ -677,11 +919,11 @@ body {
 .login-footer {
     margin-top: 25px;
 
-    text-align: center;
-
     color: #9aa1ab;
 
     font-size: 11px;
+
+    text-align: center;
 }
 
 
@@ -693,16 +935,15 @@ body {
     display: none;
 
     width: 100%;
-
     max-width: 650px;
 
     padding: 45px;
 
-    text-align: center;
-
     border-radius: 18px;
 
     background: #ffffff;
+
+    text-align: center;
 
     box-shadow:
         0 20px 60px
@@ -769,8 +1010,6 @@ body {
 
     padding: 20px;
 
-    text-align: left;
-
     border-radius: 10px;
 
     background: #f8fafc;
@@ -780,6 +1019,8 @@ body {
     font-size: 13px;
 
     line-height: 1.8;
+
+    text-align: left;
 }
 
 
@@ -817,20 +1058,21 @@ body {
 
 
     .login-brand-section {
-        min-height: 330px;
+        min-height: 350px;
 
-        padding: 35px;
+        padding: 38px;
     }
 
 
     .welcome-content h1 {
-        font-size: 34px;
+        font-size: 35px;
     }
 
 
     .login-form-section {
-        padding: 40px 35px;
+        padding: 42px 38px;
     }
+
 }
 
 
@@ -851,7 +1093,9 @@ body {
 
 
     .login-brand-section {
-        padding: 28px 24px;
+        min-height: 330px;
+
+        padding: 30px 24px;
     }
 
 
@@ -875,7 +1119,108 @@ body {
     }
 
 
-    .security-notice {
-        padding: 12px;
+    .pam-review {
+        padding: 10px 12px;
     }
+
+
+    .pam-review-icon {
+        width: 34px;
+        height: 34px;
+
+        margin-right: 9px;
+    }
+
+
+    .pam-review-title {
+        font-size: 12px;
+    }
+
+
+    .pam-review-badge {
+        display: none;
+    }
+
+
+    .form-label {
+        font-size: 13px;
+    }
+
+
+    .input-icon-wrapper .form-input {
+        height: 46px;
+
+        padding-left: 44px;
+
+        font-size: 13px;
+    }
+
+
+    .input-icon-wrapper .input-icon {
+        left: 13px;
+
+        width: 17px;
+        height: 17px;
+    }
+
+
+    .password-toggle {
+        right: 12px;
+
+        font-size: 11px;
+    }
+
+
+    .login-button {
+        height: 47px;
+    }
+
+
+    .captcha-info {
+        align-items: flex-start;
+    }
+
+}
+
+
+/* =========================================================
+   VERY SMALL MOBILE
+========================================================= */
+
+@media (max-width: 360px) {
+
+    .login-page {
+        padding: 10px;
+    }
+
+
+    .login-brand-section {
+        padding: 25px 20px;
+    }
+
+
+    .login-form-section {
+        padding: 28px 20px;
+    }
+
+
+    .welcome-content h1 {
+        font-size: 26px;
+    }
+
+
+    .login-header h2 {
+        font-size: 22px;
+    }
+
+
+    .pam-review-title {
+        font-size: 11px;
+    }
+
+
+    .pam-review-subtitle {
+        font-size: 9px;
+    }
+
 }

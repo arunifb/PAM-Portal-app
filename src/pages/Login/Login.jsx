@@ -107,18 +107,10 @@ function Login() {
 
             console.time('reCAPTCHA')
 
-
             const recaptchaToken =
                 await getRecaptchaToken()
 
-
             console.timeEnd('reCAPTCHA')
-
-
-            // console.log(
-            //     'Login: reCAPTCHA token received:',
-            //     !!recaptchaToken
-            // )
 
 
             // =========================================
@@ -134,7 +126,6 @@ function Login() {
 
             console.time('API Login')
 
-
             const data =
                 await login(
                     username.trim(),
@@ -142,17 +133,7 @@ function Login() {
                     recaptchaToken
                 )
 
-                // console.log('Role ID:', data.roleID)
-                // console.log('Roles:', data.roles)
-
-
             console.timeEnd('API Login')
-
-
-            // console.log(
-            //     'Login API response:',
-            //     data
-            // )
 
 
             // =========================================
@@ -160,11 +141,6 @@ function Login() {
             // =========================================
 
             if (data.requiresTwoFactor) {
-
-                // console.log(
-                //     'Two-factor authentication required.'
-                // )
-
 
                 // =========================================
                 // TEMPORARY 2FA USER DATA
@@ -227,7 +203,6 @@ function Login() {
 
                 navigate('/2fa')
 
-
                 return
 
             }
@@ -257,24 +232,34 @@ function Login() {
                 String(data.roleID ?? '')
             )
 
-            // sessionStorage.setItem(
-            //     'bpCode',
-            //     data.bpCode || ''
-            // )
 
-            // sessionStorage.setItem(
-            //     'regionCode',
-            //     data.regionCode || ''
-            // )
+            // =========================================
+            // BP CODE
+            // =========================================
 
             sessionStorage.setItem(
-            'bpCode',
-            String(data.bpCode || data.BPCode || data.branches || '')
-             )
+                'bpCode',
+                String(
+                    data.bpCode ||
+                    data.BPCode ||
+                    data.branches ||
+                    ''
+                )
+            )
+
+
+            // =========================================
+            // REGION CODE
+            // =========================================
 
             sessionStorage.setItem(
                 'regionCode',
-                String(data.regionCode || data.RegionCode || data.regions || '')
+                String(
+                    data.regionCode ||
+                    data.RegionCode ||
+                    data.regions ||
+                    ''
+                )
             )
 
 
@@ -312,7 +297,6 @@ function Login() {
                 error
             )
 
-
             setMessage(
                 error?.message ||
                 'Login failed.'
@@ -340,7 +324,7 @@ function Login() {
 
 
                 {/* =========================================
-                    LEFT / BRAND SECTION
+                    LEFT / PAM BRAND SECTION
                 ========================================= */}
 
                 <section className="login-brand-section">
@@ -356,7 +340,7 @@ function Login() {
                         <div className="brand-divider"></div>
 
                         <div className="brand-subtitle">
-                            e-Training Application
+                            PAM Portal
                         </div>
 
                     </div>
@@ -364,14 +348,18 @@ function Login() {
 
                     <div className="welcome-content">
 
+                        <div className="portal-label">
+                            PRIVILEGED ACCESS MANAGEMENT
+                        </div>
+
                         <h1>
                             Welcome Back
                         </h1>
 
                         <p>
-                            Sign in to access the e-Training
-                            application and continue your
-                            learning and training activities.
+                            Securely access the PAM Portal to manage
+                            privileged accounts, emergency users and
+                            authorized system access.
                         </p>
 
                     </div>
@@ -390,8 +378,9 @@ function Login() {
                             </strong>
 
                             <span>
-                                Two-factor authentication is enabled
-                                for enhanced account security.
+                                Your access is protected with
+                                enhanced authentication and
+                                security controls.
                             </span>
 
                         </div>
@@ -402,7 +391,7 @@ function Login() {
 
 
                 {/* =========================================
-                    RIGHT / LOGIN FORM SECTION
+                    RIGHT / LOGIN SECTION
                 ========================================= */}
 
                 <section className="login-form-section">
@@ -415,44 +404,45 @@ function Login() {
                     <div className="login-header">
 
                         <div className="small-title">
-                            e-Training
+                            PAM Portal
                         </div>
 
                         <h2>
-                            Login to your account
+                            Sign in to your account
                         </h2>
 
                         <p>
                             Enter your Login-ID and Password
-                            to log on.
+                            to continue.
                         </p>
 
                     </div>
 
 
                     {/* =========================================
-                        SECURITY NOTICE
+                        SAP EMERGENCY USER REVIEW
                     ========================================= */}
 
-                    <div className="security-notice">
+                    <div className="pam-review">
 
-                        <div className="notice-icon">
-                            🔔
+                        <div className="pam-review-icon">
+                            🔐
                         </div>
 
-                        <div className="notice-text">
+                        <div className="pam-review-content">
 
-                            <strong>
-                                Security Notice
-                            </strong>
+                            <div className="pam-review-title">
+                                SAP Emergency User Review
+                            </div>
 
-                            For security, from 9th October
-                            we've enabled two-factor authentication.
-                            If your mobile number or email is missing,
-                            you can't log in. Please update your
-                            details and reset your password.
-                            Thank you!
+                            <div className="pam-review-subtitle">
+                                PAM Portal
+                            </div>
 
+                        </div>
+
+                        <div className="pam-review-badge">
+                            PAM
                         </div>
 
                     </div>
@@ -500,7 +490,13 @@ function Login() {
                             </label>
 
                             <div className="input-icon-wrapper">
-                                <UserRound size={18} strokeWidth={2.5} className="input-icon" />
+
+                                <UserRound
+                                    size={18}
+                                    strokeWidth={2.5}
+                                    className="input-icon"
+                                />
+
                                 <input
                                     type="text"
                                     id="username"
@@ -520,6 +516,7 @@ function Login() {
                                     }}
                                     disabled={isLoading}
                                 />
+
                             </div>
 
                         </div>
@@ -538,9 +535,13 @@ function Login() {
                                 Password
                             </label>
 
-
                             <div className="input-icon-wrapper">
-                                <KeyRound size={18} strokeWidth={2.5} className="input-icon" />
+
+                                <KeyRound
+                                    size={18}
+                                    strokeWidth={2.5}
+                                    className="input-icon"
+                                />
 
                                 <input
                                     type={
@@ -565,7 +566,6 @@ function Login() {
                                     }}
                                     disabled={isLoading}
                                 />
-
 
                                 <button
                                     type="button"
@@ -650,7 +650,7 @@ function Login() {
                     <div className="login-footer">
 
                         © IFB Industries Ltd. &nbsp;|&nbsp;
-                        e-Training Application
+                        PAM Portal
 
                     </div>
 
