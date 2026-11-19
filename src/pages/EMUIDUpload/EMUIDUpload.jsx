@@ -9,6 +9,13 @@ import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { CalendarDays, Download } from 'lucide-react'
 
+import {
+    getEmuidList,
+    uploadEmuidFile,
+    downloadEmuidFile,
+    updateEmuidReview
+} from '../../api/emuidUploadApi'
+
 
 function EMUIDUpload() {
 
@@ -53,6 +60,7 @@ function EMUIDUpload() {
     const fileInputRef =
         useRef(null)
 
+
     // =========================================
     // DATE RANGE: TODAY - 1 YEAR TO TODAY
     // =========================================
@@ -61,25 +69,27 @@ function EMUIDUpload() {
     today.setHours(0, 0, 0, 0)
 
     const minSelectableDate = new Date(today)
+
     minSelectableDate.setFullYear(
         minSelectableDate.getFullYear() - 1
     )
 
 
     // =========================================
-    // MOCK DATA
+    // GET SESSION USER ID
     // =========================================
 
-    const mockRecords = [
-        {
-            id: 1,
-            pDate: '18-Nov-2026',
-            purpose: 'Emergency_User_Id.xlsx',
-            pName: 'Emergency User Id',
-            revieweddt: '',
-            userName: 'Admin'
-        }
-    ]
+    const getSessionUserId = () => {
+
+        return (
+            sessionStorage.getItem('userId') ||
+            sessionStorage.getItem('UserID') ||
+            sessionStorage.getItem('userID') ||
+            sessionStorage.getItem('UserId') ||
+            ''
+        )
+
+    }
 
 
     // =========================================
@@ -96,37 +106,83 @@ function EMUIDUpload() {
 
     // =========================================
     // LOAD RECORDS
+    // GET /api/pam/FireFighter/list
     // =========================================
 
-    const loadRecords = (logType) => {
+    const loadRecords = async (logType) => {
 
-        /*
-         * Backend API is not ready.
-         *
-         * For now, use local/mock records.
-         *
-         * Later this function will call:
-         *
-         * getPAMRequisition(logType)
-         */
+        try {
 
-        if (logType === '0') {
+            const response =
+                await getEmuidList(logType)
 
-            setRecords(mockRecords)
+            const mappedRecords =
+                response.map(record => ({
 
-            return
+                    id:
+                        record.id ??
+                        record.Id,
 
-        }
+                    pDate:
+                        formatDate(
+                            record.pDate ??
+                            record.PDate
+                        ),
+
+                    purpose:
+                        record.fileName ??
+                        record.FileName ??
+                        '',
+
+                    pName:
+                        'Emergency User Id',
+
+                    logType:
+                        record.logType ??
+                        record.LogType ??
+                        'EMUID',
+
+                    remark:
+                        record.remark ??
+                        record.Remark ??
+                        'HouseKeeping(no table updated or changed)',
+
+                    revieweddt:
+                        record.reviewedRemark ??
+                        record.ReviewedRemark ??
+                        '',
+
+                    reviewedDate:
+                        record.reviewedDt ??
+                        record.ReviewedDt ??
+                        '',
+
+                    userName:
+                        record.reviewer ??
+                        record.Reviewer ??
+                        ''
+
+                }))
 
 
-        const filteredRecords =
-            mockRecords.filter(
-                record =>
-                    record.pName ===
-                    'Emergency User Id'
+            setRecords(mappedRecords)
+
+        } catch (error) {
+
+            console.error(
+                'Error loading EMUID records:',
+                error
             )
 
-        setRecords(filteredRecords)
+            setRecords([])
+
+            showMessage(
+                error.message ||
+                'Unable to load records.',
+                'danger'
+            )
+
+        }
 
     }
 
@@ -157,10 +213,7 @@ function EMUIDUpload() {
             return ''
         }
 
-
-        const date =
-            new Date(value)
-
+        const date = new Date(value)
 
         if (
             Number.isNaN(
@@ -171,7 +224,6 @@ function EMUIDUpload() {
             return value
 
         }
-
 
         const day =
             String(
@@ -211,28 +263,47 @@ function EMUIDUpload() {
 
 
     // =========================================
-// DATE PICKER HELPERS
-// =========================================
+    // DATE PICKER HELPERS
+    // =========================================
 
-const parseDate = (value) => {
-    if (!value) return null
+    const parseDate = (value) => {
 
-    const [year, month, day] = value.split('-').map(Number)
+        if (!value) return null
 
-    if (!year || !month || !day) return null
+        const [year, month, day] =
+            value.split('-').map(Number)
 
-    return new Date(year, month - 1, day)
-}
+        if (!year || !month || !day) return null
 
-const formatInputDate = (date) => {
-    if (!date) return ''
+        return new Date(
+            year,
+            month - 1,
+            day
+        )
 
-    const year = date.getFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
+    }
 
-    return `${year}-${month}-${day}`
-}
+
+    const formatInputDate = (date) => {
+
+        if (!date) return ''
+
+        const year =
+            date.getFullYear()
+
+        const month =
+            String(
+                date.getMonth() + 1
+            ).padStart(2, '0')
+
+        const day =
+            String(
+                date.getDate()
+            ).padStart(2, '0')
+
+        return `${year}-${month}-${day}`
+
+    }
 
 
     // =========================================
@@ -265,9 +336,10 @@ const formatInputDate = (date) => {
 
     // =========================================
     // UPLOAD
+    // POST /api/pam/FireFighter/upload
     // =========================================
 
-    const handleUpload = () => {
+    const handleUpload = async () => {
 
         showMessage(
             '',
@@ -327,59 +399,108 @@ const formatInputDate = (date) => {
         }
 
 
-        // =====================================
-        // MOCK UPLOAD
-        // =====================================
+        const userId =
+            getSessionUserId()
 
-        const newRecord = {
 
-            id:
-                Date.now(),
+        if (!userId || Number(userId) <= 0) {
 
-            pDate:
-                formatDate(period),
+            showMessage(
+                'User ID is missing. Please login again.',
+                'danger'
+            )
 
-            purpose:
-                fileName,
-
-            pName:
-                'Emergency User Id',
-
-            revieweddt:
-                '',
-
-            userName:
-                'Current User'
+            return
 
         }
 
 
-        setRecords(prev => [
-            newRecord,
-            ...prev
-        ])
-
-
-        showMessage(
-            'Data save successfully.',
-            'success'
-        )
-
-
         // =====================================
-        // RESET UPLOAD FORM
+        // API UPLOAD
         // =====================================
 
-        setPeriod('')
+        try {
 
-        setFileName('')
+            const response =
+                await uploadEmuidFile({
 
-        setSelectedFile(null)
+                    period: period,
+
+                    logType: approvalType,
+
+                    fileName: fileName.trim(),
+
+                    createdBy: userId,
+
+                    file: selectedFile
+
+                })
 
 
-        if (fileInputRef.current) {
+            const isSuccess =
+                response.isSuccess ??
+                response.IsSuccess ??
+                true
 
-            fileInputRef.current.value = ''
+
+            if (!isSuccess) {
+
+                showMessage(
+                    response.message ||
+                    response.Message ||
+                    'Unable to upload file.',
+                    'danger'
+                )
+
+                return
+
+            }
+
+
+            showMessage(
+                response.message ||
+                response.Message ||
+                'Data save successfully.',
+                'success'
+            )
+
+
+            // =====================================
+            // RESET UPLOAD FORM
+            // =====================================
+
+            setPeriod('')
+
+            setFileName('')
+
+            setSelectedFile(null)
+
+
+            if (fileInputRef.current) {
+
+                fileInputRef.current.value = ''
+
+            }
+
+
+            // =====================================
+            // REFRESH GRID
+            // =====================================
+
+            await loadRecords('0')
+
+        } catch (error) {
+
+            console.error(
+                'EMUID upload error:',
+                error
+            )
+
+            showMessage(
+                error.message ||
+                'Unable to upload file.',
+                'danger'
+            )
 
         }
 
@@ -387,91 +508,63 @@ const formatInputDate = (date) => {
 
 
     // =========================================
-// SEARCH
-// =========================================
+    // SEARCH
+    // =========================================
 
-const handleSearch = () => {
+    const handleSearch = async () => {
 
-    showMessage('', '')
+        showMessage('', '')
 
-    // Log Type Validation
-    if (!searchLogType || searchLogType === '0') {
 
-        showMessage(
-            'Please give Log type.',
-            'danger'
-        )
+        // Log Type Validation
 
-        return
+        if (!searchLogType || searchLogType === '0') {
+
+            showMessage(
+                'Please give Log type.',
+                'danger'
+            )
+
+            return
+
+        }
+
+
+        await loadRecords(searchLogType)
+
     }
-
-    loadRecords(searchLogType)
-
-}
 
 
     // =========================================
     // DOWNLOAD
+    // GET /api/pam/FireFighter/download/{id}
     // =========================================
 
-    const handleDownload = (record) => {
+    const handleDownload = async (record) => {
 
-        /*
-         * Backend API is not ready.
-         *
-         * The legacy application uses Response.WriteFile().
-         *
-         * For now we create a small local file
-         * so the Download button can be tested.
-         */
+        showMessage('', '')
 
-        const content =
-            `Emergency User Id File\n\nFile Name: ${record.purpose}`
+        try {
 
-
-        const blob =
-            new Blob(
-                [content],
-                {
-                    type:
-                        'text/plain'
-                }
+            await downloadEmuidFile(
+                record.id,
+                record.logType || 'EMUID'
             )
 
+        } catch (error) {
 
-        const url =
-            window.URL.createObjectURL(
-                blob
+            console.error(
+                'EMUID download error:',
+                error
             )
 
+            showMessage(
+                error.message ||
+                'Unable to download file.',
+                'danger'
+            )
 
-        const link =
-            document.createElement('a')
-
-
-        link.href = url
-
-        link.download =
-            record.purpose ||
-            'EMUID_File.txt'
-
-
-        document.body.appendChild(
-            link
-        )
-
-
-        link.click()
-
-
-        document.body.removeChild(
-            link
-        )
-
-
-        window.URL.revokeObjectURL(
-            url
-        )
+        }
 
     }
 
@@ -500,42 +593,72 @@ const handleSearch = () => {
 
     // =========================================
     // UPDATE REVIEW REMARK
+    // POST /api/pam/FireFighter/review
     // Same as gvPAMView_RowUpdating
     // =========================================
 
-    const handleUpdate = (recordId) => {
+    const handleUpdate = async (recordId) => {
 
-        setRecords(prev =>
-            prev.map(record => {
+        try {
 
-                if (
-                    record.id ===
-                    recordId
-                ) {
-
-                    return {
-                        ...record,
-                        revieweddt:
-                            reviewRemark
-                    }
-
-                }
-
-                return record
-
-            })
-        )
+            const response =
+                await updateEmuidReview(
+                    recordId,
+                    reviewRemark
+                )
 
 
-        setEditingId(null)
+            const isSuccess =
+                response.isSuccess ??
+                response.IsSuccess ??
+                true
 
-        setReviewRemark('')
+
+            if (!isSuccess) {
+
+                showMessage(
+                    response.message ||
+                    response.Message ||
+                    'Unable to update review remark.',
+                    'danger'
+                )
+
+                return
+
+            }
 
 
-        showMessage(
-            'Data updated successfully',
-            'success'
-        )
+            setEditingId(null)
+
+            setReviewRemark('')
+
+
+            showMessage(
+                response.message ||
+                response.Message ||
+                'Data updated successfully',
+                'success'
+            )
+
+
+            await loadRecords(
+                searchLogType
+            )
+
+        } catch (error) {
+
+            console.error(
+                'EMUID review update error:',
+                error
+            )
+
+            showMessage(
+                error.message ||
+                'Unable to update review remark.',
+                'danger'
+            )
+
+        }
 
     }
 
@@ -890,7 +1013,7 @@ const handleSearch = () => {
 
                                         <td
                                             colSpan="8"
-                                            className="emuid-no-data"
+                                            className="no-record-found emuid-no-data"
                                         >
                                             No records found
                                         </td>
@@ -927,7 +1050,7 @@ const handleSearch = () => {
                                             {/* REMARK */}
 
                                             <td>
-                                                HouseKeeping(no table updated or changed)
+                                                {record.remark}
                                             </td>
 
 

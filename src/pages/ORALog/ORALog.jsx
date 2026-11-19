@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import { CalendarDays, Download } from 'lucide-react'
@@ -6,44 +5,33 @@ import DashboardLayout from '../../components/DashboardLayout/DashboardLayout'
 import 'react-datepicker/dist/react-datepicker.css'
 import './ORALog.css'
 
+import {
+    getOraLogTypes,
+    getOraLogList,
+    uploadOraLog,
+    downloadOraLog,
+    updateOraLogReview
+} from '../../api/oraLogApi'
+
 const FIXED_REMARK = 'HouseKeeping(no table updated or changed)'
 
 // Default Period: 18 November 2025
-const DEFAULT_PERIOD = '2025-11-18'
+const DEFAULT_PERIOD = ''
 
-const INITIAL_RECORDS = [
-    {
-        id: 1,
-        pDate: '18-Nov-2026',
-        purpose: 'ORA_DB_Log.xlsx',
-        pName: 'ORA DB Log',
-        remark: FIXED_REMARK,
-        revieweddt: '',
-        userName: 'Admin',
-        docUpload: 'ORA_DB_Log.xlsx',
-        pType: 'ORADBLOG'
-    },
-    {
-        id: 2,
-        pDate: '17-Nov-2026',
-        purpose: 'Critical_Activity.xlsx',
-        pName: 'Critical basis activity',
-        remark: FIXED_REMARK,
-        revieweddt: 'Checked',
-        userName: 'Reviewer',
-        docUpload: 'Critical_Activity.xlsx',
-        pType: 'CBA'
-    }
-]
+const MAX_FILE_SIZE = 10 * 1024 * 1024
 
 function parseDate(value) {
     if (!value) return null
 
-    const [year, month, day] = value.split('-').map(Number)
+    // Handles both yyyy-MM-dd and API ISO date values.
+    const datePart = String(value).split('T')[0]
+    const [year, month, day] = datePart.split('-').map(Number)
 
     if (!year || !month || !day) return null
 
-    return new Date(year, month - 1, day)
+    const date = new Date(year, month - 1, day)
+
+    return Number.isNaN(date.getTime()) ? null : date
 }
 
 function formatInputDate(date) {
@@ -61,7 +49,7 @@ function formatDisplayDate(value) {
 
     const date = parseDate(value)
 
-    if (!date || Number.isNaN(date.getTime())) return value
+    if (!date) return value
 
     return date.toLocaleDateString('en-GB', {
         day: '2-digit',
@@ -70,13 +58,41 @@ function formatDisplayDate(value) {
     }).replace(/ /g, '-')
 }
 
+function getSessionUserId() {
+    return (
+        sessionStorage.getItem('userId') ||
+        sessionStorage.getItem('UserID') ||
+        sessionStorage.getItem('userID') ||
+        sessionStorage.getItem('UserId') ||
+        ''
+    )
+}
+
+// Map API response fields to the existing grid structure.
+function mapApiRecord(item) {
+    return {
+        id: item.id ?? item.Id ?? item.ID ?? item.requisitionId ?? item.RequisitionId,
+        pDate: formatDisplayDate(item.pDate ?? item.PDate),
+        purpose: item.fileName ?? item.FileName ?? '',
+        logType: item.logType ?? item.LogType ?? '',
+        pType: item.pType ?? item.PType ?? '',
+        remark: item.remark ?? item.Remark ?? FIXED_REMARK,
+        revieweddt: item.reviewedDt ?? item.ReviewedDt ?? '',
+        reviewedRemark: item.reviewedRemark ?? item.ReviewedRemark ?? '',
+        userName: item.reviewer ?? item.Reviewer ?? '',
+        docUpload: item.docUpload ?? item.DocUpload ?? ''
+    }
+}
+
 function ORALog() {
     const [period, setPeriod] = useState(DEFAULT_PERIOD)
     const [approvalType, setApprovalType] = useState('ORADBLOG')
     const [fileName, setFileName] = useState('')
     const [selectedFile, setSelectedFile] = useState(null)
 
+    const [logTypes, setLogTypes] = useState([])
     const [searchLogType, setSearchLogType] = useState('0')
+
     const [records, setRecords] = useState([])
     const [filteredRecords, setFilteredRecords] = useState([])
 
@@ -86,8 +102,10 @@ function ORALog() {
     const [editingId, setEditingId] = useState(null)
     const [reviewRemark, setReviewRemark] = useState('')
 
-    const fileInputRef = useRef(null)
+    const [isLoading, setIsLoading] = useState(false)
+    const [isUploading, setIsUploading] = useState(false)
 
+    const fileInputRef = useRef(null)
 
     // =========================================
     // DATE RANGE: TODAY - 1 YEAR TO TODAY
@@ -102,6 +120,7 @@ function ORALog() {
     )
 
     useEffect(() => {
+        loadLogTypes()
         loadRecords('0')
     }, [])
 
@@ -110,20 +129,62 @@ function ORALog() {
         setMessageType(type)
     }
 
-    // Initial mock data loading
-    // Replace with API integration when backend API is ready.
-    const loadRecords = (logType = '0') => {
-        const data = INITIAL_RECORDS
+    // =========================================
+    // LOAD LOG TYPES
+    // =========================================
 
-        const filtered = logType === '0'
-            ? data
-            : data.filter(item => item.pType === logType)
+    const loadLogTypes = async () => {
+        try {
+            const data = await getOraLogTypes()
 
-        setRecords(data)
-        setFilteredRecords(filtered)
+            const types = Array.isArray(data) ? data : []
+
+            setLogTypes(types.map(item => ({
+                value: item.value ?? item.Value,
+                text: item.text ?? item.Text
+            })))
+        } catch (error) {
+            console.error('ORA Log types error:', error)
+            showMessage(
+                error.message || 'Unable to load Log Types.',
+                'danger'
+            )
+        }
     }
 
-    // Reset upload form
+    // =========================================
+    // LOAD RECORDS
+    // =========================================
+
+    const loadRecords = async (logType = '0') => {
+        try {
+            setIsLoading(true)
+
+            const data = await getOraLogList(logType)
+
+            const mappedRecords = data.map(mapApiRecord)
+
+            setRecords(mappedRecords)
+            setFilteredRecords(mappedRecords)
+        } catch (error) {
+            console.error('ORA Log list error:', error)
+
+            setRecords([])
+            setFilteredRecords([])
+
+            showMessage(
+                error.message || 'Unable to load ORA DB Log records.',
+                'danger'
+            )
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    // =========================================
+    // RESET UPLOAD FORM
+    // =========================================
+
     const resetUploadForm = () => {
         setPeriod(DEFAULT_PERIOD)
         setApprovalType('ORADBLOG')
@@ -135,7 +196,10 @@ function ORALog() {
         }
     }
 
-    // File selection
+    // =========================================
+    // FILE SELECTION
+    // =========================================
+
     const handleFileChange = (event) => {
         const file = event.target.files?.[0] || null
 
@@ -144,10 +208,21 @@ function ORALog() {
         if (file && !fileName.trim()) {
             setFileName(file.name)
         }
+
+        if (file && file.size > MAX_FILE_SIZE) {
+            showMessage('Maximum upload size allowed is 10MB.', 'danger')
+            setSelectedFile(null)
+            event.target.value = ''
+        } else {
+            showMessage('', '')
+        }
     }
 
-    // Upload
-    const handleUpload = (event) => {
+    // =========================================
+    // UPLOAD
+    // =========================================
+
+    const handleUpload = async (event) => {
         event.preventDefault()
         showMessage('', '')
 
@@ -171,37 +246,58 @@ function ORALog() {
             return
         }
 
-        const newRecord = {
-            id: Date.now(),
-            pDate: formatDisplayDate(period),
-            purpose: fileName.trim(),
-            pName: approvalType === 'ORADBLOG'
-                ? 'ORA DB Log'
-                : 'Critical basis activity',
-            remark: FIXED_REMARK,
-            revieweddt: '',
-            userName: '',
-            docUpload: selectedFile.name,
-            pType: approvalType,
-            file: selectedFile
+        if (selectedFile.size > MAX_FILE_SIZE) {
+            showMessage('Maximum upload size allowed is 10MB.', 'danger')
+            return
         }
 
-        const updatedRecords = [newRecord, ...records]
+        const userId = Number(getSessionUserId())
 
-        setRecords(updatedRecords)
+        if (!userId || userId <= 0) {
+            showMessage(
+                'User ID is missing. Please login again.',
+                'danger'
+            )
+            return
+        }
 
-        const filtered = updatedRecords.filter(
-            item => searchLogType === '0' || item.pType === searchLogType
-        )
+        try {
+            setIsUploading(true)
 
-        setFilteredRecords(filtered)
+            const result = await uploadOraLog({
+                period,
+                logType: approvalType,
+                fileName: fileName.trim(),
+                createdBy: userId,
+                file: selectedFile
+            })
 
-        showMessage('Data save successfully.', 'success')
-        resetUploadForm()
+            showMessage(
+                result.message || 'Data save successfully.',
+                'success'
+            )
+
+            resetUploadForm()
+
+            // Refresh the currently selected grid filter.
+            await loadRecords(searchLogType)
+        } catch (error) {
+            console.error('ORA Log upload error:', error)
+
+            showMessage(
+                error.message || 'Unable to upload file.',
+                'danger'
+            )
+        } finally {
+            setIsUploading(false)
+        }
     }
 
-    // Search
-    const handleSearch = () => {
+    // =========================================
+    // SEARCH
+    // =========================================
+
+    const handleSearch = async () => {
         showMessage('', '')
 
         if (!searchLogType || searchLogType === '0') {
@@ -209,75 +305,98 @@ function ORALog() {
             return
         }
 
-        const filtered = records.filter(
-            item => item.pType === searchLogType
-        )
-
-        setFilteredRecords(filtered)
+        await loadRecords(searchLogType)
     }
 
-    // Download
-    const handleDownload = (record) => {
-        showMessage('', '')
+    // =========================================
+    // DOWNLOAD
+    // =========================================
 
-        if (!record.file) {
-            showMessage(
-                'This is a sample record. No actual uploaded file is available.',
-                'warning'
-            )
+    const handleDownload = async (record) => {
+    showMessage('', '')
+
+    console.log('ORA Log Download Record:', record)
+    console.log('Download ID:', record?.id)
+    console.log('Download LogType:', record?.logType)
+
+    try {
+        if (!record?.id) {
+            showMessage('Record ID is missing. Cannot download file.', 'danger')
             return
         }
 
-        const fileUrl = URL.createObjectURL(record.file)
-        const link = document.createElement('a')
+        await downloadOraLog(record.id, record.logType)
+    } catch (error) {
+        console.error('ORA Log download error:', error)
 
-        link.href = fileUrl
-        link.download = record.docUpload || record.purpose
-
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-
-        URL.revokeObjectURL(fileUrl)
+        showMessage(
+            error.message || 'Unable to download file.',
+            'danger'
+        )
     }
+}
 
-    // Edit review remark
+    // =========================================
+    // EDIT REVIEW REMARK
+    // =========================================
+
     const handleEdit = (record) => {
         setEditingId(record.id)
         setReviewRemark(record.revieweddt || '')
+        showMessage('', '')
     }
 
-    // Cancel edit
+    // =========================================
+    // CANCEL REVIEW EDIT
+    // =========================================
+
     const handleCancel = () => {
         setEditingId(null)
         setReviewRemark('')
     }
 
-    // Update review remark
-    const handleUpdate = (id) => {
+    // =========================================
+    // UPDATE REVIEW REMARK
+    // =========================================
+
+    const handleUpdate = async (id) => {
         if (!reviewRemark.trim()) {
             showMessage('Please enter Reviewed Remark.', 'danger')
             return
         }
 
-        const updatedRecords = records.map(item =>
-            item.id === id
-                ? { ...item, revieweddt: reviewRemark.trim() }
-                : item
+        try {
+            const result = await updateOraLogReview(
+                id,
+                reviewRemark.trim()
+            )
+
+            setEditingId(null)
+            setReviewRemark('')
+
+            showMessage(
+                result.message || 'Data updated successfully.',
+                'success'
+            )
+
+            await loadRecords(searchLogType)
+        } catch (error) {
+            console.error('ORA Log review update error:', error)
+
+            showMessage(
+                error.message || 'Unable to update Reviewed Remark.',
+                'danger'
+            )
+        }
+    }
+
+    // Get friendly type name for the grid.
+    const getLogTypeText = (value) => {
+        const matchingType = logTypes.find(
+            item => item.value === value
         )
 
-        setRecords(updatedRecords)
-
-        const filtered = updatedRecords.filter(
-            item => searchLogType === '0' || item.pType === searchLogType
-        )
-
-        setFilteredRecords(filtered)
-
-        setEditingId(null)
-        setReviewRemark('')
-
-        showMessage('Data updated successfully.', 'success')
+        return matchingType?.text || value || ''
     }
 
     return (
@@ -340,13 +459,14 @@ function ORALog() {
                                             setApprovalType(event.target.value)
                                         }
                                     >
-                                        <option value="ORADBLOG">
-                                            ORA DB Log
-                                        </option>
-
-                                        <option value="CBA">
-                                            Critical basis activity
-                                        </option>
+                                        {logTypes.map(type => (
+                                            <option
+                                                key={type.value}
+                                                value={type.value}
+                                            >
+                                                {type.text}
+                                            </option>
+                                        ))}
                                     </select>
                                 </div>
                             </div>
@@ -403,8 +523,9 @@ function ORALog() {
                                 <button
                                     type="submit"
                                     className="oralog-btn oralog-btn-success"
+                                    disabled={isUploading}
                                 >
-                                    Upload
+                                    {isUploading ? 'Uploading...' : 'Upload'}
                                 </button>
                             </div>
                         </div>
@@ -438,9 +559,14 @@ function ORALog() {
                                     --select log type --
                                 </option>
 
-                                <option value="ORADBLOG">
-                                    ORA DB Log
-                                </option>
+                                {logTypes.map(type => (
+                                    <option
+                                        key={type.value}
+                                        value={type.value}
+                                    >
+                                        {type.text}
+                                    </option>
+                                ))}
                             </select>
                         </div>
 
@@ -449,8 +575,9 @@ function ORALog() {
                                 type="button"
                                 className="oralog-btn oralog-btn-secondary"
                                 onClick={handleSearch}
+                                disabled={isLoading}
                             >
-                                Search
+                                {isLoading ? 'Loading...' : 'Search'}
                             </button>
                         </div>
 
@@ -469,6 +596,7 @@ function ORALog() {
                                     <th>Download</th>
                                     <th>Reviewed Remark</th>
                                     <th>Reviewer</th>
+                                    {/* <th>Action</th> */}
                                 </tr>
                             </thead>
 
@@ -477,8 +605,10 @@ function ORALog() {
                                     filteredRecords.map(record => (
                                         <tr key={record.id}>
                                             <td>{record.pDate}</td>
+
                                             <td>{record.purpose}</td>
-                                            <td>{record.pName}</td>
+
+                                            <td>{getLogTypeText(record.logType)}</td>
 
                                             <td>
                                                 <span className="oralog-remark-label">
@@ -517,12 +647,49 @@ function ORALog() {
                                             </td>
 
                                             <td>{record.userName}</td>
+
+                                            {/* <td>
+                                                {editingId === record.id ? (
+                                                    <div className="oralog-action-buttons">
+                                                        <button
+                                                            type="button"
+                                                            className="oralog-btn oralog-btn-success"
+                                                            onClick={() => handleUpdate(record.id)}
+                                                        >
+                                                            Save
+                                                        </button>
+
+                                                        <button
+                                                            type="button"
+                                                            className="oralog-btn oralog-btn-secondary"
+                                                            onClick={handleCancel}
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <button
+                                                        type="button"
+                                                        className="oralog-btn oralog-btn-secondary"
+                                                        onClick={() => handleEdit(record)}
+                                                    >
+                                                        Edit
+                                                    </button>
+                                                )}
+                                            </td> */}
                                         </tr>
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="7" className="oralog-no-data">
-                                            No records found.
+                                        <td
+                                            colSpan="8"
+                                            className={`no-record-found oralog-no-data ${
+                                                isLoading ? 'oralog-loading-text' : ''
+                                            }`}
+                                        >
+                                            {isLoading
+                                                ? 'Loading records...'
+                                                : 'No records found.'}
                                         </td>
                                     </tr>
                                 )}
