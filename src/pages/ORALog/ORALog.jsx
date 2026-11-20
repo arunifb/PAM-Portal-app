@@ -639,10 +639,7 @@ function ORALog() {
                                                         placeholder="Enter Reviewed Remark"
                                                     />
                                                 ) : (
-                                                    <>
-                                                        {record.revieweddt}
-                                                        {record.revieweddt && ` (${FIXED_REMARK})`}
-                                                    </>
+                                                    record.revieweddt
                                                 )}
                                             </td>
 
