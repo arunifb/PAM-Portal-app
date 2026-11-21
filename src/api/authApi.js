@@ -530,3 +530,80 @@ export async function logout(userId) {
 
     }
 }
+
+
+// =========================================
+// GET USER PROFILE
+// =========================================
+
+export async function getUserProfile(userId) {
+
+    const accessToken =
+        getStoredAccessToken()
+
+    const expiresAt = Number(
+        sessionStorage.getItem('accessTokenExpiresAt')
+    )
+
+    // Check token expiry before calling the API.
+    if (
+        expiresAt > 0 &&
+        Date.now() >= expiresAt
+    ) {
+        throw new Error(
+            'Your login session has expired. Please login again.'
+        )
+    }
+
+
+    // =========================================
+    // CALL USER PROFILE API
+    // =========================================
+
+    const response = await fetch(
+        `${API_BASE_URL}/api/Auth/user-profile/${encodeURIComponent(userId)}`,
+        {
+            method: 'GET',
+
+            headers: {
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
+            }
+        }
+    )
+
+
+    // =========================================
+    // READ RESPONSE SAFELY
+    // =========================================
+
+    const contentType =
+        response.headers.get('content-type') || ''
+
+    let data = {}
+
+    if (contentType.includes('application/json')) {
+        data = await response.json()
+    }
+
+
+    // =========================================
+    // CHECK RESPONSE
+    // =========================================
+
+    if (!response.ok) {
+        throw new Error(
+            data.message ||
+            data.error_description ||
+            data.error ||
+            'Unable to load user profile.'
+        )
+    }
+
+
+    // =========================================
+    // RETURN PROFILE DATA
+    // =========================================
+
+    return data
+}

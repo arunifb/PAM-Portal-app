@@ -1,8 +1,9 @@
-
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { logout } from '../api/authApi'
-import { getRoles } from '../api/userManagementApi'
+import {
+    logout,
+    getUserProfile
+} from '../api/authApi'
 
 import './UserProfile.css'
 
@@ -26,9 +27,25 @@ function getSessionValue(...keys) {
 
 }
 
+// =========================================
+// MASK MOBILE NUMBER
+// =========================================
 
+function maskMobileNumber(mobileNumber) {
 
+    if (!mobileNumber) {
+        return 'N/A'
+    }
 
+    const mobile = String(mobileNumber).trim()
+
+    if (mobile.length <= 4) {
+        return mobile
+    }
+
+    return 'x'.repeat(mobile.length - 4) +
+        mobile.slice(-4)
+}
 
 
 // =========================================
@@ -39,34 +56,36 @@ function UserProfile() {
 
     const navigate = useNavigate()
 
-    const [roleName, setRoleName] = useState('N/A')
-
     // =========================================
-    // USER DETAILS
+    // USER PROFILE DATA
     // =========================================
 
-    const username =
-        getSessionValue('username', 'UserName') || 'User'
+    const [profile, setProfile] = useState({
+        userId: '',
+        loginId: '',
+        userName: '',
+        roleNames: [],
+        mobileNo: '',
+        emailId: '',
+        isActive: false
+    })
 
-    const loginId =
-        getSessionValue('loginId', 'LoginID')
+    const [profileLoading, setProfileLoading] =
+        useState(false)
+
+    const [profileError, setProfileError] =
+        useState('')
+
+    // =========================================
+    // USER DETAILS FROM SESSION
+    // =========================================
 
     const userId =
         getSessionValue('userId', 'UserID')
 
-    const mobile =
-        getSessionValue('mobileNo', 'MobileNo', 'mobile', 'Mobile')
-
-    const email =
-        getSessionValue('emailId', 'EmailID', 'email', 'Email')
-
-    // const roleName = getUserRoles()
-
-    const regionCode =
-        getSessionValue('regionCode', 'RegionCode')
-
-    const bpCode =
-        getSessionValue('bpCode', 'BPCode')
+    // Used for the header before/while profile API loads.
+    const sessionUsername =
+        getSessionValue('username', 'UserName') || 'User'
 
     // =========================================
     // USER MENU
@@ -79,6 +98,82 @@ function UserProfile() {
         useState(false)
 
     const userMenuRef = useRef(null)
+
+    // =========================================
+    // LOAD USER PROFILE
+    // =========================================
+
+    useEffect(() => {
+
+        const loadUserProfile = async () => {
+
+            if (!userId) {
+
+                setProfileError(
+                    'User ID is not available.'
+                )
+
+                return
+
+            }
+
+            try {
+
+                setProfileLoading(true)
+                setProfileError('')
+
+                const response =
+                    await getUserProfile(userId)
+
+                setProfile({
+                    userId:
+                        response?.userId ?? '',
+
+                    loginId:
+                        response?.loginId ?? '',
+
+                    userName:
+                        response?.userName ?? '',
+
+                    roleNames:
+                        Array.isArray(response?.roleNames)
+                            ? response.roleNames
+                            : [],
+
+                    mobileNo:
+                        response?.mobileNo ?? '',
+
+                    emailId:
+                        response?.emailId ?? '',
+
+                    isActive:
+                        response?.isActive ?? false
+                })
+
+            } catch (error) {
+
+                console.error(
+                    'Unable to load user profile:',
+                    error
+                )
+
+                setProfileError(
+                    error.message ||
+                    'Unable to load user profile.'
+                )
+
+            } finally {
+
+                setProfileLoading(false)
+
+            }
+
+        }
+
+        loadUserProfile()
+
+    }, [userId])
+
 
     // =========================================
     // CLOSE MENU WHEN CLICKING OUTSIDE
@@ -117,92 +212,29 @@ function UserProfile() {
 
 
     // =========================================
-// LOAD ROLE NAMES FROM API
-// =========================================
+    // DISPLAY VALUES
+    // =========================================
 
-useEffect(() => {
+    const username =
+        profile.userName ||
+        sessionUsername ||
+        'User'
 
-    const loadUserRoles = async () => {
+    const loginId =
+        profile.loginId
 
-        try {
+    const mobile =
+        maskMobileNumber(profile.mobileNo)
 
-            // Get role IDs from session
-            const storedRoles = JSON.parse(
-                sessionStorage.getItem('roles') || '[]'
-            )
+    const email =
+        profile.emailId
 
-            const sessionRoleId = getSessionValue(
-                'roleId',
-                'roleID',
-                'RoleID'
-            )
+    const roleName =
+        Array.isArray(profile.roleNames) &&
+        profile.roleNames.length > 0
+            ? [...new Set(profile.roleNames)].join(', ')
+            : 'N/A'
 
-            // Support both single and multiple roles
-            const roleIds = [
-                ...(Array.isArray(storedRoles) ? storedRoles : []),
-                ...(sessionRoleId && sessionRoleId !== '0'
-                    ? [sessionRoleId]
-                    : [])
-            ]
-                .map(role => {
-                    if (typeof role === 'object' && role !== null) {
-                        return String(role.roleID ?? role.RoleID ?? '')
-                    }
-
-                    return String(role)
-                })
-                .filter(Boolean)
-
-            const uniqueRoleIds = [...new Set(roleIds)]
-
-            if (uniqueRoleIds.length === 0) {
-                setRoleName('N/A')
-                return
-            }
-
-            // Fetch role names from API
-            const response = await getRoles()
-
-            const roleList = Array.isArray(response?.data)
-                ? response.data
-                : []
-
-            // Match session role IDs with API role IDs
-            const matchedRoleNames = uniqueRoleIds
-                .map(roleId => {
-
-                    const matchedRole = roleList.find(
-                        role =>
-                            String(role.roleID) === roleId
-                    )
-
-                    return matchedRole?.roleName
-
-                })
-                .filter(Boolean)
-
-            setRoleName(
-                matchedRoleNames.length > 0
-                    ? [...new Set(matchedRoleNames)].join(', ')
-                    : 'N/A'
-            )
-
-        } catch (error) {
-
-            console.error(
-                'Unable to load user roles:',
-                error
-            )
-
-            setRoleName('N/A')
-
-        }
-
-    }
-
-    loadUserRoles()
-
-}, [])
 
     // =========================================
     // PROFILE
@@ -215,6 +247,7 @@ useEffect(() => {
 
     }
 
+
     // =========================================
     // CLOSE PROFILE MODAL
     // =========================================
@@ -224,6 +257,7 @@ useEffect(() => {
         setShowProfileModal(false)
 
     }
+
 
     // =========================================
     // SETTINGS
@@ -261,6 +295,7 @@ useEffect(() => {
 
     }
 
+
     // =========================================
     // LOGOUT
     // =========================================
@@ -294,6 +329,7 @@ useEffect(() => {
         }
 
     }
+
 
     // =========================================
     // UI
@@ -345,6 +381,7 @@ useEffect(() => {
 
                 </button>
 
+
                 {/* DROPDOWN */}
 
                 {showUserMenu && (
@@ -368,6 +405,7 @@ useEffect(() => {
 
                         </button>
 
+
                         <button
                             type="button"
                             className="user-menu-item"
@@ -385,7 +423,9 @@ useEffect(() => {
 
                         </button>
 
+
                         <hr />
+
 
                         <button
                             type="button"
@@ -410,6 +450,7 @@ useEffect(() => {
 
             </div>
 
+
             {/* =========================================
                 PROFILE MODAL
             ========================================= */}
@@ -426,7 +467,9 @@ useEffect(() => {
                         role="dialog"
                         aria-modal="true"
                         aria-labelledby="profile-modal-title"
-                        onClick={(event) => event.stopPropagation()}
+                        onClick={(event) =>
+                            event.stopPropagation()
+                        }
                     >
 
                         {/* HEADER */}
@@ -436,11 +479,14 @@ useEffect(() => {
                             <div className="profile-modal-heading">
 
                                 <div className="profile-modal-icon">
+
                                     <i
                                         className="fa fa-user"
                                         aria-hidden="true"
                                     ></i>
+
                                 </div>
+
 
                                 <div className="profile-heading-details">
 
@@ -449,6 +495,7 @@ useEffect(() => {
                                     </h2>
 
                                     <p>
+
                                         {username}
 
                                         <span className="profile-role-separator">
@@ -456,11 +503,13 @@ useEffect(() => {
                                         </span>
 
                                         {roleName}
+
                                     </p>
 
                                 </div>
 
                             </div>
+
 
                             <button
                                 type="button"
@@ -473,6 +522,7 @@ useEffect(() => {
 
                         </div>
 
+
                         {/* PROFILE CONTENT */}
 
                         <div className="profile-modal-body">
@@ -481,95 +531,168 @@ useEffect(() => {
                                 Personal Information
                             </div>
 
-                            <div className="profile-info-grid">
 
-                                {/* FULL NAME */}
+                            {profileLoading ? (
 
-                                <div className="profile-info-card">
+                                <div className="profile-info-grid">
 
-                                    <div className="profile-field-icon">
-                                        <i
-                                            className="fa fa-user-o"
-                                            aria-hidden="true"
-                                        ></i>
-                                    </div>
+                                    <div className="profile-info-card">
 
-                                    <div className="profile-field-content">
+                                        <div className="profile-field-content">
 
-                                        <label>Full Name</label>
+                                            <p>
+                                                Loading profile...
+                                            </p>
 
-                                        <p>{username}</p>
+                                        </div>
 
                                     </div>
 
                                 </div>
 
-                                {/* LOGIN ID */}
+                            ) : profileError ? (
 
-                                <div className="profile-info-card">
+                                <div className="profile-info-grid">
 
-                                    <div className="profile-field-icon">
-                                        <i
-                                            className="fa fa-id-card-o"
-                                            aria-hidden="true"
-                                        ></i>
-                                    </div>
+                                    <div className="profile-info-card">
 
-                                    <div className="profile-field-content">
+                                        <div className="profile-field-content">
 
-                                        <label>Login ID</label>
+                                            <label>
+                                                Profile
+                                            </label>
 
-                                        <p>{loginId || 'N/A'}</p>
+                                            <p>
+                                                {profileError}
+                                            </p>
 
-                                    </div>
-
-                                </div>
-
-                                {/* MOBILE NUMBER */}
-
-                                <div className="profile-info-card">
-
-                                    <div className="profile-field-icon">
-                                        <i
-                                            className="fa fa-mobile"
-                                            aria-hidden="true"
-                                        ></i>
-                                    </div>
-
-                                    <div className="profile-field-content">
-
-                                        <label>Mobile Number</label>
-
-                                        <p>{mobile || 'N/A'}</p>
+                                        </div>
 
                                     </div>
 
                                 </div>
 
-                                {/* EMAIL ADDRESS */}
+                            ) : (
 
-                                <div className="profile-info-card">
+                                <div className="profile-info-grid">
 
-                                    <div className="profile-field-icon">
-                                        <i
-                                            className="fa fa-envelope-o"
-                                            aria-hidden="true"
-                                        ></i>
+                                    {/* FULL NAME */}
+
+                                    <div className="profile-info-card">
+
+                                        <div className="profile-field-icon">
+
+                                            <i
+                                                className="fa fa-user-o"
+                                                aria-hidden="true"
+                                            ></i>
+
+                                        </div>
+
+                                        <div className="profile-field-content">
+
+                                            <label>
+                                                Full Name
+                                            </label>
+
+                                            <p>
+                                                {username}
+                                            </p>
+
+                                        </div>
+
                                     </div>
 
-                                    <div className="profile-field-content">
 
-                                        <label>Email Address</label>
+                                    {/* LOGIN ID */}
 
-                                        <p>{email || 'N/A'}</p>
+                                    <div className="profile-info-card">
+
+                                        <div className="profile-field-icon">
+
+                                            <i
+                                                className="fa fa-id-card-o"
+                                                aria-hidden="true"
+                                            ></i>
+
+                                        </div>
+
+                                        <div className="profile-field-content">
+
+                                            <label>
+                                                Login ID
+                                            </label>
+
+                                            <p>
+                                                {loginId || 'N/A'}
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    {/* MOBILE NUMBER */}
+
+                                    <div className="profile-info-card">
+
+                                        <div className="profile-field-icon">
+
+                                            <i
+                                                className="fa fa-mobile"
+                                                aria-hidden="true"
+                                            ></i>
+
+                                        </div>
+
+                                        <div className="profile-field-content">
+
+                                            <label>
+                                                Mobile Number
+                                            </label>
+
+                                            <p>
+                                                {mobile || 'N/A'}
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+
+
+                                    {/* EMAIL ADDRESS */}
+
+                                    <div className="profile-info-card">
+
+                                        <div className="profile-field-icon">
+
+                                            <i
+                                                className="fa fa-envelope-o"
+                                                aria-hidden="true"
+                                            ></i>
+
+                                        </div>
+
+                                        <div className="profile-field-content">
+
+                                            <label>
+                                                Email Address
+                                            </label>
+
+                                            <p>
+                                                {email || 'N/A'}
+                                            </p>
+
+                                        </div>
 
                                     </div>
 
                                 </div>
 
-                            </div>
+                            )}
 
                         </div>
+
 
                         {/* FOOTER */}
 
