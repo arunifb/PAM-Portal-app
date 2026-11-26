@@ -434,7 +434,7 @@ if (
                 <footer className="dashboard-footer">
                     © {new Date().getFullYear()} IFB Industries Ltd.
                     &nbsp;|&nbsp;
-                    e-Training Application
+                    PAM Portal
                 </footer>
             </main>
         </div>

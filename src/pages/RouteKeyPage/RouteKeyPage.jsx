@@ -471,7 +471,7 @@ function RouteKeyPage() {
             if (menuName) {
 
                 document.title =
-                    `eTraining-${menuName}`
+                    `PAM-Portal-${menuName}`
 
             }
 

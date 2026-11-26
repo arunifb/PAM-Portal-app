@@ -24,9 +24,9 @@ function PageTitleUpdater() {
             
         }
 
-        const pageName = pageTitles[location.pathname] || 'eTraining'
+        const pageName = pageTitles[location.pathname] || 'PAM-Portal'
 
-        document.title = `eTraining-${pageName}`
+        document.title = `PAM-Portal-${pageName}`
     }, [location.pathname])
 
     return null
