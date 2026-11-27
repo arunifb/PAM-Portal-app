@@ -1,10 +1,15 @@
+
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import './Login.css'
 
 import ifbLogo from '../../assets/ifb-logo.png'
-import { UserRound, KeyRound } from 'lucide-react'
+
+import {
+    UserRound,
+    KeyRound
+} from 'lucide-react'
 
 import { login } from '../../api/authApi'
 
@@ -20,20 +25,15 @@ function Login() {
     // STATE
     // =========================================
 
-    const [username, setUsername] =
-        useState('')
+    const [username, setUsername] = useState('')
 
-    const [password, setPassword] =
-        useState('')
+    const [password, setPassword] = useState('')
 
-    const [showPassword, setShowPassword] =
-        useState(false)
+    const [showPassword, setShowPassword] = useState(false)
 
-    const [message, setMessage] =
-        useState('')
+    const [message, setMessage] = useState('')
 
-    const [isLoading, setIsLoading] =
-        useState(false)
+    const [isLoading, setIsLoading] = useState(false)
 
 
     const navigate = useNavigate()
@@ -115,36 +115,26 @@ function Login() {
 
             // =========================================
             // LOGIN API
-            //
-            // authApi.js automatically:
-            //
-            // 1. Gets OAuth access token
-            // 2. Adds Bearer token
-            // 3. Calls /api/Auth/login
-            //
             // =========================================
 
             console.time('API Login')
 
-            const data =
-                await login(
-                    username.trim(),
-                    password,
-                    recaptchaToken
-                )
+            const data = await login(
+                username.trim(),
+                password,
+                recaptchaToken
+            )
 
             console.timeEnd('API Login')
 
 
             // =========================================
-            // CHECK TWO-FACTOR AUTHENTICATION
+            // TWO-FACTOR AUTHENTICATION
             // =========================================
 
             if (data.requiresTwoFactor) {
 
-                // =========================================
-                // TEMPORARY 2FA USER DATA
-                // =========================================
+                // TEMPORARY USER DATA
 
                 sessionStorage.setItem(
                     'twoFactorUserId',
@@ -177,9 +167,7 @@ function Login() {
                 )
 
 
-                // =========================================
-                // TEMPORARY 2FA MULTIPLE ROLES
-                // =========================================
+                // TEMPORARY MULTIPLE ROLES
 
                 sessionStorage.setItem(
                     'twoFactorRoles',
@@ -197,9 +185,7 @@ function Login() {
                 )
 
 
-                // =========================================
-                // GO TO 2FA
-                // =========================================
+                // NAVIGATE TO 2FA
 
                 navigate('/2fa')
 
@@ -264,7 +250,7 @@ function Login() {
 
 
             // =========================================
-            // STORE MULTIPLE ROLES
+            // MULTIPLE ROLES
             // =========================================
 
             sessionStorage.setItem(
@@ -284,7 +270,7 @@ function Login() {
 
 
             // =========================================
-            // GO TO DASHBOARD
+            // DASHBOARD
             // =========================================
 
             navigate('/dashboard')
@@ -320,114 +306,77 @@ function Login() {
 
         <div className="login-page">
 
-            <div className="login-card">
+            {/* BACKGROUND DECORATION */}
+
+            <div className="login-background-decoration">
+
+                <div className="decoration-circle decoration-one"></div>
+
+                <div className="decoration-circle decoration-two"></div>
+
+            </div>
 
 
-                {/* =========================================
-                    LEFT / PAM BRAND SECTION
-                ========================================= */}
+            {/* MAIN LOGIN AREA */}
 
-                <section className="login-brand-section">
+            <main className="login-main">
 
-                    <div className="brand-content">
+                <div className="login-card">
+
+
+                    {/* =====================================
+                        IFB LOGO
+                    ===================================== */}
+
+                    <div className="login-logo-area">
 
                         <img
                             src={ifbLogo}
                             alt="IFB Industries"
-                            className="ifb-logo"
+                            className="login-logo"
                         />
-
-                        <div className="brand-divider"></div>
-
-                        <div className="brand-subtitle">
-                            PAM Portal
-                        </div>
 
                     </div>
 
 
-                    <div className="welcome-content">
+                    {/* =====================================
+                        LOGIN HEADING
+                    ===================================== */}
 
-                        <div className="portal-label">
-                            PRIVILEGED ACCESS MANAGEMENT
+                    <div className="login-heading">
+
+                        <div className="login-brand-label">
+                            IFB INDUSTRIES
                         </div>
 
                         <h1>
-                            Welcome Back
+                            PAM Portal
                         </h1>
 
                         <p>
-                            Securely access the PAM Portal to manage
-                            privileged accounts, emergency users and
-                            authorized system access.
+                            Privileged Access Management
                         </p>
 
-                    </div>
-
-
-                    <div className="brand-security">
-
-                        <div className="security-icon">
-                            🔐
-                        </div>
-
-                        <div className="security-text">
-
-                            <strong>
-                                Secure Access
-                            </strong>
-
-                            <span>
-                                Your access is protected with
-                                enhanced authentication and
-                                security controls.
-                            </span>
-
-                        </div>
-
-                    </div>
-
-                </section>
-
-
-                {/* =========================================
-                    RIGHT / LOGIN SECTION
-                ========================================= */}
-
-                <section className="login-form-section">
-
-
-                    {/* =========================================
-                        LOGIN HEADER
-                    ========================================= */}
-
-                    <div className="login-header">
-
-                        <div className="small-title">
-                            PAM Portal
-                        </div>
-
-                        <h2>
-                            Sign in to your account
-                        </h2>
-
-                        <p>
-                            Enter your Login-ID and Password
-                            to continue.
-                        </p>
+                        <div className="login-accent"></div>
 
                     </div>
 
 
-                    {/* =========================================
-                        SAP EMERGENCY USER REVIEW
-                    ========================================= */}
+                    {/* =====================================
+                        SECURITY INFORMATION
+                    ===================================== */}
 
                     <div className="pam-review">
 
                         <div className="pam-review-icon">
-                            🔐
+
+                            <KeyRound
+                                size={20}
+                                strokeWidth={1.8}
+                            />
+
                         </div>
+
 
                         <div className="pam-review-content">
 
@@ -436,36 +385,41 @@ function Login() {
                             </div>
 
                             <div className="pam-review-subtitle">
-                                PAM Portal
+                                Secure privileged access management
                             </div>
 
                         </div>
 
+
                         <div className="pam-review-badge">
-                            PAM
+                            SECURE
                         </div>
 
                     </div>
 
 
-                    {/* =========================================
-                        MESSAGE
-                    ========================================= */}
+                    {/* =====================================
+                        ERROR MESSAGE
+                    ===================================== */}
 
                     {message && (
 
-                        <div className="login-message show">
+                        <div
+                            className="login-message"
+                            role="alert"
+                        >
                             {message}
                         </div>
 
                     )}
 
 
-                    {/* =========================================
+                    {/* =====================================
                         LOGIN FORM
-                    ========================================= */}
+                    ===================================== */}
 
                     <form
+                        className="login-form"
                         onSubmit={(event) => {
 
                             event.preventDefault()
@@ -476,34 +430,36 @@ function Login() {
                     >
 
 
-                        {/* =========================================
+                        {/* =================================
                             USERNAME
-                        ========================================= */}
+                        ================================= */}
 
                         <div className="form-group">
 
                             <label
-                                className="form-label"
                                 htmlFor="username"
+                                className="form-label"
                             >
-                                Login-ID
+                                Login ID
                             </label>
+
 
                             <div className="input-icon-wrapper">
 
                                 <UserRound
                                     size={18}
-                                    strokeWidth={2.5}
+                                    strokeWidth={1.8}
                                     className="input-icon"
                                 />
+
 
                                 <input
                                     type="text"
                                     id="username"
                                     name="username"
                                     className="form-input"
-                                    autoComplete="off"
-                                    placeholder="Enter your loginID"
+                                    autoComplete="username"
+                                    placeholder="Enter your Login ID"
                                     value={username}
                                     onChange={(event) => {
 
@@ -522,26 +478,28 @@ function Login() {
                         </div>
 
 
-                        {/* =========================================
+                        {/* =================================
                             PASSWORD
-                        ========================================= */}
+                        ================================= */}
 
                         <div className="form-group">
 
                             <label
-                                className="form-label"
                                 htmlFor="password"
+                                className="form-label"
                             >
                                 Password
                             </label>
+
 
                             <div className="input-icon-wrapper">
 
                                 <KeyRound
                                     size={18}
-                                    strokeWidth={2.5}
+                                    strokeWidth={1.8}
                                     className="input-icon"
                                 />
+
 
                                 <input
                                     type={
@@ -551,8 +509,8 @@ function Login() {
                                     }
                                     id="password"
                                     name="password"
-                                    className="form-input"
-                                    autoComplete="off"
+                                    className="form-input password-input"
+                                    autoComplete="current-password"
                                     placeholder="Enter your password"
                                     value={password}
                                     onChange={(event) => {
@@ -567,6 +525,9 @@ function Login() {
                                     disabled={isLoading}
                                 />
 
+
+                                {/* SHOW / HIDE PASSWORD */}
+
                                 <button
                                     type="button"
                                     className="password-toggle"
@@ -576,6 +537,11 @@ function Login() {
                                         )
                                     }
                                     disabled={isLoading}
+                                    aria-label={
+                                        showPassword
+                                            ? 'Hide password'
+                                            : 'Show password'
+                                    }
                                 >
 
                                     {
@@ -591,40 +557,48 @@ function Login() {
                         </div>
 
 
-                        {/* =========================================
+                        {/* =================================
                             RESET PASSWORD
-                        ========================================= */}
+                        ================================= */}
 
                         <div className="reset-password">
 
                             <Link to="/reset-password">
-                                Reset Your Password? Click here
+                                Forgot or reset your password?
                             </Link>
 
                         </div>
 
 
-                        {/* =========================================
+                        {/* =================================
                             CAPTCHA INFORMATION
-                        ========================================= */}
+                        ================================= */}
 
                         <div className="captcha-info">
 
-                            <span className="captcha-info-icon">
+                            <div className="captcha-icon">
                                 🔒
-                            </span>
+                            </div>
 
-                            <span>
-                                This login is protected by
-                                reCAPTCHA Enterprise.
-                            </span>
+
+                            <div className="captcha-text">
+
+                                <strong>
+                                    Protected Sign-in
+                                </strong>
+
+                                <span>
+                                    This login is protected by reCAPTCHA Enterprise.
+                                </span>
+
+                            </div>
 
                         </div>
 
 
-                        {/* =========================================
+                        {/* =================================
                             LOGIN BUTTON
-                        ========================================= */}
+                        ================================= */}
 
                         <button
                             type="submit"
@@ -632,31 +606,50 @@ function Login() {
                             disabled={isLoading}
                         >
 
-                            {
-                                isLoading
-                                    ? 'Logging in...'
-                                    : 'Login'
-                            }
+                            {isLoading ? (
+
+                                <>
+
+                                    <span className="login-spinner"></span>
+
+                                    Logging in...
+
+                                </>
+
+                            ) : (
+
+                                'Login to PAM Portal'
+
+                            )}
 
                         </button>
 
                     </form>
 
 
-                    {/* =========================================
-                        FOOTER
-                    ========================================= */}
+                    {/* =====================================
+                        CARD FOOTER
+                    ===================================== */}
 
-                    <div className="login-footer">
+                    <div className="login-card-footer">
 
-                        © IFB Industries Ltd. &nbsp;|&nbsp;
-                        PAM Portal
+                        <span>
+                            © IFB Industries Ltd.
+                        </span>
+
+                        <span className="footer-divider">
+                            |
+                        </span>
+
+                        <span>
+                            Secure Enterprise Access
+                        </span>
 
                     </div>
 
-                </section>
+                </div>
 
-            </div>
+            </main>
 
         </div>
 
