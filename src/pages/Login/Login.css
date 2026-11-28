@@ -50,39 +50,6 @@ body {
 
 
 /* =====================================================
-   BACKGROUND DECORATION
-===================================================== */
-
-.login-background-decoration {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    pointer-events: none;
-}
-
-.decoration-circle {
-    position: absolute;
-    border-radius: 50%;
-}
-
-.decoration-one {
-    width: 350px;
-    height: 350px;
-    top: -190px;
-    right: -100px;
-    border: 1px solid rgba(220, 53, 69, 0.10);
-}
-
-.decoration-two {
-    width: 430px;
-    height: 430px;
-    bottom: -260px;
-    left: -150px;
-    border: 1px solid rgba(38, 62, 100, 0.08);
-}
-
-
-/* =====================================================
    MAIN
 ===================================================== */
 

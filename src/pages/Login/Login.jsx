@@ -306,17 +306,6 @@ function Login() {
 
         <div className="login-page">
 
-            {/* BACKGROUND DECORATION */}
-
-            <div className="login-background-decoration">
-
-                <div className="decoration-circle decoration-one"></div>
-
-                <div className="decoration-circle decoration-two"></div>
-
-            </div>
-
-
             {/* MAIN LOGIN AREA */}
 
             <main className="login-main">
